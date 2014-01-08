@@ -1,0 +1,20 @@
+commit 87aa9eb887792a78c355dc506871035e85e4cd4f
+Author: Alan Burke <alan@cycletraffic.com>
+Date:   Thu Feb 7 17:36:20 2013 +0000
+
+    Tweak field_collection migration for storyscope
+
+diff --git a/drupal-7/profiles/storyscope/modules/contrib/field_collection/field_collection.migrate.inc b/drupal-7/profiles/storyscope/modules/contrib/field_collection/field_collection.migrate.inc
+index 870bd2e..be44265 100644
+--- a/drupal-7/profiles/storyscope/modules/contrib/field_collection/field_collection.migrate.inc
++++ b/drupal-7/profiles/storyscope/modules/contrib/field_collection/field_collection.migrate.inc
+@@ -86,6 +86,9 @@ class MigrateDestinationFieldCollection extends MigrateDestinationEntity {
+    *  saved or FALSE on failure.
+    */
+   public function import(stdClass $collection, stdClass $row) {
++    // Tweak for Storyscope
++    $collection->host_entity_id = array_shift($collection->host_entity_id);
++    // End Tweak
+     if (isset($row->migrate_map_destid1)) {
+       // We're updated an existing entity - start from the previous data.
+       // entity_load() returns an array, so we get the field collection entity

@@ -1,0 +1,6 @@
+core = "7.x"
+description = "Customisations for the Storyscope integration with Freebase."
+name = "Storyscope Freebase"
+package = Storyscope
+
+dependencies[] = jquery_freebase

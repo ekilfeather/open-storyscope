@@ -1,0 +1,851 @@
+<?php
+
+/**
+ * Implements hook_menu().
+ */
+function storyscope_story_menu() {
+  $items = array();
+
+  // Add an available event to a narrative section
+  $items['dossiers/%node/stories/%node/sections/%node/events/%node/add'] = array(
+    'page callback' => 'storyscope_story_add_event',
+    'page arguments' => array(5, 7),
+    'access callback' => 'user_is_logged_in',
+  );
+
+  // Add an available story to a narrative
+  $items['dossiers/%node/stories/%node/sections/%node/%node/%node/add'] = array(
+    'page callback' => 'storyscope_story_add_object_story',
+    'page arguments' => array(5, 6, 7),
+    'access callback' => 'user_is_logged_in',
+  );
+
+  // Silently create a section in a narrative in a dossier context.
+  $items['dossiers/%node/stories/%node/sections/add'] = array(
+    'page callback' => 'storyscope_story_add_child_section_callback',
+    'page arguments' => array(3, 1),
+    'access callback' => 'user_is_logged_in',
+  );
+
+  $items['dossiers/%node/stories/%node/sections/%node'] = array(
+    'page callback' => 'node_page_view',
+    'page arguments' => array(5),
+    'access callback' => 'user_is_logged_in',
+    'type' => MENU_CALLBACK,
+  );
+
+  $items['dossiers/%node/stories/%node/sections/%node/view'] = array(
+    'title' => 'Gather',
+    'type' => MENU_DEFAULT_LOCAL_TASK,
+    'weight' => -10,
+  );
+
+  $items['dossiers/%node/stories/%node/sections/%node/edit'] = array(
+    'title' => 'Edit',
+    'page callback' => 'node_page_edit',
+    'page arguments' => array(5),
+    'access callback' => 'node_access',
+    'access arguments' => array('update', 5),
+    'weight' => 0,
+    'type' => MENU_LOCAL_TASK,
+    'context' => MENU_CONTEXT_PAGE | MENU_CONTEXT_INLINE,
+    'file' => 'node.pages.inc',
+    'file path' => drupal_get_path('module', 'node'),
+  );
+
+  //  Display an Alternate view of a narrative page.
+  $items['dossiers/%node/stories/%node/output'] = array(
+    'page callback' => 'storyscope_story_narrative_web_output',
+    'page arguments' => array(3),
+    'access callback' => TRUE,
+    'theme callback' => 'storyscope_story_web_theme',
+  );
+
+  //  Display an Alternate view of a section page.
+  $items['dossiers/%node/stories/%node/sections/%node/output'] = array(
+    'page callback' => 'storyscope_story_web_output',
+    'page arguments' => array(3,5),
+    'access callback' => TRUE,
+    'theme callback' => 'storyscope_story_web_theme',
+  );
+
+  return $items;
+}
+
+/**
+ * Implements hook_menu_alter().
+ */
+function storyscope_story_menu_alter(&$items) {
+  if (!module_exists('page_manager') || variable_get('page_manager_node_view_disabled', TRUE)) {
+    return;
+  }
+
+  $page_manager_path = drupal_get_path('module', 'page_manager');
+
+  $items['dossiers/%node/stories/%node/sections/%node/%node']['page callback'] = 'page_manager_node_view_page';
+  $items['dossiers/%node/stories/%node/sections/%node/%node']['file'] = 'node_view.inc';
+  $items['dossiers/%node/stories/%node/sections/%node/%node']['file path'] = $page_manager_path . '/plugins/tasks';
+
+  $items['dossiers/%node/stories/%node/sections/%node/%node/edit']['page callback'] = 'page_manager_node_edit';
+  $items['dossiers/%node/stories/%node/sections/%node/%node/edit']['file'] = 'node_edit.inc';
+  $items['dossiers/%node/stories/%node/sections/%node/%node/edit']['file path'] = $page_manager_path . '/plugins/tasks';
+
+  $items['node/%node']['title callback'] = 'storyscope_story_section_node_title_callback';
+  $items['node/%node']['title arguments'] = array(1, 'full');
+  $items['node/%node/view']['title callback'] = 'storyscope_story_section_node_title_callback';
+  $items['node/%node/view']['title arguments'] = array(1, 'view');
+  $items['node/%node/edit']['title callback'] = 'storyscope_story_section_node_title_callback';
+  $items['node/%node/edit']['title arguments'] = array(1, 'edit');
+}
+
+/**
+ * Title callback for node tab titles.
+ */
+function storyscope_story_section_node_title_callback($node, $op) {
+  if ($op == 'view') {
+    $title = ($node->type == 'section') ? t('Gather') : t('View');
+  }
+  elseif ($op == 'edit') {
+    $title = t('Edit');
+  }
+  else {
+    $title = node_page_title($node);
+  }
+  return $title;
+}
+
+/**
+ * Implements hook_ctools_render_alter().
+ */
+function storyscope_story_ctools_render_alter(&$info, &$page, &$context) {
+  if (!empty($context['handler']->export_module) && ($context['handler']->export_module == 'panels_node_section' || $context['handler']->export_module == 'panels_node_edit_section')) {
+    $nid = $context['args'][0];
+    $node = node_load($nid);
+    if (!empty($node->stories)) {
+      // Assume only associated with 1 story. It's a safe assumption, and within
+      // design guidelines, and even if more than one, we could still only use 1
+      // story anyway.
+      $story_node = node_load($node->stories[0]);
+      $story_node_wrapper = entity_metadata_wrapper('node', $story_node);
+      $sections = $story_node_wrapper->field_story_sections->value();
+      foreach ($sections as $delta => $section) {
+        if ($node->nid == $section->nid) {
+          if (!empty($info['title'])) {
+            $info['title'] = t('Section @delta', array('@delta' => $delta + 1)) . ' - ' . filter_xss($info['title']);
+          }
+          elseif (!empty($info['content']['title']['#default_value'])) {
+            $title = $info['content']['title']['#default_value'];
+            $info['title'] = t('Section @delta', array('@delta' => $delta + 1)) . ' - ' . filter_xss($title);
+          }
+          break;
+        }
+      }
+    }
+  }
+}
+
+/**
+ * Implements hook_node_load().
+ */
+function storyscope_story_node_load($nodes, $types) {
+  // Split $nodes up by node type.
+  $node_types = array();
+  foreach ($nodes as $nid => $node) {
+    $node_types[$node->type][$nid] = $node;
+  }
+}
+
+/**
+ * Implements hook_node_insert().
+ */
+function storyscope_story_node_insert($node) {
+  if ($node->type == 'story' && arg(0) == 'dossiers' && arg(1)) {
+    $section = storyscope_story_add_child_section($node);
+    $node->field_story_sections['und'][]['target_id'] = $section->nid;
+    if (arg(2) == 'stories' && arg(3) == 'add') {
+      node_access_acquire_grants($section);
+
+      // Redirect the user to the new node and inform them of its untitled status.
+      drupal_set_message(t('You can now add resources to this untitled section.'));
+      $alias = 'dossiers/' . $node->dossier . '/stories/' . $node->nid . '/sections/' . $section->nid;
+      drupal_goto($alias);
+    }
+  }
+}
+
+/**
+ * Silently create a section entity as a child of a story in a dossier
+ * context.
+ */
+function storyscope_story_add_child_section($story, $dossier = NULL) {
+  global $user;
+  if (!empty($story->dossier)) {
+    $dossier = node_load($story->dossier);
+  }
+  // Set up an entity wrapper for the story
+  $story_wrapper = entity_metadata_wrapper('node', $story->nid);
+  $delta = $story_wrapper->field_story_sections->count();
+  // Create the new node.
+  $node = (object) array(
+    'uid' => $user->uid,
+    'name' => (isset($user->name) ? $user->name : ''),
+    'type' => 'section',
+    'language' => LANGUAGE_NONE,
+    'status' => 1,
+    'title' => t('Untitled @delta', array('@delta' => $delta + 1)),
+  );
+  // Initially save the node so we get a NID.
+  node_save($node);
+
+  // Set the alias
+  $alias = 'dossiers/' . $dossier->nid . '/stories/' . $story->nid . '/sections/' . $node->nid;
+  $node->path['alias'] = $alias;
+  node_save($node);
+
+  // Set initial field values;
+  $node_wrapper = entity_metadata_wrapper('node', $node->nid);
+ // Examples here from plot elements
+ // $node_wrapper->field_story_element_story_set_1 = NULL;
+ // $node_wrapper->field_story_element_story_set_2 = NULL;
+  $node_wrapper->save();
+  // Update the Story with its new child content.
+  $story_wrapper = entity_metadata_wrapper('node', $story->nid);
+  $delta = $story_wrapper->field_story_sections->count();
+  $story_wrapper->field_story_sections[$delta]->set($node->nid);
+  $success_message = t('Untitled section successfully added to narrative %story', array('%story' => $story->title));
+  $story_wrapper->save();
+  drupal_set_message($success_message);
+  node_access_acquire_grants($node);
+
+  return $node;
+}
+
+/**
+ * Silently create a section entity as a child of a story in a dossier
+ * context.
+ */
+function storyscope_story_add_child_section_callback($story, $dossier = NULL) {
+  $section = storyscope_story_add_child_section($story, $dossier);
+
+  // Redirect the user to the new node and inform them of its untitled status.
+  drupal_set_message(t('You can now add resources to this untitled section.'));
+  $alias = 'dossiers/' . $dossier->nid . '/stories/' . $story->nid . '/sections/' . $section->nid;
+  drupal_goto($alias);
+}
+
+/**
+ * Add an event to a Story section (gather page).
+ *
+ * A story section contains a multivalue field of entity references to events.
+ */
+function storyscope_story_add_event($section, $event) {
+  $section_wrapper = entity_metadata_wrapper('node', $section->nid);
+  $is_existing_event = FALSE;
+  $delta = 0;
+  $section_events = $section_wrapper->field_story_events->value();
+  if (!empty($section_events)) {
+    $delta = $section_wrapper->field_story_events->count();
+    foreach ($section_events as $section_event) {
+      if ($section_event->nid == $event->nid) {
+        $is_existing_event = TRUE;
+        drupal_set_message(t('This event is already in this section.'));
+      }
+    }
+  }
+  if (!$is_existing_event) {
+    $section_wrapper->field_story_events[$delta]->set($event);
+    drupal_set_message(t('Event %title added to section %section.', array('%event' => $event->title, '%section' => $section->title)));
+  }
+  $section_wrapper->save();
+  drupal_goto(drupal_get_destination());
+}
+
+/**
+ * Add an object story to a Story section (gather page).
+ *
+ * A story section contains a field collection called field_story_set which contains
+ * an object reference, but also a second tier field collection called
+ * field_story_set_snapshot_os which contains an entity reference to an OS, but
+ * separately stores its text.
+ */
+function storyscope_story_add_object_story($section, $object, $os) {
+  $section_wrapper = entity_metadata_wrapper('node', $section->nid);
+  $is_existing_object = FALSE;
+  // Find all the existing object stories. They reside in the field_story_set.
+  $story_sets = $section_wrapper->field_story_set->value();
+  if (!empty($story_sets)) {
+    foreach ($story_sets as $story_set) {
+      if (isset($story_set->field_story_set_object['und'][0]['target_id'])) {
+        $target_object = $story_set->field_story_set_object['und'][0]['target_id'];
+        if ($target_object == $object->nid) {
+          // Update an existing field collection
+          $is_existing_object = $story_set->item_id;
+          // Look for the object story to see if it is already used.
+          $snapshots = $story_set->field_story_set_snapshot_os['und'];
+          foreach ($snapshots as $snapshot) {
+            $entity_wrapper = entity_metadata_wrapper('field_collection_item', $snapshot['value']);
+            if ($entity_wrapper->field_story_snapshot_os_os->value() == $os) {
+              drupal_set_message(t('This object story has already been used in this section.'));
+              drupal_goto(drupal_get_destination());
+            }
+          }
+        }
+      }
+    }
+  }
+  // Add OS events to the Section
+  $section_wrapper = entity_metadata_wrapper('node', $section->nid);
+  $os_wrapper = entity_metadata_wrapper('node', $os->nid);
+  if (isset($os_wrapper->field_object_story_events)) {
+    $os_events = $os_wrapper->field_object_story_events->value();
+    if (isset($section_wrapper->field_story_events)) {
+      $section_events = $section_wrapper->field_story_events->value();
+      if (!empty($section_events)) {
+        $delta = $section_wrapper->field_story_events->count();
+      }
+      else $delta = 0;
+    }
+    // Loop through events adding OS events to Section events if not already present.
+    if (!empty($os_events)) {
+      foreach ($os_events as $event) {
+        $event_exists = FALSE;
+        if (!empty($section_events)) {
+          foreach ($section_events as $section_event) {
+            if ($event->nid == $section_event->nid) {
+              $event_exists = TRUE;
+            }
+          }
+        }
+        if (!$event_exists) {
+          $section_wrapper->field_story_events[$delta]->set($event->nid);
+          $delta++;
+        }
+      }
+    }
+    $section_wrapper->save();
+  }
+  // Create new or update field collections.
+  // Add value to a story set.
+  if (!$is_existing_object) {
+    // Create a new story set id needed.
+    $new_story_set = entity_create('field_collection_item', array('field_name' => 'field_story_set'));
+    // Set the host entity, i.e. add it to the section.
+    $new_story_set->setHostEntity('node', $section);
+    $new_story_set->save();
+    $new_story_set_wrapper = entity_metadata_wrapper('field_collection_item', $new_story_set);
+  }
+
+  // Next create a new Snapshot OS field collection
+  $new_snapshot = entity_create('field_collection_item', array('field_name' => 'field_story_set_snapshot_os'));
+  // Set the host entity, i.e. add it to the story_set.
+  if (!$is_existing_object) {
+    $new_snapshot->setHostEntity('field_collection_item', $new_story_set);
+  }
+  else {
+    $existing_field_collection = entity_load('field_collection_item', array($is_existing_object));
+    $field_collection_entity = $existing_field_collection[$is_existing_object];
+    $new_snapshot->setHostEntity('field_collection_item', $field_collection_entity);
+  }
+  $new_snapshot->save();
+  $new_snapshot_wrapper = entity_metadata_wrapper('field_collection_item', $new_snapshot);
+
+  // Now set some values on our new entities
+
+  // On the Snapshot OS
+  // Object Story text
+  $os_text = $os_wrapper->body->value();
+  $new_snapshot_wrapper->field_story_snapshot_os_text->set($os_text);
+  // Object Story entity reference
+  $new_snapshot_wrapper->field_story_snapshot_os_os->set($os->nid);
+  if ($_GET['img'] && is_numeric($_GET['img'])) {
+    // Retrieve the number of images on the object.
+    $object_wrapper = entity_metadata_wrapper('node', $object);
+    $imagecount = $object_wrapper->field_image->count();
+    if ($imagecount > $_GET['img']) {
+      $new_snapshot_wrapper->field_story_snapshot_os_image->set($_GET['img']);
+    }
+  }
+  $new_snapshot_wrapper->save();
+
+  // On the story_set
+  // Object
+  if (!$is_existing_object) {
+    $new_story_set_wrapper->field_story_set_object->set($object->nid);
+    $new_story_set_wrapper->save();
+  }
+  drupal_set_message(t('Object story %title added to your story.', array('%title' => $os->title)));
+  if ($_GET['ajax'] == 1) {
+    drupal_json_output(1);
+  }
+  else {
+    drupal_goto(drupal_get_destination());
+  }
+}
+
+
+/**
+ * Retrieve count of object stories associated with an object.
+ *
+ * Note, the commented out code was initially used to retrieve the count of
+ * object stories associated with an object and which were also added to the
+ * Section.  Now it just returns the count of OSes associated with the Object in
+ * the main dossier.
+ */
+function storyscope_content_section_object_os_count($section, $object) {
+  $snapshot_count = 0;
+  $object_stories = $object->object_stories;
+  $snapshot_count = count($object_stories);
+  /*
+  $section_wrapper = entity_metadata_wrapper('node', $section);
+  $story_sets = $section_wrapper->field_story_set->value();
+  if (!empty($story_sets)) {
+    foreach ($story_sets as $story_set) {
+      $story_set_wrapper = entity_metadata_wrapper('field_collection_item', $story_set);
+      $set_object = $story_set_wrapper->field_story_set_object->value();
+      if ($set_object->nid == $object->nid) {
+        $snapshot_count += $story_set_wrapper->field_story_set_snapshot_os->count();
+      }
+    }
+  }
+  */
+  return $snapshot_count;
+}
+
+/**
+ * Implements hook_views_pre_view().
+ */
+function storyscope_story_views_pre_view(&$view, &$display_id, &$args) {
+  $header_footer_html = array();
+
+  switch ($view->name) {
+    case 'story_sections':
+      if ($view->current_display == 'panel_pane_story_sections') {
+        if (!empty($view->args[0])) {
+          $story_node = node_load($view->args[0]);
+          $dossier_nid = $story_node->dossiers[0];
+          $add_path = 'dossiers/' . $dossier_nid . '/stories/' . $story_node->nid . '/sections/add';
+          $reorder_path = 'stories/' . $story_node->nid . '/reorder';
+          if (user_is_logged_in()) {
+            $header_footer_html = theme('create_new_button', array('path' => $add_path, 'text' => t('Add new Section')));
+            $header_footer_html .= theme('create_new_button', array('path' => $reorder_path, 'text' => t('Re-order Sections'), 'destination' => request_path()));
+          }
+        }
+      }
+      elseif ($view->current_display == 'page_story_sections') {
+        if (!empty($view->args[1])) {
+          $story_node = node_load($view->args[1]);
+          $dossier_nid = $story_node->dossiers[0];
+          $add_path = 'dossiers/' . $dossier_nid . '/stories/' . $story_node->nid . '/sections/add';
+          if (user_is_logged_in()) {
+            $header_footer_html = theme('create_new_button', array('path' => $add_path, 'text' => t('Add new Section')));
+          }
+        }
+      }
+      break;
+  }
+
+  // Only do this if we've set text to add to header and footer.
+  if (!empty($header_footer_html)) {
+    $options = array(
+      'id' => 'area',
+      'table' => 'views',
+      'field' => 'area',
+      'empty' => TRUE,
+      'content' => $header_footer_html,
+      'format' => 'full_html',
+      'tokenize' => 0,
+    );
+    $view->set_item($view->current_display, 'header', 'area', $options);
+    // Only add it to the footer if there are results returned.
+    $options['empty'] = FALSE;
+    $view->set_item($view->current_display, 'footer', 'area', $options);
+  }
+  if ($view->name =='views_object_object_stories') {
+    //add in javascript to work the show/hide magic
+    $js_path = drupal_get_path('module', 'storyscope_story') . '/js/story_gather.js';
+    drupal_add_js($js_path);
+  }
+
+}
+
+/**
+ * Implements hook_views_pre_build().
+ */
+function storyscope_story_views_pre_build(&$view) {
+  // For certain story related views, force the argument passed to the view.
+  // The Object detail view.
+  if (
+    // Objects
+    ($view->name == 'objects' && $view->current_display == 'pane_object_details')
+    // Object Stories
+    || ($view->name == 'views_object_object_stories' && $view->current_display == 'section_object_object_stories_pane')
+    ) {
+    $view->args[] = arg(6, request_path());
+  }
+  elseif ($view->name == 'dossier_objects' && $view->current_display == 'story_section_objects_panel_pane') {
+    $view->args[] = arg(1, request_path());
+  }
+}
+
+/**
+ * Implements hook_ctools_plugin_directory().
+ */
+function storyscope_story_ctools_plugin_directory($owner, $plugin_type) {
+  if ($owner == 'ctools' && !empty($plugin_type)) {
+    return 'plugins/' . $plugin_type;
+  }
+}
+
+/**
+ * Implements hook_block_info().
+ */
+function storyscope_story_block_info() {
+  $blocks['story_section_pager'] = array(
+    'info' => t('Story section pager'),
+    'cache' => DRUPAL_NO_CACHE
+  );
+  $blocks['story_section_object_stories'] = array(
+    'info' => t('Story (narrative) Section Object Stories (stories)'),
+    'cache' => DRUPAL_NO_CACHE
+  );
+  $blocks['microsite_dossier_links'] = array(
+    'info' => t('Microsite Dossier Links'),
+    'cache' => DRUPAL_NO_CACHE
+  );
+  return $blocks;
+}
+
+/**
+ * Implements hook_block_view().
+ */
+function storyscope_story_block_view($delta = '') {
+
+  $block = array();
+  switch ($delta) {
+    case 'story_section_pager':
+      $dossier_nid = arg(1, request_path());
+      $story_nid = arg(3, request_path());
+      $section_nid = arg(5, request_path());
+      $object_nid = arg(6, request_path());
+      $pager = array();
+      $sections = array();
+      if (is_numeric($dossier_nid) && $dossier = node_load($dossier_nid)) {
+        // Handle section edit form, i.e. paths like node/X/edit
+        if ($dossier->type == 'section') {
+          $section = $dossier;
+          $story_nid = $section->stories[0];
+        }
+        // Ensure we only operate on story nodes.
+        if (is_numeric($story_nid) && $story = node_load($story_nid)) {
+          if ($story->type == 'story') {
+            $story_node_wrapper = entity_metadata_wrapper('node', $story);
+            $sections = $story_node_wrapper->field_story_sections->value();
+            if (!empty($sections)) {
+              foreach ($sections as $delta => $child_section) {
+                if (!empty($child_section)) {
+                  $path = 'dossiers/' . $dossier_nid . '/stories/' . $story_nid . '/sections/' . $child_section->nid;
+                  $path = empty($object_nid) ? $path : $path . '/' . $object_nid;
+                  $pager[$delta] = l($delta + 1, $path);
+                }
+              }
+            }
+            if (user_is_logged_in()) {
+              $pager['add'] = l(t('+ Add new'), 'dossiers/' . $dossier_nid . '/stories/' . $story_nid . '/sections/add');
+            }
+            $block['subject'] = t('Story section pager');
+            $block['content'] = theme('item_list', array('items' => $pager, 'attributes' => array('class' => array('story-section-pager'))));
+          }
+        }
+      }
+      break;
+    case 'story_section_object_stories':
+      // Find all the list of object stories in a section.
+      $path_components = explode('/', request_path());
+      if ($path_components[4] ==  'sections') {
+        $nid = $path_components[5];
+        $object_stories = storyscope_story_get_object_stories($nid);
+        $block['subject'] = t('Add Stories to this section.');
+        $block['content'] = $object_stories;
+        $js_path = drupal_get_path('module', 'storyscope_story') . '/js/story_gather.js';
+        drupal_add_js($js_path);
+      }
+      break;
+      
+    case 'microsite_dossier_links':
+      $dossier_nid = arg(1, request_path());
+      //$block['subject'] = t('Microsite Dossier Links');
+      $block['content'] = storyscope_story_microsite_dossier_links($dossier_nid);
+      break;
+  }
+  return $block;
+}
+
+
+/**
+ * "Microsite Dossier Links" block.
+ */
+function storyscope_story_microsite_dossier_links($dossier_nid) {
+    $output = "<div class='microsite_dossier_link'> <a href='/dossiers/" . $dossier_nid . "'>EXPLORE THE DOSSIER </a></div>";
+    return $output;
+}
+
+
+/**
+ * Helper function to find and display the object stories in a section.
+ *
+ */
+function storyscope_story_get_object_stories($nid, $render = TRUE) {
+  // Get sections in a narrative.
+  // For each section, get Story Sets.
+  // Should be able to do this in a View.
+  // Get a list of Field collection entity IDs.
+  $object_stories = array();
+  $sets = views_get_view_result('section_object_stories', 'block_section_get_story_set_ids', $nid);
+  // For each Story set item, get snapshot OS.
+  foreach ($sets as $set) {
+    // For each Snapshot OS, get OS NID
+    $set_wrapper = entity_metadata_wrapper('field_collection_item', $set->item_id);
+    $snapshot_os = $set_wrapper->field_story_set_snapshot_os->value();
+    foreach ($snapshot_os as $item) {
+      if (!empty($item->field_story_snapshot_os_os['und'])) {
+        foreach ($item->field_story_snapshot_os_os['und'] as $object_story) {
+          $object_stories[] = $object_story['target_id'];
+        }
+      }
+      else {
+        $error_msg = 'A snapshot object story in this Section\'s story set, ID ' . $set->item_id . ' is missing its object story ID, so the object story itself cannot be retrieved.';
+        drupal_set_message($error_msg, 'error', FALSE);
+      }
+    }
+  }
+  // List OSes.
+  if ($render) {
+    if (count($object_stories) > 0) {
+      return node_view_multiple(node_load_multiple($object_stories), $view_mode = 'eva_node_thumbnail');
+    }
+    else {
+      return '<div class="empty-section-text">Select a story from below to add to this section</div>';
+    }
+  }
+  else {
+    return $object_stories;
+  }
+}
+
+/**
+ * Implements hook_form_FORMID_alter().
+ *
+ * Hide the story trails navigation links .
+ */
+function storyscope_story_form_story_node_form_alter(&$form, $form_state) {
+ $form['field_story_trails']['#access'] = FALSE;
+}
+
+/**
+ * Implements hook_form_FORMID_alter().
+ *
+ * Hide the entity reference field to the source event node along with the
+ * CA/SEC ID field from the event node form and also hide navigation links .
+ */
+function storyscope_story_form_section_node_form_alter(&$form, $form_state) {
+  //$form['field_ca_sec_id']['#access'] = FALSE;
+  $form['field_story_events']['#access'] = FALSE;
+  $preview_path = drupal_get_path_alias('node/' . $form['nid']['#value']) . '/output';
+  $form['preview'] = array(
+    '#markup' => l('Preview Microsite', $preview_path, array('attributes' => array('class' => 'colorbox-load'), 'query' => array('width' => '90%' , 'height' => '90%', 'iframe' => 'true'))),
+    '#weight' => -10,
+  );
+  $form['save_and_finish'] = array(
+    '#type' => 'submit',
+    '#value' => t('Save and Finish'),
+    '#submit' => array('node_form_submit'),
+    '#weight' => -10,
+  );
+  $form['save_and_continue'] = array(
+    '#type' => 'submit',
+    '#value' => t('Save and Continue'),
+    '#submit' => array('storyscope_story_form_section_node_form_submit_continue'),
+    '#weight' => 70,
+  );
+  $form['actions']['submit']['#value'] = t('Save and Finish');
+  $form['#after_build'][] = 'storyscope_story_form_section_node_form_after_build';
+  $js_path = drupal_get_path('module', 'storyscope_story') . '/js/story_write.js';
+  drupal_add_js($js_path);
+ // $form['actions']['submit']['#submit'][] = 'storyscope_story_form_section_node_form_submit';
+  // Don't want the user to see nav section selectors - used only by recommenders for now.
+  $form['field_navigation_section']['#access'] = FALSE;
+  $form['field_navigation_links']['#access'] = FALSE;
+  $form['selected_object'] = array(
+      '#type' => 'hidden',
+      '#value' => arg(6, request_path()),
+    );
+}
+
+function storyscope_story_form_section_node_form_submit_continue($form, &$form_state) {
+  unset($_GET['destination']);
+  unset($form_state['rebuild']);
+  $nid = $form['nid']['#value'];
+  $path = request_path();
+  $destination = drupal_get_destination();
+  $form_state['redirect'] = FALSE;
+}
+
+/**
+ * After build function for the Section node edit form.
+ *
+ * Hide field_story_snapshot_os_os field and the 'add another item' buttons.
+ */
+function storyscope_story_form_section_node_form_after_build($form, &$form_state) {
+  $language = $form['field_story_set']['#language'];
+  $max_delta = $form['field_story_set'][$language]['#max_delta'];
+  for ($i = 0; $i <= $max_delta; $i++) {
+    // Retrieve the image for the object.
+    // This is either the first one on the object or whatever is chosen on the object story.
+    $object_language = $form['field_story_set'][$language][$i]['field_story_set_object']['#language'];
+    $object_field = $form['field_story_set'][$language][$i]['field_story_set_object'][$object_language][0]['target_id'];
+    $snapshot_os_field = $form['field_story_set'][$language][$i]['field_story_set_snapshot_os'];
+    $snapshot_os_max_delta = $snapshot_os_field[$language]['#max_delta'];
+    for ($j = 0; $j <= $snapshot_os_max_delta; $j++) {
+      if (!empty($snapshot_os_field[$object_language][$j]['#entity']->field_story_snapshot_os_os)) {
+    $object_story = $snapshot_os_field[$object_language][$j]['#entity']->field_story_snapshot_os_os;
+    $object_story_nid = $object_story[$language][0]['target_id'];
+    if (!empty($object_story_nid)) {
+      // Now that we have the ID of the OS we can get the chosen media item.
+      $os_wrapper = entity_metadata_wrapper('node', $object_story_nid);
+      try {
+        $chosen_media_file_id = $os_wrapper->field_object_story_chosen_media->value();
+        $snapshot_prefix = $snapshot_os_field[$language]['#prefix'];
+        if (!empty($chosen_media_file_id)) {
+          $image_file = file_load($chosen_media_file_id);
+
+          $chosen_image = extra_fields_render_known_object_media_preview($image_file);
+
+          $snapshot_prefix = $chosen_image . $snapshot_prefix;
+        }
+        else {
+          $object_nid = $object_field['#entity']->field_story_set_object[$object_language][0]['target_id'];
+          $object = node_load($object_nid);
+          $object_render_array = node_view($object, 'small_unclickable_thumbnail');
+          $snapshot_prefix = drupal_render($object_render_array) . $snapshot_prefix;
+        }
+      }
+      catch (Exception $e) {
+        echo 'Caught exception: ',  $e->getMessage(), "\n";
+      }
+    }
+  }
+      $form['field_story_set'][$language][$i]['field_story_set_snapshot_os'][$language]['#prefix'] = $snapshot_prefix;
+    }
+    // Handle empty field_story_sets - might happen if they click on "Write" tab
+    // immediately after generating a new section.
+    if (empty($object_field['#entity']->field_story_set_object)) {
+      $form['field_story_set'][$language][$i]['field_story_set_object']['#access'] = FALSE;
+      $form['field_story_set'][$language][$i]['field_story_set_snapshot_os']['#access'] = FALSE;
+      $form['field_story_set'][$language][$i]['remove_button']['#access'] = FALSE;
+      if ($max_delta == 0) {
+        $form['field_story_set']['#access'] = FALSE;
+      }
+      continue;
+    }
+    // Hide the object story reference field.
+    $snapshot_language = $form['field_story_set'][$language][$i]['field_story_set_snapshot_os']['#language'];
+    $snapshot = &$form['field_story_set'][$language][$i]['field_story_set_snapshot_os'][$snapshot_language];
+    $snapshot_max_delta = $snapshot['#max_delta'];
+    for ($j = 0; $j <= $snapshot_max_delta; $j++) {
+      $snapshot[$j]['field_story_snapshot_os_os']['#access'] = FALSE;
+      $snapshot[$j]['field_story_snapshot_os_image']['#access'] = FALSE;
+    }
+
+    if (!empty($snapshot[0]['field_story_snapshot_os_image']['und'][0]['value']['#value'])) {
+      $preferred_img = $snapshot[0]['field_story_snapshot_os_image']['und'][0]['value']['#value'];
+    }
+    else {
+      $preferred_img = 0;
+    }
+    // Add the object image markup to the story set.
+    $object_nid = $object_field['#entity']->field_story_set_object[$object_language][0]['target_id'];
+    $object = node_load($object_nid);
+    $object_render_array = node_view($object, 'thumbnail_image_and_properties');
+    $form['field_story_set'][$language][$i]['#prefix'] = drupal_render($object_render_array);
+    // Hide the object reference field.
+    $form['field_story_set'][$language][$i]['field_story_set_object']['#access'] = FALSE;
+
+    // Hide unwanted form labels.
+    $snapshot['#title_display'] = 'invisible';
+    $snapshot['#title'] = '';
+
+    // If only 1 snapshot in the set, hide the inner "remove" button - leave that to
+    // the object remove button, otherwise you have 2 remove buttons beside each
+    // other.
+    if ($snapshot_max_delta == 0) {
+      $snapshot[0]['remove_button']['#access'] = FALSE;
+    }
+
+    // Hide all "add another item" buttons.
+    $snapshot['add_more']['#access'] = FALSE;
+  }
+
+  // Hide all "add another item" buttons.
+  $form['field_story_set'][$language]['add_more']['#access'] = FALSE;
+
+  // Hide unwanted form labels.
+  $form['field_story_set']['#title_display'] = 'invisible';
+  $form['field_story_set']['#title'] = '';
+  $form['field_story_set'][$language]['#title_display'] = 'invisible';
+  $form['field_story_set'][$language]['#title'] = '';
+  return $form;
+}
+
+/**
+ * Return a custom representation of the section node.
+ *
+ */
+
+function storyscope_story_narrative_web_output($story) {
+  // Set the title as the story title
+  drupal_set_title($story->title);
+  // Load the panel node.
+  module_load_include('inc', 'page_manager', 'plugins/tasks/node_view');
+  $output[] = page_manager_node_view_page($story);
+  return $output;
+}
+
+/**
+ * Return a custom representation of the narrative output.
+ *
+ */
+
+function storyscope_story_web_output($story, $section) {
+  // Set the title as the story title
+  drupal_set_title($story->title);
+
+  // Return the node itself as the output
+  $output[] = node_view($section);
+  return $output;
+}
+
+/**
+ * Return a custom theme
+ *
+ */
+
+function storyscope_story_web_theme() {
+  // Set the Output custom theme
+  return 'story_output';
+}
+
+/**
+ * Implements draggableviews_handler_arguments_alter
+ * When Draggableviews is saved - update the story node with correct order
+ */
+
+function storyscope_story_draggableviews_handler_native_arguments_alter(&$arguments, $view, &$form_values) {
+  if ($view->name == 'story_sections' && $view->current_display == 'page_sections_reorder'){
+    $story_node = node_load($arguments[0]);
+    foreach ($form_values as $value) {
+      $updated_list[] = array('target_id' => $value['id']);
+    }
+    $story_node->field_story_sections[LANGUAGE_NONE] = $updated_list;
+    node_save($story_node);
+  }
+}

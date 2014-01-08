@@ -1,0 +1,11 @@
+name = Context Joyride - Story/Section Overview
+core = 7.x
+package = Features
+php = 5.2.4
+dependencies[] = context
+dependencies[] = ctools
+features[context][] = joyride_story_overview
+features[context][] = joyride_story_section_edit
+features[context][] = joyride_story_section_overview
+features[ctools][] = context:context:3
+features[features_api][] = api:1

@@ -1,0 +1,86 @@
+diff --git search_api_solr/search_api_solr.module search_api_solr/search_api_solr.module
+index 3c187e9..b70c35b 100644
+--- search_api_solr/search_api_solr.module
++++ search_api_solr/search_api_solr.module
+@@ -12,6 +12,15 @@ function search_api_solr_init() {
+ }
+ 
+ /**
++ * Implements hook_views_api().
++ */
++function search_api_solr_views_api() {
++  return array(
++    'api' => '3',
++  );
++}
++
++/**
+  * Return path to SolrPhpClient library path, or FALSE if not found.
+  */
+ function _search_api_solr_solrphpclient_path() {
+diff --git search_api_solr/search_api_solr.views.inc search_api_solr/search_api_solr.views.inc
+new file mode 100644
+index 0000000..a75aa4c
+--- /dev/null
++++ search_api_solr/search_api_solr.views.inc
+@@ -0,0 +1,29 @@
++<?php
++
++/**
++ * Implements hook_views_data().
++ */
++function search_api_solr_views_data() {
++  try {
++    $data = array();
++    $entity_types = entity_get_info();
++    foreach (search_api_index_load_multiple(FALSE) as $index) {
++      // Fill in base data.
++      $key = 'search_api_index_' . $index->machine_name;
++      $table = &$data[$key];
++
++      $table['search_api_group_count']['group'] = t('Search');
++      $table['search_api_group_count']['title'] = t('Group count');
++      $table['search_api_group_count']['help'] = t('The number of matched records in a group for field collapsed queries.');
++      $table['search_api_group_count']['field']['type'] = 'integer';
++      $table['search_api_group_count']['field']['handler'] = 'entity_views_handler_field_numeric';
++      $table['search_api_group_count']['field']['click sortable'] = TRUE;
++      $table['search_api_group_count']['sort']['handler'] = 'SearchApiViewsHandlerSort';
++    }
++    return $data;
++  }
++  catch (Exception $e) {
++    watchdog_exception('search_api_solr', $e);
++  }
++}
++
+diff --git search_api_solr/service.inc search_api_solr/service.inc
+index 4ec230b..be87778 100644
+--- search_api_solr/service.inc
++++ search_api_solr/service.inc
+@@ -378,6 +378,7 @@ class SearchApiSolrService extends SearchApiAbstractService {
+         'search_api_id' => 'ss_search_api_id',
+         'search_api_relevance' => 'score',
+         'search_api_item_id' => 'item_id',
++        'search_api_group_count' => 'search_api_group_count',
+       );
+ 
+       // Add the names of any fields configured on the index.
+@@ -714,6 +715,7 @@ class SearchApiSolrService extends SearchApiAbstractService {
+         $results['result count'] += $response->grouped->{$fields[$field]}->ngroups;
+         foreach ($response->grouped->{$fields[$field]}->groups as $group) {
+           foreach ($group->doclist->docs as $doc) {
++            $doc->search_api_group_count = $group->doclist->numFound;
+             $docs[] = $doc;
+           }
+         }
+@@ -749,6 +751,10 @@ class SearchApiSolrService extends SearchApiAbstractService {
+         }
+       }
+ 
++      if (isset($doc->search_api_group_count)) {
++        $result['group_count'] = $doc->search_api_group_count;
++      }
++
+       // We can find the item id and score in the special 'search_api_*'
+       // properties. Mappings are provided for these properties in
+       // SearchApiSolrService::getFieldNames().

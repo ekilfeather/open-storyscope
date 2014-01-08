@@ -1,0 +1,7 @@
+<?php
+/**
+ * @file
+ * Code for the Bean - Block Image & Link feature.
+ */
+
+include_once 'bean_block_image_link.features.inc';

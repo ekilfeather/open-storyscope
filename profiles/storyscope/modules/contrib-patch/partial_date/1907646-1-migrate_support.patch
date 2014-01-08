@@ -1,0 +1,75 @@
+diff --git partial_date/partial_date.info partial_date/partial_date.info
+index 506a202..2e7b902 100644
+--- partial_date/partial_date.info
++++ partial_date/partial_date.info
+@@ -5,6 +5,7 @@ core = 7.x
+ dependencies[] = date
+ 
+ files[] = includes/partial_date.views.year_period_handler.inc
++files[] = partial_date.migrate.inc
+ 
+ 
+ ; Information added by drupal.org packaging script on 2012-07-18
+diff --git partial_date/partial_date.migrate.inc partial_date/partial_date.migrate.inc
+new file mode 100644
+index 0000000..765533f
+--- /dev/null
++++ partial_date/partial_date.migrate.inc
+@@ -0,0 +1,27 @@
++<?php
++
++class MigratePartialDateFieldHandler extends MigrateFieldHandler {
++  public function __construct() {
++    $this->registerTypes(array('partial_date'));
++  }
++
++  public function prepare($entity, array $field_info, array $instance, array $values) {
++    $arguments = array();
++
++    if (isset($values['arguments'])) {
++      $arguments = array_filter($values['arguments']);
++      unset($values['arguments']);
++    }
++    $language = $this->getFieldLanguage($entity, $field_info, $arguments);
++
++    // Setup the standard Field API array for saving.
++    $delta = 0;
++    foreach ($values as $value) {
++      $return[$language][$delta]['from'] = array_intersect_key($arguments, $field_info['columns']);
++      $delta++;
++    }
++
++    return isset($return) ? $return : NULL;
++  }
++}
++
+diff --git partial_date/partial_date.module partial_date/partial_date.module
+index 4eabed3..fcbbd2a 100644
+--- partial_date/partial_date.module
++++ partial_date/partial_date.module
+@@ -894,6 +894,25 @@ function partial_date_views_api() {
+ }
+ 
+ ################################################################################
++#  --------------------                                                        #
++#  Migrate Integration:                                                        #
++#  --------------------                                                        #
++################################################################################
++
++/**
++ * Implements hook_migrate_api().
++ */
++function partial_date_migrate_api() {
++  return array(
++    'api' => 2,
++    'field handlers' => array(
++      'MigratePartialDateFieldHandler',
++    ),
++  );
++}
++
++
++################################################################################
+ #  ----------------------                                                      #
+ #  API related functions:                                                      #
+ #  ----------------------                                                      #

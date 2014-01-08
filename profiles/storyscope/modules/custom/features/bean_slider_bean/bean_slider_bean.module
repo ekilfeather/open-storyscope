@@ -1,0 +1,7 @@
+<?php
+/**
+ * @file
+ * Code for the Bean - Slider Bean feature.
+ */
+
+include_once 'bean_slider_bean.features.inc';

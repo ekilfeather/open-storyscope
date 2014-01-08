@@ -1,0 +1,26 @@
+diff --git search_api_solr/includes/SolrSearchAPIFieldCollapseExtender.inc search_api_solr/includes/SolrSearchAPIFieldCollapseExtender.inc
+index 9d779a0..c8fdf28 100644
+--- search_api_solr/includes/SolrSearchAPIFieldCollapseExtender.inc
++++ search_api_solr/includes/SolrSearchAPIFieldCollapseExtender.inc
+@@ -32,15 +32,14 @@ class SolrSearchAPIFieldCollapseExtender extends SearchApiAbstractQueryExtender
+     }
+ 
+     foreach ($fields as $name => $field) {
+-      // Currently Solr is only compatible with single valued, indexed, string fields.
++      // Currently Solr is only compatible with single valued, indexed fields.
++      // Solr 3.x also only works with string fields.
+       // TODO: Factor this out into a call through to the server.
+       if (!search_api_is_list_type($field['type'])) {
+-        if ($field['type'] == 'string') {
+-          if ($field['indexed']) {
+-            $field_options[$name] = $field['name'];
+-            if (!empty($default_fields[$name]) || (!isset($this->options['fields']) && $this->testField($name, $field))) {
+-              $default_fields[$name] = $name;
+-            }
++        if ($field['indexed']) {
++          $field_options[$name] = $field['name'];
++          if (!empty($default_fields[$name]) || (!isset($this->options['fields']) && $this->testField($name, $field))) {
++            $default_fields[$name] = $name;
+           }
+         }
+         // We can only sort according to single-valued fields.

@@ -1,0 +1,297 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<wsdl:definitions targetNamespace="http://soap.ssl.co.uk/sr" xmlns:apachesoap="http://xml.apache.org/xml-soap" xmlns:impl="http://soap.ssl.co.uk/sr" xmlns:scm="http://soap.ssl.co.uk/sr/1.1/schema" xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/"  xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" xmlns:wsdlsoap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+<!-- $Header: /local/cvs_repository/soapix/services/searchretrieve/SearchRetrieve.wsdl,v 1.8 2011/08/18 12:26:20 olly Exp $ -->
+ <wsdl:types>
+
+  <schema targetNamespace="http://soap.ssl.co.uk/sr/1.1/schema" xmlns="http://www.w3.org/2001/XMLSchema">
+
+   <import namespace="http://schemas.xmlsoap.org/soap/encoding/"/>
+
+   <complexType name="resultStatus">
+     <sequence>
+       <element name="database" type="xsd:string"/>
+       <element name="size" type="xsd:nonNegativeInteger"/>
+       <element name="completed" type="xsd:boolean"/>
+     </sequence>
+   </complexType>
+
+   <complexType name="ArrayOf_scm_resultStatus">
+    <complexContent>
+     <restriction base="soapenc:Array">
+      <attribute ref="soapenc:arrayType" wsdl:arrayType="scm:resultStatus[]"/>
+     </restriction>
+    </complexContent>
+   </complexType>
+   
+   <complexType name="pair">
+    <sequence>
+     <element name="context" type="xsd:string"/>
+     <element name="value" type="xsd:string"/>
+    </sequence>
+   </complexType>
+
+   <complexType name="ArrayOf_scm_pairs">
+    <complexContent>
+     <restriction base="soapenc:Array">
+      <attribute ref="soapenc:arrayType" wsdl:arrayType="scm:pair[]"/>
+     </restriction>
+    </complexContent>
+   </complexType>
+
+   <complexType name="FacetPart">
+    <sequence>
+     <element name="PartContext" nillable="true" type="xsd:string"/>
+     <element name="PartValue" nillable="true" type="xsd:int"/>
+    </sequence>
+   </complexType>
+   <complexType name="ArrayOfFacetPart">
+    <complexContent>
+     <restriction base="soapenc:Array">
+      <attribute ref="soapenc:arrayType" wsdl:arrayType="scm:FacetPart[]"/>
+     </restriction>
+    </complexContent>
+   </complexType>
+   <complexType name="Facet">
+    <sequence>
+     <element name="FacetContext" nillable="true" type="xsd:string"/>
+     <element name="FacetValue" nillable="true" type="scm:ArrayOfFacetPart"/>
+    </sequence>
+   </complexType>
+   <complexType name="ArrayOfFacet">
+    <complexContent>
+     <restriction base="soapenc:Array">
+      <attribute ref="soapenc:arrayType" wsdl:arrayType="scm:Facet[]"/>
+     </restriction>
+    </complexContent>
+   </complexType>
+
+
+   <complexType name="ArrayOf_field_value">
+    <complexContent>
+     <restriction base="soapenc:Array">
+      <attribute ref="soapenc:arrayType" wsdl:arrayType="scm:field_value[]"/>
+     </restriction>
+    </complexContent>
+   </complexType>
+   
+   <complexType name="field_union">
+    <sequence>
+     <element name="text" type="xsd:string"/>
+     <element name="list" type="scm:ArrayOf_field_value"/>
+     <element name="num" type="xsd:int"/>
+     <!-- note: xsd:integer results in C# strings
+	  see http://msdn.microsoft.com/en-us/library/ms950721.aspx
+     -->
+    </sequence>
+   </complexType>
+
+   <complexType name="field_value">
+    <sequence>
+     <element name="name" type="xsd:string"/>
+     <element name="type" type="xsd:string"/>
+     <element name="u" type="scm:field_union"/>
+    </sequence>
+   </complexType>
+
+   <complexType name="field">
+    <sequence>
+     <element name="name" type="xsd:string"/>
+     <element name="fullname" type="xsd:string"/>
+     <element name="value" type="scm:field_value"/>
+    </sequence>
+   </complexType>
+
+   <complexType name="ArrayOf_scm_fields">
+    <complexContent>
+     <restriction base="soapenc:Array">
+      <attribute ref="soapenc:arrayType" wsdl:arrayType="scm:field[]"/>
+     </restriction>
+    </complexContent>
+   </complexType>
+
+   <complexType name="record">
+    <sequence>
+     <element name="name" type="xsd:string"/>
+     <element name="fullname" type="xsd:string"/>
+     <element name="contents" type="scm:ArrayOf_scm_fields"/>
+    </sequence>
+   </complexType>
+
+   <complexType name="ArrayOf_scm_records">
+    <complexContent>
+     <restriction base="soapenc:Array">
+      <attribute ref="soapenc:arrayType" wsdl:arrayType="scm:record[]"/>
+     </restriction>
+    </complexContent>
+   </complexType>
+
+   <xsd:element name="diagnostic" type="scm:diagnosticType" nillable="false"/>
+
+   <xsd:complexType name="diagnosticType">
+    <xsd:sequence>
+     <xsd:element name="uri" type="xsd:string" nillable="false"/>
+     <xsd:element name="details" type="xsd:string" nillable="false"/>
+     <xsd:element name="message" type="xsd:string" nillable="false"/>
+    </xsd:sequence>
+   </xsd:complexType>
+
+   <complexType name="ArrayOf_scm_diagnosticTypes">
+    <complexContent>
+     <restriction base="soapenc:Array">
+      <attribute ref="soapenc:arrayType" wsdl:arrayType="scm:diagnosticType[]"/>
+     </restriction>
+    </complexContent>
+   </complexType>
+
+   <xsd:complexType name="searchRetrieveRequestType">
+    <xsd:sequence>
+     <xsd:element name="profile" type="xsd:string" nillable="false"/>
+     <xsd:element name="query" type="scm:ArrayOf_scm_pairs" nillable="false"/>
+     <xsd:element name="startRecord" type="xsd:positiveInteger" default="1"
+nillable="false"/>
+     <xsd:element name="resultSetId" type="xsd:string" nillable="false"/>
+     <xsd:element name="maximumRecords" type="xsd:nonNegativeInteger" nillable="false"/>
+    </xsd:sequence>
+   </xsd:complexType>
+
+   <xsd:complexType name="searchRetrieveResponseType">
+    <xsd:sequence>
+     <xsd:element name="numberOfRecords" type="xsd:nonNegativeInteger" nillable="false"/>
+     <xsd:element name="status" type="scm:ArrayOf_scm_resultStatus"/>
+     <xsd:element name="resultSetId" type="xsd:string" nillable="false"/>
+     <xsd:element name="resultSetIdleTime" type="xsd:positiveInteger" nillable="false"/>
+     <xsd:element name="records" type="scm:ArrayOf_scm_records" nillable="false"/>
+     <xsd:element name="nextRecordPosition" type="xsd:integer" nillable="false"/>
+     <xsd:element name="echoedSearchRetrieveRequest" type="scm:searchRetrieveRequestType" nillable="false"/>
+     <xsd:element name="diagnostics" type="scm:ArrayOf_scm_diagnosticTypes" nillable="false"/>
+     <xsd:element name="facets" type="scm:ArrayOfFacet" nillable="false"/>
+    </xsd:sequence>
+   </xsd:complexType>
+
+   <xsd:complexType name="recordUpdateRequestType">
+    <xsd:sequence>
+     <xsd:element name="profile" type="xsd:string" nillable="false"/>
+     <xsd:element name="query" type="scm:ArrayOf_scm_pairs" nillable="false"/>
+     <xsd:element name="flags" type="xsd:string" nillable="false"/>
+     <xsd:element name="data" type="scm:ArrayOf_scm_fields" nillable="false"/>
+     <xsd:element name="batch" type="xsd:boolean" nillable="false"/>
+    </xsd:sequence>
+   </xsd:complexType>
+
+   <xsd:complexType name="recordUpdateResponseType">
+    <xsd:sequence>
+     <xsd:element name="errorMessage" type="xsd:string" nillable="false"/>
+     <xsd:element name="succeededSpec" type="xsd:string" nillable="false"/>
+     <xsd:element name="failedSpec" type="xsd:string" nillable="false"/>
+    </xsd:sequence>
+   </xsd:complexType>
+    <xsd:complexType name="recordCreateRequestType">
+    <xsd:sequence>
+     <xsd:element name="profile" type="xsd:string" nillable="false"/>
+     <xsd:element name="flags" type="xsd:string" nillable="false"/>
+     <xsd:element name="data" type="scm:ArrayOf_scm_fields"/>
+    </xsd:sequence>
+   </xsd:complexType>
+
+   <xsd:complexType name="recordCreateResponseType">
+    <xsd:sequence>
+     <xsd:element name="errorMessage" type="xsd:string" nillable="true"/>
+    </xsd:sequence>
+   </xsd:complexType>
+
+
+  </schema>
+ 
+ </wsdl:types>
+
+ <wsdl:message name="SearchRetrieveRequest">
+  <wsdl:part name="request" type="scm:searchRetrieveRequestType"/>
+ </wsdl:message>
+
+ <wsdl:message name="SearchRetrieveResponse">
+  <wsdl:part name="SearchRetrieveResponseReturn" type="scm:searchRetrieveResponseType"/>
+ </wsdl:message>
+
+ <wsdl:message name="RecordUpdateRequest">
+  <wsdl:part name="request" type="scm:recordUpdateRequestType"/>
+ </wsdl:message>
+
+ <wsdl:message name="RecordUpdateResponse">
+  <wsdl:part name="response" type="scm:recordUpdateResponseType"/>
+ </wsdl:message>
+
+ <wsdl:message name="RecordCreateRequest">
+   <wsdl:part name="request" type="scm:recordCreateRequestType"/>
+ </wsdl:message>
+
+ <wsdl:message name="RecordCreateResponse">
+  <wsdl:part name="response" type="scm:recordCreateResponseType"/>
+ </wsdl:message>
+
+
+ <wsdl:portType name="SearchRetPort">
+
+  <wsdl:operation name="SearchRetrieve" parameterOrder="request">
+   <wsdl:input  message="impl:SearchRetrieveRequest" name="SearchRetrieveRequest"/>
+   <wsdl:output message="impl:SearchRetrieveResponse" name="SearchRetrieveResponse"/>
+  </wsdl:operation>
+
+  <wsdl:operation name="RecordUpdate" parameterOrder="request">
+   <wsdl:input  message="impl:RecordUpdateRequest" name="RecordUpdateRequest"/>
+   <wsdl:output message="impl:RecordUpdateResponse" name="RecordUpdateResponse"/>
+  </wsdl:operation>
+
+  <wsdl:operation name="RecordCreate" parameterOrder="request">
+   <wsdl:input  message="impl:RecordCreateRequest" name="RecordCreateRequest"/>
+   <wsdl:output message="impl:RecordCreateResponse" name="RecordCreateResponse"/>
+  </wsdl:operation>
+
+
+ </wsdl:portType>
+
+ <wsdl:binding name="SearchRetrieveBinding" type="impl:SearchRetPort">
+
+  <wsdlsoap:binding style="rpc" transport="http://schemas.xmlsoap.org/soap/http"/>
+
+  <wsdl:operation name="SearchRetrieve">
+   <wsdlsoap:operation soapAction=""/>
+   <wsdl:input name="SearchRetrieveRequest">
+    <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://uk.co.ssl.testharness" use="encoded"/>
+   </wsdl:input>
+   <wsdl:output name="SearchRetrieveResponse">
+    <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://uk.co.ssl.testharness" use="encoded"/>
+   </wsdl:output>
+  </wsdl:operation>
+
+  <wsdl:operation name="RecordUpdate">
+   <wsdlsoap:operation soapAction=""/>
+   <wsdl:input name="RecordUpdateRequest">
+    <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://uk.co.ssl.testharness" use="encoded"/>
+   </wsdl:input>
+
+   <wsdl:output name="RecordUpdateResponse">
+    <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://uk.co.ssl.testharness" use="encoded"/>
+   </wsdl:output>
+  </wsdl:operation>
+
+  <wsdl:operation name="RecordCreate">
+   <wsdlsoap:operation soapAction=""/>
+   <wsdl:input name="RecordCreateRequest">
+    <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://uk.co.ssl.testharness" use="encoded"/>
+   </wsdl:input>
+
+   <wsdl:output name="RecordCreateResponse">
+    <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://uk.co.ssl.testharness" use="encoded"/>
+   </wsdl:output>
+  </wsdl:operation>
+
+
+ </wsdl:binding>
+
+ <wsdl:service name="SearchRetrieveService">
+  <wsdl:port binding="impl:SearchRetrieveBinding" name="SearchRetrieveBinding">
+   <wsdlsoap:address location="http://localhost:10000/soapix/searchretrieve/decipher"/>
+  </wsdl:port>
+ </wsdl:service>
+
+</wsdl:definitions>

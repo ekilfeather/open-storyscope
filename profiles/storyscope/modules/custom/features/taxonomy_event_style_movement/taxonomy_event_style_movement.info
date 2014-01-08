@@ -1,0 +1,12 @@
+name = Taxonomy event style/movement
+description = A taxonomy vocabulary for the style and movement of an event
+core = 7.x
+package = Taxonomy
+php = 5.2.4
+dependencies[] = features
+dependencies[] = field_sql_storage
+dependencies[] = taxonomy
+dependencies[] = text
+features[features_api][] = api:1
+features[field][] = taxonomy_term-style_and_movement-field_taxonomy_term_source_id
+features[taxonomy][] = style_and_movement

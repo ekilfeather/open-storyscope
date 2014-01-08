@@ -1,0 +1,677 @@
+<?php
+
+/**
+ * @file
+ * Controls who can access and modify dossier content and child content.
+ */
+
+/**
+ * Implements hook_node_grants().
+ */
+function storyscope_control_node_grants($account, $op) {
+  $grants = array();
+
+  // Authors get access regardless.
+  $grants['storyscope_control_author'] = array($account->uid);
+
+  // Get the list of dossiers that reference this user as an editor or viewer.
+  $dossiers = storyscope_control_get_user_dossiers($account);
+
+  // If checking 'view' access, grant access to public content and any content
+  // within a dossier on which the user is a referenced viewer.
+  if ($op == 'view') {
+    $grants['storyscope_control_public'] = array(1);
+    foreach ($dossiers['view'] as $dossier_nid) {
+      $grants['storyscope_control_dossier_viewer'][] = $dossier_nid;
+    }
+  }
+
+  // Grant access to any content within a dossier on which the user is a
+  // referenced editor.
+  foreach ($dossiers['edit'] as $dossier_nid) {
+    $grants['storyscope_control_dossier_editor'][] = $dossier_nid;
+  }
+
+  return $grants;
+}
+
+/**
+ * Implements hook_node_access_records().
+ *
+ * Note: this builds a "list of grants", so if any module grants access, the
+ * user has access, even if other modules (or dossiers) are denying access.
+ */
+function storyscope_control_node_access_records($node) {
+  $grants = array();
+
+  // Grant access to authors for private & public nodes.
+  $grants[] = array(
+    'realm' => 'storyscope_control_author',
+    'gid' => $node->uid,
+    'grant_view' => 1,
+    'grant_update' => 1,
+    'grant_delete' => 1,
+    'priority' => 0,
+  );
+
+
+  switch ($node->type) {
+    case 'dossier':
+      // Grant 'view' access to public, published dossiers.
+      $node_wrapper = entity_metadata_wrapper('node', $node);
+      $private = $node_wrapper->field_dossier_private->value();
+      if (!$private && $node->status) {
+        $grants[] = array(
+          'realm' => 'storyscope_control_public',
+          'gid' => 1,
+          'grant_view' => 1,
+          'grant_update' => 0,
+          'grant_delete' => 0,
+          'priority' => 0,
+        );
+      }
+      // Nodeaccess_userreference module takes care of other permissions for
+      // authors and referenced users.
+
+      break;
+
+
+    case 'object_story':
+      // Grant 'view' access to public, published object stories.
+      $node_wrapper = entity_metadata_wrapper('node', $node);
+      $private = $node_wrapper->field_object_story_private->value();
+      $public_parent = storyscope_control_get_content_access($node, $viewers, $editors);
+      if ((!$private || $public_parent) && $node->status) {
+        $grants[] = array(
+          'realm' => 'storyscope_control_public',
+          'gid' => 1,
+          'grant_view' => 1,
+          'grant_update' => 0,
+          'grant_delete' => 0,
+          'priority' => 0,
+        );
+      }
+      // Grant 'view' access to private, published content to viewers on
+      // parent dossiers.
+      if ($node->status) {
+        foreach ($viewers as $dossier_nid) {
+          $grants[] = array(
+            'realm' => 'storyscope_control_dossier_viewer',
+            'gid' => $dossier_nid,
+            'grant_view' => 1,
+            'grant_update' => 0,
+            'grant_delete' => 0,
+            'priority' => 0,
+          );
+        }
+      }
+      // Grant 'view' and 'edit' access to private content to
+      // editors on parent dossiers.
+      foreach ($editors as $dossier_nid) {
+        $grants[] = array(
+          'realm' => 'storyscope_control_dossier_editor',
+          'gid' => $dossier_nid,
+          'grant_view' => 1,
+          'grant_update' => 1,
+          'grant_delete' => 0,
+          'priority' => 0,
+        );
+      }
+      break;
+
+
+    case 'reference':
+    case 'event':
+    case 'plot':
+      // Grant 'view' access to public, published content.
+      $public = storyscope_control_get_content_access($node, $viewers, $editors);
+      if ($node->status) {
+        $grants[] = array(
+          'realm' => 'storyscope_control_public',
+          'gid' => 1,
+          'grant_view' => $public,
+          'grant_update' => 0,
+          'grant_delete' => 0,
+          'priority' => 0,
+        );
+        // Grant 'view' access to private, published content to viewers on
+        // parent dossiers.
+        foreach ($viewers as $dossier_nid) {
+          $grants[] = array(
+            'realm' => 'storyscope_control_dossier_viewer',
+            'gid' => $dossier_nid,
+            'grant_view' => 1,
+            'grant_update' => 0,
+            'grant_delete' => 0,
+            'priority' => 0,
+          );
+        }
+      }
+      // Grant 'view' and 'edit' access to private content to
+      // editors on parent dossiers.
+      // However, only authors can edit references and objects.
+      foreach ($editors as $dossier_nid) {
+        $grants[] = array(
+          'realm' => 'storyscope_control_dossier_editor',
+          'gid' => $dossier_nid,
+          'grant_view' => 1,
+          'grant_update' => ($node->type == 'reference' || $node->type == 'object') ? 0 : 1,
+          'grant_delete' => 0,
+          'priority' => 0,
+        );
+      }
+      break;
+
+  }
+
+  return $grants;
+}
+
+/**
+ * Implements hook_node_insert().
+ *
+ * Add node access records, using node_access_acquire_grants(), for all
+ * children of a dossier or object story.
+ */
+function storyscope_control_node_insert($node) {
+  $parent_types = array('dossier', 'object_story', 'plot');
+  if (in_array($node->type, $parent_types)) {
+    storyscope_control_node_access_update_grants($node);
+  }
+}
+
+/**
+ * Implements hook_node_update().
+ *
+ * Update node access records, using node_access_acquire_grants(), for all
+ * children and newly removed children of a dossier or object story.
+ */
+function storyscope_control_node_update($node) {
+  $parent_types = array('dossier', 'object_story', 'plot');
+  if (in_array($node->type, $parent_types)) {
+    storyscope_control_node_access_update_grants($node);
+  }
+}
+
+/**
+ * Helper function to update node access records, using
+ * node_access_acquire_grants(), for all children and newly removed children of
+ * a dossier or object story.
+ */
+function storyscope_control_node_access_update_grants($node) {
+  $node_wrapper = entity_metadata_wrapper('node', $node);
+  if (!empty($node->original)) {
+    $original_node = $node->original;
+    $original_node_wrapper = entity_metadata_wrapper('node', $original_node);
+  }
+
+  // TODO: if plot, object_story, etc, added or removed from dossier, need to update access
+  // for children too... or if dossier made public?
+  // TODO: what about field_plot_element_plot_set on Field collection
+  // field_plot_element_plot_set on a plot element
+  // Get the list of node reference fields.
+  switch ($node->type) {
+    case 'dossier':
+      $fields = array('field_dossier_object_stories', 'field_dossier_references', 'field_dossier_events', 'field_dossier_plots');
+      break;
+    case 'object_story':
+      $fields = array('field_object_story_references', 'field_object_story_events', 'field_object_story_objects');
+      break;
+    case 'plot':
+      $fields = array('field_plot_plot_elements');
+      break;
+  }
+
+  // Foreach node reference field we're interested in, update the node access
+  // records.
+  foreach ($fields as $field_name) {
+    $processed_references = array();
+    // Update access grants for new values.
+    $new_values = $node_wrapper->{$field_name}->value();
+    foreach ($new_values as $referenced_node) {
+      node_access_acquire_grants($referenced_node);
+      $processed_references[$referenced_node->nid] = $referenced_node->nid;
+    }
+    // Update access grants for removed values.
+    if (!empty($node->original)) {
+      $original_values = $original_node_wrapper->{$field_name}->value();
+      foreach ($original_values as $referenced_node) {
+        if (!in_array($referenced_node->nid, $processed_references)) {
+          node_access_acquire_grants($referenced_node);
+        }
+      }
+    }
+  }
+
+  // If a dossier is updated (e.g. made public), we also need to update node
+  // access grants on its grandchildren nodes.
+  // Easiest way to do that is to just trigger a node_save() on those.
+  if ($node->type == 'dossier') {
+    $object_stories = $node_wrapper->field_dossier_object_stories->value();
+    foreach ($object_stories as $object_story) {
+      node_save($object_story);
+    }
+    $plots = $node_wrapper->field_dossier_plots->value();
+    foreach ($plots as $plot) {
+      node_save($plot);
+    }
+  }
+}
+
+/**
+ * Retrieve a list of dossiers that the user is a referenced viewer or editor
+ * on.
+ *
+ * @param $account
+ *  The user object we're interested in.
+ *
+ * @return
+ *   An array of dossiers, keyed by 'view' and 'edit', that the user has access
+ *   to.
+ */
+function storyscope_control_get_user_dossiers($account) {
+  $dossiers = array();
+
+  $dossiers['view'] = db_query("SELECT v.entity_id FROM {field_data_field_dossier_viewers} v, {node} n WHERE n.vid = v.revision_id AND v.field_dossier_viewers_target_id = :uid", array(':uid' => $account->uid))->fetchCol();
+  $dossiers['edit'] = db_query("SELECT e.entity_id FROM {field_data_field_dossier_editors} e, {node} n WHERE n.vid = e.revision_id AND n.status = 1 AND e.field_dossier_editors_target_id = :uid", array(':uid' => $account->uid))->fetchCol();
+  $owners = db_query("SELECT n.nid FROM {node} n WHERE n.uid = :uid", array(':uid' => $account->uid))->fetchCol();
+  $dossiers['edit'] += $owners;
+
+  return $dossiers;
+}
+
+/**
+ * Determine whether a node is public or private, and which dossiers
+ * contain it for building list of grants for editors and viewers.
+ *
+ * @param $node
+ *   The child node object, e.g. reference, object, etc.
+ * @param &$viewers
+ *   Array of user ids who can view the node, even if in a private dossier.
+ * @param &$editors
+ *   Array of user ids who can view and edit the node.
+ *
+ * @return
+ *   1 if public, 0 otherwise.
+ */
+function storyscope_control_get_content_access($node, &$viewers = array(), &$editors = array()) {
+  $public = 0; // Don't use true/false as it's used in the $grants array later.
+  $viewers = $editors = array();
+  $dossiers = $object_stories = $plots = array();
+
+  // Dossier Parents
+  // ----------------
+  // Find all dossiers (published or not) that this node is linked with.
+  if ($node->type != 'object' && $node->type != 'plot_element') {
+    switch ($node->type) {
+      case 'object_story':
+        $dossiers = storyscope_control_get_object_story_dossiers($node->nid);
+        break;
+      case 'reference':
+        $dossiers = storyscope_control_get_reference_dossiers($node);
+        break;
+      case 'event':
+        $dossiers = storyscope_control_get_event_dossiers($node);
+        break;
+      case 'plot':
+        $dossiers = storyscope_control_get_plot_dossiers($node->nid);
+        break;
+      default:
+        return 1;
+    }
+
+    // Build array of editors and viewers.
+    foreach ($dossiers as $status => $parents) {
+      foreach ($parents as $nid) {
+        $editors[$nid] = $nid;
+        if ($status == 1) {
+          $viewers[$nid] = $nid;
+        }
+      }
+    }
+
+    // Check if any of the published dossiers are public.
+    if (!empty($dossiers[1])) {
+      $nodes = node_load_multiple($dossiers[1]);
+      foreach ($nodes as $nid => $dossier) {
+        $dossier_wrapper = entity_metadata_wrapper('node', $dossier);
+        $private = $dossier_wrapper->field_dossier_private->value();
+        if (!$private) {
+          $public = 1;
+        }
+      }
+    }
+  }
+
+
+  // Object Story Parents
+  // ---------------------
+  // Find all object stories (published or not) that this content is linked with.
+  if (in_array($node->type, array('reference', 'object', 'event'))) {
+    switch ($node->type) {
+      case 'reference':
+        $object_stories = storyscope_control_get_reference_object_stories($node);
+        break;
+      case 'object':
+        $object_stories = storyscope_control_get_object_object_stories($node);
+        break;
+      case 'event':
+        $object_stories = storyscope_control_get_event_object_stories($node);
+        break;
+    }
+
+    // Update array of viewers and editors.
+    foreach ($object_stories as $object_story_status => $object_story_nid) {
+      // Check if any of the published object stories are public.
+      $object_story = node_load($object_story_nid);
+      $object_story_wrapper = entity_metadata_wrapper('node', $object_story);
+      $private_object_story = $object_story_wrapper->field_object_story_private->value();
+      if ($object_story_status && !$private_object_story) {
+        $public = 1;
+      }
+
+      // Get all parent dossiers for each object story.
+      $parent_dossiers = storyscope_control_get_object_story_dossiers($object_story_nid);
+      foreach ($parent_dossiers as $dossier_status => $dossier_nid) {
+        // Public dossier grandparents, make this node public.
+        $dossier = node_load($dossier_nid);
+        $dossier_wrapper = entity_metadata_wrapper('node', $dossier);
+        $private_dossier = $dossier_wrapper->field_dossier_private->value();
+        if ($object_story_status && $dossier_status && !$private_dossier) {
+          $public = 1;
+        }
+
+        $editors[$dossier_nid] = $dossier_nid;
+
+        // Viewers only get access if both object story parent and dossier
+        // grandparent are published.
+        if ($object_story_status == 1 && $dossier_status == 1) {
+          $viewers[$dossier_nid] = $dossier_nid;
+        }
+      }
+    }
+  }
+
+
+  // Plot parents
+  // -------------
+  if ($node->type == 'plot_element') {
+    $plots = storyscope_control_get_plot_element_plots($node);
+
+    // Update array of viewers and editors.
+    foreach ($plots as $plot_status => $plot_nid) {
+      // Get all parent dossiers for each plot.
+      $parent_dossiers = storyscope_control_get_plot_dossiers($plot_nid);
+      foreach ($parent_dossiers as $dossier_status => $dossier_nid) {
+        // Public dossier grandparents, make this node public.
+        $dossier = node_load($dossier_nid);
+        $dossier_wrapper = entity_metadata_wrapper('node', $dossier);
+        $private_dossier = $dossier_wrapper->field_dossier_private->value();
+        if ($plot_status && $dossier_status && !$private_dossier) {
+          $public = 1;
+        }
+
+        $editors[$dossier_nid] = $dossier_nid;
+
+        // Viewers only get access if both parent plot and grandparent dossier
+        // are published.
+        if ($dossier_status == 1 && $plot_status == 1) {
+          $viewers[$dossier_nid] = $dossier_nid;
+        }
+      }
+    }
+  }
+
+
+  // Parentless
+  // -----------
+  // No associated dossiers or object stories at all, published or not, i.e.
+  // they are truely parentless.
+  if (empty($dossiers) && empty($object_stories) && empty($plots)) {
+    $public = 1;
+  }
+
+  return $public;
+}
+
+/**
+ * Retrieves a list of dossiers that reference this object story, keyed by
+ * status.
+ *
+ * @param $object_story_nid
+ *   The object story node id.
+ *
+ * @return
+ *   An array of dossier nids, keyed by status.
+ */
+function storyscope_control_get_object_story_dossiers($object_story_nid) {
+  $dossiers = array();
+
+  // Find all dossiers (published or not) that this object story is linked with.
+  $query = db_select('node', 'nd')
+            ->fields('nd', array('nid', 'status'))
+            ->condition('nd.type', 'dossier');
+  $query->leftJoin('field_data_field_dossier_object_stories', 'f', 'nd.nid = f.entity_id AND f.entity_type = :entity_type AND f.deleted = 0', array(':entity_type' => 'node'));
+  $query->leftJoin('node', 'nos', 'f.field_dossier_object_stories_target_id = nos.nid');
+  $query->condition('nos.nid', $object_story_nid);
+  $query->condition('nos.type', 'object_story');
+  $result = $query->execute();
+
+  // Pull out the dossiers by status.
+  while ($row = $result->fetchObject()) {
+    $dossiers[$row->status][] = $row->nid;
+  }
+
+  return $dossiers;
+}
+
+/**
+ * Get array of dossiers this reference is a member of.
+ *
+ * @param $node
+ *   The reference node object.
+ *
+ * @return
+ *   Array of dossier nids, keyed by status.
+ */
+function storyscope_control_get_reference_dossiers($node) {
+  $dossiers = array();
+
+  // Find all dossiers (published or not) that this reference is linked with.
+  $query = db_select('node', 'nd')
+            ->fields('nd', array('nid', 'status'))
+            ->condition('nd.type', 'dossier');
+  $query->leftJoin('field_data_field_dossier_references', 'f', 'nd.nid = f.entity_id AND f.entity_type = :entity_type AND f.deleted = 0', array(':entity_type' => 'node'));
+  $query->leftJoin('node', 'nr', 'f.field_dossier_references_target_id = nr.nid');
+  $query->condition('nr.nid', $node->nid);
+  $query->condition('nr.type', 'reference');
+  $result = $query->execute();
+
+  // Pull out the dossiers by status.
+  while ($row = $result->fetchObject()) {
+    $dossiers[$row->status][] = $row->nid;
+  }
+
+  return $dossiers;
+}
+
+/**
+ * Get array of dossiers this event is a member of.
+ *
+ * @param $node
+ *   The event node object.
+ *
+ * @return
+ *   Array of dossier nids, keyed by status.
+ */
+function storyscope_control_get_event_dossiers($node) {
+  $dossiers = array();
+
+  // Find all dossiers (published or not) that this event is linked with.
+  $query = db_select('node', 'nd')
+            ->fields('nd', array('nid', 'status'))
+            ->condition('nd.type', 'dossier');
+  $query->leftJoin('field_data_field_dossier_events', 'f', 'nd.nid = f.entity_id AND f.entity_type = :entity_type AND f.deleted = 0', array(':entity_type' => 'node'));
+  $query->leftJoin('node', 'nr', 'f.field_dossier_events_target_id = nr.nid');
+  $query->condition('nr.nid', $node->nid);
+  $query->condition('nr.type', 'event');
+  $result = $query->execute();
+
+  // Pull out the dossiers by status.
+  while ($row = $result->fetchObject()) {
+    $dossiers[$row->status][] = $row->nid;
+  }
+
+  return $dossiers;
+}
+
+/**
+ * Get array of dossiers this plot is a member of.
+ *
+ * @param $node
+ *   The plot node object.
+ *
+ * @return
+ *   Array of dossier nids, keyed by status.
+ */
+function storyscope_control_get_plot_dossiers($plot_nid) {
+  $dossiers = array();
+
+  // Find all dossiers (published or not) that this plot is linked with.
+  $query = db_select('node', 'nd')
+            ->fields('nd', array('nid', 'status'))
+            ->condition('nd.type', 'dossier');
+  $query->leftJoin('field_data_field_dossier_plots', 'f', 'nd.nid = f.entity_id AND f.entity_type = :entity_type AND f.deleted = 0', array(':entity_type' => 'node'));
+  $query->leftJoin('node', 'np', 'f.field_dossier_plots_target_id = np.nid');
+  $query->condition('np.nid', $plot_nid);
+  $query->condition('np.type', 'plot');
+  $result = $query->execute();
+
+  // Pull out the dossiers by status.
+  while ($row = $result->fetchObject()) {
+    $dossiers[$row->status][] = $row->nid;
+  }
+
+  return $dossiers;
+}
+
+/**
+ * Get array of object stories this reference is a member of.
+ *
+ * @param $node
+ *   The reference node object.
+ *
+ * @return
+ *   Array of object story nids, keyed by status.
+ */
+function storyscope_control_get_reference_object_stories($node) {
+  $object_stories = array();
+
+  // Find all object stories (published or not) that this reference is linked with.
+  $query = db_select('node', 'nd')
+            ->fields('nd', array('nid', 'status'))
+            ->condition('nd.type', 'object_story');
+  $query->leftJoin('field_data_field_object_story_references', 'f', 'nd.nid = f.entity_id AND f.entity_type = :entity_type AND f.deleted = 0', array(':entity_type' => 'node'));
+  $query->leftJoin('node', 'nr', 'f.field_object_story_references_target_id = nr.nid');
+  $query->condition('nr.nid', $node->nid);
+  $query->condition('nr.type', 'reference');
+  $result = $query->execute();
+
+  // Pull out the object stories by status.
+  while ($row = $result->fetchObject()) {
+    $object_stories[$row->status][] = $row->nid;
+  }
+
+  return $object_stories;
+}
+
+/**
+ * Get array of object stories this object is a member of.
+ *
+ * @param $node
+ *   The object node object.
+ *
+ * @return
+ *   Array of object story nids, keyed by status.
+ */
+function storyscope_control_get_object_object_stories($node) {
+  $object_stories = array();
+
+  // Find all object stories (published or not) that this object is linked with.
+  $query = db_select('node', 'nd')
+            ->fields('nd', array('nid', 'status'))
+            ->condition('nd.type', 'object_story');
+  $query->leftJoin('field_data_field_object_story_objects', 'f', 'nd.nid = f.entity_id AND f.entity_type = :entity_type AND f.deleted = 0', array(':entity_type' => 'node'));
+  $query->leftJoin('node', 'nr', 'f.field_object_story_objects_target_id = nr.nid');
+  $query->condition('nr.nid', $node->nid);
+  $query->condition('nr.type', 'object');
+  $result = $query->execute();
+
+  // Pull out the object stories by status.
+  while ($row = $result->fetchObject()) {
+    $object_stories[$row->status][] = $row->nid;
+  }
+
+  return $object_stories;
+}
+
+/**
+ * Get array of object stories this event is a member of.
+ *
+ * @param $node
+ *   The event node object.
+ *
+ * @return
+ *   Array of object story nids, keyed by status.
+ */
+function storyscope_control_get_event_object_stories($node) {
+  $object_stories = array();
+
+  // Find all object stories (published or not) that this event is linked with.
+  $query = db_select('node', 'nd')
+            ->fields('nd', array('nid', 'status'))
+            ->condition('nd.type', 'object_story');
+  $query->leftJoin('field_data_field_object_story_events', 'f', 'nd.nid = f.entity_id AND f.entity_type = :entity_type AND f.deleted = 0', array(':entity_type' => 'node'));
+  $query->leftJoin('node', 'nr', 'f.field_object_story_events_target_id = nr.nid');
+  $query->condition('nr.nid', $node->nid);
+  $query->condition('nr.type', 'event');
+  $result = $query->execute();
+
+  // Pull out the object stories by status.
+  while ($row = $result->fetchObject()) {
+    $object_stories[$row->status][] = $row->nid;
+  }
+
+  return $object_stories;
+}
+
+/**
+ * Get array of plots this plot element is a member of.
+ *
+ * @param $node
+ *   The plot element node object.
+ *
+ * @return
+ *   Array of plot nids, keyed by status.
+ */
+function storyscope_control_get_plot_element_plots($node) {
+  $plots = array();
+
+  // Find all plots (published or not) that this plot element is linked with.
+  $query = db_select('node', 'nd')
+            ->fields('nd', array('nid', 'status'))
+            ->condition('nd.type', 'plot');
+  $query->leftJoin('field_data_field_plot_plot_elements', 'f', 'nd.nid = f.entity_id AND f.entity_type = :entity_type AND f.deleted = 0', array(':entity_type' => 'node'));
+  $query->leftJoin('node', 'nr', 'f.field_plot_plot_elements_target_id = nr.nid');
+  $query->condition('nr.nid', $node->nid);
+  $query->condition('nr.type', 'plot_element');
+  $result = $query->execute();
+
+  // Pull out the plots by status.
+  while ($row = $result->fetchObject()) {
+    $plots[$row->status][] = $row->nid;
+  }
+
+  return $plots;
+}
+

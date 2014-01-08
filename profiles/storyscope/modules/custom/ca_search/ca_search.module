@@ -1,0 +1,667 @@
+<?php
+
+require_once( 'includes/ca_api.inc' );
+
+/**
+ * hook_menu implementation
+ *
+ * Register menu url for viewing and importing a content aggregator object
+ */
+function ca_search_menu()
+{
+  $items = array();
+  $items[ 'dossiers/%/object/search/external-ca/view/%' ] = array(
+    'title' => 'Decipher object',
+    'page callback' => 'ca_search_view_object',
+    'page arguments' => array( 6 ),
+    'access callback' => '_ca_search_access',
+    'type' => MENU_CALLBACK
+  );
+  $items[ 'dossiers/%/object/search/external-ca/import/%' ] = array(
+    'title' => 'Import object',
+    'page callback' => 'ca_search_import_object',
+    'page arguments' => array( 6, 1 ),
+    'access callback' => '_ca_search_access',
+    'type' => MENU_CALLBACK
+  );
+  $items[ 'dossiers/%/objectstories/%/object/search/external-ca/view/%' ] = array(
+    'title' => 'Decipher object',
+    'page callback' => 'ca_search_view_object',
+    'page arguments' => array( 8 ),
+    'access callback' => '_ca_search_access',
+    'type' => MENU_CALLBACK
+  );
+  $items[ 'dossiers/%/objectstories/%/object/search/external-ca/import/%' ] = array(
+    'title' => 'Import object',
+    'page callback' => 'ca_search_import_object',
+    'page arguments' => array( 8, 3 ),
+    'access callback' => '_ca_search_access',
+    'type' => MENU_CALLBACK
+  );
+  return $items;
+}
+
+
+
+
+function ca_search_theme()
+{
+  return array(
+    'ca_object' => array(
+      'template' => 'ca_object',
+      'variables' => array( 'ca_object' => NULL )
+    )
+  );
+}
+
+function template_preprocess_ca_object(&$variables) 
+{
+  $variables["fields"] = $variables[ "ca_object" ][ "fields" ];
+  dsm( $variables );
+  return $variables;
+}
+
+/**
+ * Register the Content Aggregator Search API backend
+ *
+ * @return array $services
+ *   List of all the Search API backend provided by this module
+ */
+function ca_search_search_api_service_info() {
+  $services['search_api_decipher_content_aggregator'] = array(
+    'name' => t('Decipher Content Aggregator service'),
+    'description' => t('<p>Search for content through the Decipher Content Aggregator</p>'),
+    'class' => 'SearchApiDecipherContentAggregatorService',
+  );
+  return $services;
+}
+
+
+
+/**
+ * Register the Content Aggregator content type
+ *
+ * @return $types
+ *    return info array about content aggregator object type
+ */
+function ca_search_search_api_item_type_info()
+{
+  // Copied from search_api_search_api_item_type_info().
+  $types = array();
+  $types['ca_object'] = array(
+    'name' => t('CA Object'),
+    'datasource controller' => 'SearchApiContentAggregatorDataSource'
+  );
+
+  return $types;
+}
+
+
+/**
+ * Enable views hooks
+ */
+function ca_search_views_api()
+{
+  return array
+  (
+    "version" => "3.0",
+    "path" => drupal_get_path( 'module', 'ca_search' ) . '/includes'
+  );
+}
+
+
+
+
+/**
+ * Render a detailed view of a CA object
+ *
+ * @param $ident
+ *    Identifier of a CA object to display. This $id is an index in the currently
+ *    cached CA search results
+ */
+function ca_search_view_object( $ident )
+{
+  $ca_object = _ca_search_get_object_from_cache( $ident );
+  $ident = urldecode( $ident );
+  $ident = explode( ":", $ident );
+  $type = $ident[ 0 ];
+  $id = $ident[ 1 ];
+  if( $ca_object == null )
+  {
+    $ca_object = _ca_search_get_object_from_ca( $id, $type );
+  }
+
+  return theme( 'ca_object', array( "ca_object" => $ca_object ) );
+}
+
+
+
+
+/**
+ * Import a Content Aggregator object and add it to an object story
+ *
+ * @param $id
+ *    Identifier of a CA object to display. 
+ *
+ * @param $parent_id
+ *    Identifier of a Storyscope object story to which a CA object will be added
+ */
+function ca_search_import_object( $ident, $parent_id )
+{
+  // assert $parent_id is an object_story
+  $parent_node = node_load( $parent_id );
+  $parent = entity_metadata_wrapper( 'node', $parent_node );
+  if( ( $parent->type->value() != 'object_story' ) && ( $parent->type->value() != 'dossier' ) )
+  {
+    drupal_set_message( t( 'CA object can only be added to stories or dossiers' ), 'error' );
+    if( isset( $_GET[ 'destination' ] ) )
+      drupal_goto( $_GET[ 'destination' ] );
+    else
+      return '';
+  }
+
+  // retrieve the object from the cache if it's there
+  // otherwise call the content aggregator
+  $ca_object = _ca_search_get_object_from_cache( $ident );
+  $ident = urldecode( $ident );
+  $ident = explode( ":", $ident );
+  $type = $ident[ 0 ];
+  $id = $ident[ 1 ];
+  if( $ca_object == null )
+  {
+    $ca_object = _ca_search_get_object_from_ca( $id, $type );
+  }
+  $new_object = _ca_search_import_ca_object( $ca_object, $parent );
+  if( $new_object != null )
+  {
+    $object = isset( $ca_object[ 'fields' ][ 'title' ] ) ?
+      $ca_object[ 'fields' ][ 'title' ][ 0 ] :
+      $ca_object[ 'fields' ][ 'field_object_identifier' ][ 0 ];
+    drupal_set_message( t( 'Object "@object" imported successfully', 
+      array( "@object" => $object ) ) );
+
+    _ca_search_import_events( $id, $new_object, $type, $parent );
+
+  }
+  else
+    drupal_set_message( t( 'Unable to import the object' ), 'error' );
+  
+  
+  if( isset( $_GET[ 'destination' ] ) )
+    drupal_goto( $_GET[ 'destination' ] );
+  else
+    return '';
+}
+
+
+
+
+
+function _ca_search_get_object_from_cache( $id )
+{
+  global $user;
+  // get ca object from search results cache
+  if( isset( $user->sid ) )
+    $session_id = $user->sid;
+  elseif( isset( $user->ssid ) )
+    $session_id = $user->ssid;
+  else
+  {
+    drupal_set_message( t( 'you need to be logged in to view or import objects' .
+      ' from the Content Aggregator' ), 'error' );
+    return '';
+  }
+  $id = urlencode( $id );
+  $cache = cache_get( 'ca_search_results_' . $session_id, 'cache' );
+  if( !empty( $cache->data ) )
+  {
+    if( array_key_exists( $id, $cache->data ) )
+      return $cache->data[ $id ];
+    else
+      return null;
+  }
+  return null;
+}
+
+
+function _ca_search_get_object_from_ca( $id, $type )
+{
+  // get config from search api server
+  $server = search_api_server_load( 'decipher_ca' );
+  $config = $server->options;
+  $ca_options = array( );
+  if( isset( $config[ 'host' ] ) )
+  {
+    $ca_options[ 'location' ] = 'http://' . $config[ 'host' ];
+    if( isset( $config[ 'port' ] ) )
+      $ca_options[ 'location' ] .= ":" . $config[ 'port' ];
+    if( isset( $config[ 'path' ] ) )
+      $ca_options[ 'location' ] .= $config[ 'path' ];
+  }
+
+  if( $type == 'mus_catalogue' )
+    $search_string[ 'local' ][ 'raw' ] = $id . ' IN sys_id INDEX text';
+  elseif( $type == 'europeana')
+    $search_string[ 'remote' ][ 'europeana:europeana_id' ] = $id;
+  else
+    $search_string = '';
+  
+  $record = content_aggregator_search( 'catalogue', $search_string, 0, 1, $ca_options );
+  $result = content_aggregator_map( ca_fields_map(), $record );
+  return array_shift( $result );
+}
+
+
+/**
+ * Convert a Content Aggregator object to a Storyscope Object
+ * and store it inside Storyscope
+ *
+ * @param $ca_object
+ *    A Content Aggregator object as returned by the Decipher CA
+ *    Search API backend
+ * @return $entity
+ *    EntityMetadataWrapper of the newly added object
+ */
+function _ca_search_import_ca_object( $ca_object, $parent )
+{ 
+  $e = entity_create( 'node', array( 'type' => 'object' ) );
+  node_object_prepare( $e );
+  $entity = entity_metadata_wrapper( 'node', $e );
+
+  // First try to download the image
+  if( isset( $ca_object[ 'fields' ][ 'field_image' ] ) )
+  {
+    $filename = drupal_basename( $ca_object[ 'fields' ][ 'field_image' ][ 0 ] );
+    $dest_dir = file_default_scheme() . "://images/";
+    // make sure destination directory exists
+    if( !file_prepare_directory( $dest_dir, FILE_CREATE_DIRECTORY | FILE_MODIFY_PERMISSIONS ) )
+    {
+      drupal_set_message( t( 'Cannot import images. Inexsistent or read-only destination directory' ), 'error' );
+      return null;
+    }
+    if( !preg_match( '=^[^/?*;:{}\\\\]+\.[^/?*;:{}\\\\]+$=', $filename ) )
+    {
+      $filename = drupal_tempnam( $dest_dir, "" );
+      if( $filename == FALSE )
+      {
+        drupal_set_message( t( 'Cannot import images. Unable to create a filename from image name' ), 'error' );
+        return null;
+      }
+      $filename = drupal_basename( $filename );
+    }
+    $path = $dest_dir . $filename;
+    $options = array( 'timeout' => 120 );
+    $response = drupal_http_request( $ca_object[ 'fields' ][ 'field_image' ][ 0 ], $options );
+    if( $response->code != 200 )
+    {
+      drupal_set_message( t( 'Cannot download images.' ), 'error' );
+      return null;
+    }
+    $file_data = $response->data;
+    $file = file_save_data($file_data, $path, FILE_EXISTS_RENAME);
+    if( empty( $file ) )
+    {
+      return null;
+    }
+    $delta = $entity->field_media->count();
+    $entity->field_media[ $delta ]->file->set( $file );
+  }
+
+  // then set other fields
+  if( isset( $ca_object[ 'fields' ][ 'title' ] ) )
+    $entity->title = $ca_object[ 'fields' ][ 'title' ][ 0 ];
+
+  
+  if( isset( $ca_object[ 'fields' ][ 'field_ca_sec_id' ] ) )
+    $entity->field_ca_sec_id = $ca_object[ 'fields' ][ 'field_ca_sec_id' ];
+  
+
+  
+  if( isset( $ca_object[ 'fields' ][ 'field_object_materials' ] ) )
+  {
+    foreach( $ca_object[ 'fields' ][ 'field_object_materials' ] as $material )
+    {
+      if( empty( $material ) )
+        continue;
+      $material_raw = entity_create( 'field_collection_item', array( 'field_name' => 'field_fb_materials' ) );
+      $material_raw->setHostEntity( 'node', $e );
+      $material_ent = entity_metadata_wrapper( 'field_collection_item', $material_raw );
+      $material_ent->field_fb_materials_topic = $material;
+    }
+  }
+  
+  if( isset( $ca_object[ 'fields' ][ 'field_object_identifier' ] ) )
+  {
+    $obj_id_raw = entity_create( 'field_collection_item', array( 'field_name' => 'field_fb_object_identifier' ) );
+    $obj_id_raw->setHostEntity( 'node', $e );
+    $obj_id_ent = entity_metadata_wrapper( 'field_collection_item', $obj_id_raw );
+    $obj_id_ent->field_fb_object_identifier_topic = $ca_object[ 'fields' ][ 'field_object_identifier' ][ 0 ];
+  }
+
+  if( isset( $ca_object[ 'fields' ][ 'field_object_creator' ] ) )
+  {
+    foreach( $ca_object[ 'fields' ][ 'field_object_creator' ] as $creator )
+    {
+      if( empty( $creator ) )
+        continue;
+      // FreeBase field collection
+      $creator_raw = entity_create( 'field_collection_item', array( 'field_name' => 'field_fb_agent' ) );
+      $creator_raw->setHostEntity( 'node', $e );
+      $creator_ent = entity_metadata_wrapper( 'field_collection_item', $creator_raw );
+      $creator_ent->field_fb_agent_topic = $creator;
+    }
+  }
+  
+
+  if( isset( $ca_object[ 'fields' ][ 'field_object_creation_date_earliest' ] ) )
+  {
+    $date_earliest = $ca_object[ 'fields' ][ 'field_object_creation_date_earliest' ][ 0 ];
+    if( isset( $date_earliest ) )
+    {
+      $matches = array();
+      preg_match( "/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/", $date_earliest, $matches );
+      if( count( $matches ) == 4 )
+      {
+        $lang = $e->language;
+        $e->field_object_creation_date[ $lang ][ 0 ]['from']['day'] = $matches[ 1 ];
+        $e->field_object_creation_date[ $lang ][ 0 ]['from']['month'] = $matches[ 2 ];
+        $e->field_object_creation_date[ $lang ][ 0 ]['from']['year'] = $matches[ 3 ];
+      }
+    }
+  }
+  if( isset( $ca_object[ 'fields' ]['field_object_creation_date_latest'] ) )
+  {
+    $date_latest = $ca_object[ 'fields' ][ 'field_object_creation_date_latest' ][ 0 ];
+    if( isset( $date_latest ) )
+    {
+      preg_match( "/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/", $date_latest, $matches );
+      if( count( $matches ) == 4 )
+      {
+        $lang = $e->language;
+        $e->field_object_creation_date[ $lang ][ 0 ]['to']['day'] = $matches[ 1 ];
+        $e->field_object_creation_date[ $lang ][ 0 ]['to']['month'] = $matches[ 2 ];
+        $e->field_object_creation_date[ $lang ][ 0 ]['to']['year'] = $matches[ 3 ];
+      }
+    }    
+  }
+
+  if( isset( $ca_object[ 'fields' ][ 'field_object_credit_line' ] ) )
+  {
+    $entity->field_object_credit_line = _ca_search_get_taxonomy_term(
+      $ca_object[ 'fields' ][ 'field_object_credit_line' ][ 0 ],
+      'credit_line'
+    );
+  }
+
+  if( isset( $ca_object[ 'fields' ][ 'field_object_collection' ] ) )
+  {
+      // FreeBase field collection
+    $location_raw = entity_create( 'field_collection_item', array( 'field_name' => 'field_fb_location' ) );
+    $location_raw->setHostEntity( 'node', $e );
+    $location_ent = entity_metadata_wrapper( 'field_collection_item', $location_raw );
+    $location_ent->field_fb_location_topic = $ca_object[ 'fields' ][ 'field_object_collection' ];
+  }
+
+
+  
+  if( isset( $ca_object[ 'fields' ][ 'body' ] ) )
+    $entity->body->value->set( $ca_object[ 'fields' ][ 'body' ][ 0 ] );
+
+
+  // set the parent
+  if( $parent->type->value() == 'object_story' )
+    $e->object_story = $parent->nid->value();
+  elseif( $parent->type->value() == 'dossier' )
+    $e->dossier = $parent->nid->value();
+  else 
+  {
+    drupal_set_message( t( 'CA object can only be added to stories or dossiers' ), 'error' );
+    return null;
+  }
+
+  try {
+    entity_save( 'node', $e );
+  } catch( Exception $e ) {
+    return null;
+  }
+  return $entity;
+}
+
+
+
+// only authenticated users can search the content aggregator
+// and import objects into storyscope
+function _ca_search_access()
+{
+  global $user;
+  if( property_exists( $user, 'sid' ) || property_exists( $user, 'ssid' ) )
+    return TRUE;
+  else
+    return FALSE;
+}
+
+
+/**
+ * Get an existent taxonomy term if one with name
+ * $name is found in $vocabulary, otherwise it
+ * creates a new one
+ *
+ * @param $name
+ *    taxonomy term to search for
+ *
+ * @param $vocabulary
+ *    the vocabulary to search through
+ *
+ * @return
+ *    A taxonomy term for which name == $name or a newly created term
+ *    with name == $name
+ */
+function _ca_search_get_taxonomy_term( $name, $vocabulary )
+{
+  $vocabularies = taxonomy_vocabulary_get_names();
+  $vid = $vocabularies[ $vocabulary ]->vid;
+  $query = new EntityFieldQuery;
+  $result = $query
+    ->entityCondition( 'entity_type', 'taxonomy_term' )
+    ->propertyCondition( 'name', trim( $name ) )
+    ->propertyCondition( 'vid', $vid )
+    ->execute();
+  if( !empty( $result[ 'taxonomy_term'  ] ) )
+  {
+    // we expect one term
+    $keys = array_keys( $result[ 'taxonomy_term' ] );
+    $entities = entity_load( 'taxonomy_term', $keys );
+    $term = $entities[ $keys[ 0 ] ];
+  }
+  else
+  {
+    $term_fields = array( 'name' => trim( $name ), 'vid' => $vid );
+    $term = entity_create( 'taxonomy_term', $term_fields );
+    entity_save( 'taxonomy_term', $term );
+  }
+  return $term;
+}
+
+
+
+
+/**
+ * Import events associated with a CA object
+ */
+function _ca_search_import_events( $object_id, $object, $type, $parent )
+{
+  // get config from search api server
+  $server = search_api_server_load( 'decipher_ca' );
+  $config = $server->options;
+  $ca_options = array( );
+  if( isset( $config[ 'host' ] ) )
+  {
+    $ca_options[ 'location' ] = 'http://' . $config[ 'host' ];
+    if( isset( $config[ 'port' ] ) )
+      $ca_options[ 'location' ] .= ":" . $config[ 'port' ];
+    if( isset( $config[ 'path' ] ) )
+      $ca_options[ 'location' ] .= $config[ 'path' ];
+  }
+
+  if( $type == 'mus_catalogue' )
+    $search_string[ 'local' ][ 'events' ] = $object_id;
+  elseif( $type == 'europeana')
+    $search_string[ 'remote' ][ 'europeana:europeana_id' ] = $object_id;
+  else
+    $search_string = '';
+  $records = content_aggregator_search( 'event', $search_string, 0, 1, $ca_options );
+  $results = content_aggregator_map( ca_event_map(), $records, 'field_ca_sec_id', false );
+  $imported = 0;
+
+  foreach( $results as $result )
+  {
+    $ev = _ca_search_import_event( $result, $parent, $object );
+    if( $ev != null )
+      ++$imported;
+  }
+  drupal_set_message( format_plural( $imported, 'Imported 1 event', 'Imported @count events' ) );  
+}
+
+
+function _ca_search_import_event( $record, $parent, $object )
+{
+  $e = entity_create( 'node', array( 'type' => 'event' ) );
+  node_object_prepare( $e );
+  $event = entity_metadata_wrapper( 'node', $e );
+
+  if( isset( $record[ 'fields' ][ 'title' ] ) )
+    $event->title = $record[ 'fields' ][ 'title' ][ 0 ];
+
+  if( isset( $record[ 'fields' ][ 'field_event_materials' ] ) )
+  {
+    foreach( $record[ 'fields' ][ 'field_event_materials' ] as $material )
+    {
+      if( empty( $material ) )
+        continue;
+      $material_raw = entity_create( 'field_collection_item', array( 'field_name' => 'field_fb_materials' ) );
+      $material_raw->setHostEntity( 'node', $e );
+      $material_ent = entity_metadata_wrapper( 'field_collection_item', $material_raw );
+      $material_ent->field_fb_materials_topic = $material;
+    }
+  }
+
+  if( isset( $record[ 'fields' ][ 'field_event_agent' ] ) )
+  {
+    foreach( $record[ 'fields' ][ 'field_event_agent' ] as $creator )
+    {
+      if( empty( $creator ) )
+        continue;
+      $creator_raw = entity_create( 'field_collection_item', array( 'field_name' => 'field_fb_agent' ) );
+      $creator_raw->setHostEntity( 'node', $e );
+      $creator_ent = entity_metadata_wrapper( 'field_collection_item', $creator_raw );
+      $creator_ent->field_fb_agent_topic = $creator;
+    }
+  }
+
+  if( isset( $record[ 'fields' ][ 'field_event_start_time' ] ) )
+  {
+    $date_earliest = $record[ 'fields' ][ 'field_event_start_time' ][ 0 ];
+    if( isset( $date_earliest ) )
+    {
+      $matches = array( );
+      preg_match( "/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/", $date_earliest, $matches );
+      if( count( $matches ) == 4 )
+      {
+        $lang = $e->language;
+        $e->field_event_start_time[ $lang ][ 0 ][ 'from' ][ 'day' ] = $matches[ 1 ];
+        $e->field_event_start_time[ $lang ][ 0 ][ 'from' ][ 'month' ] = $matches[ 2 ];
+        $e->field_event_start_time[ $lang ][ 0 ][ 'from' ][ 'year' ] = $matches[ 3 ];
+      }
+    }
+
+  }
+  if( isset( $record[ 'fields' ][ 'field_event_end_time' ] ) )
+  {
+    $date_latest = $record[ 'fields' ][ 'field_event_end_time' ][ 0 ];
+    if( isset( $date_latest ) )
+    {
+      $matches = array( );
+      preg_match( "/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/", $date_latest, $matches );
+      if( count( $matches ) == 4 )
+      {
+        $lang = $e->language;
+        $e->field_event_end_time[ $lang ][ 0 ][ 'from' ][ 'day' ] = $matches[ 1 ];
+        $e->field_event_end_time[ $lang ][ 0 ][ 'from' ][ 'month' ] = $matches[ 2 ];
+        $e->field_event_end_time[ $lang ][ 0 ][ 'from' ][ 'year' ] = $matches[ 3 ];
+      }
+    }    
+  }
+
+  if( isset( $record[ 'fields' ][ 'field_event_activity' ][ 0 ] ) )
+  {
+    $event->field_event_activity = _ca_search_get_taxonomy_term(
+      $record[ 'fields' ][ 'field_event_activity' ][ 0 ], 'event_activity'
+    );
+  }
+  
+  if( isset( $record[ 'fields' ][ 'field_event_location' ][ 0 ] ) )
+  {
+    $location_raw = entity_create( 'field_collection_item', array( 'field_name' => 'field_fb_location' ) );
+    $location_raw->setHostEntity( 'node', $e );
+    $location_ent = entity_metadata_wrapper( 'field_collection_item', $location_raw );
+    $location_ent->field_fb_location_topic = $record[ 'fields' ][ 'field_event_location' ][ 0 ];
+  }
+
+
+  if( isset( $record[ 'fields' ][ 'field_event_theme' ][ 0 ] ) )
+  {
+    $event->field_event_theme = _ca_search_get_taxonomy_term(
+      $record[ 'fields' ][ 'field_event_theme' ][ 0 ], 'event_theme_associated_concepts'
+    );
+  }
+
+  if( isset( $record[ 'fields' ][ 'field_event_style_movement' ] ) )
+  {
+    $style_raw = entity_create( 'field_collection_item', array( 'field_name' => 'field_fb_style_movement' ) );
+    $style_raw->setHostEntity( 'node', $e );
+    $style_ent = entity_metadata_wrapper( 'field_collection_item', $style_raw );
+    $style_ent->field_fb_style_movement_topic = $record[ 'fields' ][ 'field_event_style_movement' ][ 0 ];
+  }
+  
+  // set the parent
+  try 
+  {
+    if( $parent->type->value() == 'object_story' )
+    {
+      $e->object_story = $parent->nid->value();
+      $event->save();
+    }
+    elseif( $parent->type->value() == 'dossier' ) 
+    {
+      $e->dossier = $parent->nid->value();
+      $event->save();
+    
+      // we need to add the event to the object story
+      // that gets created when an object is added to a dossier
+      $query = new EntityFieldQuery();
+      $query = $query->entityCondition('entity_type', 'node');
+      $query = $query->propertyCondition('type', 'object_story');
+      $parent_ent = $parent->value();
+      $query = $query->propertyCondition('nid', $parent_ent->field_dossier_object_stories[ 'und' ], 'IN' );
+      $query = $query->fieldCondition('field_object_story_objects', 'target_id', $object->nid->value() );
+      $results = $query->execute(); 
+      $object_story_id = array_shift( $results[ 'node' ] );
+      if( !empty( $object_story_id ) )
+      {
+        $os_ent = array_shift( entity_load( 'node', array( $object_story_id->nid ) ) );
+        $os_wrap = entity_metadata_wrapper( 'node', $os_ent );
+        $delta = $os_wrap->field_object_story_events->count();
+        $os_wrap->field_object_story_events[ $delta ]->set( $event );
+        $os_wrap->save();
+      }
+    } else {
+      drupal_set_message( t( ' CA object can only be added to stories or dossiers' ), 'error' );
+      return null;
+    }
+  }
+  catch( Exception $e )
+  {
+    return null;
+  }
+  return $event;
+}

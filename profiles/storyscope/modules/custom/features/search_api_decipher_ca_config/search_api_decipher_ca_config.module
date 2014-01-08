@@ -1,0 +1,7 @@
+<?php
+/**
+ * @file
+ * Code for the Search API Decipher CA config feature.
+ */
+
+include_once 'search_api_decipher_ca_config.features.inc';

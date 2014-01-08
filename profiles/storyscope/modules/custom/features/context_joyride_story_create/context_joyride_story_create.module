@@ -1,0 +1,7 @@
+<?php
+/**
+ * @file
+ * Code for the Context Joyride - Story create feature.
+ */
+
+include_once 'context_joyride_story_create.features.inc';

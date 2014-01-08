@@ -1,0 +1,7 @@
+<?php
+/**
+ * @file
+ * Code for the Panels Node Narrative as Website feature.
+ */
+
+include_once 'panels_node_narrative_as_website.features.inc';

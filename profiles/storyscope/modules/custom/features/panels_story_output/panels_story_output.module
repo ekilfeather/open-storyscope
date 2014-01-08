@@ -1,0 +1,7 @@
+<?php
+/**
+ * @file
+ * Code for the Panels story output feature.
+ */
+
+include_once 'panels_story_output.features.inc';

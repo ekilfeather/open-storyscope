@@ -1,0 +1,11 @@
+core = "7.x"
+description = "Custom access control rules and functions."
+name = "Storyscope Control"
+package = Storyscope
+
+files[] = storyscope_control.test
+
+dependencies[] = nodeaccess_userreference
+dependencies[] = entity
+;dependencies[] = storyscope_content
+

@@ -1,0 +1,7 @@
+<?php
+/**
+ * @file
+ * Code for the Views pick object example feature.
+ */
+
+include_once 'views_pick_object_example.features.inc';

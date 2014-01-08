@@ -1,0 +1,1786 @@
+<?php
+
+/**
+ * file: dec_rdf.module
+ *
+ * The initial treatment of an RDF API for the DECIPHER project
+ * D7 code revising old D6 code
+ *
+ * At the moment, the node types of interest are:
+ *
+ *   "dossier", "event", "source_event", "plot", "plot_element", "plot",
+ *   "plot_element", "object_story", "reference"
+ *
+ * The function sends triples in the x-rdftransaction format, for documentation see:
+ * http://www.openrdf.org/doc/sesame2/system/ch08.html
+ * http://www.franz.com/agraph/support/documentation/current/http-protocol.html
+ *
+ * KEY CONFIGURATIONS:
+ * - Set these at admin/config/services/dec_rdf after installation, further comments
+ *   on the defaults are presented there, and in the definition of dec_rdf_form_config, below.
+ *
+ *     dec_triple_store         (default is http://decipher.open.ac.uk/openrdf-sesame)
+ *     dec_triple_repo          (default is Decipher)
+ *     dec_triples_base_url     (default is $base_url)
+ *     dec_recommender_on       (default is OFF)
+ *     dec_rdf_debug            (default is OFF)
+ *     dec_recommender_base     (default is http://decipher.open.ac.uk/SemRecommender/)
+ *
+ * Author: Joe Corneli <holtzermann17@gmail.com>
+ *
+ */
+
+/**
+ * function: dec_rdf_menu
+ *
+ * Implements hook_menu
+ *
+ * Path for administration.
+ * Callbacks for "Add" buttons.
+ */
+
+function dec_rdf_menu(){
+
+  $items['admin/config/services/dec_rdf'] = array(
+   'title' => 'Triple store',
+    'description' => 'Configure variables associated with the Sesame store and SemRecommender service used by StoryScope.',
+     'page callback' => 'drupal_get_form',
+      'page arguments' => array('dec_rdf_form_config'),
+       'access callback' => 'user_access',
+        'access arguments' => array('administer site configuration'),
+  );
+
+  $items['dossier/%/add-rec-event/%'] = array(
+    'page callback' => 'dec_rdf_add_rec_event',
+    'page arguments' => array(1, 3),
+    'access callback' => TRUE,
+    'type' => MENU_CALLBACK,
+  );
+
+  $items['dossier/%/events/%/add-rec-events-event/%'] = array(
+    'page callback' => 'dec_rdf_add_rec_events_event',
+    'page arguments' => array(1, 3, 5),
+    'access callback' => TRUE,
+    'type' => MENU_CALLBACK,
+  );
+
+  /* Nb. currently the recommender will recommend the same sections
+   for all stories attached to a given dossier, but we'll probably see
+   different recommendations per story soon.*/
+  $items['dossiers/%/stories/%/add-rec-section/%'] = array(
+    'page callback' => 'dec_rdf_add_rec_section',
+    'page arguments' => array(1, 3, 5),
+    'access callback' => TRUE,
+    'type' => MENU_CALLBACK,
+  );
+
+  return $items;
+}
+
+/**
+ * function dec_rdf_debug
+ *
+ * Useful for developers who are debugging the code in this file.
+ * Change FALSE to TRUE to print messages e.g. during migration.
+ */
+
+function dec_rdf_debug ($string){
+  if(variable_get('dec_rdf_print_debug_info','0')) {
+    dec_rdf_debug_pr($string);
+  }
+}
+
+function dec_rdf_debug_pr ($string){
+  dd($string.PHP_EOL);
+}
+
+/**
+ * function dec_rdf_debug_request
+ *
+ * Prints additional debugging information to your drupal_debug.txt fil
+ * (e.g. /tmp/drupal_debug.txt on Ubuntu).
+ */
+function dec_rdf_debug_request ($request){
+  if(variable_get('dec_rdf_print_debug_info','0')) {
+    dd($request);
+  }
+}
+
+/**
+ * function dec_rdf_form_config
+ */
+function dec_rdf_form_config(){
+    $form['dec_triple_store'] = array(
+        '#type' => 'textfield',
+        '#title' => t('Triple Store Address'),
+        '#default_value' => variable_get('dec_triple_store'),
+        '#description' => t('Location of the Sesame store where triples should be stored to support recommendation and other downstream services.  The Knowledge Media Institute provides a publicly accessible store at !openrdf that you are welcome to use.', array('!openrdf' => "<em>http://decipher.open.ac.uk/openrdf-sesame</em>")),
+        '#required' => TRUE,
+    );
+
+    $form['dec_triple_repo'] = array(
+        '#type' => 'textfield',
+        '#title' => t('Triple Store Repo Name'),
+        '#default_value' => variable_get('dec_triple_repo'),
+        '#description' => t("StoryScope stores triples in this named repository within the triple store.  The public store hosted by the Knowledge Media Institute uses a repository called !store; no need to alter this line if using the default public store above.",array("!store"=>"<em>Decipher</em>")),
+        '#required' => TRUE,
+    );
+
+    $form['dec_triples_base_url'] = array(
+        '#type' => 'textfield',
+        '#title' => t('Triples Base URI'),
+        '#default_value' => variable_get('dec_triples_base_url'),
+        '#description' => t("Base URL to use in URIs stored in the Storyscope repository.  This defaults to the URL on which you've installed Drupal, !front, but it can in fact be any URL, even something made up.  If you're installing on localhost and you intend to use the shared public store, we suggest that you generate an alternative, unique, identifier.", 
+                            array("!front"=> "<em>". trim(url("<front>", Array("absolute" => TRUE)),"/") . "</em>")),
+        '#required' => TRUE,
+    );
+
+    $form['dec_recommender_base'] = array(
+        '#type' => 'textfield',
+        '#title' => t('SemRecommender Base URI'),
+        '#default_value' => variable_get('dec_recommender_base'),
+        '#description' => t('Base URL to use for the SemRecommender.  The Knowledge Media Institute provides a demonstration of the recommender service running at !semrec which you are welcome to use.',array("!semrec"=>"<em>http://decipher.open.ac.uk/SemRecommender</em>")),
+        '#required' => TRUE,
+    );
+
+    $form['dec_recommender_on'] = array(
+        '#type' => 'radios',
+        '#tree' => 'true',
+        '#title' => t('SemRecommender ON?'),
+        '#default_value' => variable_get('dec_recommender_on','0'),
+	'#options' => array(t("OFF"),t("ON")),
+        '#description' => t('Should we recalculate recommendations generated by the SemRecommender service? (Should be turned ON for production sites.)'),
+        '#required' => TRUE,
+    );
+
+    $form['dec_rdf_print_debug_info'] = array(
+        '#type' => 'radios',
+        '#tree' => 'true',
+        '#title' => t('Print debugging info to the console?'),
+        '#default_value' => variable_get('dec_rdf_print_debug_info','0'),
+	'#options' => array(t("OFF"),t("ON")),
+        '#description' => t('Should we print debugging info? (Should be turned OFF for production sites.)'),
+        '#required' => TRUE,
+    );
+
+    return system_settings_form($form);
+}
+
+/**
+ * function: dec_rdf_add_recalculations
+ *
+ * @param $requests
+ *   A list of requests to add to
+ *
+ * This function helps prepare a list of requests for recalculations that will be run in serial
+ * It currently runs on insert and update.  There's no additional need to run it when accepting
+ * recommendations, because that will call the "insert" hook.
+ *
+ * jac - October 9, 2013 - note that this will have to be revised later to recalculate narratives.
+ *
+ */
+
+function dec_rdf_recalculate_sections($requests,$nid){
+  $rec = variable_get('dec_recommender_base','http://decipher.open.ac.uk/SemRecommender');
+  $client = variable_get('dec_triples_base_url', trim(url("<front>", Array("absolute" => TRUE))),"/");
+
+  $requests[] = background_process_http_request($rec."/recommendSections/recalculate?dossierID=".$client."/dossiers/".$nid,
+                                                array('postpone'=>TRUE,
+                                                      'callback'=>'dec_rdf_debug_request'));
+  return $requests;
+}
+
+
+function dec_rdf_recalculate_events($requests,$nid){
+  $rec = variable_get('dec_recommender_base','http://decipher.open.ac.uk/SemRecommender');
+  $client = variable_get('dec_triples_base_url', trim(url("<front>", Array("absolute" => TRUE))),"/");
+
+  $requests[] = background_process_http_request($rec."/recommendEvents/recalculate?dossierID=".$client."/dossiers/".$nid,
+                                                array('postpone'=>TRUE,
+                                                      'callback'=>'dec_rdf_debug_request'));
+  return $requests;
+}
+
+function dec_rdf_recalculate_narratives($requests,$nid){
+  $rec = variable_get('dec_recommender_base','http://decipher.open.ac.uk/SemRecommender');
+  $client = variable_get('dec_triples_base_url', trim(url("<front>", Array("absolute" => TRUE))),"/");
+
+  // To implement
+
+  return $requests;
+}
+
+/**
+ * function: dec_rdf_node_insert
+ *
+ * @param $node
+ *   A node
+ *
+ * Implements hook_node_insert
+ *
+ * The purpose of this function is to run the triple transaction on
+ * any nodes that we want to create and store RDF about.
+ */
+
+function dec_rdf_node_insert($node){
+  $sampleRepository = variable_get('dec_triple_repo', 'Decipher');
+  if (in_array($node->type, array("dossier", "event", "source_event", "plot", "plot_element", "plot", "object_story", "reference", "object", "story", "section"))) {
+
+    $requests = array();
+    $requests = dec_rdf_triple_transaction($node, $sampleRepository, "add", NULL,$requests);
+
+    // As part of the insert hook, run "recalculations" on the parent
+    // dossier (or story) depending on the type of the new node that was added.
+    if(variable_get('dec_recommender_on',0)){
+      $parent_dossier = NULL;
+      if($node->type == "event" || $node->type == "object_story"){
+        $parent_dossier = dec_rdf_get_parent_dossier();
+        if($parent_dossier){
+          $requests = dec_rdf_recalculate_sections($requests,$parent_dossier);
+        }
+      }
+      if($node->type == "event"){
+        if($parent_dossier){
+          $requests = dec_rdf_recalculate_events($requests,$parent_dossier);
+        }
+      }
+
+      /* jac Oct 10 2013, need to find the parent story in this case rather than the dossier.*/
+      if($node->type == "section"){
+        $parent_story = dec_rdf_get_parent_story();
+        if($parent_story){
+          $requests = dec_rdf_recalculate_narratives($requests,$parent_story);
+        }
+      }
+    }
+
+    background_process_start('dec_rdf_run_bg_requests',$requests);
+  }
+}
+
+function dec_rdf_run_bg_requests($requests){
+  background_process_http_request_process($requests, array('limit' => 1));
+}
+
+/**
+ * function: dec_rdf_node_update
+ *
+ * @param $node
+ *   A node
+ *
+* Implements hook_node_update
+ *
+ * The purpose of this function is to run the relevant triple transaction(s) on
+ * any nodes that have been updated
+ */
+
+function dec_rdf_node_update($node) {
+  $sampleRepository = variable_get('dec_triple_repo', 'Decipher');
+
+  if (in_array($node->type, array("dossier", "event", "source_event", "object_story", "reference",  "object", "story", "section"))) {
+
+    // First remove and then add?
+    // ... Let's just "add" for now, until we have everything sorted out
+    // One way to remove things is to clear the context; another related notion is
+    // to delete everything with the corresponding subject (if that is indeed how things
+    // are stored, either way, we'd have to check that)...
+    // dec_rdf_triple_transaction($node, $sampleRepository, "remove");
+
+    dec_rdf_debug("making path for ".$node->nid);
+    $path = dec_rdf_make_path_from_node($node);
+    $requests = array();
+    $requests = dec_rdf_clear_context($sampleRepository,$path,$requests);
+    $requests = dec_rdf_triple_transaction($node, $sampleRepository, "add", NULL,$requests);
+
+    // Note somewhat more inclusive instructions for recalculations than in the insert
+    // case.  This is because there's no point in recalculating on a dossier node when
+    // it is inserted, since it will just be blank.  However, if it's updated, then that's
+    // meaningful (it means that there are some contents).
+    if(variable_get('dec_recommender_on',0)){
+      $parent_dossier = NULL;
+      if($node->type == "dossier" || $node->type == "event" || $node->type == "object_story"){
+        $parent_dossier = dec_rdf_get_parent_dossier();
+        if($parent_dossier){
+          $requests = dec_rdf_recalculate_sections($requests,$parent_dossier);
+        }
+      }
+      if($node->type == "dossier" || $node->type == "event"){
+        if($parent_dossier){
+          $requests = dec_rdf_recalculate_events($requests,$parent_dossier);
+        }
+      }
+
+      if($node->type == "story" || $node->type == "section"){
+        $parent_story = dec_rdf_get_parent_story();
+        if($parent_story){
+          $requests = dec_rdf_recalculate_narratives($requests,$parent_story);
+        }
+      }
+    }
+
+    background_process_start('dec_rdf_run_bg_requests',$requests);
+    dec_rdf_debug(print_r($requests,TRUE));
+  }
+}
+
+/**
+ * function: dec_rdf_clear_context
+ *
+ * @param: repository
+ * @param: context
+ *
+ * This one can happen synchronously because it's quick
+ */
+
+function dec_rdf_clear_context($repository,$context,$requests){
+  $method = "DELETE";
+  $openrdfhost = variable_get('dec_triple_store', 'http://decipher.open.ac.uk/openrdf-sesame');
+  $url = $openrdfhost . "/repositories/" . $repository . "/statements?context=<".$context.">";
+  $newReq = background_process_http_request($url, array('method' => $method,
+                                                        'postpone' => TRUE,
+                                                        'callback'=>'dec_rdf_debug_request'));
+  dec_rdf_debug(print_r($newReq,TRUE));
+  $requests[] = $newReq;
+  return $requests;
+}
+
+/**
+ * function: dec_rdf_triple_transaction
+ *
+ * Port of dec_triple_transaction2 from Storyscope's dec_story.module
+ *
+ * @param $node
+ *   A node
+ * @param $repository
+ *   A repository
+ * @param $action (default: "add", alternatively "remove")
+ *   An action
+ * @param $subject_context (default: NULL)
+ *   A subject context
+ * @return
+ *   none
+ *
+ * Beginning to reimplement this function in a D7 way, using the structures from
+ * dec_rdf.install (and not doing the node-based representation from D6).
+ *
+ * Dependencies: dec_make_path_from_node, dec_send_transaction_document
+ *
+ * So let's start by porting those...
+ *
+ * It's worth noting that in D6 this was called from A LOT of different places:
+ *
+ *   dec_4a_annotation dec_4a_attribute dec_api dec_event
+ *   dec_event_type dec_excerpts dec_facet dec_narrative dec_object
+ *   dec_plot dec_plot_description dec_plot_description_structure
+ *   dec_plot_element_type_subclass dec_reference dec_story
+ *   dec_tagged_event
+ *
+ * But that's all been supplanted by the general hooks above.
+ *
+ * But we'll catch up with that a little bit later (for one thing, we'll have to see what
+ * the D7 versions of these files are even about...).
+ *
+ * The data we gather are as follow (possibly multiple entries like
+ * this for each node type):
+ *
+ *   $data->title;             - A short name
+ *   $data->description;       - A more complete description
+ *   $data->node_type;         - We will restrict to rows that reference this node type
+ *   $data->field;             - If this is null, we're only recording the node type
+ *   $data->field_value;       - If we have the name of the field but not the "value", we
+ *                               just record whatever is stored on the named field
+ *                             - But if we do have a "value" as well as a field, then the
+ *                               particular value will trigger our choice of final answer
+ *   $data->object;            - The right-hand-side of the triple (if not what is stored on
+ *                               the field); this is NULL if we're supposed to use the field
+ *   $data->property;          - The middle of the tripple
+ *   $data->object_type;       - The XML datatype associated with the object; subject type and
+ *                               property type are always "uri"
+ *   $data->lookupcode;        - For typical fields, this says how to look things up.
+ *                               For more complicated fields, we use the special token
+ *                               "custom" and provide a special function here based on
+ *                               the field.
+ *
+ * LOGIC FLOW NOTES
+ *
+ * I.  In this case, we will check to see whether the $node has
+ * the SAME VALUE on the field of interest -- if it does, we will
+ * use the object noted in the data, otherwise we skip this one.
+ *
+ * NOTE: the more complicated relationships require a different sort of logic here!
+ * e.g.   node_load(819); // plot element
+ *
+ * either you just have one set of related events, in when there is only one field collection
+ * otherwise, "source" is the first, "consequence" is the second
+ * entity_load('field_collection_item',array(379));
+ * how to reconstitute the values of field_plot_element_plot_set
+ */
+
+function dec_rdf_triple_transaction($node, $repository, $action = "add", $subject_context = NULL,$requests) {
+  $triples = array();
+
+  // The RDF subject is determined by this line ...
+  // we will find the property and object stuff shortly
+  dec_rdf_debug("making path for ".$node->nid . PHP_EOL);
+  $subject = dec_rdf_make_path_from_node($node);
+
+  // dd("START OF TRIPLE TRANSACTION FOR NODE ".$node->nid." (".$subject.")" . PHP_EOL);
+
+  $results = db_query("SELECT * FROM {dec_rdf_property_mapping} WHERE node_type = :type",
+                      array(':type' => $node->type));
+  // Go through each of the instructions associated with the specified node type
+  // - These are defined, per node_type, and per field, by entries in the .install file.
+  // - (Note: fields that are left blank in that file code for the "type" of the node itself.)
+  //
+  // Our task is to identify the subject, property, and object for the triple(s)
+  // associated with the node for each of the entries in the install file.
+  //
+  // We loop over all of the
+  foreach ($results as $data) {
+    // First key point: look for the field in the data
+    $objectOfInterest = NULL;
+    $fieldOfInterest = $data->field;
+    // dd("Field Of Interest: " . $fieldOfInterest);
+    // If there is one, then process that in various ways, otherwise we're in the
+    // node_type coding case.
+    if ($fieldOfInterest) {
+      if(isset($node->$fieldOfInterest) && $node->$fieldOfInterest
+         && ($node->$fieldOfInterest == $data->field_value) ) {
+        // I.  [This condition is DEPRECATED, because
+        // $data->field_value is never set in the .install file, so
+        // the various AND conditions are never met.]
+
+	$triples[] = dec_rdf_form_triple($subject,
+                                         $data->property,
+                                         $data->object,
+                                         $data->object_type);
+
+      } else { /* begin $node->$fieldOfInterest != $data->field_value case */
+        // II. The "field of interest" on our node might not be set.  Let's check:
+        if(isset($node->$fieldOfInterest)) { /* begin $node->$fieldOfInterest is defined */
+          // III. We provide some custom functions for exporting some of the special fields
+          // These functions are defined later on in this file.
+          // "Standard" exports are defined in the non-custom case, just below
+          if($data->lookupcode == 'custom') { /* begin custom lookup */
+            {
+              switch ($fieldOfInterest) {
+              case 'field_dossier_events':
+                $triples = array_merge($triples, dec_rdf_gen_triples_dossier_events($node));
+                break;
+              case 'field_dossier_object_stories':
+                $triples = array_merge($triples, dec_rdf_gen_triples_dossier_object_stories($node));
+                break;
+              case 'field_dossier_references':
+                $triples = array_merge($triples, dec_rdf_gen_triples_dossier_references($node));
+                break;
+              case 'field_dossier_plots':
+                $triples = array_merge($triples, dec_rdf_gen_triples_dossier_plots($node));
+                break;
+              case 'field_plot_plot_elements':
+                $triples = array_merge($triples, dec_rdf_gen_triples_plot_plot_elements($node));
+                break;
+              case 'field_plot_element_plot_set_1':
+                $triples = array_merge($triples, dec_rdf_gen_triples_plot_element_plot_set($node, 1));
+                break;
+              case 'field_plot_element_plot_set_2':
+                $triples = array_merge($triples, dec_rdf_gen_triples_plot_element_plot_set($node, 2));
+                break;
+              case 'field_object_story_events':
+                $triples = array_merge($triples, dec_rdf_gen_triples_object_story_events($node));
+                break;
+              case 'field_object_story_objects':
+                $triples = array_merge($triples, dec_rdf_gen_triples_object_story_objects($node));
+                break;
+              case 'field_object_story_references':
+                $triples = array_merge($triples, dec_rdf_gen_triples_object_story_references($node));
+                break;
+              case 'field_plot_element_relationship':
+                $triples = array_merge($triples, dec_rdf_gen_triples_plot_element_relationship($node));
+                break;
+              case 'field_dossier_stories':
+                $triples = array_merge($triples, dec_rdf_gen_triples_dossier_stories($node));
+                break;
+              case 'field_story_events':
+                $triples = array_merge($triples, dec_rdf_gen_triples_story_events($node));
+                break;
+              case 'field_story_set':
+                $triples = array_merge($triples, dec_rdf_gen_triples_story_set($node));
+                break;
+              case 'field_story_sections':
+                $triples = array_merge($triples, dec_rdf_gen_triples_story_sections($node));
+                break;
+              default:
+                break;
+              }
+            }
+          } /* end custom lookup */
+          else { /* we're not the custom lookup scenario, so we do the "standard" lookup */
+            if (is_string($node->$fieldOfInterest)) {
+              // IV.  The object of interest is just a string from the node
+              dec_rdf_debug("Object of interest is a string from the node.".PHP_EOL);
+              $objectOfInterest=htmlspecialchars(drupal_html_to_text($node->$fieldOfInterest));
+            } elseif (is_array($node->$fieldOfInterest)){
+              // V.  If the field of interest is an array, we might have to export
+              // several triples.  This depends on the Lookup Code that comes from the
+              // install file:
+              //
+              // - "tid", "fci", or "value" means that we're just expecting a singular item
+              // - "tids" or "fcis" means that we're expecting multiple items.
+              //
+              // Furthermore, "fci" (and "fcis") entries may themselves spawn multiple
+              // triples, because the linked field collections themselves contain multiple
+              // fields (as the name "field collection" indicates!).
+              //
+              // However, things become a little tricky for freebaseized items.  We want to
+              // add one triple pointing from the node to the "main" element from a field
+              // collection -- and then add more triples clustered around that element.
+              // The implementation of ``dec_rdf_gen_triples_fcis'' assumes that the first
+              // time listed in the install file is the "main" element, and everything else
+              // is attached to it.  This will work for our current data set anyway.
+
+              /* Set the actual field*/
+              $theActualField = $node->$fieldOfInterest;
+              // dd("FIELDOFINTEREST");
+              // dd($fieldOfInterest);
+
+              if($data->lookupcode)
+                {
+                  $theLookupCode = $data->lookupcode;
+                  // VI.  Just exporting a single term from the taxonomy
+                  if($theLookupCode == 'tid' ) {
+                    if(isset($theActualField['und'][0]['tid'])) {
+                      $myTid = $theActualField['und'][0]['tid'];
+                      dec_rdf_debug("Object of interest coming from taxonomy term (".$myTid.").");
+                      // Need to do this in 2 steps for older versions of PHP
+                      $objectOfInterestEntity = entity_load('taxonomy_term', array($myTid));
+                      $objectOfInterest =$objectOfInterestEntity[$myTid]->name;
+                    }
+                  }
+                  // VII. We read a literal value that's stored in the node
+                  elseif ($theLookupCode == "value") {
+                    if(isset($theActualField['und'][0]['value'])) {
+                      $objectOfInterest = htmlspecialchars(drupal_html_to_text($theActualField['und'][0]['value']));
+                      if(!empty($objectOfInterest)){
+                        dec_rdf_debug("Object of interest coming a value stored on the node (".$objectOfInterest. ").");
+                      }
+                    }
+                  }
+                  // VIII.  Just exporting a single term that's stored in a field collection.
+                  // Note: I'm not sure it makes sense to deal with this separately; I've
+                  // recoded this as multiple, so see IX below.
+                  elseif ($theLookupCode == "fci") {
+                    if(isset($theActualField['und'][0]['value'])) {
+                      $myFCid = $theActualField['und'][0]['value'];
+                      dec_rdf_debug("Object of interest comes from a field collection (".$myFCid. ").");
+                      $objectOfInterestEntity = entity_load('field_collection_item', array($myFCid));
+                      $theFCField = $data->fc_fields;
+                      $objectOfInterest=$objectOfInterestEntity[$myFCid]->$theFCField;
+                    }
+                  }
+                  // IX.  Exporting multiple field collection items
+                  elseif($theLookupCode == 'fcis' ) {
+                    // We need some other function to loop over the array $theActualField['und']
+                    // and extract the relevant components for each (e.g. for each agent)
+                    //
+                    // First we make sure that the field collection actually has meaningful
+                    // content.
+                    if(   $theActualField != array('und'=>array())
+                          && $theActualField != array() ) {
+                      // dd("THEACTUALFIELD");
+                      // dd($theActualField);
+                      dec_rdf_debug("OBJECTs of interest come from a field collection.");
+                      $listOfFields=$data->fc_fields;
+                      // dd("List of fields components is: ".$listOfFields);
+                      $newFCtriples = dec_rdf_gen_triples_fcis($subject,$theActualField, $listOfFields);
+                      $triples = array_merge($triples, $newFCtriples);
+                      dec_rdf_debug("Added ".count($newFCtriples)." new triples!");
+                      dec_rdf_debug(print_r($newFCtriples,TRUE));
+                    } /* We could add an interesting "else" condition here to print messages
+                       * showing which nodes don't have complete information. */
+                  }
+                  // X.  Exporting multiple taxonomy terms
+                  elseif($theLookupCode == 'tids' ) {
+                    // We need some other function to loop over $theActualField['und']
+                    // ... However, it's not clear that this condition ever actually gets
+                    // used in the current implementation.
+                    dec_rdf_debug("This hasn't been implemented yet (encoding multiple TIDS).");
+                  }
+                  else { // XI.  Standard case
+                    dec_rdf_debug("Object of interest accessed via standard field lookup.");
+                    if(isset($theActualField['und'][0][$theLookupCode])) {
+                      $objectOfInterest=htmlspecialchars(drupal_html_to_text($theActualField['und'][0][$theLookupCode]));
+                    }
+                  }
+                } else {
+                // We should probably signal an error of some kind..
+                dec_rdf_debug("Object of interest not defined, that's an error.");
+                $objectOfInterest="What's going on?";
+              }
+            }
+            if(isset($objectOfInterest) && !empty($objectOfInterest)) {
+              dec_rdf_debug("Object of interest (".$node->nid. "->" .$fieldOfInterest ."): ".$objectOfInterest);
+              // A tiny cleanup since values in the database aren't formatted the way we want
+              if($data->object_type == "literal datatype=\"xsd:dateTime\""){
+                $objectOfInterest = preg_replace("/^(.)-/","0000-",$objectOfInterest);
+                $objectOfInterest = preg_replace("/^(....)-(.)-/","$1-0$2-",$objectOfInterest);
+                $objectOfInterest = preg_replace("/-(.)T/","-0$1T",$objectOfInterest);
+              }
+              // jac - May12,2013 note that dates that begin 0000 should probably just be deleted
+              // (or better yet, not uploaded) since they don't really mean anything
+              // However, I'm keeping them for now since they represent the way the data is
+              // stored in the Drupal backend
+              $triples[] = dec_rdf_form_triple($subject,
+                                               $data->property,
+                                               $objectOfInterest,
+                                               $data->object_type);
+            }
+          } /* end of standard lookup */
+        } /* end $node->$fieldOfInterest is defined */
+      } /* end of $node->$fieldOfInterest != $data->field_value case */
+    } else { /* No field of interest case */
+      // There is no field of interest and we just record the node's type as the object
+      // (For convenience this has been stored on our RDF cheatsheet.)
+      // print_r("Just stash the type".PHP_EOL);
+      $triples[] = dec_rdf_form_triple($subject,
+                                       $data->property,
+                                       $data->object,
+                                       $data->object_type);
+    }
+  }
+
+  $requests = dec_rdf_send_transaction_document($repository, $triples, $action, $subject, 'uri',$requests);
+  return $requests;
+}
+
+
+/**
+ * function: dec_rdf_make_path_from_node
+ *
+ * @param $node
+ *   A node
+ *
+ * Port of dec_make_path_from_node from Storyscope's dec_story.module
+ *
+ * Dependencies: none
+ *
+ * Porting notes: Looks like it will carry over pretty directly.
+ * However, the old version had a second argument, $context_nid
+ * (default: 0) and I haven't hung onto that here.  If it turns out to
+ * be important we can add it back in.
+ *
+ * Testing: we should be able to test this using a drush script...
+ */
+
+function dec_rdf_make_path_from_node($node) {
+  $base_url = variable_get('dec_triples_base_url', trim(url("<front>", Array("absolute" => TRUE))),"/");
+    switch ($node->type) {
+        case 'dossier':
+            $path = $base_url . '/dossiers/' . $node->nid;
+            break;
+        case 'event':
+            $path = $base_url . '/events/' . $node->nid;
+            break;
+        case 'source_event':
+            $path = $base_url . '/sourceevents/' . $node->nid;
+            break;
+        case 'plot':
+            $path = $base_url . '/plot/' . $node->nid;
+            break;
+        case 'plot_element':
+            $path = $base_url . '/plotelement/' . $node->nid;
+            break;
+        case 'object_story':
+            $path = $base_url . '/objectstories/' . $node->nid;
+            break;
+        case 'reference':
+            $path = $base_url . '/references/' . $node->nid;
+            break;
+        case 'object':
+            $path = $base_url . '/objects/' . $node->nid;
+            break;
+        case 'story':
+            $path = $base_url . '/stories/' . $node->nid;
+            break;
+        case 'section':
+            $path = $base_url . '/sections/' . $node->nid;
+            break;
+        default:
+          // In future we should send this to the watchdog
+          // watchdog("dec_rdf","Node ".$node->nid." has a type (".$node->type.") that hasn't been matched.",NULL,WATCHDOG_WARNING);
+          dec_rdf_debug("WARNING: Node ".$node->nid." has a type (".$node->type.") that hasn't been matched.");
+          //dd(debug_backtrace());
+          $path = $base_url . '/node/' . $node->nid;
+    }
+    return $path;
+}
+
+/**
+ * function: dec_rdf_send_transaction_document
+ *
+ * Dependencies: dec_rdf_triples_to_transaction_document
+ * Porting notes: Works directly?
+ */
+
+function dec_rdf_send_transaction_document($repository, $triples, $action, $context = NULL, $context_type = NULL,$requests) {
+  // print_r("TRIPLES: ");
+  // print_r($triples);
+  $openrdfhost = variable_get('dec_triple_store', 'http://decipher.open.ac.uk/openrdf-sesame');
+  $data = dec_rdf_triples_to_transaction_document($triples, $action, $context, $context_type);
+  $method = "POST";
+  $url = $openrdfhost . "/repositories/" . $repository . "/statements";
+  $headers = array('Content-Type' => 'application/x-rdftransaction');
+//   print_r("URL: ". $url . PHP_EOL);
+//   print_r("HEADERS: ". $headers . PHP_EOL);
+//   print_r("METHOD: ". $method . PHP_EOL);
+//   print_r("DATA: ". $data . PHP_EOL);
+  $newReq = background_process_http_request($url, array('headers' => $headers,
+                                                        'method' => $method,
+                                                        'data' => $data,
+                                                        'postpone' => TRUE,
+                                                        'callback'=>'dec_rdf_debug_request'));
+  //dec_rdf_debug(print_r($newReq,TRUE));
+  $requests[] = $newReq;
+  return $requests;
+}
+
+/**
+ * function: dec_rdf_triples_to_transaction_document
+ *
+ * Dependencies: dec_rdf_item_and_type_to_xml
+ * Porting notes: Works directly
+ */
+
+function dec_rdf_triples_to_transaction_document($triples, $action, $context = NULL, $context_type = NULL) {
+  $output = "<transaction>";
+    if ($context && $context_type) {
+        foreach ($triples as $triple) {
+            if ($triple["p_type"] != 'bnode' && $triple["s_type"] != 'bnode' && $triple["o_type"] != 'bnode') {
+                $ptype = (isset($triple["p_type"])) ? $triple["p_type"] : 'uri';
+                $output .= "<" . $action . ">"
+                  . dec_rdf_item_and_type_to_xml($triple["s"], $triple["s_type"])
+                  . dec_rdf_item_and_type_to_xml($triple["p"], $ptype)
+                  . dec_rdf_item_and_type_to_xml($triple["o"], $triple["o_type"])
+                  . "<contexts><" . $context_type . ">"
+                  . $context . "</" . $context_type . "></contexts>" . "</" . $action . ">";
+            }
+        }
+    } else {
+        foreach ($triples as $triple) {
+            $output .= "<" . $action . ">"
+              . dec_rdf_item_and_type_to_xml($triple["s"], $triple["s_type"])
+              . dec_rdf_item_and_type_to_xml($triple["p"], $triple["p_type"])
+              . dec_rdf_item_and_type_to_xml($triple["o"], $triple["o_type"])
+              . "</" . $action . ">";
+        }
+    }
+    $output .= "</transaction>";
+    // // print_r($output);
+    return $output;
+}
+
+/**
+ * function: dec_rdf_item_and_type_to_xml1
+ *
+ * Dependencies: dec_rdf_tag_object
+ * Porting notes: I kind of feel like these three four-line functions COULD be smushed
+ * together into one, unless they're really used separately.
+ *
+ * Note, this is an old version of the function, new version that is currently in use is below.
+ */
+function dec_rdf_item_and_type_to_xml1($item, $type) {
+    if ($type) {
+        $output = '<' . $type . '>' . $item . '</' . $type . '>';
+    } else {
+        $output = dec_rdf_tag_object($object);
+    }
+    return $output;
+}
+
+// This version allows you to specify more complicated types like
+//  literal datatype="http://www.w3.org/2001/XMLSchema#dateTime"
+// and get them to begin and close properly as
+// <literal datatype="http://www.w3.org/2001/XMLSchema#dateTime">
+// and </literal> respectively
+function dec_rdf_item_and_type_to_xml($item, $type) {
+    if(strpos($type, " ")) {
+      $pos = strpos($type, " ");
+      $typeend = substr($type, 0, $pos);
+    }
+    else {
+      $typeend = $type;
+    }
+    if ($type) {
+        $output = '<' . $type . '>' . trim($item) . '</' . $typeend . '>';
+    } else {
+        $output = dec_rdf_tag_object($item);
+    }
+    return $output;
+}
+
+function dec_rdf_tag_object($object) {
+    if (dec_rdf_is_uri($object)) {
+        return "<uri>" . $object . "</uri>";
+    } else {
+        return "<literal>" . $object . "</literal>";
+    }
+}
+
+function dec_rdf_is_uri($string) {
+    $pos = strpos($string, "http:/");
+    if ($pos !== false && $pos == 0) {
+        return true;
+    } else {
+        $pos = strpos($string, "file:/");
+        if ($pos !== false && $pos == 0) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+}
+
+function dec_rdf_form_triple($s,$p,$o,$otype = NULL){
+  if ($s==NULL || $p==NULL || $o==NULL) { print_r("BAD TRIPLE: <$s> <$p> <$o> <$otype>" . PHP_EOL); }
+  return array("s" => $s,
+         "s_type" => "uri",
+	        "p" => $p,
+		       "p_type" => "uri",
+		              "o" => $o,
+			             "o_type" => $otype,
+				            "o_datatype" => "",
+					           "o_lang" => "");
+}
+
+function dec_rdf_gen_triples_fcis($primarySubject,$fci_array,$listOfFields){
+  $triples=array();
+  dec_rdf_debug("About to process a field collection (".$primarySubject.", ".$listOfFields.").");
+  //dec_rdf_debug("The relevant array is:");
+  //dec_rdf_debug(print_r($fci_array,TRUE));
+  foreach ($fci_array['und'] as $key => $val) {
+    $fci_id = $val['value'];
+
+    dec_rdf_debug("Processing a field collection (".$fci_id.", ".$listOfFields.").");
+
+    $fcEntity = entity_load('field_collection_item', array($fci_id));
+
+    $fieldsAsArray = explode(",",$listOfFields);
+    $mainField = array_shift($fieldsAsArray);
+
+    dec_rdf_debug("The value of the 'main field' : ".$mainField.".");
+
+    $theRealMainField=$fcEntity[$fci_id]->$mainField;
+
+    if (isset($theRealMainField) && !empty($theRealMainField)){
+    $mainObjectOfInterest=$theRealMainField['und'][0]['value'];
+
+    dec_rdf_debug("The value of the 'main object of interest' : ".$mainObjectOfInterest.".");
+
+    // Even at this point, it's important to check whether the main object of interest is empty
+    // since it seems that something can be tagged with a field collection that doesn't
+    // actually have an MID associated with it.
+    if(!empty($mainObjectOfInterest)) {
+      // Add a triple pointing from the node to the main item stored in this field collection
+      $mainResult = db_query("SELECT property,object_type FROM {dec_rdf_property_mapping} WHERE field = :field", array(':field' => $mainField))->fetchObject();
+
+      // dd("The 'main' result's property: ".$mainResult->property);
+      // dd("The 'main' result's object type: ".$mainResult->object_type);
+
+      $triples[] = array("s" => $primarySubject,
+                         "s_type" => "uri",
+                         "p" => $mainResult->property,
+                         "p_type" => "uri",
+                         "o" => $mainObjectOfInterest,
+                         "o_type" => $mainResult->object_type,
+                         "o_datatype" => "",
+                         "o_lang" => "");
+
+      // Now add some other triples pointing from the main object of
+      // interest (e.g. the agent's mid) to other relevant properties
+
+      if (isset($fieldsAsArray) && !empty($fieldsAsArray)){
+      foreach($fieldsAsArray as $fieldOfInterest){
+        $theRealField=$fcEntity[$fci_id]->$fieldOfInterest;
+        dec_rdf_debug("THE REAL FIELD of interest: ". print_r($theRealField,TRUE));
+        if($theRealField != array()){
+          // dd("WHAT IS THE REAL FIELD?");
+
+          // So far, the object of interest is either the value or
+          // "geom", so we can code that as a special case.  If things
+          // ever get more complex than this, we'll probably want to be
+          // a bit more creative about reading different types of
+          // fields.
+          if($fieldOfInterest == 'field_fb_geolocation'){
+            $objectOfInterest=$theRealField['und'][0]['geom'];
+          } else {
+            $objectOfInterest=$theRealField['und'][0]['value'];
+          }
+
+          $results = db_query("SELECT property,object_type FROM {dec_rdf_property_mapping} WHERE field = :field", array(':field' => $fieldOfInterest))->fetchObject();
+
+          dec_rdf_debug("Obtained object of interest as a field (".$fieldOfInterest.") from the field collection (".$primarySubject."->".$mainObjectOfInterest."->".$objectOfInterest.")...");
+
+          dec_rdf_debug(print_r($results,TRUE));
+
+          // Note that these triples are about the $mainObjectOfInterest, not the $primarySubject.
+          $triples[] = array("s" => $mainObjectOfInterest,
+                             "s_type" => "uri",
+                             "p" => $results->property,
+                             "p_type" => "uri",
+                             "o" => $objectOfInterest,
+                             "o_type" => $results->object_type,
+                             "o_datatype" => "",
+                             "o_lang" => "");
+        }
+      }
+      }
+    }
+    } else
+      {
+        dec_rdf_debug("Field not set!");
+      }
+  }
+  // dd("TRIPLES");
+  // dd($triples);
+  return $triples;
+}
+
+/* Some custom fields need special treatment */
+
+function dec_rdf_gen_triples_dossier_events($node){
+  $triples=array();
+  $dossierNode = $node;
+
+  //print_r("making path for DOSSIER ".$dossierNode->nid . PHP_EOL);
+  $dossierURL = dec_rdf_make_path_from_node($dossierNode);
+  // print_r("dossier events for node:".$node->nid . PHP_EOL);
+  // print_r(var_dump($node->field_dossier_events['und']));
+  if(array_key_exists('und', $node->field_dossier_events) && is_array($node->field_dossier_events['und'])){
+  foreach ($node->field_dossier_events['und'] as $key => $value) {
+    $eventNode = node_load($value['target_id']);
+    //print_r("making path for EVENT ".$eventNode->nid . PHP_EOL);
+    // jac - Sept 16, 2013 I'm not sure why we would have to do this additional test - worth
+    // a further investigation.  I was able to trigger errors without the test when using
+    // the event recommender to add events.
+    if($eventNode){
+    $eventURL = dec_rdf_make_path_from_node($eventNode);
+    $triples[] = array("s" =>  $dossierURL,
+                       "s_type" => "uri",
+                       "p" => "http://decipher.open.ac.uk/curate/ontology/containsEvent",
+                       "p_type" => "uri",
+                       "o" => $eventURL,
+                       "o_type" => "uri",
+                       "o_datatype" => "",
+                       "o_lang" => "");
+    // sometimes the field_event_source_event field isn't set
+    if(isset($eventNode->field_event_source_event)){
+    $sourceEventNode = node_load($eventNode->field_event_source_event['und'][0]['target_id']);
+    if(isset($sourceEventNode->nid)){
+        //print_r("making path for SOURCEEVENT ".$sourceEventNode->nid . PHP_EOL);
+        $sourceEventURL = dec_rdf_make_path_from_node($sourceEventNode);
+        $triples[] = array("s" =>  $eventURL,
+                           "s_type" => "uri",
+                           "p" => "http://decipher.open.ac.uk/curate/ontology/isInterpretationOfEvent",
+                           "p_type" => "uri",
+                           "o" => $sourceEventURL,
+                           "o_type" => "uri",
+                           "o_datatype" => "",
+                           "o_lang" => "");
+    }}
+      }
+  }}
+  // dec_rdf_check_triples($triples,__FUNCTION__);
+  return $triples;
+}
+
+function dec_rdf_gen_triples_dossier_object_stories($node){
+  $triples=array();
+  $dossierNode = $node;
+  $dossierURL = dec_rdf_make_path_from_node($dossierNode);
+  // jac - foreach
+  // print_r("dossier object stories for node:".$node->nid . PHP_EOL);
+  // print_r(var_dump($node->field_dossier_object_stories['und']));
+  if(array_key_exists( 'und', $node->field_dossier_object_stories)
+     && is_array($node->field_dossier_object_stories['und'])){
+    foreach ($node->field_dossier_object_stories['und'] as $key => $value) {
+      $objectStoryNode = node_load($value['target_id']);
+      if($objectStoryNode){
+      $objectStoryURL = dec_rdf_make_path_from_node($objectStoryNode);
+
+      $triples[] = array("s" => $dossierURL,
+                         "s_type" => "uri",
+                         "p" => "http://decipher.open.ac.uk/curate/ontology/containsObjectStory",
+                         "p_type" => "uri",
+                         "o" => $objectStoryURL,
+                         "o_type" => "uri",
+                         "o_datatype" => "",
+                         "o_lang" => "");
+    }
+    }
+  }
+  // dec_rdf_check_triples($triples,__FUNCTION__);
+  return $triples;
+}
+
+function dec_rdf_gen_triples_dossier_references($node){
+  $triples=array();
+  $dossierNode = $node;
+  $dossierURL = dec_rdf_make_path_from_node($dossierNode);
+  // print_r("dossier references for node:".$node->nid . PHP_EOL);
+  // print_r(var_dump($node->field_dossier_references['und']));
+  if(array_key_exists( 'und', $node->field_dossier_references) && is_array($node->field_dossier_references['und'])){
+  foreach ($node->field_dossier_references['und'] as $key => $value) {
+    $referenceNode = node_load($value['target_id']);
+    if($referenceNode){
+    $referenceURL = dec_rdf_make_path_from_node($referenceNode);
+    $triples[] = array("s" => $dossierURL,
+                       "s_type" => "uri",
+                       "p" => "http://decipher.open.ac.uk/curate/ontology/containsReference",
+                       "p_type" => "uri",
+                       "o" => $referenceURL,
+                       "o_type" => "uri",
+                       "o_datatype" => "",
+                       "o_lang" => "");
+    }}
+  }
+  // dec_rdf_check_triples($triples,__FUNCTION__);
+  return $triples;
+}
+
+// Reverse relationship of "outlinesDossier"
+function dec_rdf_gen_triples_dossier_plots($node){
+  $triples=array();
+  $dossierNode = $node;
+  $dossierURL = dec_rdf_make_path_from_node($dossierNode);
+  // print_r("dossier object stories for node:".$node->nid . PHP_EOL);
+  // print_r(var_dump($node->field_dossier_plots['und']));
+  if(array_key_exists( 'und', $node->field_dossier_plots) && is_array($node->field_dossier_plots['und'])){
+  foreach ($node->field_dossier_plots['und'] as $key => $value) {
+    $plotNode = node_load($value['target_id']);
+    if($plotNode){
+    $plotURL = dec_rdf_make_path_from_node($plotNode);
+    $triples[] = array("s" => $dossierURL,
+           "s_type" => "uri",
+           "p" => "http://decipher.open.ac.uk/curate/ontology/isDossierOutlinedBy",
+           "p_type" => "uri",
+           "o" => $plotURL,
+           "o_type" => "uri",
+           "o_datatype" => "",
+           "o_lang" => "");
+    }}
+  }
+  // dec_rdf_check_triples($triples,__FUNCTION__);
+  return $triples;
+}
+
+function dec_rdf_gen_triples_plot_plot_elements($node){
+  $triples=array();
+  $plotNode = $node;
+  $plotURL = dec_rdf_make_path_from_node($node);
+  // jac - foreach
+  // print_r("plot plot elements for node:".$node->nid. PHP_EOL);
+  // print_r(var_dump($node->field_plot_plot_elements['und']));
+  if(array_key_exists( 'und', $node->field_plot_plot_elements) && is_array($node->field_plot_plot_elements['und'])){
+    foreach ($node->field_plot_plot_elements['und'] as $key => $value) {
+      $plotElementNode = node_load($value['target_id']);
+      if($plotElementNode){
+      $plotElementURL = dec_rdf_make_path_from_node($plotElementNode);
+      $triples[] = array("s" => $plotURL,
+                         "s_type" => "uri",
+                         "p" => "http://decipher.open.ac.uk/curate/ontology/containsStorySection",
+                         "p_type" => "uri",
+                         "o" => $plotElementURL,
+                         "o_type" => "uri",
+                         "o_datatype" => "",
+                         "o_lang" => "");
+      }}
+  }
+  // dec_rdf_check_triples($triples,__FUNCTION__);
+  return $triples;
+}
+
+function dec_rdf_gen_triples_plot_element_plot_set($node, $set_number = 1){
+  if(isset($node->field_plot_element_relationship['und'][0]['value'])) {
+    $relation_type = $node->field_plot_element_relationship['und'][0]['value'];
+  }
+  else {
+    $relation_type = NULL;
+  }
+  $triples=array();
+
+  $field_name = "field_plot_element_plot_set_".$set_number;
+  $node_field = $node->$field_name;
+
+  // Only do things if the field_plot_element_plot_set is actually set up properly
+  if(isset($node_field['und'])){
+
+    $plotElementURL = dec_rdf_make_path_from_node($node);
+    $plotSets = $node_field['und'];
+
+    // we always add these triples:
+
+    $triples[] = array("s" => $plotElementURL,
+                       "s_type" => "uri",
+                       "p" => "http://decipher.open.ac.uk/curate/ontology/hasRelatedObjectStory",
+                       "p_type" => "uri",
+                       "o" => htmlspecialchars(drupal_html_to_text($node->body['und'][0]['value'])),
+                       "o_type" => "literal",
+                       "o_datatype" => "",
+                       "o_lang" => "");
+
+    $triples[] = array("s" => htmlspecialchars(drupal_html_to_text($node->body['und'][0]['value'])),
+                       "s_type" => "uri",
+                       "p" => "http://decipher.open.ac.uk/curate/ontology/presentsObjectStory",
+                       "p_type" => "uri",
+                       "o" => $plotElementURL,
+                       "o_type" => "literal",
+                       "o_datatype" => "",
+                       "o_lang" => "");
+
+    foreach ($node_field['und'] as $value) {
+      $eventNode = node_load($value['target_id']);
+      if($eventNode){
+      $eventURL = dec_rdf_make_path_from_node($eventNode);
+
+      $triples[] = array("s" => $plotElementURL,
+                         "s_type" => "uri",
+                         "p" => "http://decipher.open.ac.uk/curate/ontology/hasRelatedEvent",
+                         "p_type" => "uri",
+                         "o" => $eventURL,
+                         "o_type" => "uri",
+                         "o_datatype" => "",
+                         "o_lang" => "");
+      }}
+  }
+  return $triples;
+}
+
+// This code is similar to the code for dec_rdf_gen_triples_dossier_events
+function dec_rdf_gen_triples_object_story_events($node){
+  $triples=array();
+  $objectStoryNode = $node;
+  $objectStoryURL = dec_rdf_make_path_from_node($objectStoryNode);
+  // jac - foreach
+  // print_r("object story events for node:".$node->nid . PHP_EOL);
+  // print_r(var_dump($node->field_object_story_events['und']));
+  if(array_key_exists( 'und', $node->field_object_story_events) && is_array($node->field_object_story_events['und'])){
+    foreach ($node->field_object_story_events['und'] as $key => $value) {
+      $eventNode = node_load($value['target_id']);
+      if($eventNode){
+      // There is only one source event node
+      $eventURL = dec_rdf_make_path_from_node($eventNode);
+      $triples[] = array("s" =>  $objectStoryURL,
+                         "s_type" => "uri",
+                         "p" => "http://decipher.open.ac.uk/curate/ontology/containsEvent",
+                         "p_type" => "uri",
+                         "o" => $eventURL,
+                         "o_type" => "uri",
+                         "o_datatype" => "",
+                         "o_lang" => "");
+      }
+      $sourceEventNode = node_load($eventNode->field_event_source_event['und'][0]['target_id']);
+      if($sourceEventNode){
+      $sourceEventURL = dec_rdf_make_path_from_node($sourceEventNode);
+      $triples[] = array("s" =>  $eventURL,
+                         "s_type" => "uri",
+                         "p" => "http://decipher.open.ac.uk/curate/ontology/isInterpretationOfEvent",
+                         "p_type" => "uri",
+                         "o" => $sourceEventURL,
+                         "o_type" => "uri",
+                         "o_datatype" => "",
+                         "o_lang" => "");
+      }}
+  }
+  // dec_rdf_check_triples($triples,__FUNCTION__);
+  return $triples;
+}
+
+function dec_rdf_gen_triples_object_story_objects($node){
+  $triples=array();
+  $objectStoryNode = $node;
+  $objectStoryURL = dec_rdf_make_path_from_node($objectStoryNode);
+  // print_r("object object stories for node:".$node->nid . PHP_EOL);
+  // print_r(var_dump($node->field_object_story_objects['und']));
+  if(array_key_exists( 'und', $node->field_object_story_objects) && is_array($node->field_object_story_objects['und'])){
+    foreach ($node->field_object_story_objects['und'] as $key => $value) {
+      $objectNode = node_load($value['target_id']);
+      if($objectNode){
+      $objectURL = dec_rdf_make_path_from_node($objectNode);
+      $triples[] = array("s" => $objectStoryURL,
+      		    "s_type" => "uri",
+		    	     	 "p" => "http://decipher.open.ac.uk/curate/ontology/tellsStoryOfObject",
+				     	 "p_type" => "uri",
+					 	      "o" => $objectURL,
+						      	      "o_type" => "uri",
+							      	       	   "o_datatype" => "",
+									   		    "o_lang" => "");
+      }}
+  }
+  // dec_rdf_check_triples($triples,__FUNCTION__);
+  return $triples;
+}
+
+function dec_rdf_gen_triples_object_story_references($node){
+  $triples=array();
+  $objectStoryNode = $node;
+  $objectStoryURL = dec_rdf_make_path_from_node($objectStoryNode);
+  // print_r("object object storie references for node:".$node->nid . PHP_EOL);
+  // print_r(var_dump($node->field_object_story_references['und']));
+  if(array_key_exists( 'und', $node->field_object_story_references) && is_array($node->field_object_story_references['und'])){
+  foreach ($node->field_object_story_references['und'] as $key => $value) {
+    $referenceNode = node_load($value['target_id']);
+    if($referenceNode){
+    $referenceURL = dec_rdf_make_path_from_node($referenceNode);
+    $triples[] = array("s" => $objectStoryURL,
+    	              "s_type" => "uri",
+		      	              "p" => "http://decipher.open.ac.uk/curate/ontology/containsReference",
+				      	         "p_type" => "uri",
+						 	         "o" => $referenceURL,
+								            "o_type" => "uri",
+									    	            "o_datatype" => "",
+											    		        "o_lang" => "");
+    }}
+  }
+      // dec_rdf_check_triples($triples,__FUNCTION__);
+      return $triples;
+}
+
+// jac 06-13-2013, this is now massively simplified and could maybe be merged into .install?
+function dec_rdf_gen_triples_plot_element_relationship($node){
+  $triples=array();
+  $plotElementNode = $node;
+  $plotElementURL = dec_rdf_make_path_from_node($plotElementNode);
+  $object = "http://decipher.open.ac.uk/curate/ontology/StorySection";
+
+    $triples[] = array("s" => $plotElementURL,
+           "s_type" => "uri",
+           "p" => "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+           "p_type" => "uri",
+           "o" => $object,
+           "o_type" => "uri",
+           "o_datatype" => "",
+           "o_lang" => "");
+
+  // dec_rdf_check_triples($triples,__FUNCTION__);
+  return $triples;
+}
+
+function dec_rdf_gen_triples_dossier_stories($node){
+  $triples=array();
+  $dossierNode = $node;
+  $dossierURL = dec_rdf_make_path_from_node($dossierNode);
+
+  if(array_key_exists( 'und', $node->field_dossier_stories) && is_array($node->field_dossier_stories['und'])){
+  foreach ($node->field_dossier_stories['und'] as $key => $value) {
+    $storyNode = node_load($value['target_id']);
+    if($storyNode){
+    $storyURL = dec_rdf_make_path_from_node($storyNode);
+    $triples[] = array("s" => $dossierURL,
+           "s_type" => "uri",
+           "p" => "http://decipher.open.ac.uk/curate/ontology/tellsStoryOfDossier",
+           "p_type" => "uri",
+           "o" => $storyURL,
+           "o_type" => "uri",
+           "o_datatype" => "",
+           "o_lang" => "");
+    }}
+  }
+
+  // dec_rdf_check_triples($triples,__FUNCTION__);
+  return $triples;
+}
+
+function dec_rdf_gen_triples_story_sections($node){
+  $triples=array();
+  $sourceNode = $node;
+  $sourceURL = dec_rdf_make_path_from_node($sourceNode);
+
+  if(array_key_exists( 'und', $node->field_story_sections) && is_array($node->field_story_sections['und'])){
+  foreach ($node->field_story_sections['und'] as $key => $value) {
+    $targetNode = node_load($value['target_id']);
+    if($targetNode){
+    $targetURL = dec_rdf_make_path_from_node($targetNode);
+    $triples[] = array("s" => $sourceURL,
+           "s_type" => "uri",
+           "p" => "http://decipher.open.ac.uk/curate/ontology/containsStorySection",
+           "p_type" => "uri",
+           "o" => $targetURL,
+           "o_type" => "uri",
+           "o_datatype" => "",
+           "o_lang" => "");
+    }}
+  }
+
+  // dec_rdf_check_triples($triples,__FUNCTION__);
+  return $triples;
+}
+
+function dec_rdf_gen_triples_story_events($node){
+  $triples=array();
+  $sourceNode = $node;
+  $sourceURL = dec_rdf_make_path_from_node($sourceNode);
+
+  if(array_key_exists( 'und', $node->field_story_events) && is_array($node->field_story_events['und'])){
+  foreach ($node->field_story_events['und'] as $key => $value) {
+    $targetNode = node_load($value['target_id']);
+    if($targetNode){
+    $targetURL = dec_rdf_make_path_from_node($targetNode);
+    $triples[] = array("s" => $sourceURL,
+           "s_type" => "uri",
+           "p" => "http://decipher.open.ac.uk/curate/ontology/hasAssociatedEvent",
+           "p_type" => "uri",
+           "o" => $targetURL,
+           "o_type" => "uri",
+           "o_datatype" => "",
+           "o_lang" => "");
+    }}
+  }
+
+  // dec_rdf_check_triples($triples,__FUNCTION__);
+  return $triples;
+}
+
+function dec_rdf_gen_triples_story_set($node){
+  $triples=array();
+  $sourceNode = $node;
+  $sourceURL = dec_rdf_make_path_from_node($sourceNode);
+  if(array_key_exists( 'und', $node->field_story_set) && is_array($node->field_story_set['und'])){
+    foreach ($node->field_story_set['und'] as $item) {
+      $value = $item["value"];
+      $entity_array = entity_load('field_collection_item',array($value));
+
+      // the object
+      // Debugging after adding an event at
+      //  http://decipher-storyscope.ssl.co.uk/testing/dossiers/1533/stories/2849
+      foreach ($entity_array as $entity) {
+        //$wrappedentity = entity_metadata_wrapper( 'field_collection_item', $entity );
+        if(array_key_exists( 'und', $entity->field_story_set_object) && is_array($entity->field_story_set_object['und'])){
+          foreach ($entity->field_story_set_object['und'] as $object_item) {
+            $objectNode = node_load($object_item['target_id']);
+            if($objectNode){
+            $objectURL = dec_rdf_make_path_from_node($objectNode);
+            $triples[] = array("s" => $sourceURL,
+                   "s_type" => "uri",
+                   "p" => "http://decipher.open.ac.uk/curate/ontology/hasAssociatedObject",
+                   "p_type" => "uri",
+                   "o" => $objectURL,
+                   "o_type" => "uri",
+                   "o_datatype" => "",
+                   "o_lang" => "");
+            }}
+        }
+        if(array_key_exists( 'und', $entity->field_story_set_snapshot_os) && isset($entity->field_story_set_snapshot_os['und']) && is_array($entity->field_story_set_snapshot_os['und'])){
+          foreach ($entity->field_story_set_snapshot_os['und'] as $object_item) {
+            $objectEntity = $object_item['value'];
+            $object_entity_array = entity_load('field_collection_item',array($objectEntity));
+
+            //object story
+            foreach($object_entity_array as $object_entity) {
+
+            if(isset($object_entity->field_story_snapshot_os_os['und'][0]['target_id'])) {
+              $os_nid = $object_entity->field_story_snapshot_os_os['und'][0]['target_id'];
+            }
+            }
+          }
+        }
+        //dpm(array("w"=>$os_nid));
+        if(isset($os_nid)) {
+        $os_node = node_load($os_nid);
+        if($os_node){
+        $os_URL = dec_rdf_make_path_from_node($os_node);
+
+        //story section contains object story
+        $triples[] = array("s" => $sourceURL,
+           "s_type" => "uri",
+           "p" => "http://decipher.open.ac.uk/curate/ontology/containsObjectStory",
+           "p_type" => "uri",
+           "o" => $os_URL,
+           "o_type" => "uri",
+           "o_datatype" => "",
+           "o_lang" => "");
+
+        if(array_key_exists( 'und', $entity->field_story_set_snapshot_os) && is_array($entity->field_story_set_snapshot_os['und'])){
+          foreach ($entity->field_story_set_snapshot_os['und'] as $key=>$object_item) {
+
+            $objectEntity = $object_item['value'];
+            $object_entity_array = entity_load('field_collection_item',array($objectEntity));
+
+            //object story
+            foreach($object_entity_array as $object_entity) {
+            if(isset($object_entity->field_story_snapshot_os_text['und'][0]['safe_value'])) {
+              $os_value = $object_entity->field_story_snapshot_os_text['und'][0]['safe_value'];
+            }
+            }
+          //dpm(array($key, $os_nid, $os_value));
+
+          //storysection has consituent object story #osnid_osvalue
+          $triples[] = array("s" => $sourceURL,
+             "s_type" => "uri",
+             "p" => "http://decipher.open.ac.uk/curate/ontology/hasConstituentObjectStory",
+             "p_type" => "uri",
+             "o" => $sourceURL."#OS".$os_nid."_".$key,
+             "o_type" => "uri",
+             "o_datatype" => "",
+             "o_lang" => "");
+          $triples[] = array("s" => $sourceURL,
+             "s_type" => "uri",
+             "p" => "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+             "p_type" => "uri",
+             "o" => "http://decipher.open.ac.uk/curate/ontology/ConstituentObjectStory",
+             "o_type" => "uri",
+             "o_datatype" => "",
+             "o_lang" => "");
+          //#osnid_osvalue has description text
+          $triples[] = array("s" => $sourceURL."#OS".$os_nid."_".$key,
+             "s_type" => "uri",
+             "p" => "http://purl.org/dc/elements/1.1/description",
+             "p_type" => "uri",
+             "o" => htmlspecialchars(drupal_html_to_text($os_value)),
+             "o_type" => "literal",
+             "o_datatype" => "",
+             "o_lang" => "");
+        //#osnid_osvalue situatesOS objectstory
+          $triples[] = array("s" => $sourceURL."#OS".$os_nid."_".$key,
+             "s_type" => "uri",
+             "p" => "http://decipher.open.ac.uk/curate/ontology/situatesObjectStory",
+             "p_type" => "uri",
+             "o" => $os_URL,
+             "o_type" => "uri",
+             "o_datatype" => "",
+             "o_lang" => "");
+          }
+        }}
+
+        }
+
+      }
+
+    }
+  }
+  //dpm($triples);
+  return $triples;
+}
+
+/**
+ * function: dec_rdf_send_transaction_test
+ *
+ * This demonstrates that communication with the triple store is working
+ */
+function dec_rdf_send_transaction_test() {
+  $openrdfhost = variable_get('dec_triple_store', 'http://decipher.open.ac.uk/openrdf-sesame');
+  $openrdfreponame = "Decipher";
+  $data = '<transaction>
+<add>
+<uri>http://bar.foo.com/bla</uri>
+<uri>http://bar.foo.com/MakesSense</uri>
+<literal datatype="xsd:boolean">true</literal>
+<contexts>
+ <uri>http://testing.com</uri>
+</contexts>
+</add>
+</transaction>';
+  $method = "POST";
+  $url = $openrdfhost . "/repositories/" . $openrdfreponame . "/statements";
+  $headers = array('Content-Type' => 'application/x-rdftransaction');
+  $res = drupal_http_request($url, array('headers' => $headers,
+                                         'method' => $method,
+                                         'data' => $data));
+  // print_r($res);
+  return $res;
+}
+
+
+/**
+ * function: dec_rdf_add_rec_section
+ *
+ * Implements a callback for the "add" button in a recommended sections view.
+ * We somehow need to get access to the contents of the view
+ */
+function dec_rdf_add_rec_section($dossierId,$storyId,$recSecId) {
+  global $base_url;
+  $view=views_get_view('semreccomender_story_section');
+  $view->set_display('panel_pane_1');
+  $view->set_arguments(array($dossierId,$storyId));
+  $view->pre_execute();
+  $view->execute();
+  $viewResult = $view->result;
+  //dd($viewResult);
+  foreach ($viewResult as $elt){
+    if($elt->id == $recSecId){
+      $newNid = dec_rdf_create_section_entity($elt->{"events/event"},
+                                              $elt->{"object_stories/object_story"},
+                                              $elt->description,
+                                              $elt->type,
+                                              $elt->id,
+                                              $storyId);
+      break;
+    }
+  }
+
+  // Recalculate recommendations for this dossier
+  // NB. In the future, the storyId should be passed in here instead
+  // $requests = array();
+  //if(variable_get('dec_recommender_on',0)){
+  // $requests = dec_rdf_add_recalculations($requests,$dossierId);
+  //  background_process_start('dec_rdf_run_bg_requests',$requests);
+  //}
+
+  drupal_set_message("Section ".l($recSecId,'node'.'/'.$newNid)." added to story ".$storyId.".");
+  drupal_goto($base_url."/dossiers/".$dossierId."/stories/".$storyId);
+}
+
+function dec_rdf_create_section_entity($events,$objectStories,$description,$assocType,$recSecId,$storyId){
+
+  //entity_create initializes a new entity of type 'node' with initial
+  //values as per the second argument.
+  $e = entity_create( 'node', array( 'type' => 'section' ) );
+  // fill standard fields such as user id, creation date, etc.
+  node_object_prepare( $e );
+  // wrap your entity so you can easily use as a PHP object
+  $section = entity_metadata_wrapper( 'node', $e );
+
+  // - Set value for fields you are interested in:
+  $section->title = $recSecId;
+  $section->body->value->set( $description );
+
+  $eventsCount = count($events);
+  $ctr = 0;
+  while($ctr<$eventsCount){
+    $target = intval(substr($events[$ctr], strrpos($events[$ctr], "/") +1 ));
+    // I wasn't able to add things using the wrapper and array access like this,
+    // so just going about it the other way
+    $e->field_story_events['und'][] = array('target_id'=>$target);
+    $ctr++;
+  }
+
+  // Add the object stories similarly
+  $objectStoriesCount = count($objectStories);
+  $ctr = 0;
+
+  while($ctr<$objectStoriesCount){
+    $target = intval(substr($objectStories[$ctr], strrpos($objectStories[$ctr], "/", -1) +1 ));
+    dd("TARGET: ".$target);
+    $set_raw = entity_create( 'field_collection_item', array( 'field_name' => 'field_story_set' ) );
+    $set_raw->setHostEntity( 'node', $e );
+    $set_ent = entity_metadata_wrapper( 'field_collection_item', $set_raw );
+    $objectStoryNode = node_load($target);
+    $set_ent->field_story_set_object = $objectStoryNode->field_object_story_objects['und'][0]['target_id'];
+
+    $snap_raw = entity_create( 'field_collection_item', array( 'field_name' => 'field_story_set_snapshot_os' ) );
+    $snap_raw->setHostEntity( 'field_collection_item', $set_raw );
+    $snap_raw->field_story_snapshot_os_text = $objectStoryNode->body;
+    $snap_raw->field_story_snapshot_os_os['und'][0]['target_id'] = $target;
+
+    $ctr++;
+  }
+
+
+  $e->story = $storyId;
+  $section->save();
+
+  dd($section);
+  $sectionId = $section->getIdentifier();
+
+  return $sectionId;
+}
+
+function dec_rdf_add_rec_event($dossierId,$recEntId) {
+  global $base_url;
+  $view=views_get_view('semrecommender_events_demo');
+  $view->set_display('panel_pane_1');
+  $view->set_arguments(array($dossierId));
+  $view->pre_execute();
+  $view->execute();
+  $viewResult = $view->result;
+  //dd($viewResult);
+  foreach ($viewResult as $elt){
+    if($elt->id == $recEntId){
+      $newNid = dec_rdf_create_event_entity($elt->id,
+                                            $elt->title,
+                                            $elt->{"agents/agent/label"},
+                                            $elt->{"agents/agent/uri"},
+                                            $elt->{"agents/agent/DOB"},
+                                            $elt->{"location/label"},
+                                            $elt->{"location/uri"},
+                                            $elt->{"object/label"},
+                                            $elt->{"object/uri"},
+                                            $elt->activity,
+                                            $elt->start_time,
+                                            $dossierId);
+      break;
+    }
+  }
+
+  // Recalculate recommendations for this dossier
+  //$requests = array();
+  //if(variable_get('dec_recommender_on',0)){
+  //  $requests = dec_rdf_add_recalculations($requests,$dossierId);
+  //  background_process_start('dec_rdf_run_bg_requests',$requests);
+  //}
+
+  drupal_set_message("Event ".l($recEntId,'node'.'/'.$newNid)." added to dossier ".$dossierId.".");
+  drupal_goto($base_url."/dossiers/".$dossierId);
+}
+
+// very slight modification of the above - we need more arguments
+// to do the job in this case.
+function dec_rdf_add_rec_events_event($dossierId,$eventId,$recEntId) {
+  global $base_url;
+  $view=views_get_view('semrecommender_event_events_demo');
+  $view->set_display('panel_pane_1');
+  $view->set_arguments(array($eventId));
+  $view->pre_execute();
+  $view->execute();
+  $viewResult = $view->result;
+  //dd($viewResult);
+  foreach ($viewResult as $elt){
+    if($elt->id == $recEntId){
+      $newNid = dec_rdf_create_event_entity($elt->id,
+                                            $elt->title,
+                                            $elt->{"agents/agent/label"},
+                                            $elt->{"agents/agent/uri"},
+                                            $elt->{"agents/agent/DOB"},
+                                            $elt->{"location/label"},
+                                            $elt->{"location/uri"},
+                                            $elt->{"object/label"},
+                                            $elt->{"object/uri"},
+                                            $elt->activity,
+                                            $elt->start_time,
+                                            $dossierId);
+      break;
+    }
+  }
+
+  // Recalculate recommendations for this dossier
+  //$requests = array();
+  //if(variable_get('dec_recommender_on',0)){
+  //  $requests = dec_rdf_add_recalculations($requests,$dossierId);
+  //  background_process_start('dec_rdf_run_bg_requests',$requests);
+  //}
+
+  drupal_set_message("Event ".l($recEntId,'node'.'/'.$newNid)." added to dossier ".$dossierId.".");
+  drupal_goto($base_url."/dossiers/".$dossierId);
+}
+
+function dec_rdf_create_event_entity($recEventId,$recEventTitle,$recEventAgentLabel,$recEventAgentURI,$recEventAgentDOB,$recEventLocationLabel,$recEventLocationURI,$recEventObjectLabel,$recEventObjectURI,$recEventActivity,$recEventStartTime,$dossierId){
+
+  $e = entity_create( 'node', array( 'type' => 'event' ) );
+  node_object_prepare( $e );
+  $event = entity_metadata_wrapper( 'node', $e );
+  $lang = $e->language;
+
+  $event->title = $recEventTitle;
+  $event->body->value->set( "From recommendation " . $recEventId );
+
+  if(isset($recEventAgentLabel)&&isset($recEventAgentURI)&&$recEventAgentLabel&&$recEventAgentURI){
+      $agent_raw = entity_create( 'field_collection_item', array( 'field_name' => 'field_fb_agent' ) );
+      $agent_raw->setHostEntity( 'node', $e );
+      $agent_ent = entity_metadata_wrapper( 'field_collection_item', $agent_raw );
+      $agent_ent->field_fb_agent_topic = $recEventAgentLabel;
+      $agent_ent->field_fb_agent_mid = $recEventAgentURI;
+      // We should also add DOD when we have it!
+      if(isset($recEventAgentDOB)&&$recEventAgentDOB){
+        $agent_ent->field_fb_agent_birth_date =
+          mktime(0,0,0,substr($recEventAgentDOB,5,2),substr($recEventAgentDOB,8,2),substr($recEventAgentDOB,0,4));
+      }
+  }
+
+  if(isset($recEventLocationLabel)&&isset($recEventLocationURI)&&$recEventLocationLabel&&$recEventLocationURI){
+      $location_raw = entity_create( 'field_collection_item', array( 'field_name' => 'field_fb_location' ) );
+      $location_raw->setHostEntity( 'node', $e );
+      $location_ent = entity_metadata_wrapper( 'field_collection_item', $location_raw );
+      $location_ent->field_fb_location_topic = $recEventLocationLabel;
+      $location_ent->field_fb_location_mid = $recEventLocationURI;
+  }
+
+  if(isset($recEventObjectLabel)&&isset($recEventObjectURI)&&$recEventObjectLabel&&$recEventObjectURI){
+      $tags_raw = entity_create( 'field_collection_item', array( 'field_name' => 'field_fb_tags' ) );
+      $tags_raw->setHostEntity( 'node', $e );
+      $tags_ent = entity_metadata_wrapper( 'field_collection_item', $tags_raw );
+      $tags_ent->field_fb_tags_topic = $recEventObjectLabel;
+      $tags_ent->field_fb_tags_mid = $recEventObjectURI;
+  }
+
+  if(isset($recEventActivity)&&$recEventActivity){
+    // Do something with the activity
+    $query = new EntityFieldQuery;
+    $targetTid = $query
+      ->entityCondition('entity_type', 'taxonomy_term')
+      ->propertyCondition('name', $recEventActivity)
+      ->propertyCondition('vid', 1)
+      ->execute();
+
+    if(isset($targetTid['taxonomy_term'])){
+      $res = $targetTid['taxonomy_term'];
+      reset($res);
+      $tid = key($res);
+      $e->field_event_activity[ $lang ][0]['tid']= $tid;
+    }
+  }
+
+  if(isset($recEventObject)&&$recEventObject){
+    // Do something with the object
+  }
+
+  $e->field_event_start_time[ $lang ][ 0 ][ 'from' ][ 'year' ] = substr($recEventStartTime,0,4);
+
+  $e->dossier = $dossierId;
+
+  $event->save();
+  $eventId = $event->getIdentifier();
+
+  /*
+  // the association has to be built from the other direction
+  $dossier = node_load($dossierId);
+  $delta = count($dossier->field_dossier_events["und"]);
+  $dossier->field_dossier_events['und'][ $delta ] = array("target_id" => $eventId);
+  node_save($dossier);
+  */
+
+  return $eventId;
+}
+
+/**
+ * function: dec_rdf_get_parent_dossier
+ *
+ * A method for extracting the dossier's NID from the URL.
+ *
+ * Test what happens when this is called programmatically.
+ */
+function dec_rdf_get_parent_dossier() {
+  //$myargs = explode('/', "dossiers/3875/objectstories/3883/objects/3882");
+  $myargs = explode('/', request_path());
+  $dossier = array_search("dossiers",$myargs);
+  if ($dossier !== FALSE) {
+    $ret = $myargs[$dossier+1];
+  } else {
+    $ret = NULL;
+  }
+  return $ret;
+}
+
+/**
+ * function: dec_rdf_get_parent_story
+ *
+ * A method for extracting the story's NID from the URL.
+ */
+function dec_rdf_get_parent_story() {
+  $myargs = explode('/', request_path());
+  $story = array_search("stories",$myargs);
+   if ($story !== FALSE) {
+   $ret = $myargs[$story+1];
+  } else {
+   $ret = NULL;
+  }
+  return $ret;
+}
+
+function dec_rdf_views_post_build (&$view) {
+  if($view->name=='semrecommender_event_events_demo'){
+    $view->query->options['xml_file'] = variable_get('dec_recommender_base') . "/recommendEventEvents/cache?eventID=" . variable_get('dec_triples_base_url') . '/events/%1';
+  }
+  else if($view->name=='semrecommender_events_demo'){
+    $view->query->options['xml_file'] = variable_get('dec_recommender_base') . "/recommendEvents/cache?dossierID=" . variable_get('dec_triples_base_url') . '/dossiers/%1';
+  } else if($view->name=='semreccomender_story_section'){
+    $view->query->options['xml_file'] = variable_get('dec_recommender_base') . "/recommendSections/cache?dossierID=" . variable_get('dec_triples_base_url') . '/dossiers/%1';
+  }
+}

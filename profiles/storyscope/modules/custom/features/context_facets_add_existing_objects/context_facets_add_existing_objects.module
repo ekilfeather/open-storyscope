@@ -1,0 +1,7 @@
+<?php
+/**
+ * @file
+ * Code for the Context Facets - add existing objects feature.
+ */
+
+include_once 'context_facets_add_existing_objects.features.inc';

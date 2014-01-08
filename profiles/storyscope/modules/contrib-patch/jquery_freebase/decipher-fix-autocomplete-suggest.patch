@@ -1,0 +1,22 @@
+105a106
+>     '#maxlength' => 512,
+127a129,130
+>  *
+>  * See https://drupal.org/node/1857984 for update return style
+132d134
+< 
+136,137c138,140
+<     '#default_value' => isset($items[$delta]) ? $items[$delta] : NULL,
+<     '#process' => array_merge($element_info['#process'], array('jquery_freebase_attach_autocomplete_suggest')),
+---
+> /* $items[$delta]['value'] needs to be used as otherwise both 'value and ' safe_value' are output - this line was the cause of the doubling of the value */
+>     '#default_value' => isset($items[$delta]) ? $items[$delta]['value'] : NULL,
+>     '#process' => array('jquery_freebase_attach_autocomplete_suggest'),
+140,141c143,144
+< 
+<   return $element;
+---
+> /*  dpm($items[$delta]['value']); */
+>   return array('value' => $element);
+158a162
+>  

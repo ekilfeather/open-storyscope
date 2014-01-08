@@ -1,0 +1,57 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<title>Connect Dialog</title>
+
+    <script type="text/javascript">
+    
+        AEd = window.parent.AEd;
+        document.write('<script type="text/javascript" src="css.js"><\/script>');
+
+    </script>
+</head>
+<body>
+	
+	<form class="aed-form" onsubmit="return false;" action="" name="aedFormConnect">
+				<fieldset>
+					<legend>
+          <script type="text/javascript">
+              document.write(AEd.I18n.t("Dlg_connect_label_connection_settings"));
+          </script>
+          </legend>
+					  <table>
+
+							  <tr>
+								<td class="aed-ui-table-column1"><label for="aedServer">
+                <script type="text/javascript">
+                    document.write(AEd.I18n.t("Dlg_connect_label_server"));
+                </script>:</label></td>
+								<td class="column2"><input id="aedServer" name="aedServer" type="text" /></td>
+							  </tr>
+							  
+                <tr>
+                  <td class="aed-ui-table-column1"><label for="aedUser">
+                  <script type="text/javascript">
+                      document.write(AEd.I18n.t("Dlg_connect_label_user"));
+                  </script>:</label></td> 
+							    <td class="column2"><input id="aedUser" name="aedUser" type="text" /></td>
+							  </tr>
+							  <tr>
+                  <td class="aed-ui-table-column1"><label for="aedPassword">
+                  <script type="text/javascript">
+                      document.write(AEd.I18n.t("Dlg_connect_label_password"));
+                  </script>:</label></td> 
+							    <td class="column2"><input id="aedPassword" name="aedPassword" type="password" /></td>
+							  </tr>				  
+
+							</table>
+				</fieldset>
+
+
+	</form>
+
+	
+	
+	
+</body>
+</html>

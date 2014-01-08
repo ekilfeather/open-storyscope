@@ -1,0 +1,12 @@
+diff --git partial_date/partial_date.admin.inc partial_date/partial_date.admin.inc
+index 867979e..49d075e 100644
+--- partial_date/partial_date.admin.inc
++++ partial_date/partial_date.admin.inc
+@@ -281,6 +281,7 @@ function _partial_date_field_presave($entity_type, $entity, $field, $instance, $
+     $items[$delta] = array();
+     $items[$delta]['txt_short'] = isset($item['txt_short']) ? $item['txt_short'] : NULL;
+     $items[$delta]['txt_long'] = isset($item['txt_long']) ? $item['txt_long'] : NULL;
++    $items[$delta]['from'] = isset($item['from']) ? $item['from'] : NULL;
+     $items[$delta] += partial_date_field_presave_generate_storage_date($item['from']);
+ 
+     if ($has_range) {

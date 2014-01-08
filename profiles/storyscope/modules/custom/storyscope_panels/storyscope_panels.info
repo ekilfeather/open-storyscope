@@ -1,0 +1,4 @@
+name = Storyscope Panel Layouts
+description = Collection of custom panel layouts
+package = custom
+core = 7.x

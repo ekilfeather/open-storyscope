@@ -1,0 +1,7 @@
+<?php
+/**
+ * @file
+ * Code for the Latest News set of views feature.
+ */
+
+include_once 'latest_news_set_of_views.features.inc';

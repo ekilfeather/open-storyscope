@@ -1,0 +1,10 @@
+name = views dossier events add existing
+description = A listing of events available to a dossier for addition
+core = 7.x
+package = Views
+php = 5.2.4
+dependencies[] = ctools
+dependencies[] = views
+features[ctools][] = views:views_default:3.0
+features[features_api][] = api:1
+features[views_view][] = dossier_events_add_existing

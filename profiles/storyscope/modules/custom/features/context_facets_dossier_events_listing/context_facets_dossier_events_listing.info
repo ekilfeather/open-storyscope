@@ -1,0 +1,14 @@
+name = Context Facets - Dossier Events Listing
+core = 7.x
+package = Features
+php = 5.2.4
+dependencies[] = context
+dependencies[] = ctools
+dependencies[] = facetapi
+dependencies[] = views
+features[context][] = dossier_events_text_search_filter_grid
+features[context][] = dossier_events_text_search_filter_map
+features[context][] = dossier_events_text_search_filter_timeline
+features[context][] = facet_search_dossier_events_listing
+features[ctools][] = context:context:3
+features[features_api][] = api:1

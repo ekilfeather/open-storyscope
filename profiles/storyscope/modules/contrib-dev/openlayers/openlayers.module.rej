@@ -1,0 +1,18 @@
+***************
+*** 960,965 ****
+   */
+  function openlayers_get_projection_by_identifier($identifier) {
+    ctools_include('export');
+    
+    $records = ctools_export_load_object('openlayers_projections', 'names', array($identifier));
+  
+--- 960,968 ----
+   */
+  function openlayers_get_projection_by_identifier($identifier) {
+    ctools_include('export');
++ 
++   //Some modules such as geofield only specify the projection number - Default authority to EPSG: if unspecified.
++   if (is_numeric($identifier)) { $identifier = "EPSG:".$identifier; }
+    
+    $records = ctools_export_load_object('openlayers_projections', 'names', array($identifier));
+  

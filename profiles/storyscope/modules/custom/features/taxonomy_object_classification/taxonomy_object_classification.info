@@ -1,0 +1,11 @@
+name = Taxonomy object classification
+core = 7.x
+package = Taxonomy
+php = 5.2.4
+dependencies[] = features
+dependencies[] = field_sql_storage
+dependencies[] = taxonomy
+dependencies[] = text
+features[features_api][] = api:1
+features[field][] = taxonomy_term-classification-field_taxonomy_term_source_id
+features[taxonomy][] = classification

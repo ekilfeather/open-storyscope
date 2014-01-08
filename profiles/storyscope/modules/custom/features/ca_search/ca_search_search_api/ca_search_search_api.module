@@ -1,0 +1,7 @@
+<?php
+/**
+ * @file
+ * Code for the CA Search search api feature.
+ */
+
+include_once 'ca_search_search_api.features.inc';

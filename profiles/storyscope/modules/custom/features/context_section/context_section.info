@@ -1,0 +1,10 @@
+name = Context Section
+core = 7.x
+package = Context
+dependencies[] = content_type_section
+dependencies[] = context
+dependencies[] = ctools
+dependencies[] = storyscope_story
+features[context][] = section
+features[ctools][] = context:context:3
+features[features_api][] = api:1

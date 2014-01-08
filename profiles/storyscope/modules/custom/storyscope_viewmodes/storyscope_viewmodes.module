@@ -1,0 +1,84 @@
+<?php
+
+/**
+ * Implements hook_entity_info_alter().
+ */
+function storyscope_viewmodes_entity_info_alter(&$entity_info) {
+  $entity_info['node']['view modes']['thumbnail'] = array(
+    'label' => t('Thumbnail'),
+    'custom settings' => TRUE,
+  );
+  $entity_info['node']['view modes']['thumbnail_teaser'] = array(
+    'label' => t('Thumbnail teaser'),
+    'custom settings' => TRUE,
+  );
+  $entity_info['node']['view modes']['title_only'] = array(
+    'label' => t('Title only'),
+    'custom settings' => TRUE,
+  );
+  $entity_info['node']['view modes']['highlight'] = array(
+    'label' => t('Highlight'),
+    'custom settings' => TRUE,
+  );
+  $entity_info['node']['view modes']['teaser_suggested'] = array(
+    'label' => t('Teaser suggested'),
+    'custom settings' => TRUE,
+  );
+  $entity_info['node']['view modes']['teaser_recommender_pick'] = array(
+    'label' => t('Teaser recommender pick'),
+    'custom settings' => TRUE,
+  );
+  $entity_info['node']['view modes']['slide'] = array(
+    'label' => t('Slide'),
+    'custom settings' => FALSE,
+  );
+  $entity_info['node']['view modes']['small_thumbnail'] = array(
+    'label' => t('Small Thumbnail'),
+    'custom settings' => TRUE,
+  );
+  $entity_info['node']['view modes']['small_unlinked_thumbnail_plain'] = array(
+    'label' => t('Small unlinked thumbnail no metadata'),
+    'custom settings' => FALSE,
+  );
+  $entity_info['node']['view modes']['image_and_properties'] = array(
+    'label' => t('Image and properties'),
+    'custom settings' => TRUE,
+  );
+  $entity_info['node']['view modes']['image_properties_and_title'] = array(
+    'label' => t('Image, properties and title'),
+    'custom settings' => TRUE,
+  );
+  $entity_info['node']['view modes']['title_and_properties'] = array(
+    'label' => t('Title and properties'),
+    'custom settings' => TRUE,
+  );
+  $entity_info['node']['view modes']['thumbnail_image_and_properties'] = array(
+    'label' => t('Thumbnail image and properties'),
+    'custom settings' => FALSE,
+  );
+  $entity_info['node']['view modes']['eva_node'] = array(
+    'label' => t('Node with views attachments'),
+    'custom settings' => TRUE,
+  );
+  $entity_info['node']['view modes']['eva_node_thumbnail'] = array(
+    'label' => t('Node with views attachments and a thumbnail'),
+    'custom settings' => FALSE,
+  );
+  $entity_info['node']['view modes']['small_unclickable_thumbnail'] = array(
+    'label' => t('Small thumbnail no link'),
+    'custom settings' => TRUE,
+  );
+}
+
+/* Add custom templates for view modes */
+/**
+ * Implements hook_preprocess_node().
+ */
+function storyscope_viewmodes_preprocess_node(&$vars) {
+  // Add template suggestion - always use listing template if not full mode
+  if (isset($vars['view_mode']) && $vars['view_mode'] != 'full' ){
+    $vars['theme_hook_suggestions'][] = 'node__listing';
+  }
+  $vars['theme_hook_suggestions'][] = 'node__' . $vars['type'];
+  $vars['theme_hook_suggestions'][] = 'node__' . $vars['view_mode'];
+}

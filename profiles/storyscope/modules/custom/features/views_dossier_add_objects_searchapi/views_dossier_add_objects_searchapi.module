@@ -1,0 +1,7 @@
+<?php
+/**
+ * @file
+ * Code for the Views Dossier Objects add existing (search api) feature.
+ */
+
+include_once 'views_dossier_add_objects_searchapi.features.inc';

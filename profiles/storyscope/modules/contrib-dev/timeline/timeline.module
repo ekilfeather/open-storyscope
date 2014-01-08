@@ -1,0 +1,209 @@
+<?php
+
+/**
+ * @file
+ * Module providing a scrollable timeline view for Drupal events and nodes.
+ */
+
+
+/**
+ * Implements hook_help(). Provides online user help.
+ */
+function timeline_help($path, $arg) {
+  switch ($path) {
+    case 'admin/help#timeline':
+      return '<p>Provides a draggable and scrollable timeline view. Requires the views module and the libraries module.</p>';
+    case 'admin/config/services/timeline':
+      if (module_exists('views_ui'))
+        $timeline_route = t('To actually create and manage timelines, use the <a href="@views">views administration</a> screen.', array('@views' => url('admin/build/views')));
+      else
+        $timeline_route = t('To actually create and manage timelines, enable the Views UI module in the <a href="@modules">modules administration</a> screen.', array('@modules' => url('admin/modules')));
+      return '<p>' . t('Timeline views provides a draggable and scrollable widget for visualizing temporal information. This screen allows you to override default settings for each timeline.') . '</p><p>' . $timeline_route . '</p>';
+
+  }
+}
+
+/**
+ * Implementation of hook_views_api().
+ */
+function timeline_views_api() {
+  return array(
+    'api' => 3,
+  );
+}
+
+/**
+ * Implementation of hook_theme().
+ */
+function timeline_theme() {
+  $base = array('file' => 'timeline.theme.inc');
+  return array(
+    'timeline_nodata' => $base + array(),
+    'timeline_bubble_title' => $base + array(
+      'arguments' => array('row' => NULL, 'alias' => NULL),
+    ),
+    'timeline_bubble_url' => $base + array(
+      'arguments' => array('row' => NULL, 'link_enabled' => NULL),
+    ),
+    'timeline_debug' => $base + array(
+      'arguments' => array('debug_array' => NULL),
+    ),
+  );
+}
+
+/**
+ * Implementation of hook_menu(). Defines menu items and page callbacks.
+ */
+function timeline_menu() {
+  $items = array();
+  $items['admin/config/services/timeline'] = array(
+    'title' => 'Timeline',
+    'description' => 'Configure timeline settings',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('timeline_admin_settings'),
+    'access arguments' => array('administer site configuration'),
+    'file' => 'timeline.admin.inc',
+    'type' => MENU_NORMAL_ITEM,
+  );
+
+  return $items;
+}
+
+/**
+ * Implements hook_ctools_plugin_directory for plugin integration for date sources, image sources and timeline themes
+ */
+function timeline_ctools_plugin_directory($module, $plugin) {
+  if ($module == 'timeline') {
+    return 'plugins/' . $plugin;
+  }
+}
+
+/**
+ * Implements hook_ctools_plugin_type
+*/
+function timeline_ctools_plugin_type() {
+  return array(
+    'date_sources' => array(),
+    'image_sources' => array(),
+    'themes' => array()
+  );
+}
+
+/**
+ * Returns the date conversion function name of a plugin
+ *
+ * @param $handler_name
+ *   Name of the field handler that the plugin has to support
+ *
+ * @return
+ *   Name of the date conversion function
+ */
+function timeline_plugins_get_callback($handler_name, $plugin_type) {
+  ctools_include('plugins');
+  $plugins = ctools_get_plugins('timeline', $plugin_type);
+  foreach ($plugins as $plugin) {
+    if ($plugin['handler_name'] == $handler_name) {
+      return ctools_plugin_get_function($plugin, 'callback');
+    }
+  }
+}
+
+
+/**
+ * Returns the currently logged-in user's timezone.
+ *
+ * @return the name of a timezone
+ */
+function timeline_get_timezone() {
+  global $user;
+  return (variable_get('configurable_timezones', 1) && $user->uid && drupal_strlen($user->timezone)) ?
+    $user->timezone : variable_get('date_default_timezone', NULL);
+}
+
+function timeline_convert_to_gregorian($value, $date_format, $timezone, $db_timezone) {
+  $timezone = new DateTimezone($timezone);
+  $db_timezone = new DateTimezone($db_timezone);
+  switch ($date_format) {
+    case 'timestamp':
+      $date = new DateTime("@$value", $db_timezone);
+      break;
+    default:
+      $date = new DateTime("$value", $db_timezone);
+      break;
+  }
+  $date->setTimezone($timezone);
+  return $date->format('M d Y G:i:s');
+}
+
+function timeline_convert_to_iso($value, $date_format, $timezone, $db_timezone) {
+  $timezone = new DateTimezone($timezone);
+  $db_timezone = new DateTimezone($db_timezone);
+  switch ($date_format) {
+    case 'timestamp':
+      $date = new DateTime("@$value", $db_timezone);
+      break;
+    default:
+      $date = new DateTime("$value", $db_timezone);
+      break;
+  }
+  $date->setTimezone($timezone);
+  return $date->format('Y-m-d\TH:i:s\Z');
+}
+
+function timeline_convert_to_timestamp($value, $date_format, $timezone, $db_timezone) {
+  $timezone = new DateTimezone($timezone);
+  $db_timezone = new DateTimezone($db_timezone);
+  switch ($date_format) {
+    case 'timestamp':
+      $date = new DateTime("@$value", $db_timezone);
+      break;
+    default:
+      $date = new DateTime("$value", $db_timezone);
+      break;
+  }
+  $date->setTimezone($timezone);
+  return $date->format('U');
+}
+
+
+/**
+ * Check if all library files properly exist.
+ *
+ * @return: TRUE if everything is correct
+ *          FALSE if no library was found
+ *          string: with an error message of the missing file.
+ */
+function timeline_validate_library() {
+  if (module_exists('libraries')) {
+    $timeline_path = libraries_get_path('simile_timeline');
+    $timeline_library_files = array(
+      '/timeline_js/timeline-api.js',
+      '/timeline_js/timeline-bundle.js',
+      '/timeline_ajax/simile-ajax-api.js',
+      '/timeline_ajax/simile-ajax-bundle.js',
+      '/timeline_ajax/scripts/signal.js',
+    );
+    // check if library is available 'sites/all/libraries/simile_timeline'
+    if (is_dir($timeline_path)) {
+      $messages = '';
+      foreach ($timeline_library_files as $file) {
+        $file = $timeline_path . $file;
+        if (!file_exists($file)) {
+          $messages .= '<div>' . t('Error: !timeline_filename not found', array('!timeline_filename' => '<span class="error">' . $file . '</span></div>'));
+        }
+      }
+      // no errors found
+      if ($messages == '')
+        return TRUE;
+      else
+        return $messages;
+    }
+  }
+  // no library found
+  return FALSE;
+}
+
+// TODO: REMOVE - jm
+function _timeline_to_dim($string) {
+  return intval($string) . (strpos($string, '%') !== FALSE ? '%' : 'px');
+}

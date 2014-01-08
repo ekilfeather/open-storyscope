@@ -1,0 +1,13 @@
+name = Similarity search
+project = decipher
+description = Similarity search with SEC Store API
+package = Decipher
+configure = admin/config/search/similarity
+
+files[] = similarity_search.inc
+files[] = similarity_search_autocomplete.js
+
+dependencies[] = "background_process"
+
+core = 7.x
+version = "7.x-dev"

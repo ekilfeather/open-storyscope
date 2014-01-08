@@ -1,0 +1,1055 @@
+<?php
+
+/**
+ * Implements hook_field_extra_fields().
+ */
+function extra_fields_field_extra_fields() {
+  $extra = array();
+  foreach (node_type_get_types() as $type) {
+    $extra['node'][$type->type] = array(
+      'display' => array(
+        'created' => array(
+          'label' => t('Created'),
+          'weight' => -5,
+        ),
+        'type' => array(
+          'label' => t('Type Identifier'),
+          'weight' => -5,
+        ),
+        'add_to' => array(
+          'label' => t('"Add +" button'),
+          'weight' => 10,
+        ),
+        'remove' => array(
+          'label' => t('"Remove" button'),
+          'weight' => 10,
+        ),
+      ),
+    );
+    if ($type->has_title) {
+      $extra['node'][$type->type]['display']['title'] = array(
+        'label' => t('Extra field: @title', array('@title' => $type->title_label)),
+        'weight' => -4,
+      );
+    }
+  }
+
+  // Source events
+  $extra['node']['source_event']['display']['events_count'] = array(
+    'label' => t('Associated events count'),
+    'weight' => 5,
+  );
+  $extra['node']['source_event']['display']['event_display_date'] = array(
+    'label' => t('Event date for display'),
+    'weight' => 5,
+  );
+
+  // Object stories
+  $extra['node']['object_story']['display']['object_nodes'] = array(
+    'label' => t('Object image'),
+    'weight' => -5,
+  );
+
+  $extra['node']['object_story']['display']['dossier'] = array(
+    'label' => t('Dossier'),
+    'weight' => 15,
+  );
+
+  $extra['node']['object_story']['display']['add_similar'] = array(
+    'label' => t('"Add Similar +" button'),
+    'weight' => -5,
+  );
+
+  $extra['node']['object']['display']['add_similar'] = array(
+    'label' => t('"Add Similar +" button'),
+    'weight' => -5,
+  );
+
+  // Section
+  $extra['node']['section']['display']['object_nodes'] = array(
+    'label' => t('Object image'),
+    'weight' => -5,
+  );
+  return $extra;
+}
+
+/**
+ * Implements hook_node_view().
+ */
+function extra_fields_node_view($node, $view_mode, $langcode) {
+  $displays = field_extra_fields_get_display('node', $node->type, $view_mode);
+  if (!empty($displays['created']['visible'])) {
+    $node->content['created'] = array(
+      '#theme' => 'extra_fields_created',
+      '#node' => $node,
+      '#view_mode' => $view_mode,
+    );
+  }
+  if (!empty($displays['type']['visible'])) {
+    $node->content['type'] = array(
+      '#theme' => 'extra_fields_type',
+      '#node' => $node,
+      '#view_mode' => $view_mode,
+    );
+  }
+  if (!empty($displays['title']['visible'])) {
+    $node->content['title'] = array(
+      '#theme' => 'extra_fields_title',
+      '#node' => $node,
+      '#view_mode' => $view_mode,
+    );
+  }
+  if (!empty($displays['object_nodes']['visible'])) {
+    $node->content['object_image'] = array(
+      '#theme' => 'extra_fields_object_story_object_image',
+      '#node' => $node,
+      '#view_mode' => $view_mode,
+    );
+  }
+  if (!empty($displays['dossier']['visible'])) {
+    $node->content['dossier'] = array(
+      '#theme' => 'extra_fields_object_story_dossier',
+      '#node' => $node,
+      '#view_mode' => $view_mode,
+    );
+  }
+  if (!empty($displays['add_similar']['visible'])) {
+    $node->content['add_similar'] = array(
+      '#theme' => 'extra_fields_add_similar',
+      '#node' => $node,
+      '#view_mode' => $view_mode,
+    );
+  }
+  if (!empty($displays['events_count']['visible']) && isset($node->events_count)) {
+    if ($node->events_count > 1) {
+      $node->content['events_count'] = array(
+        '#theme' => 'extra_fields_events_count',
+        '#node' => $node,
+        '#view_mode' => $view_mode,
+      );
+    }
+  }
+  if (!empty($displays['event_display_date']['visible']) && isset($node->event_display_date)) {
+    $node->content['event_display_date'] = array(
+      '#theme' => 'extra_fields_event_display_date',
+      '#node' => $node,
+      '#view_mode' => $view_mode,
+    );
+  }
+  if ($node->type == 'object_story' && !empty($node->view) && user_is_logged_in()) {
+    if ($node->view->name =='dossier_object_stories_add_existing_search_api') {
+      $node->content['add_to'] = array(
+        '#theme' => 'extra_fields_add_to',
+        '#node' => $node,
+        '#view_mode' => $view_mode,
+        '#view'  => $node->view,
+      );
+    }
+  }
+  // Add "add +" and "x remove" links to just certain Views.
+  if (!empty($node->view) && !empty($node->view->args)) {
+    $view_args = $node->view->args;
+    $parent_nid = (count($view_args) > 1) ? $view_args[1] : $view_args[0];
+    // Add link views.
+    $add_existing_views = array(
+      'dossier_object_stories_add_existing_search_api',
+      'dossier_objects_add_existing_search_api',
+      'dossier_events_add_existing_search_api',
+      'dossier_references_add_existing_search_api',
+      'object_story_events_add_existing_search_api',
+      'object_story_objects_add_existing_search_api',
+      'object_story_references_add_existing_search_api',
+    );
+    if (in_array($node->view->name, $add_existing_views) && user_is_logged_in()) {
+      $node->content['add_to'] = array(
+        '#theme' => 'extra_fields_add_to',
+        '#node' => $node,
+        '#view_mode' => $view_mode,
+        '#view'  => $node->view,
+        '#parent_nid' => $parent_nid,
+      );
+    }
+    elseif (($node->view->name == 'source_event_instances' &&
+      (in_array(
+        $node->view->current_display, array('dossier_page_event_interpretations', 'objectstory_page_event_interpretations', 'dossier_event_most_recent_page', 'objectstory_event_most_recent_page'))
+      ))
+      ||
+      ($node->view->name == 'event_details')
+    ) {
+      if (user_is_logged_in()) {
+        $parent_nid = arg(1);
+        $node->content['add_to'] = array(
+          '#theme' => 'extra_fields_add_to',
+          '#node' => $node,
+          '#view_mode' => $view_mode,
+          '#view'  => $node->view,
+          '#parent_nid' => $parent_nid,
+        );
+      }
+    }
+    // Story editing interface - addition of object stories to a Story node.
+    elseif ($node->view->name == 'views_object_object_stories' && $node->view->current_display == 'section_object_object_stories_pane' && user_is_logged_in()) {
+      $node->content['add_to'] = array(
+        '#theme' => 'extra_fields_add_to',
+        '#node' => $node,
+        '#view_mode' => $view_mode,
+        '#view'  => $node->view,
+        '#parent_nid' => $node->nid,
+      );
+    }
+
+    // Remove link views.
+    $view_existing_views = array(
+      'dossier_object_stories',
+      'dossier_events',
+      'dossier_events_search_api',
+      'dossier_references',
+      'dossier_plots',
+      'object_story_events',
+      'object_story_objects',
+      'object_story_references',
+    );
+    if (in_array($node->view->name, $view_existing_views) && user_is_logged_in()) {
+      $node->content['remove'] = array(
+        '#theme' => 'extra_fields_remove',
+        '#node' => $node,
+        '#view_mode' => $view_mode,
+        '#view'  => $node->view,
+        '#parent_nid' => $parent_nid,
+      );
+    }
+  }
+}
+
+
+/**
+ * Implements hook_theme().
+ */
+function extra_fields_theme($existing, $type, $theme, $path) {
+  return array(
+    'extra_fields_created' => array(
+      'variables' => array('node' => NULL, 'view_mode' => NULL),
+    ),
+    'extra_fields_title' => array(
+      'variables' => array('node' => NULL, 'view_mode' => NULL),
+    ),
+    'extra_fields_type' => array(
+      'variables' => array('node' => NULL, 'view_mode' => NULL),
+    ),
+    'extra_fields_object_story_object_image' => array(
+      'variables' => array('node' => NULL, 'view_mode' => NULL),
+    ),
+    'extra_fields_object_story_dossier' => array(
+      'variables' => array('node' => NULL, 'view_mode' => NULL),
+    ),
+    'extra_fields_events_count' => array(
+      'variables' => array('node' => NULL, 'view_mode' => NULL),
+    ),
+    'extra_fields_event_display_date' => array(
+      'variables' => array('node' => NULL, 'view_mode' => NULL),
+    ),
+    'extra_fields_add_to' => array(
+      'variables' => array('node' => NULL, 'view_mode' => NULL, 'view' => NULL, 'parent_nid' => NULL),
+    ),
+    'extra_fields_remove' => array(
+      'variables' => array('node' => NULL, 'view_mode' => NULL, 'view' => NULL, 'parent_nid' => NULL),
+    ),
+    'extra_fields_move' => array(
+      'variables' => array('node' => NULL, 'view_mode' => NULL, 'view' => NULL, 'views_display' => NULL, 'parent_nid' => NULL),
+    ),
+    'extra_fields_add_similar' => array(
+      'variables' => array('node' => NULL, 'view_mode' => NULL, 'view' => NULL, 'parent_nid' => NULL),
+    ),
+  );
+}
+
+function theme_extra_fields_created($variables) {
+  $node = $variables['node'];
+  $view_mode = $variables['view_mode'];
+  $date = date('F j, Y', $node->created);
+  $output = '<p class="submitted">';
+  $output .= t('Added by @username on @datetime',array('@username' => $node->name, '@datetime' => $date));
+  $output .= '</p>';
+  return $output;
+}
+
+function theme_extra_fields_title($variables) {
+  $node = $variables['node'];
+  $view_mode = $variables['view_mode'];
+  $entity_uri = entity_uri('node', $node);
+  $options = array();
+  // --------------------------------------------------------------------------
+  // Here we check for certain views that do not want to have clickable titles.
+  // --------------------------------------------------------------------------
+
+  // Check if the node is an object story event in a Story.
+  if (!empty($variables['node']->view) && $variables['node']->view->name == 'object_story_events' && $variables['node']->view->current_display == 'story_section_object_story_events_pane') {
+    $output = '<h2 class="node-title">' . check_plain($variables['node']->title) . '</h2>';
+    return $output;
+  }
+  elseif (!empty($variables['node']->view) && $variables['node']->view->name == 'section_events' && $variables['node']->view->current_display == 'panel_pane_section_events') {
+    $output = '<h2 class="node-title">' . check_plain($variables['node']->title) . '</h2>';
+    return $output;
+  }
+  elseif (!empty($variables['node']->view) && $variables['node']->view->name == 'section_events' && $variables['node']->view->current_display == 'panel_pane_section_events') {
+    $output = '<h2 class="node-title">' . check_plain($variables['node']->title) . '</h2>';
+    return $output;
+  }
+  elseif (!empty($variables['node']->view) && $variables['node']->view->name == 'source_event_instances' && $variables['node']->view->current_display == 'dossier_event_most_recent_page') {
+    $output = '<h2 class="node-title">' . check_plain($variables['node']->title) . '</h2>';
+    return $output;
+  }
+  // --------------------------------------------------------------------------
+  // Check for a specific add event view to massage the correct event alias.
+  // --------------------------------------------------------------------------
+  elseif (!empty($variables['node']->view)) {
+    $view_name = $variables['node']->view->name;
+    $display_name = $variables['node']->view->current_display;
+    if ($view_name == 'dossier_events_add_existing_search_api') {
+      $incoming = drupal_get_destination();
+      $options['query']['destination'] = $incoming['destination'];
+    }
+    if ($view_name == 'dossier_events_add_existing_search_api' && $display_name == 'page_add_event_search_internal') {
+      if (strpos($entity_uri['path'], 'events/search/internal') === FALSE) {
+        $entity_uri = str_replace('events/search', 'events/search/internal', $entity_uri['path']);
+      }
+      else $entity_uri = $entity_uri['path'];
+      $path = l($node->title, $entity_uri, $options);
+      $output = '<h2 class="node-title">' . $path . '</h2>';
+      return $output;
+    }
+  }
+  // --------------------------------------------------------------------------
+  // Here we check for certain views that should have titles with links that open
+  // in a colorbox.
+  // --------------------------------------------------------------------------
+  if (!empty($variables['node']->view)) {
+    $view_name = $variables['node']->view->name;
+    $display_name = $variables['node']->view->current_display;
+    if (
+      ($view_name == 'views_object_object_stories' && $display_name == 'section_object_object_stories_pane')
+      || ($view_name == 'object_story_events' && $display_name == 'entity_view_1')
+      ) {
+      $path = l($node->title, $entity_uri['path'], array('attributes' => array('class' => 'colorbox-node'), 'query' => array('width' => '90%' , 'height' => '90%')));
+      $output = '<h2 class="node-title">' . $path . '</h2>';
+      return $output;
+    }
+    elseif ($view_name == 'dossier_objects_add_existing_search_api') {
+      $path = l($node->title, 'objects/' . $entity_uri['options']['entity']->nid, array('attributes' => array('class' => 'colorbox-node'), 'query' => array('width' => '90%' , 'height' => '90%')));
+      $output = '<h2 class="node-title">' . $path . '</h2>';
+      return $output;
+    }
+  }
+
+  // --------------------------------------------------------------------------
+  // Theme the title with a clickable link
+  // --------------------------------------------------------------------------
+  $output = '<h2 class="node-title">';
+  $output .= l($node->title, $entity_uri['path'], $options);
+  /* We don't want event counts for source events at the moment so comment it out.
+  // if ($view_mode == 'teaser' && $node->type == 'source_event') {
+  //    $output .= ' <span class="event-count">' . $node->events_count . '</span> ';
+  // }
+  */
+  $output .= '</h2>';
+  return $output;
+}
+
+function theme_extra_fields_type($variables) {
+  $node = $variables['node'];
+  $type = node_type_get_type($node->type);
+  $output = '<p class="type-identifier">';
+  $output .= check_plain($type->name);
+  $output .= '</p>';
+  return $output;
+}
+
+function theme_extra_fields_events_count($variables) {
+  $node = $variables['node'];
+  $output = '<p class="events-count">';
+  $output .= t('@count events', array('@count' => $node->events_count));
+  $output .= '</p>';
+  return $output;
+}
+
+function theme_extra_fields_event_display_date($variables) {
+  $node = $variables['node'];
+  $output = '<p class="events-display-date">';
+  $output .= $node->event_display_date;
+  $output .= '</p>';
+  return $output;
+}
+
+function theme_extra_fields_object_story_object_image($variables) {
+  $output = '';
+  $node = $variables['node'];
+  $view_mode = $variables['view_mode'];
+  $node_wrapper = entity_metadata_wrapper('node', $node);
+  if (isset($node->object_nodes) || isset($node->object_story_nodes)) {
+    $objects = array_filter( $node->object_nodes );
+    $object_story_wrapper = $node_wrapper;
+    if( array_key_exists( 'field_object_story_chosen_media', $object_story_wrapper->getPropertyInfo() ) )
+      $chosen_media_file_id = $object_story_wrapper->field_object_story_chosen_media->value();
+    // Figure out the image style.
+    if ($view_mode == 'highlight') {
+      $image_style = 'highlight';
+    }
+    elseif ($view_mode == 'teaser' || $view_mode == 'thumbnail_teaser') {
+      $image_style = 'thumbnail';
+    }
+    elseif ($view_mode == 'eva_node_thumbnail') {
+      $image_style = 'thumbnail';
+    }
+    elseif ($view_mode == 'eva_node') {
+      $image_style = 'thumbnail';
+    }
+    elseif ($view_mode == 'title_and_properties') {
+      $image_style = 'large';
+    }
+    // Show the chosen media if one exists, otherwise default to the first object image.
+    if (empty($chosen_media_file_id)) {
+      if (!empty($objects)) {
+        $chosen_media_file_id = extra_fields_get_first_object_media_item($objects);
+      }
+    }
+    if (!empty($chosen_media_file_id)) {
+      $image_file = file_load($chosen_media_file_id);
+      $output = extra_fields_render_known_object_media_preview($image_file, $image_style);
+    }
+    else {
+      // Just use the first image for now.
+      if (!empty($objects) ) {
+        $first_node_id = array_shift($objects);
+        $object_node = node_load( $first_node_id );
+        // TODO: figure out how to make this configurable on the display settings page.
+        $settings = array('label' => 'hidden');
+        $settings['settings']['image_style'] = $image_style;
+        $image = field_view_field('node', $object_node, 'field_image', $settings);
+        $output = drupal_render($image);
+      }
+    }
+  }
+  elseif ($node->type == 'section') {
+    $section_wrapper = $node_wrapper;
+    // Find the first Object Story in the first a snapshot OS in the first story set.
+    // Then find its representational media item.
+    $sets = $section_wrapper->field_story_set->value();
+    foreach ($sets as $key => $item) {
+      if (!empty($item)) {
+        $story_set_wrapper = entity_metadata_wrapper('field_collection_item', $item);
+        $snapshot_oses = $story_set_wrapper->field_story_set_snapshot_os->value();
+        if (!empty($snapshot_oses)) {
+          $first_snapshot = $snapshot_oses[0];
+          $snapshot_wrapper = entity_metadata_wrapper('field_collection_item',  $first_snapshot);
+          $object_story = $snapshot_wrapper->field_story_snapshot_os_os->value();
+          $object_story_wrapper =  entity_metadata_wrapper('node', $object_story);
+          if( array_key_exists( 'field_object_story_chosen_media', $object_story_wrapper->getPropertyInfo() ) )
+            $chosen_media_file_id = $object_story_wrapper->field_object_story_chosen_media->value();
+          // Show the chosen media if one exists, otherwise default to the first object image.
+          if (empty($chosen_media_file_id)) {
+            // Need to find the objects in a section here.
+            if (!empty($node)) {
+              $chosen_media_file_id = extra_fields_section_get_first_object_media_item($node);
+            }
+          }
+          if (!empty($chosen_media_file_id)) {
+            $image_file = file_load($chosen_media_file_id);
+            return extra_fields_render_known_object_media_preview($image_file, 'tiny');
+          }
+        }
+        if (!empty($item->field_story_set_object)) {
+          $object_nid = $item->field_story_set_object['und'][0]['target_id'];
+          $object_node = node_load($object_nid);
+          $settings = array('label' => 'hidden');
+          $settings['settings']['image_style'] = 'tiny';
+          $image = field_view_field('node', $object_node, 'field_image', $settings);
+        }
+        if (!empty($image)) {
+          $output = drupal_render($image);
+          return $output;
+        }
+      }
+    }
+  }
+  return $output;
+}
+
+
+/**
+ * Helper function to get the first media item ID from a list of objects.
+ *
+ * @param $objects - an array of Storyscope object nodes.
+ * @return a media file ID.
+ */
+function extra_fields_get_first_object_media_item($objects) {
+  $temp_object_array = $objects;
+  $first_node_id = array_shift($temp_object_array);
+  $object_node = node_load( $first_node_id );
+  $object_wrapper = entity_metadata_wrapper('node', $object_node);
+  $media = $object_wrapper->field_media->value();
+  $chosen_media_file_id = null;
+  if (!empty($media)) {
+    $chosen_media_file_id = $media[0]['fid'];
+    return $chosen_media_file_id;
+  }
+}
+
+/**
+ * Helper function to get the first media item ID from the first object in a section.
+ *
+ * @param $objects - a Storyscope section nodes.
+ * @return a media file ID.
+ */
+function extra_fields_section_get_first_object_media_item($section_node) {
+  $section_wrapper = entity_metadata_wrapper('node', $section_node);
+  $story_sets = $section_wrapper->field_story_set->value();
+  if (!empty($story_sets[0])) {
+    $first_story_set_wrapper = entity_metadata_wrapper('field_collection_item', $story_sets[0]);
+    $object = $first_story_set_wrapper->field_story_set_object->value();
+    if (!empty($object)) {
+      $object_wrapper = entity_metadata_wrapper('node', $object);
+      $media_items = $object_wrapper->field_media->value();
+      if (!empty($media_items)) {
+        $first_media_item = $media_items[0];
+        return $first_media_item['fid'];
+      }
+    }
+  }
+}
+
+/**
+ *  Helper function to render media preview images.
+ */
+function extra_fields_render_known_object_media_preview($image_file, $image_style = 'tiny') {
+  if (!empty($image_file)) {
+    if ($image_file->type == 'image') {
+      $settings = array(
+        'path' => $image_file->uri,
+        'style_name' => $image_style,
+        );
+      if (empty($image_file->field_file_image_alt_text)) {
+        $settings['alt'] = $image_file->filename;
+      }
+      else {
+        $settings['alt'] = $image_file->field_file_image_alt_text;
+      }
+      $image = theme('image_style', $settings);
+    }
+    elseif ($image_file->type == 'video' || $image_file->type == 'audio') {
+      // I do not know why media_youtube does not like using the
+      // media_get_thumbnail_preview function, but
+      // it seems to choke when making thumbnails, so we'll use its own
+      // preview render formatter instead.
+      if ($image_file->filemime == 'video/youtube') {
+        if ($image_style != 'large') {
+          $display['settings']['image_style'] = $image_style;
+          $image = media_youtube_file_formatter_image_view($image_file, $display, NULL);
+          $image = drupal_render($image);
+        }
+        else {
+          // Set up the display settings array for Youtube videos.
+          $display = array(
+            'weight' => 1,
+            'status' => 1,
+            'settings' => array (
+              'width' => '100%',
+              'height' => '',
+              'theme' => 'dark',
+              'color' => 'red',
+              'autohide' => 2,
+              'autoplay' => 0,
+              'loop' => 0,
+              'showinfo' => 1,
+              'modestbranding' => 0,
+              'rel' => 1,
+              'nocookie' => 0,
+              'protocol_specify' => 0,
+              'protocol' => 'https:',
+              'enablejsapi' => 0,
+              'origin' => '',
+            ),
+            'type' => 'media_youtube_video',
+          );
+          // Print out the video.
+          $image = media_youtube_file_formatter_video_view($image_file, $display, NULL);
+          $image = drupal_render($image);
+        }
+      }
+      elseif ($image_file->filemime == 'video/vimeo') {
+        if ($image_style != 'large') {
+          $display['settings']['image_style'] = $image_style;
+          $image = media_vimeo_file_formatter_image_view($image_file, $display, NULL);
+          $image = drupal_render($image);
+        }
+        else {
+          $display['settings'] = array(
+            'width' => '100%',
+            'height' => '',
+            'autoplay' => 0,
+          );
+          $image = media_vimeo_file_formatter_video_view($image_file, $display, NULL);
+          $image = drupal_render($image);
+        }
+      }
+      elseif ($image_file->filemime == 'audio/soundcloud') {
+        $display['settings'] = array(
+          'image_style' => $image_style,
+          'width' => '100%',
+          'autoplay' => 0,
+          'extra_params' => NULL,
+        );
+        $image = media_soundcloud_file_formatter_image_view($image_file, $display, NULL);
+        $image = drupal_render($image);
+      }
+      else {
+        $image = media_get_thumbnail_preview($image_file);
+        $image = drupal_render($image);
+      }
+    }
+    else {
+      $image = media_get_thumbnail_preview($image_file);
+      $image = drupal_render($image);
+    }
+    return $image;
+  }
+}
+
+function theme_extra_fields_object_story_dossier($variables) {
+  $node = $variables['node'];
+  if( isset( $node->dossiers ) && is_array( $node->dossiers ) && count( $node->dossiers ) > 0 )
+  {
+    $dossier_node_wrapper = entity_metadata_wrapper('node', $node->dossiers[0]);
+    $dossier_name = $dossier_node_wrapper->title->value();
+  }
+  else
+  {
+    $dossier_name = "Not in any dossier";
+  }
+  $output = '<p class="object-story-dossier">';
+  $output .= $dossier_name;
+  $output .= '</p>';
+  return $output;
+}
+
+function theme_extra_fields_add_similar($variables) {
+  $output = '';
+  $node = $variables['node'];
+  switch ($node->type){
+    case 'object_story':
+      $parent_nid = $node->dossiers[0];
+      $add_similar_link = 'dossiers/' . $parent_nid . '/objectstories/' . $node->nid . '/similar';
+      break;
+    case 'object':
+      if (arg(0, request_path()) == 'dossiers') {
+        $dossier_nid = arg(1, request_path());
+        $parent_nid = $node->object_stories[0];
+        $add_similar_link = 'dossiers/' . $dossier_nid . '/objectstories/' . $parent_nid . '/objects' . '/' .$node->nid . '/similar';
+      }
+      break;
+  }
+  if (!empty($add_similar_link) && module_exists('similarity_search')) {
+    $output = '<p class="suggest add-similar">';
+    $output .= l(t('add similar +'), $add_similar_link);
+    $output .= '</p>';
+  }
+  return $output;
+}
+
+
+
+function theme_extra_fields_add_to($variables) {
+  $output = '';
+  $node = $variables['node'];
+  $view = $variables['view'];
+  $view_name = empty($variables['view']) ? NULL : $variables['view']->name;
+  $parent_nid = $variables['parent_nid'];
+  $subpath = storyscope_content_get_node_type_path_mapping($node->type);
+  $options = array();
+  switch ($view_name) {
+    case 'dossier_object_stories_add_existing_search_api':
+      if ($view->current_display == 'object_stories_add_to_section') {
+        $node_wrapper = entity_metadata_wrapper('node', $node);
+        if( !array_key_exists( 'field_object_story_objects', $node_wrapper->getPropertyInfo() ) )
+          return $output;
+        $objects = array_filter( $node_wrapper->field_object_story_objects->value() );
+        $object = array_shift( $objects );
+        if( !$object )
+          return $output;
+        $object_nid = $object->nid;
+        $add_to_link = request_path() . '/' . $object_nid . '/' . $node->nid . '/add';
+      }
+      else {
+        $incoming = drupal_get_destination();
+        $options['query']['destination'] = $incoming['destination'];
+        $add_to_link = 'dossiers/' . $parent_nid . '/' . $subpath . '/' .$node->nid . '/add';
+      }
+      break;
+    case 'dossier_objects_add_existing_search_api':
+    case 'dossier_events_add_existing_search_api':
+    case 'dossier_references_add_existing_search_api':
+      $incoming = drupal_get_destination();
+      $options['query']['destination'] = $incoming['destination'];
+      $add_to_link = 'dossiers/' . $parent_nid . '/' . $subpath . '/' .$node->nid . '/add';
+      break;
+    case 'object_story_events_add_existing_search_api':
+    case 'object_story_objects_add_existing_search_api':
+    case 'object_story_references_add_existing_search_api':
+      $add_to_link = 'objectstories/' . $parent_nid . '/' . $subpath . '/' .$node->nid . '/add';
+      break;
+      // For the Story editor and adding object stories.
+    case 'views_object_object_stories':
+      $add_to_link = request_path() . '/' . $node->nid . '/add';
+      break;
+    case 'event_details':
+    case 'source_event_instances':
+      $incoming = drupal_get_destination();
+      $options['query']['destination'] = $incoming['destination'];
+      // We do not want add buttons on the object story child event detail display
+      // because that is for events already in an OS!
+      if ($view->current_display != 'dossier_object_story_child_event_detail') {
+        if (arg(0, request_path()) == 'dossiers' && arg(2, request_path()) == 'events' ) {
+          $add_to_link = 'dossiers/' . $parent_nid . '/' . $subpath . '/' .$node->nid . '/add';
+        }
+        elseif (arg(0, request_path()) == 'dossiers' && arg(2, request_path()) == 'objectstories') {
+          $add_to_link = 'dossiers/' . $parent_nid . '/objectstories/' . arg(3, request_path()) . '/' . $subpath . '/' .$node->nid . '/add';
+        }
+      }
+      break;
+  }
+  // For panel pages, disect the request path, but we do not want it in certain views.
+  $uri = request_path();
+  // Sections
+/*  if ($view_name != 'views_object_object_stories') {
+    if (arg(0, $uri) == 'dossiers' && arg(2, $uri) == 'stories' && arg(4, $uri) == 'sections') {
+      $path = '';
+      foreach (arg(NULL, $uri) as $key => $component) {
+        if ($key < 6) {
+          $path .= $component . '/';
+        }
+      }
+      $add_to_link = $path . 'events/' . $node->nid . '/add';
+    }
+  }*/
+  // Plot elements
+  if ($view_name != 'plot_element_events') {
+    // Adding Events to Plot Elements.
+    if (arg(0, $uri) == 'dossiers' && arg(2, $uri) == 'plots' && arg(4, $uri) == 'elements') {
+      $add_to_link = $uri . '/' . 'events/' . $node->nid . '/add';
+    }
+  }
+
+  if (!empty($add_to_link)) {
+    if ($view_name == 'views_object_object_stories') {
+      $options['query'] = array(
+        'destination' => request_path(),
+      );
+      if (isset($_GET['img'])) {
+        $options['query']['img'] = $_GET['img'];
+      }
+    }
+    else {
+      if (empty($options['query']['destination'])) {
+        $options['query']['destination'] = request_path();
+      }
+    }
+    $output = '<p class="suggest add-event">';
+    $output .= l(t('add +'), $add_to_link, $options);
+    $output .= '</p>';
+  }
+  return $output;
+}
+
+function theme_extra_fields_remove($variables) {
+
+  $output = '';
+  $node = $variables['node'];
+  $view = $variables['view'];
+  $view_name = empty($variables['view']) ? NULL : $variables['view']->name;
+  $parent_nid = $variables['parent_nid'];
+  $subpath = storyscope_content_get_node_type_path_mapping($node->type);
+  switch ($view_name) {
+    case 'dossier_object_stories':
+    case 'dossier_events':
+    case 'dossier_events_search_api':
+    case 'dossier_references':
+    case 'dossier_plots':
+    case 'dossier_narratives':
+      $remove_link = 'dossiers/' . $parent_nid . '/' . $subpath . '/' . $node->nid . '/remove';
+      break;
+    case 'views_object_object_stories':
+      $remove_link = 'dossiers/' . $node->dossiers[0] . '/' . $subpath . '/' . $node->nid . '/remove';
+      $remove_text = '';
+      $remove_tooltip = 'delete';
+      // TODO figure out a destination
+      // $destination = ??
+      break;
+    case 'object_story_events':
+      if ($view->current_display != 'entity_view_1') {
+        if ($view->current_display == 'page_dossier_context') {
+          $parent_nid = arg(3);
+        }
+        $remove_link = 'objectstories/' . $parent_nid . '/' . $subpath . '/' .$node->nid . '/remove';
+      }
+      break;
+    case 'event_details':
+      if ($view->current_display == 'dossier_object_story_child_event_detail') {
+        $remove_link = 'dossiers/' . $parent_nid . '/objectstories/' . arg(3) . '/' . $subpath . '/' . $node->nid . '/remove';
+        $destination = 'dossiers/' . $parent_nid . '/objectstories/' . arg(3);
+      }
+      break;
+    case 'object_story_objects':
+    case 'story_references':
+      $remove_link = 'objectstories/' . $parent_nid . '/' . $subpath . '/' .$node->nid . '/remove';
+      break;
+    case 'plot_element_events':
+      // For panel pages, disect the request path.
+      $uri = request_path();
+      // Removing Events from Plot Elements.
+      if (arg(0, $uri) == 'dossiers' && arg(2, $uri) == 'plots' && arg(4, $uri) == 'elements') {
+        $remove_link = $uri . '/' . 'events/' . $node->nid . '/remove';
+      }
+      break;
+    case 'section_events':
+      // For panel pages, disect the request path.
+      $uri = request_path();
+      // Removing Events from Sections.
+      if (arg(0, $uri) == 'dossiers' && arg(2, $uri) == 'stories' && arg(4, $uri) == 'sections') {
+        $parts = explode('/', $uri);
+        if (count($parts) > 6) {
+          array_splice($parts, 6);
+          $uri = implode('/', $parts);
+        }
+        $remove_link = $uri . '/' . 'events/' . $node->nid . '/remove';
+      }
+      // Handle node/X/edit path.
+      elseif (arg(0, $uri) == 'node' && arg(2, $uri) == 'edit') {
+        $section_nid = arg(1, $uri);
+        if (is_numeric($section_nid)) {
+          $section_node = node_load($section_nid);
+          $path_alias = drupal_get_path_alias('node/' . $section_nid);
+          if ($section_node->type != 'section') {
+            break;
+          }
+          $remove_link = $path_alias . '/' . 'events/' . $node->nid . '/remove';
+        }
+      }
+      break;
+  }
+
+  if (!empty($remove_link)) {
+    if (empty($destination)) {
+      $options['query'] = array(
+        'destination' => request_path(),
+      );
+    }
+    else {
+      $options['query'] = array(
+        'destination' => $destination,
+      );
+    }
+    if (empty($remove_text)) {
+      $remove_text = '';
+      $remove_tooltip = 'remove';
+    }
+    $output = '<p class="suggest remove-event">';
+    $output .= l(t($remove_text), $remove_link, $options);
+    $output .= '<span>';
+    $output .= $remove_tooltip;
+    $output .= '</span>';
+    $output .= '</p>';
+  }
+  return $output;
+}
+
+function theme_extra_fields_move($variables) {
+  $output = '';
+  $node = $variables['node'];
+  $view = $variables['view'];
+  if ($node->type == 'event') {
+    // For panel pages, disect the request path.
+    $uri = request_path();
+    // Moving Events in a Plot Elements.
+    if (arg(0, $uri) == 'dossiers' && arg(2, $uri) == 'plots' && arg(4, $uri) == 'elements') {
+      $move_link = $uri . '/' . 'events/' . $node->nid . '/move';
+    }
+  }
+  $options['query'] = array(
+     'destination' => request_path(),
+  );
+  if ($variables['views_display'] == 'panel_pane_plot_set_1') {
+    $link_text = t('move >');
+    $options['attributes']['title'] = t('Move this event to make it a consequence.');
+  }
+  elseif ($variables['views_display'] == 'panel_pane_plot_set_2') {
+    $link_text = t('< move');
+    $options['attributes']['title'] = t('Move this event to make it an source or related event.');
+  }
+
+  if (!empty($link_text)) {
+    $output = '<p class="move-event">';
+    $output .= l($link_text, $move_link, $options);
+    $output .= '</p>';
+  }
+
+  return $output;
+}
+
+/**
+ * Implements hook_entity_info_alter().
+ */
+function extra_fields_entity_info_alter(&$entity_info) {
+  $entity_info['node']['view modes'] += array(
+    'subtitle_teaser' => array(
+      'label' => t('Subtitle Teaser'),
+      'custom settings' => TRUE,
+    ),
+  );
+}
+
+/* Features implementation for exporting extra fields information */
+
+/**
+ * Implements hook_features_api.
+ */
+function extra_fields_features_api() {
+  return array(
+    'extra_fields' => array(
+      'name' => t('Extra fields'),
+      'default_hook' => 'extra_fields_info',
+      'default_file' => FEATURES_DEFAULTS_INCLUDED,
+      'features_source' => TRUE,
+      'file' => drupal_get_path('module', 'extra_fields') .'/extra_fields.features.inc',
+    ),
+  );
+}
+
+/**
+ * Implements template_preprocess_node().
+ *
+ * Add the 'remove' field to the node.
+ */
+function extra_fields_preprocess_node(&$variables) {
+  $remove_from_views = array(
+    'dossier_object_stories',
+    'dossier_events',
+    'dossier_events_search_api',
+    'dossier_references',
+    'dossier_narratives',
+    'dossier_plots',
+    'object_story_events',
+    'object_story_objects',
+    'views_object_object_stories',
+    'story_references',
+    'plot_element_events',
+    'section_events',
+    'event_details',
+  );
+  if (isset($variables['view']) && user_is_logged_in()) {
+    if (in_array($variables['view']->name, $remove_from_views) && $variables['view']->current_display != 'story_section_object_story_events_pane'
+    && $variables['view']->current_display != 'story_section_dossier_events_pane'
+    ) {
+      $variables['content']['remove'] = array(
+        '#theme' => 'extra_fields_remove',
+        '#node' => $variables['node'],
+        '#view_mode' => $variables['view_mode'],
+        '#view'  => $variables['view'],
+        '#parent_nid' => $variables['view']->args[0],
+        '#weight' => 10,
+      );
+    }
+  }
+  // Add JS to the views_object_object_stories view as a warning about deletion of OS.
+  if (isset($variables['view']) && $variables['view']->name == 'views_object_object_stories') {
+    drupal_add_js(drupal_get_path('module', 'extra_fields') . '/js/storyscope-delete-object-story.js');
+  }
+
+  // ------------------------------------------------------------
+  // Setting add links for Section events
+  // ------------------------------------------------------------
+  $uri = request_path();
+  $dossier_events_view = NULL;
+  if (!empty($variables['view']->name)) {
+    $dossier_events_view = $variables['view']->name;
+  }
+
+  if (user_is_logged_in()
+    && arg(0, $uri) == 'dossiers'
+    && arg(2, $uri) == 'stories'
+    && arg(4, $uri) == 'sections'
+    && $dossier_events_view == 'dossier_events_search_api') {
+    $variables['content']['add_to'] = array(
+      '#theme' => 'extra_fields_add_to',
+      '#node' => $variables['node'],
+      '#view_mode' => $variables['view_mode'],
+      '#type'  => 'section',
+      '#parent_nid' => arg(5, request_path()),
+      '#weight' => 10,
+    );
+  }
+  // ------------------------------------------------------------
+  // Setting add and remove links for Plot elements events
+  // ------------------------------------------------------------
+  if (isset($variables['view']) && user_is_logged_in()) {
+    if ($variables['view']->name == 'plot_element_events') {
+      $variables['content']['move'] = array(
+        '#theme' => 'extra_fields_move',
+        '#node' => $variables['node'],
+        '#view_mode' => $variables['view_mode'],
+        '#view'  => $variables['view'],
+        '#views_display' => $variables['view']->current_display,
+        '#parent_nid' => $variables['view']->args[0],
+        '#weight' => 10,
+      );
+    }
+  }
+  // Add in an 'add +' button to events on plot element pages
+  $uri = request_path();
+  $plot_element_view = NULL;
+  if (!empty($variables['view']->name)) {
+    $plot_element_view = $variables['view']->name;
+  }
+  // Adding Events to Plot Elements. This is a panel page & a solr view so we'll disect the URL.
+  if (user_is_logged_in()
+    && arg(0, $uri) == 'dossiers'
+    && arg(2, $uri) == 'plots'
+    && arg(4, $uri) == 'elements'
+    && $plot_element_view != 'plot_element_events') {
+    $variables['content']['add_to'] = array(
+      '#theme' => 'extra_fields_add_to',
+      '#node' => $variables['node'],
+      '#view_mode' => $variables['view_mode'],
+      '#type'  => 'plot_element',
+      '#parent_nid' => arg(5, request_path()),
+      '#weight' => 10,
+    );
+  }
+
+  // Add link to view output to Story nodes
+  if ($variables['type'] == 'story') {
+    if (empty($variables['dossiers']) && arg(0, request_path()) == 'dossiers') {
+      $dossier_nid = arg(1);
+    }
+    else $dossier_nid = $variables['dossiers'][0];
+    $story_nid = $variables['nid'];
+    $section_nid = $variables['field_story_sections'][LANGUAGE_NONE][0]['target_id'];
+    $output_url = 'dossiers/' . $dossier_nid . '/stories/' . $story_nid . '/sections/' . $section_nid . '/output';
+    $variables['content']['news'] = array (
+      '#type' => 'markup',
+      '#markup' => l(t('View Microsite'), $output_url),
+      '#weight' => 10,
+    );
+  }
+
+  // Adjust the path for an object image when in the add object view.
+  // It should open in a colorbox.
+  if ($variables['type'] == 'object' 
+      && !empty($variables['view'])
+      && $variables['view']->name == 'dossier_objects_add_existing_search_api') {
+    if( isset( $variables['content']['field_image'][0] ) ) {
+      $variables['content']['field_image'][0]['#path']['path'] = 'objects/' . $variables['content']['field_image'][0]['#path']['options']['entity']->nid;
+      $variables['content']['field_image'][0]['#path']['options']['attributes']['class'] = array('colorbox-node');
+      $variables['content']['field_image'][0]['#path']['options']['query'] = array('width' => '90%' , 'height' => '90%');
+    }
+  }
+}
+

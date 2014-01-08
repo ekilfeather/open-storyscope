@@ -1,0 +1,20 @@
+name = Timeline
+description = Provides a draggable and scrollable timeline view. Requires the views module and the libraries module and makes use of the cck and date module if available.
+package = Views
+dependencies[] = views
+dependencies[] = ctools
+dependencies[] = date_api
+dependencies[] = libraries
+core = 7.x
+files[] = timeline.module
+files[] = timeline.theme.inc
+files[] = timeline_views_plugin_style.inc
+files[] = plugins/date_sources/post_date.inc
+files[] = plugins/date_sources/date_field.inc
+
+; Information added by drupal.org packaging script on 2012-11-22
+version = "7.x-3.x-dev"
+core = "7.x"
+project = "timeline"
+datestamp = "1353547175"
+

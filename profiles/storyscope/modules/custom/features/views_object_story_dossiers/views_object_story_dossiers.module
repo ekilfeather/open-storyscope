@@ -1,0 +1,7 @@
+<?php
+/**
+ * @file
+ * Code for the Views object story dossiers feature.
+ */
+
+include_once 'views_object_story_dossiers.features.inc';

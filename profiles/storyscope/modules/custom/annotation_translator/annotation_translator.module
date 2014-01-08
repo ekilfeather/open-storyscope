@@ -1,0 +1,55 @@
+<?php
+/**
+ * Define menus.
+ */
+function annotation_translator_menu() {
+    $items = array();
+
+    $items['client/xml'] = array(
+        'title' => 'Edit',
+        'page callback' => 'annotation_translator_incoming_data',
+        'access callback' => TRUE,
+        'weight' => 1,
+        'type' => MENU_LOCAL_TASK,
+    );
+
+    return $items;
+}
+
+/**
+ * Process incoming data from 4A server. Send answer to SEC Interface on 4A Server.
+ * Incoming data are stored as XML string in variable POST with key xml ($_POST["xml"]).
+ */
+function annotation_translator_incoming_data() {
+    module_load_include('inc', 'annotation_translator');
+	// check if 4A server send us POST with xml value
+	if (isset($_POST["xml"])) {
+		// response for SEC Interface which is sending us the data
+		$response = '<?xml version="1.0" encoding="utf-8"?><ok/>';
+
+		// We send immediately answer to SEC Interface that we received data
+		// After we confirm data transfer we process received data
+		header('Content-type: text/xml');
+		header('Connection: close');
+        // number of chars in xml response, here it is variable $response (you can use strlen($response))
+		header("Content-Length: 43"); 
+
+		// Sending XML message to SEC Interface
+		ob_start();
+		echo $response;
+		ob_end_flush();
+		ob_flush();
+		flush();
+    
+		// SimpleXMLElement have bug with semicolon in name of tag
+		// so we have to delete this semicolon from xml tags <a:type a:id=""> -> <type id="">
+		$_POST["xml"] = preg_replace('~(</?|\s)[a-z0-9_]+:~is', '$1', $_POST["xml"]);
+
+		// Now we can focus on the received data
+		annotation_translator_process_xml($_POST["xml"]);
+
+		// "write" messages to empty page
+		// after reload page the messages would be showed to admin and we don't want that
+		drupal_get_messages();
+	}
+}

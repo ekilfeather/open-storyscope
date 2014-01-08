@@ -1,0 +1,7 @@
+<?php
+/**
+ * @file
+ * Code for the Flexslider options set feature.
+ */
+
+include_once 'flexslider_options_set.features.inc';

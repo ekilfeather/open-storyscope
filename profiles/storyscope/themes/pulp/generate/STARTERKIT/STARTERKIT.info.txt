@@ -1,0 +1,22 @@
+screenshot  = screenshot.png
+name        = pulp Sub-theme Starter Kit
+description = A quick started based on Pulp
+
+core        = 7.x
+base theme  = pulp
+
+stylesheets[all][] = css/screen.css
+stylesheets[print][] = css/print.css
+
+regions[header]         = Header
+regions[nav]         	= Navigation
+regions[highlighted]    = Highlighted
+regions[help]           = Help
+regions[content]        = Content
+regions[sidebar_first]  = First sidebar
+regions[sidebar_second] = Second sidebar
+regions[footer]         = Footer
+
+; The admin bar and Drupal needs the bellow regions
+regions[page_top]       = Page top
+regions[page_bottom]    = Page bottom

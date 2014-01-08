@@ -1,0 +1,4 @@
+core = "7.x"
+description = "Tweaks to and manipulation of Storyscope Views."
+name = "Storyscope Listings"
+package = Storyscope

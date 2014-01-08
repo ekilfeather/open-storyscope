@@ -1,0 +1,4 @@
+core = "7.x"
+description = "Miscellaneous/sitewide changes & tweaks."
+name = "Storyscope Tweaks"
+package = Storyscope

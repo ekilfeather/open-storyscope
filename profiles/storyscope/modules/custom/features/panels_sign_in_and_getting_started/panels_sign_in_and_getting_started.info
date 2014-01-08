@@ -1,0 +1,11 @@
+name = Panels Sign in and Getting Started
+description = 2 pages one to log in and one which shows 4 dossier and their associated Narratives
+core = 7.x
+package = Features
+php = 5.2.4
+dependencies[] = ctools
+dependencies[] = page_manager
+features[ctools][] = page_manager:pages_default:1
+features[features_api][] = api:1
+features[page_manager_pages][] = getting_started
+features[page_manager_pages][] = landing_page

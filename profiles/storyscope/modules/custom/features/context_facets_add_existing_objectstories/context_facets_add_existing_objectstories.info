@@ -1,0 +1,14 @@
+name = Context Facets - add existing objectstories
+core = 7.x
+package = Context
+php = 5.2.4
+dependencies[] = block
+dependencies[] = content_type_section
+dependencies[] = context
+dependencies[] = ctools
+dependencies[] = facetapi
+dependencies[] = views
+features[context][] = facet_search_dossier_addexisting_objectstories
+features[context][] = facet_search_section_add_objectstories
+features[ctools][] = context:context:3
+features[features_api][] = api:1

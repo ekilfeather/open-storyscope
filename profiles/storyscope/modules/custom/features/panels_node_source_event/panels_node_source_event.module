@@ -1,0 +1,7 @@
+<?php
+/**
+ * @file
+ * Code for the Panels Node Source Event feature.
+ */
+
+include_once 'panels_node_source_event.features.inc';

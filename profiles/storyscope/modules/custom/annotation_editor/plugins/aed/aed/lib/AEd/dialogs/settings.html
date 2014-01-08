@@ -1,0 +1,475 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<title>Settings Dialog</title>
+
+    <script type="text/javascript">
+    
+        AEd = window.parent.AEd;
+        document.write('<script type="text/javascript" src="css.js"><\/script>');
+
+    </script>
+</head>
+<body>
+	
+	<form class="aed-form" onsubmit="return false;" action="" name="aedFormSettings">
+				
+        <div id="aedSettingsLeft">
+                <fieldset>
+					<legend>
+                        <script type="text/javascript">
+                            document.write(AEd.I18n.t("Dlg_settings_label_settings_list"));
+                        </script>
+                    </legend>
+                
+                <div class="aedSettingsTreeWrapper" id="aedSettingsTreeWrapper">           
+                </div>                                              
+            </fieldset>
+        </div>     
+                
+        <div id="aedSettingsRight">
+            
+            <div id="aedSettingsFieldsetSettings">
+                <fieldset>                          					  
+                    <table>   
+                      <tr>
+                        <td>
+                	   <script type="text/javascript">
+                            document.write(AEd.I18n.t("Dlg_settings_settings_content_welcome"));
+                           </script>
+                           <div id="aedEmptyDiv"></div>
+                           <script type="text/javascript">
+                            document.write(AEd.I18n.t("Dlg_settings_settings_content"));
+                           </script>
+                        </td>
+                      </tr>
+                    </table>               						
+                </fieldset>
+      		</div>
+            
+            <div id="aedSettingsFieldsetClient">
+                <fieldset>                          					  
+                    <table>  
+                      <tr>
+                        <td> 
+                	   <script type="text/javascript">
+                            document.write(AEd.I18n.t("Dlg_settings_client_content"));
+                           </script>
+                        </td>
+                      </tr>
+                    </table>               						
+                </fieldset>
+      		</div>
+            
+            <div id="aedSettingsFieldsetServer">
+                <fieldset>                          					  
+                    <table>  
+                      <tr>
+                        <td>  
+                	   <script type="text/javascript">
+                            document.write(AEd.I18n.t("Dlg_settings_server_content"));
+                           </script>
+                        </td>
+                      </tr>
+                    </table>               						
+                </fieldset>
+      		</div>
+        
+            <div id="aedSettingsFieldsetCommon">
+                <fieldset>                          					  
+                    <table>   
+                      <tr>
+                        <td>  
+                	   <script type="text/javascript">
+                            document.write(AEd.I18n.t("Dlg_settings_common_content"));
+                           </script>
+                        </td>
+                      </tr>
+                    </table>               						
+                </fieldset>
+      		</div>
+
+            <div id="aedSettingsFieldset(Un)subscriptions">
+                <fieldset>		  
+                    <table>
+                      <tr>
+                        <td> 
+                        <script type="text/javascript">
+                            document.write(AEd.I18n.t("Dlg_settings_unsubscriptions_content"));
+                        </script>
+                        </td>
+                      </tr>
+                    </table>						
+                </fieldset>
+            </div>
+        
+            <div id="aedSettingsFieldsetUnknown">
+                <fieldset>		  
+                    <table id="aedSettingsUnknownTableHeader">
+                        <tr>
+                          <td colspan="2"> 
+                            <script type="text/javascript">
+                            document.write(AEd.I18n.t("Dlg_settings_unknown_content"));
+                            </script>
+                            <div id="aedEmptyDiv"></div>  
+                          </td>
+                        </tr> 							  
+                        <tr>
+							<th class="aed-ui-table-column1">
+                                <script type="text/javascript">
+                                    document.write(AEd.I18n.t("Dlg_settings_label_name"));
+                                </script>
+                            </th>
+							<th class="aed-ui-table-column2">
+                                <script type="text/javascript">
+                                    document.write(AEd.I18n.t("Dlg_settings_label_value"));
+                                </script>
+                            </th>
+							<th class="aed-ui-table-column3">&nbsp;</th>                  
+						</tr>      								  
+	            </table>	
+                    <table id="aedSettingsUnknownTable"></table>
+                    <button class="aed-ui-btn aed-ui-btn-noicon" id="aedSettingsUnknownBtnAdd">
+                        <span class="aed-ui-btn-text">
+                        <script type="text/javascript">
+                            document.write(AEd.I18n.t("Dlg_settings_button_add"));
+                        </script></span>
+                    </button>						
+			    </fieldset>
+            </div>
+
+             <div id="aedSettingsFieldsetSubscriptions">
+                <fieldset>                          					  
+                    <table>
+                        <tr>
+                          <td> 
+                            <script type="text/javascript">
+                            document.write(AEd.I18n.t("Dlg_subscribtions_legend_subscribed"));
+                            </script>
+                            <div id="aedEmptyDiv"></div>
+                          </td>
+                        </tr>
+                        <tr>
+                            <td class="aed-ui-table-column1"><label for="aedSettingsServerLanguageValue">
+                                <script type="text/javascript">
+                                    document.write(AEd.I18n.t("Dlg_settings_label_value"));
+                                </script>:</label>
+                            </td>                     
+                            <td>              
+                                <input id="aedSettingsSubscriptionsValue" name="aedSettingsSubscriptionsValue" type="text" value="" autocomplete="off"/>       
+                            </td>                                                  
+                        </tr>
+                    </table>               						
+                </fieldset>
+      		</div>
+
+             <div id="aedSettingsFieldsetUnsubscriptions">
+                <fieldset>                          					  
+                    <table>
+                        <tr>
+                          <td> 
+                            <script type="text/javascript">
+                            document.write(AEd.I18n.t("Dlg_subscribtions_lagend_unsubscribed"));
+                            </script>
+                            <div id="aedEmptyDiv"></div>
+                          </td>
+                        </tr>
+                        <tr>
+                            <td class="aed-ui-table-column1"><label for="aedSettingsServerLanguageValue">
+                                <script type="text/javascript">
+                                    document.write(AEd.I18n.t("Dlg_settings_label_value"));
+                                </script>:</label>
+                            </td>                     
+                            <td>              
+                                <input id="aedSettingsUnsubscriptionsValue" name="aedSettingsUnsubscriptionsValue" type="text" value="" autocomplete="off"/>       
+                            </td>                                                  
+                        </tr>
+                    </table>               						
+                </fieldset>
+      		</div>
+            
+            <div id="aedSettingsFieldsetClientAnnotationTypeColor">
+                <fieldset>
+                    <script type="text/javascript">
+                            document.write(AEd.I18n.t("Dlg_settings_node_clientAnnotationTypeColor_content"));
+                    </script>
+                    <div id="aedEmptyDiv"></div>                          					  
+                    <table id="aedSettingsClientAnnotationTypeColorTableHeader">   							  
+                        <tr>
+							<th class="aed-ui-table-column1">
+                                <script type="text/javascript">
+                                    document.write(AEd.I18n.t("Dlg_settings_node_clientAnnotationTypeColor_label_type"));
+                                </script>
+                            </th>
+							<th class="aed-ui-table-column2">
+                                <script type="text/javascript">
+                                    document.write(AEd.I18n.t("Dlg_settings_node_clientAnnotationTypeColor_label_color"));
+                                </script>
+                            </th>
+							<th class="aed-ui-table-column3">&nbsp;</th>
+                            <th class="aed-ui-table-column4">&nbsp;</th>                  
+						</tr>      								  
+					</table>	
+                    <table id="aedSettingsClientAnnotationTypeColorTable"></table>
+                    <button class="aed-ui-btn aed-ui-btn-noicon" id="aedSettingsClientAnnotationTypeColorBtnAdd">
+                        <span class="aed-ui-btn-text">
+                        <script type="text/javascript">
+                            document.write(AEd.I18n.t("Dlg_settings_button_add"));
+                        </script></span>
+                    </button>               						
+                </fieldset>
+      		</div>
+            
+
+            <div id="aedSettingsFieldsetClientAdvancedToolbarOptions">
+                <fieldset>                          					  
+                    <table>
+                        <tr>
+                          <td> 
+                            <script type="text/javascript">
+                               document.write(AEd.I18n.t("Dlg_settings_node_clientAdvancedToolbarOptions_content"));
+                            </script>
+                          </td>
+                        </tr>
+                        <tr>                     
+                            <td>
+                                <div id="aedSettingsClientAdvancedToolbarOptionsAllInOneWrapper">              
+                                    <input id="aedSettingsClientAdvancedToolbarOptionsAllinOneValue" name="aedSettingsAdvancedToolbarOptionsValue" type="radio" value="" />       
+                                    <span>
+                                    <script type="text/javascript">
+                                        document.write(AEd.I18n.t("Dlg_settings_node_AdvancedToolbarOptionsAllInOne_radiobutton"));  
+                                    </script>
+                                    </span> 
+                                  </div>  
+                              </td>                                                  
+                        </tr>  
+                        <tr>
+                             <td>
+                                 <div id="aedSettingsClientAdvancedToolbarOptionsTwoToolbarsWrapper">        
+                                    <input id="aedSettingsClientAdvancedToolbarOptionsTwoToolbarsValue" name="aedSettingsAdvancedToolbarOptionsValue" type="radio" value="" />       
+                                    <span>
+                                    <script type="text/javascript">
+                                        document.write(AEd.I18n.t("Dlg_settings_node_AdvancedToolbarOptionsTwoToolbars_radiobutton"));  
+                                    </script>
+                                    </span>
+                                </div>
+                            </td>                                                  
+                        </tr>
+                    </table>               						
+                </fieldset>
+      		</div>
+
+
+            <div id="aedSettingsFieldsetClientRefuseSuggestion">
+                <fieldset>                          					  
+                    <table>
+                        <tr>
+                          <td> 
+                            <script type="text/javascript">
+                            document.write(AEd.I18n.t("Dlg_settings_node_clientRefuseSuggestion_content"));
+                            </script>
+                          </td>
+                        </tr>
+                        <tr>                     
+                            <td>
+                                <div id="aedSettingsClientRefuseSuggestionWrapper">              
+                                    <input id="aedSettingsClientRefuseSuggestionValue" name="aedSettingsClientRefuseSuggestionValue" type="checkbox" value="" />       
+                                    <span>
+                                    <script type="text/javascript">
+                                        document.write(AEd.I18n.t("Dlg_settings_node_clientRefuseSuggestion_checkbox"));  
+                                    </script>
+                                    </span>
+                                </div>
+                            </td>                                                  
+                        </tr>
+                    </table>               						
+                </fieldset>
+      		</div>
+            
+            <div id="aedSettingsFieldsetClientSuggestionConfidence">
+                <fieldset>                          					  
+                    <table>
+                        <tr>
+                          <td colspan="2"> 
+                            <script type="text/javascript">
+                            document.write(AEd.I18n.t("Dlg_settings_node_clientSuggestionConfidence_content"));
+                            </script>
+                            <div id="aedEmptyDiv"></div> 
+                          </td>
+                        </tr>
+                        <tr>
+                            <td class="aed-ui-table-column1"><label for="aedSettingsClientSuggestionConfidenceValue">
+                                <script type="text/javascript">
+                                    document.write(AEd.I18n.t("Dlg_settings_label_value"));
+                                </script>:</label>
+                            </td>                     
+                            <td>              
+                                <input id="aedSettingsClientSuggestionConfidenceValue" name="aedSettingsClientSuggestionConfidenceValue" type="text" value="" autocomplete="off"/>       
+                            </td>                                                  
+                        </tr>
+                    </table>               						
+                </fieldset>
+      		</div>
+          
+          <div id="aedSettingsFieldsetClientSuggestionAutoConfirming">
+                <fieldset>                          					  
+                    <table>
+                        <tr>
+                          <td colspan="2"> 
+                            <script type="text/javascript">
+                            document.write(AEd.I18n.t("Dlg_settings_node_clientSuggestionAutoConfirming_content"));
+                            </script>
+                            <div id="aedEmptyDiv"></div>
+                          </td>
+                        </tr>
+                        <tr>
+                            <td class="aed-ui-table-column1"><label for="aedSettingsClientSuggestionAutoConfirmingValue">
+                                <script type="text/javascript">
+                                    document.write(AEd.I18n.t("Dlg_settings_label_value"));
+                                </script>:</label>
+                            </td>                     
+                            <td>              
+                                <input id="aedSettingsClientSuggestionAutoConfirmingValue" name="aedSettingsClientSuggestionAutoConfirmingValue" type="text" value="" autocomplete="off"/>       
+                            </td>                                                  
+                        </tr>
+                    </table>               						
+                </fieldset>
+      		</div>
+          
+          <div id="aedSettingsFieldsetClientFoldingOfAttributes">
+                <fieldset>                          					  
+                    <table>
+                        <tr>
+                          <td colspan="2"> 
+                            <script type="text/javascript">
+                            document.write(AEd.I18n.t("Dlg_settings_node_clientFoldingOfAttributes_content"));
+                            </script>
+                          </td>
+                        </tr>
+                        <tr>                     
+                            <td colspan="2">
+                                <div id="aedSettingsClientFoldingOfAttributesWrapper">              
+                                    <input id="aedSettingsClientFoldingOfAttributesValue" name="aedSettingsClientFoldingOfAttributesValue" type="checkbox" value="" />       
+                                    <span>
+                                    <script type="text/javascript">
+                                        document.write(AEd.I18n.t("Dlg_settings_node_clientFoldingOfAttributes_checkbox"));  
+                                    </script>
+                                    </span>
+                                </div>
+                                <div id="aedSettingsClientFoldingOfAttributesResizeWrapper">              
+                                    <input id="aedSettingsClientFoldingOfAttributesResizeValue" name="aedSettingsClientFoldingOfAttributesResizeValue" type="checkbox" value="" />       
+                                    <span>
+                                    <script type="text/javascript">
+                                        document.write(AEd.I18n.t("Dlg_settings_node_clientFoldingOfAttributesResize_checkbox"));  
+                                    </script>
+                                    </span>
+                                </div>
+                                <div id="aedSettingsClientFoldingOfAttributesHideButtonWrapper">              
+                                    <input id="aedSettingsClientFoldingOfAttributesHideButtonValue" name="aedSettingsClientFoldingOfAttributesHideButtonValue" type="checkbox" value="" />       
+                                    <span>
+                                    <script type="text/javascript">
+                                        document.write(AEd.I18n.t("Dlg_settings_node_clientFoldingOfAttributesHideButton_checkbox"));  
+                                    </script>
+                                    </span>
+                                </div>
+                                <div id="aedSettingsClientFoldingOfNestedsWrapper">              
+                                    <input id="aedSettingsClientFoldingOfNestedsValue" name="aedSettingsClientFoldingOfNestedsValue" type="checkbox" value="" />       
+                                    <span>
+                                    <script type="text/javascript">
+                                        document.write(AEd.I18n.t("Dlg_settings_node_clientFoldingOfNesteds_checkbox"));  
+                                    </script>
+                                    </span>
+                                </div>
+                                <div id="aedSettingsClientFoldingOfNestedsHideButtonWrapper">              
+                                    <input id="aedSettingsClientFoldingOfNestedsHideButtonValue" name="aedSettingsClientFoldingOfNestedsValue" type="checkbox" value="" />       
+                                    <span>
+                                    <script type="text/javascript">
+                                        document.write(AEd.I18n.t("Dlg_settings_node_clientFoldingOfNestedsHideButton_checkbox"));  
+                                    </script>
+                                    </span>
+                                </div>
+                            </td>                                                  
+                        </tr>
+                        <tr>                        
+                            <td class="aed-ui-table-column1"><label for="aedSettingsClientFoldingOfNestedsLevels">
+                                <script type="text/javascript">
+                                    document.write(AEd.I18n.t("Dlg_settings_node_clientFoldingOfNestedsLevels"));
+                                </script>:</label>
+                            </td>                     
+                            <td>              
+                                <select id="aedSettingsClientFoldingOfNestedsLevels" name="aedSettingsClientFoldingOfNestedsLevels" type="text">
+                                </select>       
+                            </td>                                                  
+                        </tr>
+                        <tr>                        
+                            <td class="aed-ui-table-column1"><label for="aedSettingsClientFoldingOfNestedsHideLevel">
+                                <script type="text/javascript">
+                                    document.write(AEd.I18n.t("Dlg_settings_node_clientFoldingOfNestedsHideLevel"));
+                                </script>:</label>
+                            </td>                     
+                            <td>              
+                                <select id="aedSettingsClientFoldingOfNestedsHideLevel" name="aedSettingsClientFoldingOfNestedsHideLevel" type="text">
+                                </select>       
+                            </td>                                                  
+                        </tr>
+                    </table>               						
+                </fieldset>
+      		</div>
+            
+             <div id="aedSettingsFieldsetServerLanguage">
+                <fieldset>                          					  
+                    <table>
+                        <tr>
+                          <td colspan="2"> 
+                            <script type="text/javascript">
+                            document.write(AEd.I18n.t("Dlg_settings_node_serverLanguage_content"));
+                            </script>
+                            <div id="aedEmptyDiv"></div>
+                          </td>
+                        </tr>
+                        <tr>
+                            <td class="aed-ui-table-column1"><label for="aedSettingsServerLanguageValue">
+                                <script type="text/javascript">
+                                    document.write(AEd.I18n.t("Dlg_settings_label_value"));
+                                </script>:</label>
+                            </td>                     
+                            <td>              
+                                <input id="aedSettingsServerLanguageValue" name="aedSettingsServerLanguageValue" type="text" value="" autocomplete="off"/>       
+                            </td>                                                  
+                        </tr>
+                    </table>               						
+                </fieldset>
+      		</div>
+            
+            <div id="aedSettingsFieldsetDefaultUserGroup">
+                <fieldset>                          					  
+                    <table>
+                        <tr>
+                          <td colspan="2"> 
+                            <script type="text/javascript">
+                            document.write(AEd.I18n.t("Dlg_settings_node_defaultUserGroup_content"));
+                            </script>
+                            <div id="aedEmptyDiv"></div>
+                          </td>
+                        </tr>
+                        <tr>
+                            <td class="aed-ui-table-column1"><label for="aedSettingsDefaultUserGroupValue">
+                                <script type="text/javascript">
+                                    document.write(AEd.I18n.t("Dlg_settings_label_value"));
+                                </script>:</label>
+                            </td>                     
+                            <td>              
+                                <select id="aedSettingsDefaultUserGroupValue" name="aedSettingsDefaultUserGroupValue" type="text">
+                                </select>       
+                            </td>                                                  
+                        </tr>
+                    </table>               						
+                </fieldset>
+      		</div>
+        
+        </div>
+	
+    </form>
+	
+</body>
+</html>

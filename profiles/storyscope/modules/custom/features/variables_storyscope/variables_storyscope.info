@@ -1,0 +1,16 @@
+name = Variables Storyscope
+core = 7.x
+package = Features
+php = 5.2.4
+dependencies[] = ctools
+dependencies[] = strongarm
+features[ctools][] = strongarm:strongarm:1
+features[features_api][] = api:1
+features[variable][] = colorbox_compression_type
+features[variable][] = colorbox_load
+features[variable][] = colorbox_pages
+features[variable][] = colorbox_visibility
+features[variable][] = date_format_year_only
+features[variable][] = partial_date_format_long
+features[variable][] = partial_date_format_medium
+features[variable][] = partial_date_format_short

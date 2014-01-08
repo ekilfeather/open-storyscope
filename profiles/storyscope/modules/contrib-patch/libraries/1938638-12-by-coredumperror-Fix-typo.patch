@@ -1,0 +1,25 @@
+From 9d536c31c3f47f9d011289b58521ce84c9cc9eea Mon Sep 17 00:00:00 2001
+From: Pol Dell'Aiera <Pol@47194.no-reply.drupal.org>
+Date: Thu, 14 Mar 2013 13:23:48 +0100
+Subject: [PATCH] Fix #1938638 by coredumperror: Fix typo.
+
+---
+ libraries.api.php | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/libraries.api.php b/libraries.api.php
+index 9ae1b32..8bf95fa 100644
+--- a/libraries.api.php
++++ b/libraries.api.php
+@@ -299,7 +299,7 @@ function hook_libraries_info() {
+         'mymodule_example_libraries_postdetect_callback',
+       ),
+       // Called before the library's dependencies are loaded.
+-      'pre-dependencie-load' => array(
++      'pre-dependencies-load' => array(
+         'mymodule_example_libraries_pre_dependencies_load_callback',
+       ),
+       // Called before the library is loaded.
+-- 
+1.8.1.5
+

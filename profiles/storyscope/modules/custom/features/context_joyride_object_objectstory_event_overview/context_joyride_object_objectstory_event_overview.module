@@ -1,0 +1,7 @@
+<?php
+/**
+ * @file
+ * Code for the Context Joyride - Object Objectstory Event overview feature.
+ */
+
+include_once 'context_joyride_object_objectstory_event_overview.features.inc';

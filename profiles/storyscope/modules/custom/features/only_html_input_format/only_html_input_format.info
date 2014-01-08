@@ -1,0 +1,12 @@
+name = Only HTML input format
+description = Only HTML input format
+core = 7.x
+package = Features
+php = 5.2.4
+version = master-dev
+project = annerprofile
+dependencies[] = features
+dependencies[] = filter
+datestamp = 1354881032
+features[features_api][] = api:1
+features[filter][] = only_html

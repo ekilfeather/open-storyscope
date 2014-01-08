@@ -1,0 +1,17 @@
+id,parentid,topic,mid,EOL
+classification001,object99|object97|object96|object95|object94|object93|object603|object96|object95|object90|object86,Archival Collection,http://www.freebase.com/m/05v8w55,EOL
+classification002,object9|object8|object143B|object609|object608|object607|object516|object515|object514|object511|object510|object91,Book,http://www.freebase.com/m/0bt_c3,EOL
+classification003,object526|object525|object612|object304|object602|object505|object504,Drawing,http://freebase.com/en/drawing,EOL
+classification004,object89|object88,Engraving,http://freebase.com/en/engraving,EOL
+classification005,object94|object93,Etching,http://freebase.com/en/etching,EOL
+classification006,object703,Art exhibition,http://www.freebase.com/m/0490jd,EOL
+classification007,object356,Installation art,http://freebase.com/en/installation_art,EOL
+classification008,object509|object508|object507|object506|object99|object97|object92|object91|object9|object87|object360,Letter,http://www.freebase.com/m/04jjh,EOL
+classification009,object503,Lithography,http://freebase.com/en/lithography,EOL
+classification010,object360|object366,Mixed media,http://freebase.com/en/mixed_media,EOL
+classification011,object709|object708|object503|object615|object614|object613|object705|object701|object527|object524|object523|object522|object521|object610|object609|object608|object607|object606|object604|object603|object602|object601|object520|object519|object518|object517|object516|object515|object514|object513|object512|object511|object510|object509|object508|object507|object506|object505|object504|object90|object88|object86|object84|object363|object79|object78|object73|object71|object7|object365|object67|object65|object64|object63|object61|object55|object502|object501|object50|object49|object367|object365|object364|object363|object362|object361|object358|object355|object305|object302|object301|object300|object2|object89|object605|object604|object601|object86|object363,Painting,http://freebase.com/en/painting,EOL
+classification012,object376|object375|object374|object369|object371|object370|object710|object611|object98|object92|object87|object518|object52|object303|object518|object517|object513|object512|object98|object368,Photograph,http://freebase.com/en/photograph,EOL
+classification013,object377|object519,Postcard,http://freebase.com/en/postcard,EOL
+classification014,object91|object59|object54,Printmaking,http://www.freebase.com/m/0bp7w,EOL
+classification015,object357,Screen-printing,http://freebase.com/en/screen-printing,EOL
+classification016,object373|object702|object704|object702|object89|object73|object47|object359,Sculpture,http://freebase.com/en/sculpture,EOL

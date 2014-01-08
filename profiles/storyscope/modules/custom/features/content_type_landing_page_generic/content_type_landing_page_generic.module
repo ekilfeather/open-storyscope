@@ -1,0 +1,7 @@
+<?php
+/**
+ * @file
+ * Code for the Content Type - Landing Page Generic feature.
+ */
+
+include_once 'content_type_landing_page_generic.features.inc';

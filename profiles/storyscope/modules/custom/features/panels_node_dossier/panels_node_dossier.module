@@ -1,0 +1,7 @@
+<?php
+/**
+ * @file
+ * Code for the Panels node Dossier feature.
+ */
+
+include_once 'panels_node_dossier.features.inc';

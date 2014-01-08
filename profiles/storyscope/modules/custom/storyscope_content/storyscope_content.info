@@ -1,0 +1,6 @@
+core = "7.x"
+description = "Tweaks to and manipulation of Storyscope content types."
+name = "Storyscope Content"
+package = Storyscope
+
+#dependencies[] = "similarity_search"

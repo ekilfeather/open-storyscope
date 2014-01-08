@@ -1,0 +1,7 @@
+<?php
+/**
+ * @file
+ * Code for the Context Section feature.
+ */
+
+include_once 'context_section.features.inc';

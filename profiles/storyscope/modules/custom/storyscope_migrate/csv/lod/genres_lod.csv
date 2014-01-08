@@ -1,0 +1,15 @@
+id,parentid,topic,mid,EOL
+genre001,event1016|event500|event501|event502|event511,Abstract Art,http://freebase.com/en/abstract_art,EOL
+genre002,event1026|event1025|event1024|event1023|event1022|event1021,Allegorical Art,http://freebase.com/en/allegory,EOL
+genre003,event100|event101|event1032|event103|event1029|event1028|event1009|event128|event151|event181|event183|event186|event193|event194|event195|event197|event199|event233|event234|event407|event408|event409|event410|event411|event412|event413|event47|event49|event515|event89|event96,Christian Art,http://www.freebase.com/m/0169pf,EOL
+genre004,event508|event528,Figure Painting,http://freebase.com/en/figure_painting,EOL
+genre005,event2,Furniture,http://freebase.com/en/furniture,EOL
+genre006,event505|event506|event1031|event1030|event505|event506|event1031,Genre Art,http://freebase.com/en/genre_painting,EOL
+genre007,event2,Lacquerwork,http://freebase.com/en/lacquerware,EOL
+genre008,event1031,Landscape,http://freebase.com/en/landscape_art,EOL
+genre009,event1012,Life drawing,http://freebase.com/en/figure_drawing,EOL
+genre010,event1027|event1020|event102|event1019|event1018|event405|event406|event43|event44|event84|event86,Mythology,http://www.freebase.com/m/04zhd,EOL
+genre011,event509,Photography,http://freebase.com/en/photography,EOL
+genre012,event1017|event504|event83,Portraiture,http://freebase.com/en/portrait_painting,EOL
+genre013,event3024|event3023|event3022|event3021|event3020|event3019|event3018|event3017|event3016|event3015|event3014|event3014,Sculpture,http://freebase.com/en/sculpture,EOL
+genre014,event159|event160,Still Life,http://freebase.com/en/still_life,EOL

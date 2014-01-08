@@ -1,0 +1,7 @@
+name = Annotation translator
+project = decipher
+description = Annotation translator which translate incoming annotations from 4A Server and saves them into StoryScope.
+package = Decipher
+core = 7.x
+files[] = annotation_translator.inc
+dependencies[] = "dec_rdf"

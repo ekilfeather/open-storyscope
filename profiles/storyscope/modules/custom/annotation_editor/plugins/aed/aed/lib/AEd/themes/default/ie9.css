@@ -1,0 +1,27 @@
+/* $Id: ie9.css,v 1.0 2012/07/10 04:12:20 aross Exp $ */
+
+/**
+ * @file
+ * CSS targeted specifically for Internet Explorer 9 for Windows.
+ *
+ * Any CSS in this file will override the rules specified in the ie.css file.
+ */
+
+
+/*
+ * Layout CSS
+ */
+
+.aed-ui-btn, .aed-ui-btn-hover, .aed-ui-dlg-header, .aed-ui-dlg-titlebar, .aed-ui-dlg, .aed-ui-overlay, .aed-ui-btn-disabled {
+  filter: none !important; /* Disable selected filters for IE9 */
+}
+
+
+/*
+ * REFERENCES
+ *
+
+1. http://www.colorzilla.com/gradient-editor/
+
+ *
+ */

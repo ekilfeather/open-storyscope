@@ -1,0 +1,7 @@
+<?php
+/**
+ * @file
+ * Code for the views object story events add existing feature.
+ */
+
+include_once 'views_object_story_events_add_existing.features.inc';

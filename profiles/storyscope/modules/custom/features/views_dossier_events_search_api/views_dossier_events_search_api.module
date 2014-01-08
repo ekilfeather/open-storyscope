@@ -1,0 +1,7 @@
+<?php
+/**
+ * @file
+ * Code for the Views dossier events search api feature.
+ */
+
+include_once 'views_dossier_events_search_api.features.inc';

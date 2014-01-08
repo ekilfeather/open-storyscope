@@ -1,0 +1,822 @@
+<?php
+
+/**
+ * Implements hook_views_query_alter().
+ */
+function storyscope_listings_views_query_alter(&$view, &$query) {
+  // For these views, run a sub-query to limit results.
+  if ($view->name == 'dossier_objects_add_existing' && $view->current_display == 'add_dossier_object_page') {
+    $query = storyscope_listings_alter_sql_query_exclude_nids($view, $query, 'dossier_objects_add_existing', 'block_dossier_objects');
+  }
+  elseif ($view->name == 'dossier_objects_add_existing' && $view->current_display == 'panel_pane_dossier_objects_add') {
+    $query = storyscope_listings_alter_sql_query_exclude_nids($view, $query, 'dossier_objects_add_existing', 'block_dossier_objects');
+  }
+  elseif ($view->name == 'dossier_object_stories_add_existing' && $view->current_display == 'page_add_object_story') {
+    $query = storyscope_listings_alter_sql_query_exclude_nids($view, $query, 'dossier_object_stories_add_existing', 'block_get_dossier_object_stories');
+  }
+  elseif ($view->name == 'object_story_objects_add_existing' && $view->current_display == 'page_object_story_objects_add') {
+    $query = storyscope_listings_alter_sql_query_exclude_nids($view, $query, 'object_story_objects_add_existing', 'block_object_story_objects');
+  }
+  elseif ($view->name == 'object_story_objects_add_existing' && $view->current_display == 'panel_pane_object_story_objects_add') {
+    $query = storyscope_listings_alter_sql_query_exclude_nids($view, $query, 'object_story_objects_add_existing', 'block_object_story_objects');
+  }
+  elseif ($view->name == 'object_story_events_add_existing' && $view->current_display == 'page_object_story_events_add') {
+    $query = storyscope_listings_alter_sql_query_exclude_nids($view, $query, 'object_story_events_add_existing', 'block_object_story_events');
+  }
+  elseif ($view->name == 'object_story_events_add_existing' && $view->current_display == 'panel_pane_object_story_events_add') {
+    $query = storyscope_listings_alter_sql_query_exclude_nids($view, $query, 'object_story_events_add_existing', 'block_object_story_events');
+  }
+  elseif ($view->name == 'object_story_references_add_existing' && $view->current_display == 'page_object_story_references_add') {
+    $query = storyscope_listings_alter_sql_query_exclude_nids($view, $query, 'object_story_references_add_existing', 'block_object_story_references');
+  }
+  elseif ($view->name == 'object_story_references_add_existing' && $view->current_display == 'panel_pane_object_story_references_add') {
+    $query = storyscope_listings_alter_sql_query_exclude_nids($view, $query, 'object_story_references_add_existing', 'block_object_story_references');
+  }
+  elseif ($view->name == 'dossier_references_add_existing' && $view->current_display == 'page_dossier_references_add') {
+    $query = storyscope_listings_alter_sql_query_exclude_nids($view, $query, 'dossier_references_add_existing', 'block_dossier_references');
+  }
+  elseif ($view->name == 'dossier_references_add_existing' && $view->current_display == 'panel_pane_dossier_references_add') {
+    $query = storyscope_listings_alter_sql_query_exclude_nids($view, $query, 'dossier_references_add_existing', 'block_dossier_references');
+  }
+  elseif ($view->name == 'dossier_events_add_existing' && $view->current_display == 'page_dossier_events_add') {
+    $query = storyscope_listings_alter_sql_query_exclude_nids($view, $query, 'dossier_events_add_existing', 'block_dossier_events');
+  }
+  elseif ($view->name == 'dossier_events_add_existing' && $view->current_display == 'panel_pane_dossier_events_add') {
+    $query = storyscope_listings_alter_sql_query_exclude_nids($view, $query, 'dossier_events_add_existing', 'block_dossier_events');
+  }
+  elseif ($view->name == 'dossier_object_stories_listing' && $view->current_display == 'page_object_stories') {
+    $query = storyscope_listings_alter_sql_query_exclude_nids($view, $query, 'dossier_object_stories_listing', 'block_get_dossier_object_stories');
+  }
+  // Modify some queries to OR the contextual filters
+  if ($view->name == 'dossier_references_add_existing' && $view->current_display == 'block_dossier_references') {
+    $query = storyscope_listings_add_in_or_filter($query);
+  }
+  elseif ($view->name == 'dossier_references') {
+    $query = storyscope_listings_add_in_or_filter($query);
+  }
+  elseif ($view->name == 'reference_dossiers') {
+    $query = storyscope_listings_add_in_or_filter($query);
+  }
+  elseif ($view->name == 'plot_element_object_stories') {
+    $query = storyscope_listings_add_in_or_filter($query);
+  }
+  elseif ($view->name == 'plot_element_objects') {
+    $query = storyscope_listings_add_in_or_filter($query);
+  }
+  elseif ($view->name == 'plot_element_references') {
+    $query = storyscope_listings_add_in_or_filter($query);
+  }
+  elseif ($view->name == 'plot_element_events' && $view->current_display != 'panel_pane_plot_set_1' && $view->current_display != 'panel_pane_plot_set_2') {
+    $query = storyscope_listings_add_in_or_filter($query);
+  }
+  elseif ($view->name == 'dossier_activity') {
+    $query = storyscope_listings_add_in_or_filter($query);
+    // We need to hide the view if it has no rows.
+    // But because of the multiple contextual filters from one argument,
+    // it makes it impossible in the UI.
+    // @TODO: this code doesn't work for me, $view->total_rows is NULL even when
+    // results are returned. In addition the view is still displayed...
+    if ($view->total_rows == NULL) {
+      $view->display_handler->options['access']['type'] = NULL;
+    }
+  }
+
+  // Ignore the first URL argument for certain views.
+  // TODO: we can achieve a similar result using contextual filters of global NULL.
+  elseif (
+    ($view->name == 'story_references' && $view->current_display == 'page_dossier_context')
+    || ($view->name == 'object_story_objects' && $view->current_display == 'page_dossier_context')
+    || ($view->name == 'object_story_events' && $view->current_display == 'page_dossier_context')
+    || ($view->name == 'plot_elements' && $view->current_display == 'page_dossier_context')
+    ) {
+    $query->where[0]['conditions'][0]['value'][':node_nid'] = arg(3);
+  }
+
+}
+
+/**
+ * Implements hook_views_pre_render().
+ */
+function storyscope_listings_views_pre_render(&$view) {
+ // do nothing.
+ //dpm($view);
+}
+
+/**
+ * Implements hook_views_post_execute().
+ */
+function storyscope_listings_views_post_execute(&$view) {
+  switch ($view->name) {
+    case 'plot_element_events':
+      // Adjust plot element event view titles depending on plot element relationships
+      if (arg(0) != 'ajax' && arg(4, request_path()) == 'elements' && $view->current_display != 'panel_pane_1') {
+        $plot_element_nid = arg(5, request_path());
+        $plot_element_wrapper = entity_metadata_wrapper('node', $plot_element_nid);
+        $relationship = $plot_element_wrapper->field_plot_element_relationship->value();
+        $plot_set_1 = $plot_element_wrapper->field_plot_element_plot_set_1->value();
+        $plot_set_2 = $plot_element_wrapper->field_plot_element_plot_set_2->value();
+        if (empty($plot_set_2)) {
+          if ($view->current_display == 'panel_pane_plot_set_1') {
+            $view->build_info['title'] = t('Related Events');
+          }
+          // Set the relationship & save entity.
+          $plot_element_wrapper->field_plot_element_relationship->set('related');
+          $plot_element_wrapper->save();
+        }
+        else {
+          // Set the view titles.
+          if ($view->current_display == 'panel_pane_plot_set_1') {
+            $view->build_info['title'] = t('Source');
+          }
+          elseif ($view->current_display == 'panel_pane_plot_set_2') {
+            $view->build_info['title'] = t('Consequence');
+          }
+          // Set the relationship & save entity.
+          $plot_element_wrapper->field_plot_element_relationship->set('influenced');
+          $plot_element_wrapper->save();
+        }
+      }
+      break;
+    // Fetch the NIDs of events in a plot element/section & attach it for later.
+    case 'views_object_object_stories':
+      // SECTION OBJECT STORIES
+      if (arg(4, request_path()) == 'sections') {
+        $element_nid = arg(5, request_path());
+        $section_wrapper = entity_metadata_wrapper('node', $element_nid);
+        $section_story_set = $section_wrapper->field_story_set->value();
+        $section_object_stories = array();
+        foreach ($section_story_set as $set) {
+          // Iterate through the field_story_set_snapshot_os
+          // looking for OS nids.
+          foreach ($set->field_story_set_snapshot_os as $snapshot) {
+            foreach ($snapshot as $snap) {
+              $snap_wrapper = entity_metadata_wrapper('field_collection_item', $snap['value']);
+              $os = $snap_wrapper->field_story_snapshot_os_os->value();
+              if (!empty($os)) {
+                $section_object_stories[] = $os->nid;
+              }
+            }
+          }
+        }
+        $view->section_object_stories_flag = $section_object_stories;
+        if (isset($_GET['img'])) {
+          $view->section_object_image_flag = $_GET['img'];
+        }
+        drupal_add_js(array('storyscope' => array('section_object_stories' => $section_object_stories)), 'setting');
+      }
+      break;
+    case 'dossier_events_search_api':
+      // SECTION EVENTS
+      if (arg(4, request_path()) == 'sections') {
+        $element_nid = arg(5, request_path());
+        $section_wrapper = entity_metadata_wrapper('node', $element_nid);
+        $section_events = $section_wrapper->field_story_events->value();
+        $array_of_event_nids = array();
+        foreach ($section_events as $event_node) {
+          if (!empty($event_node)) {
+            $array_of_event_nids[] = $event_node->nid;
+          }
+        }
+        if (!empty($array_of_event_nids)) {
+          $view->section_events_flag = $array_of_event_nids;
+          drupal_add_js(array('storyscope' => array('section_events' => $array_of_event_nids)), 'setting');
+        }
+      }
+      // PLOT ELEMENTS
+      elseif (arg(4, request_path()) == 'elements') {
+        $element_nid = arg(5, request_path());
+        $plot_element_wrapper = entity_metadata_wrapper('node', $element_nid);
+        $plot_element_events = array();
+        $plot_set_1 = $plot_element_wrapper->field_plot_element_plot_set_1->value();
+        $plot_set_2 = $plot_element_wrapper->field_plot_element_plot_set_2->value();
+        if (!empty($plot_set_1)) {
+          foreach ($plot_set_1 as $item) {
+            if (!empty($item->nid)) {
+              $plot_element_events[] = $item->nid;
+            }
+          }
+        }
+        if (!empty($plot_set_2)) {
+          foreach ($plot_set_2 as $item) {
+            $plot_element_events[] = $item->nid;
+          }
+        }
+        $view->plot_element_events_flag = $plot_element_events;
+        drupal_add_js(array('storyscope' => array('plot_element_events' => $plot_element_events)), 'setting');
+      }
+      break;
+  }
+}
+
+/**
+ * Implements hook_views_pre_view().
+ *
+ * Add 'create new X' buttons to "add existing" views.
+ */
+function storyscope_listings_views_pre_view(&$view, &$display_id, &$args) {
+  if (!user_is_logged_in()) {
+    return;
+  }
+
+  $header_footer_html = storyscope_listings_get_view_header_footer($view);
+
+  // Only do this if we've set text to add to header and footer.
+  if (!empty($header_footer_html)) {
+    $options = array(
+      'id' => 'area',
+      'table' => 'views',
+      'field' => 'area',
+      'empty' => TRUE,
+      'content' => $header_footer_html,
+      'format' => 'full_html',
+      'tokenize' => 0,
+    );
+    //$view->set_item($view->current_display, 'header', 'area', $options);
+    // Only add it to the footer if there are results returned.
+    $options['empty'] = FALSE;
+    $view->set_item($view->current_display, 'footer', 'area', $options);
+  }
+}
+
+function storyscope_listings_get_view_header_footer($view) {
+  $header_footer_html = array();
+  switch ($view->name) {
+    case 'dossier_object_stories_listing':
+      $destination_path = 'dossiers/' . $view->args[0];
+      if ($view->current_display == 'dossier_objectstories_page') {
+        $add_path = 'dossiers/' . $view->args[0] . '/objectstories';
+      }
+      break;
+
+    case 'dossier_object_stories_add_existing_search_api':
+      if ($view->current_display != 'object_stories_add_to_section') {
+        $destination_path = 'dossiers/' . $view->args[0];
+      if ($view->current_display == 'page_add_object_story') {
+        $add_path = 'dossiers/' . $view->args[0] . '/objectstories/add';
+        $header_footer_html = theme('create_new_button', array('path' => $add_path, 'text' => t('Create new story'), 'destination' => $destination_path));
+      }
+      elseif ($view->current_display == 'page_add_object_story_internal') {
+        $add_path = 'dossiers/' . $view->args[0] . '/objectstories/add';
+        $header_footer_html = theme('create_new_button', array('path' => $add_path, 'text' => t('Create new story'), 'destination' => $destination_path));
+        }
+      }
+      break;
+
+    case 'dossier_references_add_existing_search_api':
+      $destination_path = 'dossiers/' . $view->args[0];
+      if ($view->current_display == 'page_add_reference') {
+        $add_path = 'dossiers/' . $view->args[0] . '/references/add';
+        $header_footer_html = theme('create_new_button', array('path' => $add_path, 'text' => t('Create new reference'), 'destination' => $destination_path));
+      }
+      elseif ($view->current_display == 'page_add_reference_internal') {
+        $add_path = 'dossiers/' . $view->args[0] . '/references/add';
+        $header_footer_html = theme('create_new_button', array('path' => $add_path, 'text' => t('Create new reference'), 'destination' => $destination_path));
+      }
+      break;
+
+    case 'dossier_events_add_existing_search_api':
+      $destination_path = 'dossiers/' . $view->args[0];
+      if ($view->current_display == 'page_add_event') {
+        // drupal_set_message('page_add_event', 'status');
+        $add_path = 'dossiers/' . $view->args[0] . '/events/add';
+        $header_footer_html = theme('create_new_button', array('path' => $add_path, 'text' => t('Create new event'), 'destination' => $destination_path));
+      }
+      elseif ($view->current_display == 'page_add_event_search_internal') {
+        // drupal_set_message('page_add_event_search_internal', 'status');
+        $add_path = 'dossiers/' . $view->args[0] . '/events/add';
+        $header_footer_html = theme('create_new_button', array('path' => $add_path, 'text' => t('Create new event'), 'destination' => $destination_path));
+      }
+      break;
+
+    case 'object_story_events_add_existing_search_api':
+      $destination_path = 'dossiers/' . $view->args[0];
+      if ($view->current_display == 'page_add_event') {
+        $add_path = 'objectstories/' . $view->args[0] . '/events/add';
+        $header_footer_html = theme('create_new_button', array('path' => $add_path, 'text' => t('Create new event'), 'destination' => $destination_path));
+      }
+      elseif ($view->current_display == 'page_add_event_dossier_context_internal') {
+        $add_path = 'dossiers/' . $view->args[0] . '/objectstories/' . $view->args[1] . '/events/add';
+        $header_footer_html = theme('create_new_button', array('path' => $add_path, 'text' => t('Create new event'), 'destination' => $destination_path));
+      }
+      break;
+
+    case 'object_story_references_add_existing_search_api':
+      $destination_path = 'dossiers/' . $view->args[0];
+      if ($view->current_display == 'page_add_reference') {
+        $add_path = 'objectstories/' . $view->args[0] . '/references/add';
+        $header_footer_html = theme('create_new_button', array('path' => $add_path, 'text' => t('Create new reference'), 'destination' => $destination_path));
+      }
+      elseif ($view->current_display == 'page_add_reference_dossier_context_internal') {
+        $add_path = 'dossiers/' . $view->args[0] . '/objectstories/' . $view->args[1] . '/references/add';
+        $header_footer_html = theme('create_new_button', array('path' => $add_path, 'text' => t('Create new reference'), 'destination' => $destination_path));
+      }
+      break;
+
+    case 'object_story_objects_add_existing_search_api':
+      $destination_path = 'dossiers/' . $view->args[0];
+      if ($view->current_display == 'page_add_object') {
+        $add_path = 'objectstories/' . $view->args[0] . '/objects/add';
+        $header_footer_html = theme('create_new_button', array('path' => $add_path, 'text' => t('Create new object'), 'destination' => $destination_path));
+      }
+      elseif ($view->current_display == 'page_add_object_dossier_context') {
+        $add_path = 'dossiers/' . $view->args[0] . '/objectstories/' . $view->args[1] . '/objects/add';
+        $header_footer_html = theme('create_new_button', array('path' => $add_path, 'text' => t('Create new object'), 'destination' => $destination_path));
+      }
+      elseif ($view->current_display == 'page_add_object_dossier_context_internal') {
+        $add_path = 'dossiers/' . $view->args[0] . '/objectstories/' . $view->args[1] . '/objects/add';
+        $header_footer_html = theme('create_new_button', array('path' => $add_path, 'text' => t('Create new object'), 'destination' => $destination_path));
+      }
+      break;
+
+    case 'dossier_objects_add_existing_search_api':
+      $destination_path = 'dossiers/' . $view->args[0];
+      if ($view->current_display == 'page_add_object' || $view->current_display == 'page_add_object_internal') {
+        $add_path = 'dossiers/' . $view->args[0] . '/objects/add';
+        $header_footer_html = theme('create_new_button', array('path' => $add_path, 'text' => t('Create new object'), 'destination' => $destination_path));
+      }
+      break;
+
+
+    case 'dossiers':
+      if ($view->current_display == 'page' || $view->current_display == 'panel_pane_1') {
+        $add_path = 'node/add/dossier';
+        $header_footer_html = theme('create_new_button', array('path' => $add_path, 'text' => t('Create new Dossier')));
+      }
+      break;
+    
+    case 'dossier_stories':
+      if ($view->current_display == 'page_dossier_stories') {
+        $add_path = 'dossiers/' . $view->args[0] . '/stories/add';
+        $header_footer_html = theme('create_new_button', array('path' => $add_path, 'text' => t('Create new narrative')));
+      }
+      break;
+
+    case 'plot_elements':
+      if ($view->current_display == 'panel_pane_1') {
+        $add_path = 'dossiers/' . arg(1, request_path()) . '/plots/' . arg(3, request_path()) . '/elements/add';
+        $order_path = 'plots/' . arg(3, request_path()) . '/order';
+        $order_destination = 'dossiers/' . arg(1, request_path()) . '/plots/' . arg(3, request_path());
+        $header_footer_html = theme('create_new_button', array('path' => $order_path, 'text' => t('Re-order Sections'), 'destination' => $order_destination));
+        $header_footer_html = substr($header_footer_html, 0, -4);
+        $header_footer_html .= substr(theme('create_new_button', array('path' => $add_path, 'text' => t('Create new Section'))), 18);
+      }
+      break;
+  }
+  return $header_footer_html;
+}
+
+/**
+ * Helper function to add in OR filter.
+ */
+function storyscope_listings_add_in_or_filter($query) {
+  if (!empty($query->where[0]['conditions'])) {
+    $query->where[0]['type'] = 'OR';
+  }
+  return $query;
+}
+
+/**
+ * Helper function to add a NOT IN clause on exclude nids to a views sql query.
+ */
+function storyscope_listings_alter_sql_query_exclude_nids($view, $query, $view_name, $view_display) {
+  $container_nid = (!empty($view->args[0])) ? $view->args[0] : arg(1);
+  $container_child_nids = storyscope_listings_get_excluded_nids($view_name, $view_display, $container_nid);
+
+  // Exclude these children from the complete children listing.
+  if (!empty($container_child_nids)) {
+    $query->where[1]['conditions'][] = array(
+      'field' => 'node.nid',
+      'value' => $container_child_nids,
+      'operator' => 'not in',
+    );
+    return $query;
+  }
+}
+
+/**
+ * Helper function to add a NOT IN clause on exclude nids to a views search api query.
+ *
+ * param $call_args
+ *   The Solr search query parameters.
+ * param $container_nid
+ *   The node id of the container node, e.g. dossier nid.
+ * param $view_name
+ *   The view to load to retrieve list of nids to exclude.
+ * param $view_display
+ *   The name of the views display to call.
+ * param $param
+ *   Optional field parameter to filter on instead of the main node id, could be an entity referenced node id.
+ *
+ * return
+ *   Modifies $call_args with the additional query parameters.
+ */
+function storyscope_listings_alter_search_api_query_exclude_nids(&$call_args, $container_nid, $view_name, $view_display, $param = 'is_nid') {
+  $container_child_nids = storyscope_listings_get_excluded_nids($view_name, $view_display, $container_nid);
+  // Exclude these children from the complete children listing.
+  if (!empty($container_child_nids)) {
+    foreach ($container_child_nids as $nid) {
+      $call_args['params']['fq'][] = '-(' . $param . ':"' . $nid . '")';
+    }
+  }
+}
+
+/**
+ * Helper function to add an IN clause on include nids to a views search api query.
+ *
+ * param $call_args
+ *   The Solr search query parameters.
+ * param $container_nid
+ *   The node id of the container node, e.g. dossier nid.
+ * param $view_name
+ *   The view to load to retrieve list of nids to include.
+ * param $view_display
+ *   The name of the views display to call.
+ * param $param
+ *   Optional field parameter to filter on instead of the main node id, could be an entity referenced node id.
+ *
+ * return
+ *   Modifies $call_args with the additional query parameters.
+ */
+function storyscope_listings_alter_search_api_query_include_nids(&$call_args, $container_nid, $view_name, $view_display, $param = 'is_nid') {
+  $nids = '';
+  // Note that we are reusing the 'get excluded' function here because it simply fetches
+  // events within a given container.
+  $container_child_nids = storyscope_listings_get_excluded_nids($view_name, $view_display, $container_nid);
+  // Include these children from the complete children listing.
+  if (!empty($container_child_nids)) {
+    foreach ($container_child_nids as $nid) {
+      $nids .= $nid . ' OR ';
+    }
+  }
+  $nids = substr($nids, 0, -4);
+  if( empty($nids ) )
+      $nids = 0;
+  $call_args['params']['fq'][] =  $param . ':(' . $nids . ')';
+}
+
+/**
+ * Helper function to return the list of nodes to exclude from a result set.
+ */
+function storyscope_listings_get_excluded_nids($view_name, $view_display, $container_nid) {
+  $container_child_nids = array();
+  $container_child = views_get_view_result($view_name, $view_display, $container_nid);
+  if ($container_child) {
+    foreach ($container_child as $row) {
+      // Special case when you are dealing with Objects because they do not exist
+      // in the dossier per se.
+      if ($view_name == 'dossier_objects') {
+        $container_child_nids[] = $row->node_field_data_field_object_story_objects_nid;
+      }
+      else {
+        $container_child_nids[] = $row->nid;
+      }
+    }
+  }
+  return $container_child_nids;
+}
+
+function storyscope_listings_exclude_section_object_stories(&$call_args) {
+  // Get the section NID from the path.
+  $path_components = explode('/', request_path());
+  if ($path_components[4] == 'sections' && !empty($path_components[5])) {
+    $section_nid = $path_components[5];
+    $object_stories = storyscope_story_get_object_stories($section_nid, FALSE);
+    // Adjust the query.
+    // Exclude these children from the complete children listing.
+    if (!empty($object_stories)) {
+      foreach ($object_stories as $nid) {
+        $call_args['params']['fq'][] = '-(is_nid:"' . $nid . '")';
+      }
+    }
+  }
+}
+
+/**
+ * Implements hook_search_api_solr_query_alter().
+ */
+function storyscope_listings_search_api_solr_query_alter(&$call_args, $query) {
+  // Get the search id.
+  // This returns something like search_api_views:view_name:display_name
+  $search_id = $query->getOption('search id');
+  $search_id_parts = explode(':', $search_id);
+
+  // Only interested in search_api_views searches currently, for the
+  // 'addexisting' views.
+  if (count($search_id_parts) && $search_id_parts[0] = 'search_api_views') {
+    $view_name = $search_id_parts[1];
+    $current_display = $search_id_parts[2];
+    if ($view_name == 'dossier_object_stories_add_existing_search_api') {
+      $path_components = arg();
+      if ($current_display == 'object_stories_add_to_section') {
+        // Here we are re-purposing the search api add existing view to that we get the
+        // facets that come with it as if by some arcane black magic.
+        $path_components = explode('/', request_path());
+        $container_nid = $path_components[1];
+        storyscope_listings_alter_search_api_query_include_nids($call_args, $container_nid, 'dossier_object_stories', 'block_get_dossier_object_stories');
+        storyscope_listings_exclude_section_object_stories($call_args);
+      }
+      else {
+        $container_nid = arg(1);
+        storyscope_listings_alter_search_api_query_exclude_nids($call_args, $container_nid, 'dossier_object_stories', 'block_get_dossier_object_stories');
+      }
+    }
+    elseif ($view_name == 'dossier_object_stories_search_api') {
+      $container_nid = arg(1);
+      storyscope_listings_alter_search_api_query_include_nids($call_args, $container_nid, 'dossier_object_stories', 'block_get_dossier_object_stories');
+      storyscope_listings_exclude_section_object_stories($call_args);
+    }
+    elseif ($view_name == 'dossier_events_add_existing_search_api') {
+      $container_nid = arg(1);
+      storyscope_listings_alter_search_api_query_exclude_nids($call_args, $container_nid, 'dossier_events', 'block_get_dossier_source_events', 'is_field_event_source_event');
+    }
+    elseif ($view_name == 'dossier_references_add_existing_search_api') {
+      $container_nid = arg(1);
+      storyscope_listings_alter_search_api_query_exclude_nids($call_args, $container_nid, 'dossier_references', 'block_get_dossier_references');
+    }
+    elseif ($view_name == 'object_story_references_add_existing_search_api') {
+      $container_nid = arg(1);
+      if ($current_display == 'page_add_reference_dossier_context') {
+        $container_nid = arg(3);
+      }
+      storyscope_listings_alter_search_api_query_exclude_nids($call_args, $container_nid, 'story_references', 'block_get_object_story_references');
+    }
+    elseif ($view_name == 'object_story_objects_add_existing_search_api') {
+      $container_nid = arg(1);
+      if ($current_display == 'page_add_object_dossier_context') {
+        $container_nid = arg(3);
+      }
+      storyscope_listings_alter_search_api_query_exclude_nids($call_args, $container_nid, 'object_story_objects', 'block_get_object_story_objects');
+    }
+    elseif ($view_name == 'object_story_events_add_existing_search_api') {
+      $container_nid = arg(1);
+      if ($current_display == 'page_add_event_dossier_context' ||
+      $current_display == 'page_add_event_dossier_context_internal'
+      ) {
+        $container_nid = arg(3);
+      }
+      storyscope_listings_alter_search_api_query_exclude_nids($call_args, $container_nid, 'object_story_events', 'block_get_object_story_source_events', 'is_field_event_source_event');
+    }
+    elseif ($view_name == 'dossier_events_timeline_search_api') {
+      $container_nid = arg(1, request_path());
+      storyscope_listings_alter_search_api_query_include_nids($call_args, $container_nid, 'dossier_events', 'block_get_dossier_events');
+    }
+    elseif ($view_name == 'dossier_events_search_api') {
+      $container_nid = arg(1, request_path());
+      storyscope_listings_alter_search_api_query_include_nids($call_args, $container_nid, 'dossier_events', 'block_get_dossier_events');
+    }
+    elseif ($view_name == 'dossier_object_stories_listing') {
+      $container_nid = arg(1, request_path());
+      storyscope_listings_alter_search_api_query_exclude_nids($call_args, $container_nid, 'dossier_object_stories', 'block_get_dossier_object_stories');
+    }
+    elseif ($view_name == 'dossier_objects_add_existing_search_api') {
+      $container_nid = arg(1, request_path());
+      storyscope_listings_alter_search_api_query_exclude_nids($call_args, $container_nid, 'dossier_objects', 'block_get_dossier_objects');
+    }
+    elseif ($view_name == 'dossier_objects_search_api') {
+      $container_nid = arg(1, request_path());
+      storyscope_listings_alter_search_api_query_include_nids($call_args, $container_nid, 'dossier_objects', 'block_get_dossier_objects');
+    }
+  }
+}
+
+/**
+ * Implements hook_search_api_facetapi_keys_alter().
+ */
+function storyscope_listings_search_api_facetapi_keys_alter(&$keys, $search) {
+  // Don't display the search terms in the url.
+  $keys = '';
+}
+
+/**
+ * Implements hook_block_info_alter().
+ *
+ * Overriding the default title of the facet filter blocks.
+ */
+function storyscope_listings_block_info_alter(&$blocks, $theme, $code_blocks) {
+  if (empty($blocks['facetapi'])) {
+    return;
+  }
+  $facet_blocks = $blocks['facetapi'];
+  foreach ($facet_blocks as $key => $block) {
+    $info = $block['info'];
+    // Event related facets.
+    if (stristr($info, 'Events »')) {
+      $start = stripos($info, 'Events »') + 10;
+      $title = substr($info, $start);
+      $blocks['facetapi'][$key]['title'] = ucwords(strtolower($title));
+    }
+
+    // Creator related blocks.
+    elseif (stristr($info, 'Creator »')) {
+      $start = stripos($info, 'Creator »') + 11;
+      $title = substr($info, $start);
+      $blocks['facetapi'][$key]['title'] = ucwords(strtolower($title));
+    }
+
+    // ---------------------
+    // Freebase blocks.
+    // ---------------------
+    elseif (stristr($info, 'FB AGENT »')) {
+      $start = stripos($info, 'FB AGENT »') + 12;
+      $title = substr($info, $start);
+      $blocks['facetapi'][$key]['title'] = ucwords(strtolower($title));
+    }
+
+    elseif (stristr($info, 'FB GENRE »')) {
+      $start = stripos($info, 'FB GENRE »') + 12;
+      $title = substr($info, $start);
+      $blocks['facetapi'][$key]['title'] = ucwords(strtolower($title));
+    }
+
+    elseif (stristr($info, 'FB STYLE & MOVEMENT »')) {
+      $start = stripos($info, 'FB STYLE & MOVEMENT »') + 23;
+      $title = substr($info, $start);
+      $blocks['facetapi'][$key]['title'] = ucwords(strtolower($title));
+    }
+
+    elseif (stristr($info, 'FB LOCATION »')) {
+      $start = stripos($info, 'FB LOCATION »') + 15;
+      $title = substr($info, $start);
+      $blocks['facetapi'][$key]['title'] = ucwords(strtolower($title));
+    }
+
+    elseif (stristr($info, 'FB MATERIALS »')) {
+      $start = stripos($info, 'FB MATERIALS »') + 16;
+      $title = substr($info, $start);
+      $blocks['facetapi'][$key]['title'] = ucwords(strtolower($title));
+    }
+
+    elseif (stristr($info, 'FB CLASSIFICATION »')) {
+      $start = stripos($info, 'FB CLASSIFICATION »') + 21;
+      $title = substr($info, $start);
+      $blocks['facetapi'][$key]['title'] = ucwords(strtolower($title));
+    }
+
+    // ---------------------
+    // The rest of the blocks.
+    // ---------------------
+    else if (stristr($info, 'index nodes :')) {
+      $start = stripos($info, 'index nodes :') + 14;
+      $title = substr($info, $start);
+      $blocks['facetapi'][$key]['title'] = ucwords(strtolower($title));
+    }
+  }
+}
+
+/**
+ * Implements hook_theme().
+ */
+function storyscope_listings_theme($existing, $type, $theme, $path) {
+  return array(
+    'create_new_button' => array(
+      'variables' => array('path' => NULL, 'text' => NULL),
+    ),
+  );
+}
+
+/**
+ * Returns HTML for a 'Create new' button.
+ *
+ * @param $variables
+ *   Keyed array of paramters available.
+ *   - path : the path to use for the link
+ *   - text : the translated text to use for the button
+ */
+function theme_create_new_button($variables) {
+  $output = '<div class="button">';
+  if (isset($variables['destination'])) {
+    $options = array('query' => array('destination' => $variables['destination']));
+    $output .= l($variables['text'], $variables['path'], $options);
+  }
+  else {
+    $output .= l($variables['text'], $variables['path']);
+  }
+  $output .= '</div>';
+  return $output;
+}
+
+/**
+ * Implements hook_block_info
+ */
+function storyscope_listings_block_info() {
+  // Plot element selector block
+  $blocks['plot_element_selector'] = array(
+    'info' => t('Plot element selector'),
+  );
+  // Plot set relationship type selector block
+  $blocks['plot_set_relationship_selector'] = array(
+    'info' => t('Plot set relationship selector'),
+  );
+  return $blocks;
+}
+
+/**
+ * Implements hook_block
+ */
+function storyscope_listings_block_view($delta = 0) {
+  switch ($delta) {
+    case 'plot_element_selector':
+      $block['content'] = storyscope_listings_plot_element_selector();
+    break;
+  }
+
+  return $block;
+}
+
+/**
+ * Helper function to create content for the plot element selector block.
+ */
+function storyscope_listings_plot_element_selector() {
+  // Get the plot nid from the URL.
+  $path = request_path();
+  $plot_nid = arg(3, $path);
+  // Feed it to Views and get the result.
+  $result = views_get_view_result('plot_elements', 'block_get_result', $plot_nid);
+  $output = '<h2>' . t('Sections') . '</h2><ul>';
+  $selected = arg(5, $path);
+  $options = array();
+  foreach ($result as $item) {
+    $options[$item->nid] = $item-> node_title;
+  }
+  $options['add'] = '+ add a section';
+foreach ($options as $nid => $option) {
+    $output .= '<li>';
+    $output .= '<a href="' . $nid . '"';
+    if ($selected == $nid) {
+      $output .= ' class="active"';
+      }
+    elseif ($nid == 'add') {
+      $output .= ' class="addnew"';
+    }
+    $output .= ' />' . $option . '</a>';
+    $output .= '</li>';
+  }
+  return $output;
+}
+
+/**
+ * Implements hook_init
+ */
+function storyscope_listings_init() {
+  // Since this file should only be loaded on the plot element pages, check the path.
+  $path = request_path();
+  // An appropriate path contains dossiers, plots, elements
+  if (arg(0, $path) == 'dossiers' && arg(2, $path) == 'plots' && arg(4, $path) == 'elements') {
+    //add in javascript to work the ajax magic
+    $js_path = drupal_get_path('module', 'storyscope_listings') . '/js/plot_elements.js';
+    drupal_add_js($js_path);
+  }
+}
+
+/**
+ * Implements hook_menu()
+ */
+function storyscope_listings_menu() {
+  // Call the view
+  $items['ajax/view/%/%'] = array(
+    'page callback' => 'storyscope_listings_get_ajax_view',
+    'page arguments' => array(2, 3),
+    'access callback' => TRUE,
+    'type' => MENU_CALLBACK,
+  );
+
+  return $items;
+}
+
+/**
+ * Helper function to return a view result on an ajax call.
+ */
+function storyscope_listings_get_ajax_view($view, $display) {
+  $output = views_embed_view($view, $display, $_GET['nid']);
+  drupal_json_output($output);
+}
+
+
+/**
+ * Implements hook_menu_local_tasks_alter(&$data, $router_item, $root_path)
+ *
+ * Adds a destination parameter to node edit forms.
+ */
+function storyscope_listings_menu_local_tasks_alter(&$data, $router_item, $root_path) {
+  // Paths for which persistent filters should function.
+  $views_tabs = array(
+    'dossiers/%/events/map',
+    'dossiers/%/events/timeline',
+    'dossiers/%/events',
+    'dossiers/%/events/search/internal',
+    'dossiers/%/events/search/grid',
+    'dossiers/%/events/search',
+    'dossiers/%/events/search/timeline',
+    'dossiers/%/events/search/map',
+  );
+  if (in_array($root_path, $views_tabs)) {
+    // Fetch the query parameters
+    $params = drupal_get_query_parameters();
+    // Add a destination to each tab.
+    $i = 0;
+    foreach ($data['tabs'][0]['output'] as $tab) {
+      $data['tabs'][0]['output'][$i]['#link']['localized_options'] = array('query' => $params);
+      $i++;
+    }
+  }
+}

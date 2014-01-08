@@ -1,0 +1,7 @@
+<?php
+/**
+ * @file
+ * Code for the Views plot element object stories feature.
+ */
+
+include_once 'views_plot_element_object_stories.features.inc';

@@ -1,0 +1,7 @@
+<?php
+/**
+ * @file
+ * Code for the panels node plot element feature.
+ */
+
+include_once 'panels_node_plot_element.features.inc';

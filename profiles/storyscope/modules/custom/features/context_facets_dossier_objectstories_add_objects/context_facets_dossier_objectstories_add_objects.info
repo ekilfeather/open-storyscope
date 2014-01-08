@@ -1,0 +1,10 @@
+name = Context Facets - add existing objects to OS in Dossier context
+core = 7.x
+package = Features
+dependencies[] = context
+dependencies[] = ctools
+dependencies[] = facetapi
+dependencies[] = views
+features[context][] = facet_search_dossier_object_story_addexisting_objects
+features[ctools][] = context:context:3
+features[features_api][] = api:1

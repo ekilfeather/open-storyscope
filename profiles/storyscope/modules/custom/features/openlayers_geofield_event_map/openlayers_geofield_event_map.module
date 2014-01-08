@@ -1,0 +1,7 @@
+<?php
+/**
+ * @file
+ * Code for the OpenLayers geofield event map feature.
+ */
+
+include_once 'openlayers_geofield_event_map.features.inc';

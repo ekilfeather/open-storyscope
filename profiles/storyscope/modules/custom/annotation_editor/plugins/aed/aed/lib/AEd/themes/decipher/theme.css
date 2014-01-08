@@ -1,0 +1,532 @@
+ /* CSS Document */
+
+
+
+
+
+/* -------------------------------------------------------------------------- */
+/* DIALOG */
+/* -------------------------------------------------------------------------- */
+
+.aed-ui-dlg { display: block; position: absolute; overflow: hidden; padding: 0.2em 0.2em 30px 0.2em; 
+              font-family: Verdana,Arial,sans-serif; font-size: 0.75em;
+							background: rgb(240, 240, 240); background: rgba(240, 240, 240, 0.95);
+              /*background-color: #ffffff;*/
+              color: #cfd1d4; border: 1px solid #000000; outline: 0 none;
+              -moz-box-shadow: 0px 0px 4px #444444;
+              -webkit-box-shadow: 0px 0px 4px #444444;
+              box-shadow: 0px 0px 4px #444444;
+              /* For IE 8 */
+              -ms-filter: "progid:DXImageTransform.Microsoft.Shadow(Strength=4, Direction=135, Color='#444444') progid:DXImageTransform.Microsoft.Alpha(Opacity=95)";
+              /* For IE 5.5 - 7 */
+              filter: progid:DXImageTransform.Microsoft.Shadow(Strength=4, Direction=135, Color='#444444') alpha(opacity=95);
+							padding: 0 0 21px;
+              }
+              
+.aed-ui-dlg-header.aed-ui-corner-all{  
+                    border-bottom-left-radius:0px;
+                    border-bottom-right-radius:0px;   
+}              
+.aed-ui-dlg-header {
+  display: block;
+  position: relative;
+  padding: 0.1em 0.1em;
+  background: #be1b20; /* Old browsers */
+  /* IE9 SVG, needs conditional override of 'filter' to 'none' */
+  background: url(data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiA/Pgo8c3ZnIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgdmlld0JveD0iMCAwIDEgMSIgcHJlc2VydmVBc3BlY3RSYXRpbz0ibm9uZSI+CiAgPGxpbmVhckdyYWRpZW50IGlkPSJncmFkLXVjZ2ctZ2VuZXJhdGVkIiBncmFkaWVudFVuaXRzPSJ1c2VyU3BhY2VPblVzZSIgeDE9IjAlIiB5MT0iMCUiIHgyPSIwJSIgeTI9IjEwMCUiPgogICAgPHN0b3Agb2Zmc2V0PSIwJSIgc3RvcC1jb2xvcj0iI2JlMWIyMCIgc3RvcC1vcGFjaXR5PSIxIi8+CiAgICA8c3RvcCBvZmZzZXQ9IjEwMCUiIHN0b3AtY29sb3I9IiMwZTBlMGUiIHN0b3Atb3BhY2l0eT0iMSIvPgogIDwvbGluZWFyR3JhZGllbnQ+CiAgPHJlY3QgeD0iMCIgeT0iMCIgd2lkdGg9IjEiIGhlaWdodD0iMSIgZmlsbD0idXJsKCNncmFkLXVjZ2ctZ2VuZXJhdGVkKSIgLz4KPC9zdmc+);
+  background: -moz-linear-gradient(top,  #be1b20 0%, #0e0e0e 100%); /* FF3.6+ */
+  background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#be1b20), color-stop(100%,#0e0e0e)); /* Chrome,Safari4+ */
+  background: -webkit-linear-gradient(top,  #be1b20 0%,#0e0e0e 100%); /* Chrome10+,Safari5.1+ */
+  background: -o-linear-gradient(top,  #be1b20 0%,#0e0e0e 100%); /* Opera 11.10+ */
+  background: -ms-linear-gradient(top,  #be1b20 0%,#0e0e0e 100%); /* IE10+ */
+  background: linear-gradient(to bottom,  #be1b20 0%,#0e0e0e 100%); /* W3C */
+  filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#be1b20', endColorstr='#0e0e0e',GradientType=0 ) progid:DXImageTransform.Microsoft.DropShadow(Color='#be1b20', OffX=0, OffY=0); /* IE6-8 */
+  border-bottom: 1px solid #000000;
+  color: #222222;
+  /*font-weight: bold;*/
+  padding:2px;
+  zoom: 1;
+										}
+.aed-ui-dlg-titlebar {
+  display: block;
+  position: relative;
+  filter: progid:DXImageTransform.Microsoft.DropShadow(Color='#be1b20', OffX=0, OffY=0); /* Color is derived from startColorstr of gradient filter in .aed-ui-dlg-header */ /* IE6-8 */
+  /*padding: 0.4em 0.6em;*/
+  }
+.aed-ui-dlg-title  {color:#BE1B20; font-weight: bold; color: #ffffff; font-size: 1em; padding-left: 0.4em;}
+.aed-ui-draggable .aed-ui-dlg-titlebar {cursor: move;} 
+.aed-ui-dlg-buttons { position: absolute; bottom: 0px; right: 0px; padding-right: 25px; padding-bottom: 10px; /*height: 35px;*/ }
+.aed-ui-dlg-header-buttons { position: absolute; top: 0px; right: 0px; }
+
+.aed-ui-overlay { width: 100%; height: 100%; /*background-color: #d0d0d0;  */   background:url(img/aed-overlay-bg.png) repeat;
+                  top: 0px; left: 0px; display: block; position: absolute; 
+                  /* For IE 8 */
+                  -ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=75)";
+                  /* For IE 5.5 - 7 */
+                  filter: alpha(opacity=75);
+                  -moz-opacity:0.75; -khtml-opacity: 0.75;  opacity: 0.75;}
+.aed-ui-dlg-content {width: 98%; height: 100%; /*padding: 0.2em 0.2em 30px;  overflow: auto;*/}
+.aed-ui-dlg-overflowy {width: 98%; height: 100%; overflow-y: auto;}
+
+
+/* -------------------------------------------------- */
+/* IFRAME DIALOG */                     
+/* -------------------------------------------------- */
+iframe{
+border:0px;
+}
+.aed-ui-iframe-wrapper {width: 100%; height: 100%; }
+.aed-ui-iframe-wrapper iframe {width: 100%; height: 100%; }   
+
+               
+/* -------------------------------------------------------------------------- */
+/* TOOLBAR */
+/* -------------------------------------------------------------------------- */
+
+.aed-ui-toolbar {}
+.aed-ui-toolbar .aed-ui-dlg-buttons { position: absolute; top: 24px; left: 3px; width: 100%; height: 25px;}
+              
+/* -------------------------------------------------------------------------- */
+/* BUTTON */
+/* -------------------------------------------------------------------------- */
+
+.aed-ui-dlg-header .aed-ui-btn{
+border:0px;
+}                     
+.aed-ui-btn {
+  font-family: Trebuchet MS,Tahoma,Verdana,Arial,sans-serif;
+  font-size: 1.1em;
+  display: inline-block;
+  margin-right: 0.1em;
+  margin-top:2px;
+ /*overflow: visible;*/
+  padding: 0;
+  position: relative;
+  text-align: center;
+  text-decoration: none !important;
+  border: 1px solid #000000;
+  &border: 0; /* hack for IE7 */
+  color: #ffffff;
+  font-weight: bold;
+  outline: medium none;
+  background: #7d7e7d; /* Old browsers */
+  /* IE9 SVG, needs conditional override of 'filter' to 'none' */
+  background: url(data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiA/Pgo8c3ZnIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgdmlld0JveD0iMCAwIDEgMSIgcHJlc2VydmVBc3BlY3RSYXRpbz0ibm9uZSI+CiAgPGxpbmVhckdyYWRpZW50IGlkPSJncmFkLXVjZ2ctZ2VuZXJhdGVkIiBncmFkaWVudFVuaXRzPSJ1c2VyU3BhY2VPblVzZSIgeDE9IjAlIiB5MT0iMCUiIHgyPSIwJSIgeTI9IjEwMCUiPgogICAgPHN0b3Agb2Zmc2V0PSIwJSIgc3RvcC1jb2xvcj0iIzdkN2U3ZCIgc3RvcC1vcGFjaXR5PSIxIi8+CiAgICA8c3RvcCBvZmZzZXQ9IjEwMCUiIHN0b3AtY29sb3I9IiMwZTBlMGUiIHN0b3Atb3BhY2l0eT0iMSIvPgogIDwvbGluZWFyR3JhZGllbnQ+CiAgPHJlY3QgeD0iMCIgeT0iMCIgd2lkdGg9IjEiIGhlaWdodD0iMSIgZmlsbD0idXJsKCNncmFkLXVjZ2ctZ2VuZXJhdGVkKSIgLz4KPC9zdmc+);
+  background: -moz-linear-gradient(top,  #7d7e7d 0%, #0e0e0e 100%); /* FF3.6+ */
+  background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#7d7e7d), color-stop(100%,#0e0e0e)); /* Chrome,Safari4+ */
+  background: -webkit-linear-gradient(top,  #7d7e7d 0%,#0e0e0e 100%); /* Chrome10+,Safari5.1+ */
+  background: -o-linear-gradient(top,  #7d7e7d 0%,#0e0e0e 100%); /* Opera 11.10+ */
+  background: -ms-linear-gradient(top,  #7d7e7d 0%,#0e0e0e 100%); /* IE10+ */
+  background: linear-gradient(to bottom,  #7d7e7d 0%,#0e0e0e 100%); /* W3C */
+  filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#7d7e7d', endColorstr='#0e0e0e',GradientType=0 ) progid:DXImageTransform.Microsoft.DropShadow(Color='#7d7e7d', OffX=0, OffY=0); /* IE6-8 */
+  border-radius: 4px 4px 4px 4px;
+  cursor: pointer;
+  margin: 0.5em 0.4em 0.5em 0;
+  zoom: 1;
+}
+
+.aed-ui-btn-selected { color: #dddddd; background-position: left bottom;  }
+.aed-ui-btn-hover {
+  background: #be1b20; /* Old browsers */
+  /* IE9 SVG, needs conditional override of 'filter' to 'none' */
+  background: url(data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiA/Pgo8c3ZnIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgdmlld0JveD0iMCAwIDEgMSIgcHJlc2VydmVBc3BlY3RSYXRpbz0ibm9uZSI+CiAgPGxpbmVhckdyYWRpZW50IGlkPSJncmFkLXVjZ2ctZ2VuZXJhdGVkIiBncmFkaWVudFVuaXRzPSJ1c2VyU3BhY2VPblVzZSIgeDE9IjAlIiB5MT0iMCUiIHgyPSIwJSIgeTI9IjEwMCUiPgogICAgPHN0b3Agb2Zmc2V0PSIwJSIgc3RvcC1jb2xvcj0iI2JlMWIyMCIgc3RvcC1vcGFjaXR5PSIxIi8+CiAgICA8c3RvcCBvZmZzZXQ9IjEwMCUiIHN0b3AtY29sb3I9IiMwZTBlMGUiIHN0b3Atb3BhY2l0eT0iMSIvPgogIDwvbGluZWFyR3JhZGllbnQ+CiAgPHJlY3QgeD0iMCIgeT0iMCIgd2lkdGg9IjEiIGhlaWdodD0iMSIgZmlsbD0idXJsKCNncmFkLXVjZ2ctZ2VuZXJhdGVkKSIgLz4KPC9zdmc+);
+  background: -moz-linear-gradient(top,  #be1b20 0%, #0e0e0e 100%); /* FF3.6+ */
+  background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#be1b20), color-stop(100%,#0e0e0e)); /* Chrome,Safari4+ */
+  background: -webkit-linear-gradient(top,  #be1b20 0%,#0e0e0e 100%); /* Chrome10+,Safari5.1+ */
+  background: -o-linear-gradient(top,  #be1b20 0%,#0e0e0e 100%); /* Opera 11.10+ */
+  background: -ms-linear-gradient(top,  #be1b20 0%,#0e0e0e 100%); /* IE10+ */
+  background: linear-gradient(to bottom,  #be1b20 0%,#0e0e0e 100%); /* W3C */
+  filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#be1b20', endColorstr='#0e0e0e',GradientType=0 ) progid:DXImageTransform.Microsoft.DropShadow(Color='#be1b20', OffX=0, OffY=0); /* IE6-8 */
+}
+.aed-ui-text {margin-right: 5px; }   
+
+.aed-ui-btn-text { }
+.aed-ui-btn-disabled { cursor: default; color: #555555; background-color: #111111; background-image: none;
+  /* For IE 8 */
+  -ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=25)";
+  /* For IE 5.5 - 7 */
+  filter: alpha(opacity=25);
+  -moz-opacity:0.25; -khtml-opacity: 0.25;  opacity: 0.25;}
+
+.aed-ui-dlg-header-buttons .aed-ui-btn{ height: 16px; width: 16px; margin: 0; margin: 2px 0.2em 0.3em 0; padding: 0px;  border:0px; background: transparent; filter: none;}
+.aed-ui-msg-buttons .aed-ui-btn{
+  height: 16px;
+  width: 16px;
+  margin: 0;
+  margin: 0.3em 0.3em 0.3em 0;
+  padding: 0px;
+  border: 1px solid #555555;
+  &border: 0; /* hack for IE7 */
+}
+
+.aed-ui-toolbar .aed-ui-dlg-buttons .aed-ui-btn{ margin: 0.5em 0.4em 0 0; float: left; display: inline; &line-height: 1.25em; &height: 20px; }
+.aed-ui-toolbar .aed-ui-dlg-buttons .aed-ui-btn-text{
+  &border: 1px solid #000000;
+}
+.aed-ui-btn-text {padding-left: 20px;}
+.aed-ui-btn-noicon .aed-ui-btn-text {
+  padding-left: 0px;
+  margin: 0 2px;
+  /* hacks for IE7 */
+  &display: block;
+  &padding: 1px 3px 1px;
+  &margin: 0;
+}
+
+
+
+/* -------------------------------------------------------------------------- */
+/* ICONS */
+/* -------------------------------------------------------------------------- */
+.aed-ui-icon {
+  background-repeat: no-repeat;
+  background-position: 0px 0px;
+  padding-left: 19px;
+  min-height: 16px;
+  min-width: 16px;
+  vertical-align: bottom;
+  zoom: 1;
+}
+.aed-ui-icon-error {background-image:url(img/aed-icon-error-16x16.png); }
+.aed-ui-icon-warning { background-image:url(img/aed-icon-warning-16x16.png); }
+.aed-ui-icon-info { background-image:url(img/aed-icon-info-16x16.png); }
+.aed-ui-icon-ok { background-image:url(img/aed-icon-ok-16x16.png); }
+.aed-ui-icon-anno { background-image:url(img/aed-icon-anno-16x16.png); }
+.aed-ui-icon-loading { background-image:url(img/aed-icon-loading-16x11.gif); background-position: 0px 4px;}   
+.aed-ui-icon-close { background-image:url(img/aed-icon-close.png);  background-position: 0px 2px; &background-position: 3px 3px;}
+.aed-ui-icon-color { min-width: 0; }
+
+.aed-ui-icon-showdetails { background-image:url(img/aed-icon-showdetails.png);  background-position: 0px 2px; &background-position: 3px 3px;}
+.aed-ui-icon-hidedetails { background-image:url(img/aed-icon-hidedetails.png);  background-position: 0px 3px; &background-position: 3px 4px;}
+.aed-ui-icon-shownesteddetails { background-image:url(img/aed-icon-shownesteddetails.png);  background-position: 0px 2px; &background-position: 3px 3px;}
+.aed-ui-icon-hidenesteddetails { background-image:url(img/aed-icon-hidenesteddetails.png);  background-position: 0px 3px; &background-position: 3px 4px;}
+.aed-ui-icon-join { background-image:url(img/aed-icon-join.png);  background-position: 0px 3px; &background-position: 3px 4px;}
+.aed-ui-icon-leave { background-image:url(img/aed-icon-leave.png);  background-position: 0px 3px; &background-position: 3px 4px;}
+.aed-ui-icon-expandtree { background-image:url(img/aed-icon-expand.jpg);  background-position: center center;} 
+.aed-ui-icon-collapsetree { background-image:url(img/aed-icon-collapse.jpg);  background-position: center center;} 
+
+.aed-ui-icon-edit { background-image:url(img/aed-icon-edit.png); background-position: 0px 2px; &background-position: 3px 3px;}
+.aed-ui-icon-delete { background-image:url(img/aed-icon-delete.png);  background-position: 0px 2px; &background-position: 3px 3px;}
+.aed-ui-icon-accept { background-image:url(img/aed-icon-accept.png);  background-position: 0px 2px; &background-position: 3px 3px;}
+.aed-ui-icon-explore { background-image:url(img/aed-icon-explore.png);  background-position: 0px 0px; &background-position: 3px 1px;}
+.aed-ui-icon-showselected { background-image:url(img/aed-icon-showselected.png); }
+
+ 
+.aed-ui-dlg-header-buttons .aed-ui-icon{ padding: 0px 4px 0px 4px; margin:0; }
+.aed-ui-msg-buttons .aed-ui-icon{
+  padding: 0px 4px 0px 4px;
+  margin:0;
+  /* hacks for IE7 */
+  &font-size: 0;
+  &display: block;
+  &min-height: 14px;
+  &min-width: 14px;
+  &padding: 0;
+  &border: 1px solid #555555;
+}
+
+.aed-ui-toolbar .aed-ui-dlg-buttons .aed-ui-btn .aed-ui-icon-close {background-position: 3px 5px;} 
+
+
+
+/* -------------------------------------------------------------------------- */
+/* MESSAGE */
+/* -------------------------------------------------------------------------- */
+.aed-ui-msg {position: relative; background-color: #fff; border: 1px solid #5f6068; min-height: 45px; margin: 8px;
+              -moz-box-shadow: 0px 0px 4px #666;
+              -webkit-box-shadow: 0px 0px 4px #666;
+              box-shadow: 0px 0px 4px #666;
+              /* For IE 8 */
+              -ms-filter: "progid:DXImageTransform.Microsoft.Shadow(Strength=4, Direction=135, Color='#666666')";
+              /* For IE 5.5 - 7 */
+              filter: progid:DXImageTransform.Microsoft.Shadow(Strength=4, Direction=135, Color='#666666'); 
+              border-radius: 4px 4px 4px 4px;
+}
+.aed-ui-msg-main { padding: 8px 30px 8px 30px; }
+.aed-ui-msg-main-header { padding-right: 27%; }
+.aed-ui-msg-main-content {}
+.aed-ui-msg-main-content p a { color: #2A2B2C; border-bottom: dotted 1px #2A2B2C; }
+.aed-ui-msg-main-content p a:visited { color: #545658; border-bottom-color: #545658; }
+.aed-ui-msg-main-content p a:hover, .aed-ui-msg-main-content p a:focus, .aed-ui-msg-main-content p a:active { color: #919192; border-bottom: solid 1px #919192; }
+.aed-ui-msg-main-nested-content { margin-left: -30px; margin-right: -30px; }
+.aed-ui-msg-buttons {position: absolute; top: 5px; right: 5px; width: 100px; text-align: right; }
+
+.aed-ui-msg .aed-ui-icon {position: absolute; top: 5px; left: 5px; }
+
+.aed-ui-msg .aed-ui-msg-buttons .aed-ui-btn { }
+.aed-ui-msg .aed-ui-msg-buttons .aed-ui-btn .aed-ui-icon {position: static; }
+
+.aed-ui-msg-title { display: block;  color: #323232; font-weight: bold; margin-bottom: 3px;}
+.aed-ui-msg-subtitle { display: block; color: #000; font-weight: normal; font-style: italic; margin-bottom: 6px; }
+
+.aed-ui-msg-header-content { display: block; color: #21201e; font-weight: normal; margin-bottom: 6px;}
+.aed-ui-msg-header-bad-fragment { display: block; color: #21201e; font-weight: normal; margin-bottom: 6px;}
+.aed-ui-msg-main-content { border-top: 1px dotted #555c6f; color: #323232; padding-top: 6px;}
+
+
+
+
+
+/* -------------------------------------------------------------------------- */
+/* PERSON */
+/* -------------------------------------------------------------------------- */
+.aed-ui-msg-person {min-height:80px;}
+.aed-ui-msg-photo {position: absolute; left: 7px; top: 8px; width: 40px; min-height: 30px; max-height: 60px; border: 1px solid #000000; 
+              -moz-box-shadow: 0px 0px 4px #000000;
+              -webkit-box-shadow: 0px 0px 4px #000000;
+              box-shadow: 0px 0px 4px #000000;
+              /* For IE 8 */
+              -ms-filter: "progid:DXImageTransform.Microsoft.Shadow(Strength=4, Direction=135, Color='#000000')";
+              /* For IE 5.5 - 7 */
+              filter: progid:DXImageTransform.Microsoft.Shadow(Strength=4, Direction=135, Color='#000000'); 
+}
+.aed-ui-dlg-person .aed-ui-msg-buttons .aed-ui-btn {float: right; }
+.aed-ui-msg-person .aed-ui-msg-main{ padding: 0 50px 8px 60px; }
+
+/* -------------------------------------------------------------------------- */
+/* GROUP */
+/* -------------------------------------------------------------------------- */
+.aed-ui-msg-group {min-height:60px;}
+.aed-ui-msg-group-joined {border: 1px solid #ffffff;} 
+
+/* -------------------------------------------------------------------------- */
+/* UI SUBSCRIPTIONS */
+/* -------------------------------------------------------------------------- */
+fieldset.aed-ui-subscribtions-subscribed {width:48%; float: left; padding:0px;}
+fieldset.aed-ui-subscribtions-unsubscribed {width:48%; float: right; padding:0px; }
+.aed-ui-subscribtions-unsubscribed legend, .aed-ui-subscribtions-subscribed legend {margin-left:10px;}
+
+/* -------------------------------------------------------------------------- */
+/* UI ANNOTATION */
+/* -------------------------------------------------------------------------- */
+.aed-ui-annotation-mode-anno-link {background-color: #CCCCCC; border: 1px solid #ffffff; cursor:pointer; cursor:hand;}
+.aed-ui-annotation-mode-anno-link-hover {background-color: #5D5D5D; }
+
+/* -------------------------------------------------------------------------- */
+/* Corners */
+/* -------------------------------------------------------------------------- */
+.aed-ui-corner-all, 
+.aed-ui-corner-bottom, 
+.aed-ui-corner-right, 
+.aed-ui-corner-br { border-bottom-right-radius: 4px; }
+
+.aed-ui-corner-all, 
+.aed-ui-corner-bottom, 
+.aed-ui-corner-left, 
+.aed-ui-corner-bl { border-bottom-left-radius: 4px; }
+
+.aed-ui-corner-all, 
+.aed-ui-corner-top, 
+.aed-ui-corner-right, 
+.aed-ui-corner-tr { border-top-right-radius: 4px; }
+
+.aed-ui-corner-all, 
+.aed-ui-corner-top, 
+.aed-ui-corner-left, 
+.aed-ui-corner-tl { border-top-left-radius: 4px; }        
+
+/* -------------------------------------------------------------------------- */
+/* Draggable */
+/* -------------------------------------------------------------------------- */
+
+.aed-ui-draggable { display: block; position: absolute; width: 300px;}   
+.aed-ui-draggable-handle { cursor: move; }
+
+/* -------------------------------------------------------------------------- */
+/* Resizeable */
+/* -------------------------------------------------------------------------- */
+
+.aed-ui-resizable { /*position: relative;*/ }
+.aed-ui-resizable-handle { position: absolute; font-size: 0.1px; /*z-index: 99999;*/ display: block; }
+.aed-ui-resizable-handle-n { cursor: n-resize; height: 7px; width: 100%; top: -5px; left: 0; }
+.aed-ui-resizable-handle-s { cursor: s-resize; height: 7px; width: 100%; bottom: -5px; left: 0; }
+.aed-ui-resizable-handle-e { cursor: e-resize; width: 7px; right: -5px; top: 0; height: 100%; }
+.aed-ui-resizable-handle-w { cursor: w-resize; width: 7px; left: -5px; top: 0; height: 100%; }
+.aed-ui-resizable-handle-se { cursor: se-resize; width: 12px; height: 12px; right: 1px; bottom: 1px; }
+.aed-ui-resizable-handle-sw { cursor: sw-resize; width: 9px; height: 9px; left: -5px; bottom: -5px; }
+.aed-ui-resizable-handle-nw { cursor: nw-resize; width: 9px; height: 9px; left: -5px; top: -5px; }
+.aed-ui-resizable-handle-ne { cursor: ne-resize; width: 9px; height: 9px; right: -5px; top: -5px;}
+
+
+/* -------------------------------------------------------------------------- */
+/* Clickable */
+/* -------------------------------------------------------------------------- */
+
+.aed-ui-clickable { cursor:pointer; cursor:hand; }
+
+/* -------------------------------------------------------------------------- */
+/* DLG CONNECT */
+/* -------------------------------------------------------------------------- */
+
+.aed-ui-dlg-connect {}
+                  
+/* -------------------------------------------------------------------------- */
+/* DLG DOC ANNOTATIONS */
+/* -------------------------------------------------------------------------- */
+
+.aed-ui-dlg-docannotations > .aed-ui-dlg-content {overflow: auto;}
+
+/* -------------------------------------------------------------------------- */
+/* DLG SUGGESTED ANNOTATIONS */
+/* -------------------------------------------------------------------------- */
+
+.aed-ui-dlg-suggested-annotations > .aed-ui-dlg-content {overflow: auto;}
+
+/* -------------------------------------------------------------------------- */
+/* DLG DOC SUGGESTIONS */
+/* -------------------------------------------------------------------------- */
+
+.aed-ui-dlg-docsuggestions > .aed-ui-dlg-content {overflow: auto;}
+                  
+/* -------------------------------------------------------------------------- */
+/* DLG STATUSBAR */
+/* -------------------------------------------------------------------------- */
+
+.aed-ui-dlg-statusbar > .aed-ui-dlg-content {overflow: auto;}
+.aed-ui-dlg-statusbar .aed-ui-dlg-buttons {display: none; /*overflow: auto;*/}
+
+
+/* -------------------------------------------------------------------------- */
+/* TREE */
+/* -------------------------------------------------------------------------- */
+
+.aed-ui-tree { display: block; &margin-left: 0; }
+.aed-ui-tree-node{ display: block; position: relative;}
+                    
+.aed-ui-tree-node .aed-ui-btn {
+    font-family: Trebuchet MS,Tahoma,Verdana,Arial,sans-serif;
+    font-size: 1.1em;
+    &font-size: 1em;
+    display: inline-block;
+   /* overflow: visible;*/
+    padding: 0;
+    text-align: left;
+    text-decoration: none !important;     
+    color: #000;  
+    font-weight: bold; 
+    background: none; background-color: transparent; filter: none;
+    cursor:pointer; cursor:hand;    
+    border: 0;
+    margin: 0;  
+           
+}  
+
+
+.aed-ui-tree-node .aed-ui-btn-hover {
+    text-decoration: underline;
+}
+
+.aed-ui-tree-node .aed-ui-icon-expandtree, .aed-ui-tree-node .aed-ui-icon-collapsetree {
+   width: 0; height: 9px;
+}
+
+.aed-ui-tree-node-selected > .aed-ui-tree-node-btn-text {background-color: #4d6f7d !important; color: #fff !important;}
+.aed-ui-tree ul {/*position: relative;*/ margin-left: 14px;}
+
+.aed-ui-tree-node-btn-selected {position: absolute; left: 0; top: 0; padding:0; margin:0;}
+.aed-ui-tree-node-btn-selected .aed-ui-icon {vertical-align: bottom; }
+
+.aed-ui-tree-node-btn-expand {position: absolute; left: 1; top: 0; }
+.aed-ui-tree-node-btn-expand .aed-ui-icon {vertical-align: bottom; }
+.aed-ui-tree-node-btn-text { float: none; left: 20px; position: relative;}
+
+
+/*
+span.annoed-ui-tree-btn   {display: block; width: 9px; height: 9px; float: left; margin: 0px 4px 0 0;}
+a.annoed-ui-tree-btnplus  {display: block; width: 9px; height: 9px; background:url(img/annoed-btn-plus.jpg) top center no-repeat;} 
+a.annoed-ui-tree-btnminus {display: block; width: 9px; height: 9px; background:url(img/annoed-btn-minus.jpg) top center no-repeat;} 
+ul.annoed-ui-tree-ul      {list-style-type: none; margin: 0; padding: 0; position: relative; left: 14px; margin-top: 3px;}
+ul.annoed-ui-tree-root    {list-style-type: none; margin: 0; padding: 0; font-size: 11px; }   
+li.annoed-ui-tree-li      { margin-bottom: 7px;}
+a.annoed-ui-tree-btnnode          {color: #ffffff; text-decoration: none; padding: 0 3px 0 3px; font-weight: bold; }
+*/
+
+
+
+/* -------------------------------------------------------------------------- */
+/* SUGGESTIONS BAR */
+/* -------------------------------------------------------------------------- */
+
+.aed-ui-suggestions_bar {background-color: #ffffff; border: 1px solid #a0a0a0; margin: 0; padding: 0; /*overflow: auto;*/
+
+              -moz-box-shadow: 0px 0px 4px #000000;
+              -webkit-box-shadow: 0px 0px 4px #000000;
+              box-shadow: 0px 0px 4px #000000;
+              overflow: auto; 
+              max-height: 300px;
+              
+              /* For IE 8 */
+              -ms-filter: "progid:DXImageTransform.Microsoft.Shadow(Strength=4, Direction=135, Color='#000000')";
+              /* For IE 5.5 - 7 */
+              filter: progid:DXImageTransform.Microsoft.Shadow(Strength=4, Direction=135, Color='#000000'); 
+}
+
+
+.aed-ui-suggestions_bar_item {padding: 5px 10px 5px 10px; background-color: #ffffff;  cursor:pointer; cursor:hand;}
+.aed-ui-suggestions_bar_item_selected {background-color: #d0d0d0; }
+
+/* -------------------------------------------------------------------------- */
+/* CALENDAR */
+/* -------------------------------------------------------------------------- */
+#AEdtimezones {
+  display: none;
+}
+.ui-autocomplete {
+	margin: 0;
+	padding: 0;
+	list-style: none;
+	background-color: #fff;
+	width: 218px;
+	border: 1px solid #bbb;
+	max-height: 11em;
+	overflow-y: scroll;
+	line-height: 1.3em;
+  /* Filters to superimpose buttons beneath the autocomplete window */
+  -ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=100)"; /* For IE 8 */
+  filter: alpha(opacity=100) /* For IE 5.5 - 7 */
+}
+.boxshadow .ui-autocomplete {
+	box-shadow: 1px 1px 5px rgba(0,0,0,0.3)
+}
+.ui-autocomplete .ui-menu-item {
+	margin: 0;
+	padding: 0
+}
+.ui-autocomplete .ui-menu-item a {
+	border-top: 1px solid #ccc;
+	display: block;
+	margin: 0;
+	padding: 0.15em 0.5em 0.25em;
+	color: #393939;
+	cursor: pointer
+}
+.ui-autocomplete .ui-menu-item a strong {
+  font-weight: bold
+}
+.ui-autocomplete .ui-menu-item a.ui-state-hover {
+	background-color: #eee;
+	color: #222;
+	text-shadow: 0px 1px #fff
+}
+.ui-autocomplete .ui-menu-item:first-child a {
+	border-top: none
+}
+
+.aed-ui-scrollbar{
+	overflow: auto;
+	
+}
+
+.aed-ui-annotation-entity-image
+{
+    max-width: 50px;
+    max-height: 50px;
+    float: left;
+    margin: 0.5em 0.5em 0.5em 0em;
+}
+
+.aed-ui-annotation-entity
+{
+    margin: 0.2em 0em 0.2em 0em;
+    overflow: hidden;
+}

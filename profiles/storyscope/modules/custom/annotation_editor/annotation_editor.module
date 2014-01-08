@@ -1,0 +1,216 @@
+<?php
+
+
+/**
+ * Define menus.
+ */
+function annotation_editor_menu() {
+    $items = array();
+    $items['admin/config/services/annotation_editor'] = array
+    (
+        'title' => 'Annotation editor',
+        'description' => 'Configure the Annotation editor settings.',
+        'page callback' => 'drupal_get_form',
+        'page arguments' => array('annotation_editor_form_config'),
+        'access callback' => 'user_access',
+        'access arguments' => array('administer site configuration'),
+    );
+    return $items;
+}
+
+/**
+ * Configuration form
+ */
+function annotation_editor_form_config() {
+    $form['annot_server'] = array(
+        '#type' => 'textfield',
+        '#title' => t('Annotation server address'),
+        '#default_value' => variable_get('annot_server'),
+        '#description' => t('StoryScope need this server to create and saving annotations.'),
+        '#required' => TRUE,
+    );
+    
+    return system_settings_form($form);
+}
+
+function annotation_editor_aed_plugin() {  
+    drupal_add_library('system', 'ui.autocomplete'); // Autocomplete for TimeZonePicker
+
+    module_load_include('inc', 'annotation_editor', 'plugins/aed');
+    
+    $plugins['aed'] = Array(
+        'js file' => 'editor_plugin.js',
+        // icon path is saved in editor_plugin.js file
+        //'icon path' => drupal_get_path('module', 'annotation_editor') . '/plugins/aed/img',
+        //'icon file' => 'aed.gif',
+        'icon title' => t('Annotation editor'),
+        'settings' => Array()
+    );
+
+    return $plugins;
+}
+
+
+/**
+ * Implementation of hook_form_alter()
+ */
+function annotation_editor_wysiwyg_form_alter(&$form, &$form_state) {
+
+}
+
+/**
+ * Implementation of hook_permission().
+ */
+function annotation_editor_permission() {
+    $array = Array(
+        'access tinymce aed' => array(
+            'title' => t('Access TinyMCE AED'),
+            'description' => t('User can access Annotation editor plugin in TinyMCE wysiwyg module.')
+        )
+    );
+  // old Drupal 6 code  
+//  $array = array('administer tinymce', 'access tinymce', 'access tinymce aed');
+//  $tinymce_mod_path = wysiwyg_get_path('tinymce');
+//
+//  if (is_dir($tinymce_mod_path .'/jscripts/tiny_mce/plugins/imagemanager/')) {
+//    $array[] = 'access tinymce imagemanager';
+//  }
+//  if (is_dir($tinymce_mod_path .'/jscripts/tiny_mce/plugins/filemanager/')) {
+//    $array[] = 'access tinymce filemanager';
+//  }
+
+  return $array;
+}
+
+function annotation_editor_wysiwyg_include_directory($type) {
+  switch ($type) {
+    case 'plugins':
+      // You can just return $type, if you place your Wysiwyg plugins into a
+      // sub-directory named 'plugins'.
+      return $type;
+  }
+}
+
+function annotation_editor_user_login(&$edit, $account) {
+    // make request to 4A server
+    $serverAddr = variable_get('annot_server') ."/DrupAuthServlet";
+    $message = '<?xml version="1.0" encoding="utf-8" ?>'
+              .'<users>'
+                .'<drupal address="'.url("<front>", Array("absolute" => TRUE)).'"/>'
+                .'<user login="'.$account->name.'" token="'.session_name().'" id="'.$account->uid
+                     .'" name="'.$account->name.'" password="" email="'.$account->mail.'">';
+    $_SESSION['authToken4AServer'] = session_name();
+    foreach ($account->roles as $groupName) {
+      $message .=  '<group name="'.$groupName.'"/>';
+    }
+    $message .=  '</user>'
+              .'</users>';
+
+    $headers = array();
+    $headers[] = 'Content-type: text/xml;charset=UTF-8';
+    make4ARequest($serverAddr, "POST", $message, $headers);
+}
+
+function annotation_editor_user_logout($account) {
+    $serverAddr = variable_get('annot_server') ."/DrupAuthServlet";
+    $message = '<?xml version="1.0" encoding="utf-8" ?>'
+              .'<users>'
+                .'<drupal address="'.url("<front>", Array("absolute" => TRUE)).'"/>'
+                .'<user login="'.$account->name.'" token="" id="'.$account->uid
+                     .'" name="'.$account->name.'" password="" email="'.$account->mail.'">';
+    $_SESSION['authToken4AServer'] = "";
+    foreach ($account->roles as $groupName) {
+      $message .=  '<group name="'.$groupName.'"/>';
+    }
+    $message .=  '</user>'
+              .'</users>';
+    $headers = array();
+    $headers[] = 'Content-type: text/xml;charset=UTF-8';
+    make4ARequest($serverAddr, "POST", $message, $headers);
+}
+
+
+/**
+ * Method for execution of the request to the 4A server
+ *
+ * @param url URL of the remote server
+ * @param method HTTP method to use
+ * @param data Data for the 4A server (used with POST method)
+ * @param headers Headers in format "Header: value".
+ *                 Some unusable headers are blocked
+ * @return Returns response object with content, returnCode and headers.
+ */
+function make4ARequest($url, $method, $data = NULL, $headers = array()) {
+  if (!$method) {
+    throw new Exception('Undefined method. Use $proxy->setMethod() to select a method.');
+  }
+
+  if (!is_array($headers)) {
+    throw new Exception('Headers parameter must be an array (' . gettype($headers) . ' given)');
+  }
+
+  // create context for stream
+  $options = array(
+    'http' => array(
+      'method' => $method,
+      'header' => implode("\r\n", $headers),
+      'content' => $data
+    )
+  );
+  $context = stream_context_create($options);
+
+  // create the request
+  $content = @file_get_contents($url, false, $context);
+
+  // Process response headers from $http_response_header
+  // $headers = parse4AResponseHeaders($http_response_header);
+
+  // First row must contain following: "HTTP/1.X STATUS_CODE STATUS_TEXT"
+  // Get STATUS_CODE from it
+  if (isset($headers[0]) && !empty($headers[0])) {
+    $returnCode = parse4AReturnedCode($headers[0]);
+  }
+  else {
+    $returnCode = "";
+  }
+  
+  // returns reply
+  return (object) array(
+    'content' => $content,
+    'returnCode' => $returnCode,
+    'headers' => $headers
+  );
+}  // makeRequest()
+
+/**
+ * Process response headers from PHP. Those headers can be from more requests
+ * (eg. from redirection). For this reason field will be processed from the
+ * end and header fields from last part will be get.
+ *
+ * @param httpResponseHeaders Headers from $http_response_header
+ * @return Returns headers from the last part (reply).
+ */
+function parse4AResponseHeaders($httpResponseHeaders) {
+  $headers = array();
+
+  $totalHeaders = count($httpResponseHeaders);
+  for($i = $totalHeaders-1; $i >= 0; $i--) {
+    // end of processing is when HTTP/1.X XXX was detected
+    $headers[] = $httpResponseHeaders[$i];
+    if(strpos($httpResponseHeaders[$i], 'HTTP/') === 0) {
+      break;
+    }
+  }
+
+  // we build array from the end, so reversing is required
+  return array_reverse($headers);
+}  // parse4AResponseHeaders()
+
+/**
+ * Gets return code from HTTP header
+ * @param header Header which contains "HTTP/1.X XXX XXX"
+ * @return Returns return code
+ */
+function parse4AReturnedCode($header) {
+  return (int) preg_replace('/^HTTP.[^ ]+[[:space:]]+([0-9]+)[[:space:]].*$/', '$1', $header);
+}

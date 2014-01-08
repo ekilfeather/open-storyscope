@@ -1,0 +1,16 @@
+id,parentid,topic,mid,EOL
+style_movement001,event533|event534,Abstract expressionism,http://freebase.com/en/abstract_expressionism,EOL
+style_movement002,event2005,Barbizon school,http://freebase.com/en/barbizon_school,EOL
+style_movement003,event193|event194|event195|event196|event197|event199|event209|event210|event221|event233|event234|event32|event405|event406|event407|event408|event409|event41|event410|event47|event49|event54|event56|event62|event63|event84|event86|event87|event95,Baroque,http://freebase.com/en/baroque,EOL
+style_movement004,event100|event181|event183|event262|event403|event404|event43|event44|event45|event46|event93,Classicism,http://freebase.com/en/classicism,EOL
+style_movement005,event1001|event1023|event1032|event1033|event1034|event1017|event1016|event1009|event500|event501|event502|event511|event513|event515|event516|event517|event520|event521|event522|event523|event529,Cubism,http://freebase.com/en/cubism,EOL
+style_movement006,event3016|event3015|event3014|event3014|event3012|event505|event506,Expressionism,http://freebase.com/en/expressionism,EOL
+style_movement007,event528,Impressionism,http://freebase.com/en/impressionism,EOL
+style_movement008,event1020|event1022|event1025|event1026|event1027|event1028|event1030|event1031,Modernism,http://freebase.com/en/modernism,EOL
+style_movement009,event3024|event3023|event3022|event3021|event3020|event3019|event3018|event3017|event3011|event3010,New British Sculpture,http://freebase.com/m/0bwglsc,EOL
+style_movement010,event23|event24,Pop art,http://freebase.com/en/pop_art,EOL
+style_movement011,event508,Proto-Cubism,http://freebase.com/m/0rpg1yc,EOL
+style_movement012,event1015,Realism,http://freebase.com/m/07sbg7f,EOL
+style_movement013,event101|event102|event103|event109|event110|event114|event128|event129|event130|event151|event185|event186|event187|event249|event250|event251|event252|event253|event514,Renaissance,http://freebase.com/en/renaissance,EOL
+style_movement014,event27,Romanticism,http://freebase.com/en/romanticism,EOL
+style_movement015,event3009|event3008|event3007|event3006|event3005|event3004|event3003|event3002|event3001,Young British Artists,http://freebase.com/en/young_british_artists,EOL

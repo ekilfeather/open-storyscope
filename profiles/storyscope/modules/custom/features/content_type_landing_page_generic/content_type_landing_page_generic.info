@@ -1,0 +1,40 @@
+name = Content Type - Landing Page Generic
+description = Content Type - Landing Page Generic
+core = 7.x
+package = Content Types
+php = 5.2.4
+dependencies[] = blockreference
+dependencies[] = ctools
+dependencies[] = features
+dependencies[] = field_sql_storage
+dependencies[] = image
+dependencies[] = link
+dependencies[] = node
+dependencies[] = strongarm
+dependencies[] = text
+features[ctools][] = strongarm:strongarm:1
+features[features_api][] = api:1
+features[field][] = node-landing_page-body
+features[field][] = node-landing_page-field_block_content
+features[field][] = node-landing_page-field_call_to_action_links
+features[field][] = node-landing_page-field_image
+features[node][] = landing_page
+features[variable][] = comment_anonymous_landing_page
+features[variable][] = comment_default_mode_landing_page
+features[variable][] = comment_default_per_page_landing_page
+features[variable][] = comment_form_location_landing_page
+features[variable][] = comment_landing_page
+features[variable][] = comment_preview_landing_page
+features[variable][] = comment_subject_field_landing_page
+features[variable][] = menu_options_landing_page
+features[variable][] = menu_parent_landing_page
+features[variable][] = node_options_landing_page
+features[variable][] = node_preview_landing_page
+features[variable][] = node_submitted_landing_page
+
+
+; Information added by drush on 2012-12-07
+version = "master-dev"
+project = "annerprofile"
+datestamp = "1354881032"
+

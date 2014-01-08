@@ -1,0 +1,231 @@
+<?php
+
+/**
+ * @file
+ * Functionality related to narrative generation and editing.
+ */
+
+
+/**
+ * Returns array of narrative content types.
+ */
+function storyscope_narrative_get_content_types() {
+  return array(
+    'narrative_microsite' => t('Microsite'),
+  );
+}
+
+/**
+ * Implements hook_menu().
+ */
+function storyscope_narrative_menu() {
+  $items = array();
+
+  $items['dossiers/%node/plots/%node/generate-narrative'] = array(
+    'title' => 'Generate narrative',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('storyscope_narrative_generate_narrative_selection_form', 1, 3),
+    'access callback' => 'user_is_logged_in',
+    'type' => MENU_CALLBACK,
+  );
+
+  $items['dossiers/%node/plots/%node/generate-narrative/%'] = array(
+    'title' => 'Generate narrative',
+    'page callback' => 'storyscope_narrative_generate_narrative',
+    'page arguments' => array(1, 3, 5),
+    'access callback' => TRUE,
+    'type' => MENU_CALLBACK,
+  );
+
+  return $items;
+}
+
+/**
+ * Narrative type selection form.
+ */
+function storyscope_narrative_generate_narrative_selection_form($form, &$form_state, $dossier, $plot) {
+  $form = array();
+
+  $narrative_types = storyscope_narrative_get_content_types();
+  if (empty($narrative_types)) {
+    drupal_not_found();
+    return $form;
+  }
+  elseif (count($narrative_types) == 1) {
+    $type = str_replace('_', '-', array_shift(array_keys($narrative_types)));
+    drupal_goto('dossiers/' . $dossier->nid . '/plots/' . $plot->nid . '/generate-narrative/' . $type);
+  }
+
+  $form['narrative_type'] = array(
+    '#title' => t('Select the type of narrative you wish to generate.'),
+    '#type' => 'select',
+    '#options' => $narrative_types,
+    '#required' => TRUE,
+  );
+
+  $form['dossier'] = array(
+    '#type' => 'value',
+    '#value' => $dossier->nid,
+  );
+
+  $form['plot'] = array(
+    '#type' => 'value',
+    '#value' => $plot->nid,
+  );
+
+  $form['submit'] = array(
+    '#type' => 'submit',
+    '#value' => t('Generate'),
+  );
+
+  return $form;
+}
+
+/**
+ * Submit handler for selection of narrative type for generation.
+ */
+function storyscope_narrative_generate_narrative_selection_form_submit(&$form, &$form_state) {
+  $dossier_nid = $form_state['values']['dossier'];
+  $plot_nid = $form_state['values']['plot'];
+  $type = str_replace('_', '-', $form_state['values']['narrative_type']);
+  $form_state['redirect'] = 'dossiers/' . $dossier_nid . '/plots/' . $plot_nid . '/generate-narrative/' . $type;
+}
+
+/**
+ * Generate narrative from a plot.
+ */
+function storyscope_narrative_generate_narrative($dossier, $plot, $type) {
+  $type = str_replace('-', '_', $type);
+  $types = storyscope_narrative_get_content_types();
+  if (!in_array($type, array_keys($types))) {
+    drupal_not_found();
+    return '';
+  }
+
+  // Get the language of the plot and use that when generating the narrative.
+  $langcode = entity_language('node', $plot);
+
+  // Get all child plot elements.
+  $plot_wrapper = entity_metadata_wrapper('node', $plot);
+  $plot_elements = $plot_wrapper->field_plot_plot_elements->value();
+
+  // Create narrative node.
+  global $user;
+  $narrative = new stdClass;
+  $narrative->is_new = TRUE;
+  $narrative->uid = $user->uid;
+  $narrative->type = $type;
+  $narrative->title = $plot->title;
+  $narrative->body = $plot->body;
+  $narrative->dossier = $dossier->nid;
+  $narrative->language = $langcode;
+  $narrative->field_narrative_plot[$langcode][]['target_id'] = $plot->nid;
+  node_save($narrative);
+
+  foreach ($plot_elements as $plot_element) {
+    // Create field_narrative_set field collection.
+    $narrative_set = entity_create('field_collection_item', array('field_name' => 'field_narrative_set'));
+    $narrative_set->setHostEntity('node', $narrative);
+    $status = entity_save('field_collection_item', $narrative_set);
+    $narrative_set_wrapper = entity_metadata_wrapper('field_collection_item', $narrative_set);
+    $narrative_set_wrapper->field_narrative_set_title->set($plot_element->title);
+    $narrative_set_wrapper->field_narrative_set_plot_element->set($plot_element->nid);
+    $narrative_set_wrapper->save();
+
+    // Create field_narrative_set_section field collection.
+    $narrative_set_section = entity_create('field_collection_item', array('field_name' => 'field_narrative_set_section'));
+    $narrative_set_section->setHostEntity('field_collection_item', $narrative_set);
+    $status = entity_save('field_collection_item', $narrative_set_section);
+    $narrative_set_section_wrapper = entity_metadata_wrapper('field_collection_item', $narrative_set_section);
+    $narrative_set_section_wrapper->save();
+  }
+
+  $path = 'dossiers/' . $dossier->nid . '/narratives/' . $narrative->nid;
+  drupal_goto($path);
+}
+
+/**
+ * Implements hook_form_FORMID_alter().
+ */
+function storyscope_narrative_form_field_collection_item_form_alter(&$form, &$form_state) {
+  $field_collection_item = $form_state['field_collection_item'];
+
+  // Set page title and add pager for field_narrative_set forms.
+  if ($field_collection_item->field_name == 'field_narrative_set') {
+    $host_entity = $field_collection_item->hostEntity();
+    if (!empty($host_entity)) {
+      // Set page title.
+      drupal_set_title($host_entity->title);
+
+      // Build sibling links array.
+      $links = array();
+      $host_entity_type = $field_collection_item->hostEntityType();
+      $host_entity_id = $field_collection_item->hostEntityId();
+      $host_entity_wrapper = entity_metadata_wrapper($host_entity_type, $host_entity);
+      $sets = $host_entity_wrapper->field_narrative_set->value();
+      foreach ($sets as $delta => $set) {
+        $destination = $host_entity_type . '/' . $host_entity_id;
+        $link = l(($delta + 1), 'field-collection/field-narrative-set/' . $set->item_id . '/edit', array('query' => array('destination' => $destination)));
+        $links[] = $link;
+      }
+      $form['storyscope_narrative_sets'] = array(
+        '#type' => 'markup',
+        '#title' => t('Narrative set pager'),
+        '#markup' => theme('item_list', array('items' => $links, 'attributes' => array('class' => array('narrative-set-pager')))),
+      );
+
+      // Set allowed plot elements.
+      $plot_elements = views_get_view_result('narrative_plot_elements', 'entityreference_1', $host_entity->nid);
+      $options = array();
+      foreach ($plot_elements as $plot_element) {
+        $options[$plot_element->nid] = $plot_element->node_title;
+      }
+      $form['field_narrative_set_plot_element'][$host_entity->language]['#options'] = $options;
+    }
+  }
+}
+
+/**
+ * Implements hook_entityreference_view_widget_views_arguments_alter().
+ */
+function storyscope_narrative_entityreference_view_widget_views_arguments_alter(&$arguments, &$context) {
+  if ($context['field_name'] == 'field_narrative_section_objects') {
+    $element = $context['element'];
+    $view_settings = explode('|', $context['widget']['settings']['view']);
+    $view_name = $view_settings[0];
+    $display = $view_settings[1];
+
+    // Pass in arguments to the plot_element_objects view.
+    if ($view_name == 'plot_element_objects' && $display == 'entityreference_view_widget_1') {
+      $parent = $element['#entity'];
+      if ($parent->field_name == 'field_narrative_set_section') {
+        $grandparent = $parent->hostEntity();
+        $langcode = $context['field_language'];
+        if (!empty($grandparent) && $grandparent->field_name == 'field_narrative_set') {
+          $grandparent_wrapper = entity_metadata_wrapper('field_collection_item', $grandparent);
+          $plot_element = $grandparent_wrapper->field_narrative_set_plot_element->value();
+          $arguments[] = $plot_element->nid;
+          $arguments[] = $plot_element->nid;
+        }
+        elseif (empty($grandparent)) {
+          if (!empty($_POST['field_narrative_set_plot_element'])) {
+            $plot_element_nid = $_POST['field_narrative_set_plot_element'][$langcode];
+            $arguments[] = $plot_element_nid;
+            $arguments[] = $plot_element_nid;
+          }
+        }
+      }
+    }
+  }
+}
+
+
+/**
+ * Implements hook_ctools_plugin_directory().
+ */
+function storyscope_narrative_ctools_plugin_directory($owner, $plugin_type) {
+  if ($owner == 'ctools' && !empty($plugin_type)) {
+    return 'plugins/' . $plugin_type;
+  }
+}
+

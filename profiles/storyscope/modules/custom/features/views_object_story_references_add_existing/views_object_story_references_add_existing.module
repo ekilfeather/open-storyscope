@@ -1,0 +1,7 @@
+<?php
+/**
+ * @file
+ * Code for the views object story references add existing feature.
+ */
+
+include_once 'views_object_story_references_add_existing.features.inc';

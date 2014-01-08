@@ -1,0 +1,12 @@
+name = Context Facets Object Story add existing Events
+core = 7.x
+package = Features
+php = 5.2.4
+dependencies[] = block
+dependencies[] = context
+dependencies[] = ctools
+dependencies[] = facetapi
+dependencies[] = views
+features[context][] = facet_search_object_story_addexisting_events
+features[ctools][] = context:context:3
+features[features_api][] = api:1

@@ -1,0 +1,58 @@
+<?php
+/**
+ * @file
+ * Core functions for the Selectivizr module.
+ */
+
+define('SELECTIVIZER_SCOPE_DEFAULT','header');
+
+require_once 'selectivizr.lib.inc';
+
+/**
+ * Implements hook_init().
+ */
+function selectivizr_init() {
+  if (_selectivizr_script_path()) {
+    if (_selectivizr_css_path()) {
+      $selectivizr_tag = '<noscript><link rel="stylesheet" href="' . _selectivizr_css_path() . '/selectivizr.css" /></noscript>';
+    }
+
+    $element = array(
+      '#type' => 'markup',
+      '#markup' => $selectivizr_tag,
+      '#prefix' => '<!--[if (gte IE 6) & (lte IE 8)]>',
+      '#suffix' => '<![endif]-->',
+      '#weight' => '9999',
+    );
+
+    drupal_add_js(
+      _selectivizr_script_path() . '/selectivizr.js',
+      array(
+        'type' => 'file',
+        'scope' => variable_get('selectivizer_scope', SELECTIVIZER_SCOPE_DEFAULT),
+        'group' => JS_LIBRARY,
+        'every_page' => TRUE,
+        'weight' => -999,
+        'preprocess' => 0,
+      )
+    );
+
+    drupal_add_html_head($element, 'selectivizr_head_tag');
+  }
+}
+
+/**
+ * Implements hook_menu().
+ */
+function selectivizr_menu() {
+  $items['admin/config/user-interface/selectivizr'] = array(
+    'title' => 'Selectivizr',
+    'description' => 'Settings page for Selectivizr',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('selectivizr_admin_form'),
+    'access arguments' => array('administer selectivizr'),
+    'file' => 'selectivizr.admin.inc',
+  );
+
+  return $items;
+}

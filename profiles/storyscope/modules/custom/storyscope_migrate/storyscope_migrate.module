@@ -1,0 +1,41 @@
+<?php
+
+/**
+ * @file
+ * Module to aid migration of data from CVS files to Drupal 7.
+ */
+
+/**
+ * Implements hook_migrate_api().
+ */
+function storyscope_migrate_migrate_api() {
+  $api = array(
+    'api' => 2,
+    'migrations' => array(
+          'StoryscopeUsers' => array('class_name' => 'StoryscopeUsers'),
+          'ObjectNodes' => array('class_name' => 'ObjectNodes'),
+          'ObjectCreatorFCs' => array('class_name' => 'ObjectCreatorFCs'),
+          'ObjectDimensionFCs' => array('class_name' => 'ObjectDimensionFCs'),
+          'ObjectStoryNodes' => array('class_name' => 'ObjectStoryNodes'),
+          'SourceEventNodes' => array('class_name' => 'SourceEventNodes'),
+          'EventNodes' => array('class_name' => 'EventNodes'),
+          'EventValueFCs' => array('class_name' => 'EventValueFCs'),
+          'PlotNodes' => array('class_name' => 'PlotNodes'),
+          'PlotElementNodes' => array('class_name' => 'PlotElementNodes'),
+          'StoryNodes' => array('class_name' => 'StoryNodes'),
+          'SectionNodes' => array('class_name' => 'SectionNodes'),
+          'SetFCs'       => array('class_name' => 'SetFCs'),
+          'SnapShotFCs'    => array('class_name' => 'SnapShotFCs'),
+          'ReferenceNodes' => array('class_name' => 'ReferenceNodes'),
+          'DossierNodes' => array('class_name' => 'DossierNodes'),
+          'MaterialsLODFCs' => array('class_name' => 'MaterialsLODFCs'),
+          'ClassificationsLODFCs' => array('class_name' => 'ClassificationsLODFCs'),
+          'StylesMovementsLODFCs' => array('class_name' => 'StylesMovementsLODFCs'),
+          'GenresLODFCs' => array('class_name' => 'GenresLODFCs'),
+          'LocationsLODFCs' => array('class_name' => 'LocationsLODFCs'),
+          'AgentsLODFCs' => array('class_name' => 'AgentsLODFCs'),
+        ),
+  );
+  return $api;
+}
+

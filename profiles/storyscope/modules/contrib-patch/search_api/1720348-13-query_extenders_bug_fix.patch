@@ -1,0 +1,13 @@
+diff --git drupal-7/profiles/storyscope/modules/contrib/search_api/contrib/search_api_views/includes/query.inc drupal-7/profiles/storyscope/modules/contrib/search_api/contrib/search_api_views/includes/query.inc
+index a7af1c3..f919ec4 100755
+--- drupal-7/profiles/storyscope/modules/contrib/search_api/contrib/search_api_views/includes/query.inc
++++ drupal-7/profiles/storyscope/modules/contrib/search_api/contrib/search_api_views/includes/query.inc
+@@ -155,7 +155,7 @@ class SearchApiViewsQuery extends views_plugin_query {
+     );
+ 
+     // Load in the admin include from Search API, as we need its form builder.
+-    form_load_include('inc', 'search_api', 'search_api.admin');
++    form_load_include($form_state, 'inc', 'search_api', 'search_api.admin');
+     $form = search_api_admin_query_extender_form($form, $form_state, $this->index, $this->options['query_extenders'], array('query', 'options'));
+ 
+   }

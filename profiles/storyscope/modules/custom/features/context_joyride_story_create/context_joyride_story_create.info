@@ -1,0 +1,8 @@
+name = Context Joyride - Story create
+core = 7.x
+package = Features
+dependencies[] = context
+dependencies[] = ctools
+features[context][] = joyride_story_create
+features[ctools][] = context:context:3
+features[features_api][] = api:1

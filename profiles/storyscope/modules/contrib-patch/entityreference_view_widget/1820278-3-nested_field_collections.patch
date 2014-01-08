@@ -1,0 +1,205 @@
+diff --git entityreference_view_widget/entityreference_view_widget.module entityreference_view_widget/entityreference_view_widget.module
+index 9bcef5a..197da3a 100644
+--- entityreference_view_widget/entityreference_view_widget.module
++++ entityreference_view_widget/entityreference_view_widget.module
+@@ -208,14 +208,22 @@ function entityreference_view_widget_field_widget_form(&$form, &$form_state, $fi
+   $target_view = explode('|', $widget['settings']['view']);
+   $view = views_get_view($target_view[0]);
+   $view->set_display($target_view[1]);
++
++  // Get the element values.
++  // Cope with nested data within sub-field_collections, etc.
++  $ajax = FALSE;
++  if (!empty($form_state['values'])) {
++    $field_parents = $element['#field_parents'];
++    $parents = array_merge($field_parents, array($field_name));
++    $element_values = drupal_array_get_nested_value($form_state['values'], $parents, $ajax);
++  }
++
+   // If the widget has been rebuilt via #ajax, change the exposed filter and
+   // pager values, if needed.
+-  $ajax = isset($form_state['values'][$field_name][$field_language]);
+   if ($ajax) {
+-    $values = $form_state['values'][$field_name];
+     // Set exposed_raw_input and exposed_data just like views_exposed_form_submit() does.
+-    if (!empty($values['exposed_filters'])) {
+-      $exposed_input = $values['exposed_filters'];
++    if (!empty($element_values['exposed_filters'])) {
++      $exposed_input = $element_values['exposed_filters'];
+       $view->exposed_raw_input = $exposed_input;
+       $view->exposed_data = $exposed_input;
+       // Also set exposed_input, to prevent get_exposed_input() from using the
+@@ -226,8 +234,8 @@ function entityreference_view_widget_field_widget_form(&$form, &$form_state, $fi
+ 
+     // Only change the page if the rebuild wasn't triggered by an exposed filter,
+     // and the page param is properly formatted.
+-    if (isset($values['page']) && is_numeric($values['page']) && empty($form_state['triggering_element']['#exposed_filter'])) {
+-      $view->set_current_page($values['page']);
++    if (isset($element_values['page']) && is_numeric($element_values['page']) && empty($form_state['triggering_element']['#exposed_filter'])) {
++      $view->set_current_page($element_values['page']);
+     }
+   }
+   // Pass the selected entity ids as the first argument, if needed.
+@@ -253,14 +261,14 @@ function entityreference_view_widget_field_widget_form(&$form, &$form_state, $fi
+     '#markup' => $output,
+   );
+   if (!empty($view->exposed_widgets)) {
+-    $element['filters'] = entityreference_view_widget_prepare_filters($view->exposed_widgets, $field_name);
++    $element['filters'] = entityreference_view_widget_prepare_filters($view->exposed_widgets, $field_name, $field_parents);
+   }
+ 
+   // Add a hidden form element to hold the current pager value.
+   $element['page'] = array(
+     // Set the parents above $field_language, so that the value doesn't get wiped
+     // in entityreference_view_widget_validate.
+-    '#parents' =>  array($field_name, 'page'),
++    '#parents' =>  array_merge($element['#field_parents'], array($field_name, 'page')),
+     '#type' => 'hidden',
+     '#attributes' => array(
+       'class' => array('entityreference-view-widget-page'),
+@@ -271,20 +279,22 @@ function entityreference_view_widget_field_widget_form(&$form, &$form_state, $fi
+   // #ajax button is added, then when a pager link is clicked, a piece of JS code
+   // sets the hidden page field (defined above) and simulates a click of the
+   // button (defined below).
++  $path = empty($element['#field_parents']) ? $field_name : implode('/', $element['#field_parents']) . '/' . $field_name;
++  $wrapper = empty($element['#field_parents']) ? $field_name : implode('-', $element['#field_parents']) . '-' . $field_name;
+   $element['pager_submit'] = array(
+     '#type' => 'button',
+     '#name' => 'pager_submit',
+     '#attributes' => array('class' => array('pager-submit')),
+     '#ajax' => array(
+-      'path' => 'entityreference_view_widget/ajax/' . $field_name,
+-      'wrapper' => 'edit-' . str_replace('_', '-', $field_name),
++      'path' => 'entityreference_view_widget/ajax/' . $path,
++      'wrapper' => 'edit-' . str_replace('_', '-', $wrapper),
+       'method' => 'replace',
+       'progress' => array(
+         'type' => 'throbber',
+         'message' => '',
+       ),
+     ),
+-    '#limit_validation_errors' => array(array($field_name)),
++    '#limit_validation_errors' => array(array_merge($element['#field_parents'], array($field_name))),
+     '#weight' => 100,
+     '#submit' => array('entityreference_view_widget_exposed_filters_pager_submit'),
+   );
+@@ -296,12 +306,14 @@ function entityreference_view_widget_field_widget_form(&$form, &$form_state, $fi
+       $entity_view = entity_view($entity_type, $selected_entities, 'entityreference_view_widget');
+       $entity_view = reset($entity_view);
+       $i = 0;
++      $path = empty($element['#field_parents']) ? $field_name : implode('/', $element['#field_parents']) . '/' . $field_name;
++      $wrapper = empty($element['#field_parents']) ? $field_name : implode('-', $element['#field_parents']) . '-' . $field_name;
+       foreach ($selected_entities as $entity_id => $entity) {
+         // Remove the checkbox placeholder, it's not needed in this context.
+         unset($entity_view[$entity_id]['entityreference_view_widget_action']);
+ 
+         $entity_view[$entity_id]['_weight'] = array(
+-          '#parents' =>  array($field_name, $field_language, 'items', $entity_id, '_weight'),
++          '#parents' =>  array_merge($element['#field_parents'], array($field_name, $field_language, 'items', $entity_id, '_weight')),
+           '#type' => 'weight',
+           '#title' => t('Weight for @title', array('@title' => entity_label($entity_type, $entity))),
+           '#title_display' => 'invisible',
+@@ -309,14 +321,14 @@ function entityreference_view_widget_field_widget_form(&$form, &$form_state, $fi
+           '#default_value' => $i,
+         );
+         $entity_view[$entity_id]['remove'] = array(
+-          '#parents' =>  array($field_name, $field_language, 'items', $entity_id, 'remove'),
++          '#parents' =>  array_merge($element['#field_parents'], array($field_name, $field_language, 'items', $entity_id, 'remove')),
+           '#type' => 'checkbox',
+           '#title' => t('Remove'),
+           '#weight' => -10,
+           '#refresh_items' => TRUE,
+           '#ajax' => array(
+-            'path' => 'entityreference_view_widget/ajax/' . $field_name,
+-            'wrapper' => 'edit-' . str_replace('_', '-', $field_name),
++            'path' => 'entityreference_view_widget/ajax/' . $path,
++            'wrapper' => 'edit-' . str_replace('_', '-', $wrapper),
+             'method' => 'replace',
+             'progress' => array(
+               'type' => 'throbber',
+@@ -341,6 +353,8 @@ function entityreference_view_widget_field_widget_form(&$form, &$form_state, $fi
+   // displayed through the view.
+   $substitutions = array();
+   $result_entities = $view->query->get_result_entities($view->result);
++  $path = empty($element['#field_parents']) ? $field_name : implode('/', $element['#field_parents']) . '/' . $field_name;
++  $wrapper = empty($element['#field_parents']) ? $field_name : implode('-', $element['#field_parents']) . '-' . $field_name;
+   foreach ($result_entities[1] as $row_id => $entity) {
+     $entity_id = entity_id($entity_type, $entity);
+     if (!$view->display_handler->options['hide_left']) {
+@@ -348,8 +362,8 @@ function entityreference_view_widget_field_widget_form(&$form, &$form_state, $fi
+         '#type' => 'checkbox',
+         '#refresh_items' => TRUE,
+         '#ajax' => array(
+-          'path' => 'entityreference_view_widget/ajax/' . $field_name,
+-          'wrapper' => 'edit-' . str_replace('_', '-', $field_name),
++          'path' => 'entityreference_view_widget/ajax/' . $path,
++          'wrapper' => 'edit-' . str_replace('_', '-', $wrapper),
+           'method' => 'replace',
+           'progress' => array(
+             'type' => 'throbber',
+@@ -463,8 +477,19 @@ function theme_entityreference_view_widget_selected_items($variables) {
+ function entityreference_view_widget_validate($element, &$form_state) {
+   $field_name = $element['#field_name'];
+   $language = $element['#language'];
+-  $target_type = $form_state['field'][$field_name][$language]['field']['settings']['target_type'];
+-  $element_values = $form_state['values'][$field_name][$language];
++  $target_bundle = $element['#bundle'];
++  $field_parents = $element['#field_parents'];
++
++  // Cope with nested data within sub-field_collections, etc.
++  $parents = array_merge($field_parents, array($field_name, $language));
++  $element_values = drupal_array_get_nested_value($form_state['values'], $parents);
++
++  $parents = array_merge(array($field_name, $language, 'field', 'settings', 'target_type'));
++  $target_type = drupal_array_get_nested_value($form_state['field'], $parents);
++  if (!empty($field_parents)) {
++    $parents = array_merge(array('#parents'), $field_parents, array('#fields', $field_name, $language, 'field', 'settings', 'target_type'));
++    $target_type = drupal_array_get_nested_value($form_state['field'], $parents);
++  }
+ 
+   $value = array();
+   // First add the existing elements, if they are not marked for deletion.
+@@ -489,10 +514,9 @@ function entityreference_view_widget_validate($element, &$form_state) {
+   form_set_value($element, $value, $form_state);
+ 
+   // Update items.
+-  $parents = array_slice($element['#parents'], 0, -2);
+-  $field_state = field_form_get_state($parents, $field_name, $language, $form_state);
++  $field_state = field_form_get_state($field_parents, $field_name, $language, $form_state);
+   $field_state['items'] = $value;
+-  field_form_set_state($parents, $field_name, $language, $form_state, $field_state);
++  field_form_set_state($field_parents, $field_name, $language, $form_state, $field_state);
+ }
+ 
+ function entityreference_view_widget_exposed_filters_validate($element, &$form_state) {
+@@ -508,7 +532,7 @@ function entityreference_view_widget_exposed_filters_validate($element, &$form_s
+  * Prepare the form containing exposed views filters for functioning
+  * as a part of the widget form (validation, #ajax, #parents...).
+  */
+-function entityreference_view_widget_prepare_filters($form, $field_name) {
++function entityreference_view_widget_prepare_filters($form, $field_name, $field_parents) {
+   // $form will be a string if the user failed to select our exposed plugin style plugin.
+   if (!is_array($form)) {
+     return;
+@@ -516,15 +540,17 @@ function entityreference_view_widget_prepare_filters($form, $field_name) {
+ 
+   $form['#element_validate'] = array('entityreference_view_widget_exposed_filters_validate');
+   $form['submit']['#submit'] = array('entityreference_view_widget_exposed_filters_submit');
+-  $form['submit']['#limit_validation_errors'] = array(array($field_name));
++  $form['submit']['#limit_validation_errors'] = array(array_merge($field_parents, array($field_name)));
+   $form['submit']['#name'] = 'apply-' . $field_name;
+ 
+   foreach (element_get_visible_children($form) as $key) {
+-    $form[$key]['#parents'] = array($field_name, 'exposed_filters', $key);
++    $form[$key]['#parents'] = array_merge($field_parents, array($field_name, 'exposed_filters', $key));
+     $form[$key]['#exposed_filter'] = TRUE;
+     if (!empty($form[$key]['#ajax']) && empty($form[$key]['#ajax']['path']) && empty($form[$key]['#ajax']['callback'])) {
+-      $form[$key]['#ajax']['path'] = 'entityreference_view_widget/ajax/' . $field_name;
+-      $form[$key]['#ajax']['wrapper'] = 'edit-' . str_replace('_', '-', $field_name);
++      $path = empty($field_parents) ? $field_name : implode('/', $field_parents) . '/' . $field_name;
++      $wrapper = empty($field_parents) ? $field_name : implode('-', $field_parents) . '-' . $field_name;
++      $form[$key]['#ajax']['path'] = 'entityreference_view_widget/ajax/' . $path;
++      $form[$key]['#ajax']['wrapper'] = 'edit-' . str_replace('_', '-', $wrapper);
+     }
+   }
+   return $form;

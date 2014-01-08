@@ -1,0 +1,10 @@
+name = Flexslider options set
+description = Options sets for the media resources sliders
+core = 7.x
+package = Features
+php = 5.2.4
+dependencies[] = ctools
+dependencies[] = flexslider
+features[ctools][] = flexslider:flexslider_default_preset:1
+features[features_api][] = api:1
+features[flexslider_optionset][] = decipher_media_reources

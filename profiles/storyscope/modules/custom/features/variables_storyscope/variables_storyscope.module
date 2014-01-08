@@ -1,0 +1,7 @@
+<?php
+/**
+ * @file
+ * Code for the Variables Storyscope feature.
+ */
+
+include_once 'variables_storyscope.features.inc';

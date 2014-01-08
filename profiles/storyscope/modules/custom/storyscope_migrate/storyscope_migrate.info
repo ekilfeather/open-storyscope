@@ -1,0 +1,24 @@
+name = StoryScope Migration
+description = "Migrate content from csv files into site"
+package = Custom
+core = 7.x
+
+dependencies[] = migrate
+dependencies[] = migrate_extras
+dependencies[] = date_migrate
+
+files[] = storyscope_migrate.module
+
+files[] = storyscope_migrate.migrate.entity.inc
+files[] = storyscope_users.inc
+files[] = storyscope_dossiers.inc
+files[] = storyscope_objects.inc
+files[] = storyscope_object_stories.inc
+files[] = storyscope_source_events.inc
+files[] = storyscope_events.inc
+files[] = storyscope_plot_elements.inc
+files[] = storyscope_plots.inc
+files[] = storyscope_references.inc
+files[] = storyscope_stories.inc
+files[] = storyscope_sections.inc
+files[] = storyscope_lod.inc

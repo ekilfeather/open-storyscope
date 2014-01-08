@@ -1,0 +1,1110 @@
+3.2.1 (Media Mark)
+ed0208d9fb338f18ac579e6f00d20f565a2398e0
+o:Sass::Tree::RootNode
+:
+@linei:@template"ò+/**
+ * @file
+ * Positioning for responsive layout .
+ *
+ * Define CSS classes to create a table-free, 3-column, 2-column, or single
+ * column layout depending on whether blocks are enabled in the left or right
+ * columns.
+ *
+ * This layout uses the Zen Grids plugin for Compass: http://zengrids.com
+ */
+
+@import "base";
+@import "compass/typography/lists/bullets";
+
+
+// We are going to create a 980px wide, 5 column grid with 20px gutters between
+// columns (applied as 10px of left/right padding on each column).
+$zen-column-count:  4;
+$zen-gutter-width:  20px;
+
+
+// IE6-7 don't support box-sizing: border-box. We can fix this in 1 of 3 ways:
+// - Drop support for IE 6/7. :-) In the _base.scss, set $legacy-support-for-ie6
+//   and $legacy-support-for-ie7 to false.
+// - (Preferred) Install the box-sizing polyfill and set the variable below to
+//   the absolute path URL to the boxsizing.htc file.
+//   @see https://github.com/Schepp/box-sizing-polyfill
+// - Use the same CSS unit for grid width and gutter width (use px for both or
+//   use % for both, etc.) and set the box-sizing variable to content-box.
+//   $zen-box-sizing: content-box;
+
+
+// You can generate more efficient CSS if you manually apply the
+// zen-grid-item-base mixin to all grid items from within a single ruleset.
+$zen-auto-include-item-base: false;
+// $zen-auto-include-flow-item-base: false;
+
+
+/*
+ * Center the page.
+ */
+
+#page,
+.region-bottom {
+  /* For screen sizes larger than 1200px, prevent excessively long lines of text
+     by setting a max-width. */
+  margin-left: auto;
+  margin-right: auto;
+  max-width: 1200px;
+}
+
+/*
+ * Apply the shared properties of grid items in a single, efficient ruleset.
+ */
+// See the note about $zen-auto-include-item-base above.
+
+#header,
+#content,
+.region-sidebar-first,
+.region-sidebar-second,
+#footer {
+  @include zen-grid-item-base();
+}
+
+/*
+ * Containers for grid items and flow items.
+ */
+
+#header,
+#main,
+#footer {
+  @include zen-grid-container();
+}
+
+.view-footer,
+.view-header {
+  @include clearfix();
+}
+
+/*
+ * Navigation bar
+ */
+
+@media all and (max-width: 480px) {
+  li.article figure,
+  article.node-teaser .field-name-field-image,
+  article.build-mode-teaser figure {
+    width: 25%;
+  }
+}
+
+/* Pseudo resources should be in a UL  with class .resources */
+ul.resources {
+  @include no-bullets();
+  padding: 0;
+  margin: 0
+}
+
+@media all and (min-width: 480px) and (max-width: 759px) {
+  /*
+   * Use 2 grid columns for medium screens.
+   */
+  $zen-column-count: 4;
+  .resource-container {
+    @include zen-nested-container(); // Since we're making every block in this region be a grid item.
+    &.narrow-items article,
+    &.narrow-items li.article {
+      @include zen-grid-item-base();
+        &:nth-child(2n+1) { /* Span 1 column, starting in the 1st column from left. */
+          @include zen-grid-item(2, 1);
+          @include zen-clear();
+        }
+        &:nth-child(2n) { /* Span 1 column, starting in the 1st column from left. */
+          @include zen-grid-item(2, 3);
+        }
+    }
+  }
+  
+}
+
+@media all and (min-width: 760px) {
+  /*
+   * Use 4 grid columns for larger screens.
+   */
+  #page,
+    .region-bottom {
+      /* For screen sizes larger than 1200px, prevent excessively long lines of text
+         by setting a max-width. */
+      margin-left: auto;
+      margin-right: auto;
+      max-width: 960px;
+      padding-bottom: 10%;
+    }
+  $zen-column-count: 4;
+  div#page-leader{
+    margin: 1em 0;
+    padding-top: 3em;
+    position: relative;
+  }
+  #logout {
+    position: absolute;
+    right: 1em;
+    top: 0;
+  }
+  #header {
+    padding-top: 4em;
+    @include zen-clear();
+    @include zen-grid-item(1, 4);
+    @include zen-grid-item-base();
+  }
+  #navigation {
+    @include zen-grid-item(3, 1);
+    @include zen-grid-item-base();
+    #main-menu {
+      @include padding-leader(1);
+      padding-top: 25px;
+    }
+    ul.links {
+      margin: 0;
+    }
+  }
+  div.tabs {
+   @include zen-nested-container(); // Since we're making every block in this region be a grid item.
+   position: relative;
+   //margin-top: 10px;
+   @include clearfix;
+    $zen-column-count: 16;
+    h1.title {
+      //@include zen-grid-item(10, 1);
+      @include zen-grid-item-base();
+    }
+    ul.tabs {
+      position: absolute;
+      bottom: 0;
+      right: 0;
+    }
+  }
+
+  // Show sidebar second on the right
+  body.sidebar-second {
+    $zen-column-count: 4;
+    #content{
+      @include zen-grid-item(3, 1);
+    }
+    .region-sidebar-second {
+      @include zen-grid-item(1, 4);
+        .item-list{
+          ul{
+            li{
+              list-style: none;
+            }
+          }
+          
+        }
+    }
+  }
+
+  $zen-column-count: 4;
+  .resource-container {
+      @include zen-nested-container(); // Since we're making every block in this region be a grid item.
+      &.container-full.narrow-items article,
+      &.container-full.narrow-items li.article {
+        h2 {
+          font-size: 1em;
+        }
+      @include zen-grid-item-base();
+        &:nth-child(4n+1) { /* Span 1 column, starting in the 1st column from left. */
+          @include zen-grid-item(1, 1);
+          @include zen-clear();
+          padding-left: 0;
+        }
+        &:nth-child(4n+2) {
+          @include zen-grid-item(1, 2);
+        }
+        &:nth-child(4n+3) {
+          @include zen-grid-item(1, 3);
+        }
+        &:nth-child(4n) {
+          @include zen-grid-item(1, 4);
+          padding-right: 0;
+        }
+        &.highlight-image{
+          padding: 0;
+        }
+      }
+      &.container-full.wide-items article,
+      &.container-full.wide-items li.article {
+        @include zen-grid-item-base();
+        &:nth-child(2n+1) { /* Span 2 column, starting in the 1st column from left. */
+          @include zen-grid-item(2, 1);
+          @include zen-clear();
+          padding-left: 0;
+        }
+        &:nth-child(2n) {
+          @include zen-grid-item(2, 3);
+          padding-right: 0;
+        }
+        &:nth-child(-n+2) {
+        }
+      }
+    /* Nested items */
+    .container-inner{
+        @include zen-grid-item-base();
+        @include zen-nested-container();
+        &:nth-child(2n+1) { /* Span 2 column, starting in the 1st column from left. */
+          @include zen-grid-item(2, 1);
+          @include zen-clear();
+          padding-left: 0;
+        }
+        &:nth-child(2n) {
+          @include zen-grid-item(2, 3);
+          padding-right: 0;
+        }
+      .narrow-items article,
+      .narrow-items li.article {
+        $zen-column-count: 2;
+        @include zen-grid-item-base();
+          &:nth-child(2n+1) { /* Span 1 column, starting in the 1st column from left. */
+            @include zen-grid-item(1, 1);
+            @include zen-clear();
+            padding-left: 0;
+          }
+          &:nth-child(2n+2) {
+            @include zen-grid-item(1, 2);
+            padding-right: 0;
+          }
+          &.highlight-image{
+            padding: 0;
+          }
+      }
+    }
+  }
+  .facet-management {
+    @include clearfix();
+    table {
+    border-collapse: separate;
+    border-spacing: 0 1em;
+      &:nth-child(2n+1) { /* Span 1 column, starting in the 1st column from left. */
+        @include zen-grid-item(1, 1);
+        @include zen-clear();
+        padding-right: 1em;
+      }
+      &:nth-child(2n+2) {
+        @include zen-grid-item(1, 2);
+      }
+      td {
+        padding: 0.5em;
+      }
+    }
+  }
+  // Plot pages
+  .plot-container {
+    position: relative;
+    $zen-column-count: 2;
+    div.exhibit-viewPanel {
+      @include zen-grid-item-base();
+      @include zen-grid-item(1, 1);
+      @include zen-clear();
+      padding-left: 0;
+      ol.exhibit-tileView-body {
+        @include clearfix();
+        li {
+          &:nth-child(2n+1) { /* Span 1 column, starting in the 1st column from left. */
+            @include zen-grid-item(1, 1);
+            @include zen-clear();
+            padding-right: 1em;
+          }
+          &:nth-child(2n+2) {
+            @include zen-grid-item(1, 2);
+          }
+        }
+      }
+    }
+    div.events {
+      &:nth-child(2n+1) { /* Span 1 column, starting in the 1st column from left. */
+        @include zen-grid-item(1, 1);
+        @include zen-clear();
+        padding-right: 1em;
+      }
+      &:nth-child(2n+2) {
+        @include zen-grid-item(1, 2);
+      }
+    }
+    div.elements-container {
+      @include zen-grid-item-base();
+      @include zen-grid-item(1, 2);
+      position: absolute;
+      top: 550px;
+    }
+  }
+}
+
+/*
+ * Comment title field
+ */
+
+@media all and (max-width: 650px) {
+  .comment-form #edit-subject {
+    width: 95%;
+  }
+}
+
+/**
+ * Media Element
+ */
+li.article,
+article.node-teaser_suggested,
+article.node-teaser {
+  .field-name-field-image,
+  figure {
+    float: left;
+    margin-right: 10px;
+  }
+  .content {
+    @include clearfix;
+  }
+}
+article.highlight-image {
+  .article-inner{
+    position: relative;
+  }
+  figure{
+    text-align: center;
+  }
+  .content{
+    position: absolute;
+    bottom: 0;
+    background-color: rgba(0,0,0,0.75);
+    padding: 0.5em;
+    color: #fff;
+    & a {
+      color: inherit;
+    }
+    }
+}
+// Hide and display overlay for non-touch
+.no-touch .highlight-image{
+  .content{
+    width: 100%;
+    margin: 0;
+    padding: 0;
+    p, h2 {
+      padding: 0.25em 0.5em;
+    }
+    opacity: 0;
+    @include transition-property(opacity);
+    @include transition-duration(0.5s);
+    @include transition-timing-function(ease-in);
+    }
+  &:hover .content{
+    opacity:1;
+  }
+}
+article.node-type-dec-object {
+  .media-container {
+    figure {
+      float: left;
+      margin-right: 10px;
+    }
+   .meta-content {
+     @include clearfix;
+     margin-top: 10em;
+   }
+  }
+}
+.view-workspace article {
+  float: left;
+}
+li.article {
+  figure {
+    width: 25%;
+  }
+  h2 {
+    margin-top: 0;
+  }
+  p {
+    margin-bottom: 0.5em;
+    span.label {
+      font-weight: bold;
+    }
+  }
+}
+/*
+// Layout of Story section
+.node-type-section,
+.page-dossiers-stories-sections {
+  $zen-column-count: 4;
+  .pane-objects-pane-object-details {
+    @include zen-grid-item-base();
+    @include zen-grid-item(2, 1);
+  }
+  .pane-views-object-object-stories-section-object-object-stories-pane {
+    @include zen-grid-item-base();
+    @include zen-grid-item(2, 3);
+   }
+  .pane-dossier-events-search-api-dossier-events-pane {
+    @include zen-grid-item-base();
+    @include zen-clear();
+    @include zen-grid-item(3, 1);
+  }
+  .pane-facetapi {
+    @include zen-grid-item-base();
+    @include zen-clear(right);
+    @include zen-grid-item(1, 1, right);
+  }
+  // Write Page
+  .middle-wrapper{
+    $zen-column-count: 12;
+    .pane-section-events-panel-pane-section-events {
+      @include zen-grid-item-base();
+      @include zen-grid-item(5, 1);
+    }
+    .pane-form {
+      @include zen-grid-item-base();
+      @include zen-grid-item(7, 6);
+    }
+  }
+  .form-field-name-field-story-set {
+    @include zen-nested-container(); // Since we're making every block in this region be a grid item.
+    .field-name-field-story-set-object {
+      @include zen-grid-item-base();
+      @include zen-grid-item(2, 1);
+    }
+    .field-name-field-story-set-snapshot-os{
+      @include zen-grid-item-base();
+      @include zen-grid-item(10, 3);
+    }
+  }
+}
+*/:@has_childrenT:@options{ :@children[(o:Sass::Tree::CommentNode
+:
+@type:normal;i;	@;
+[ :@value["-/**
+ * @file
+ * Positioning for responsive layout .
+ *
+ * Define CSS classes to create a table-free, 3-column, 2-column, or single
+ * column layout depending on whether blocks are enabled in the left or right
+ * columns.
+ *
+ * This layout uses the Zen Grids plugin for Compass: http://zengrids.com
+ */o:Sass::Tree::ImportNode
+;i;0:@imported_filename"	base;	@;
+[ o;
+;i;0;"%compass/typography/lists/bullets;	@;
+[ o;
+;:silent;i;	@;
+[ ;["ï/* We are going to create a 980px wide, 5 column grid with 20px gutters between
+ * columns (applied as 10px of left/right padding on each column). */o:Sass::Tree::VariableNode:@guarded0:
+@name"zen-column-count;i:
+@expro:Sass::Script::Number:@original"4;i;	@:@denominator_units[ ;i	:@numerator_units[ ;	@;
+[ o;;0;"zen-gutter-width;i;o;;"	20px;i;	@;[ ;i;["px;	@;
+[ o;
+;;;i;	@;
+[ ;["G/* IE6-7 don't support box-sizing: border-box. We can fix this in 1 of 3 ways:
+ * - Drop support for IE 6/7. :-) In the _base.scss, set $legacy-support-for-ie6
+ *   and $legacy-support-for-ie7 to false.
+ * - (Preferred) Install the box-sizing polyfill and set the variable below to
+ *   the absolute path URL to the boxsizing.htc file.
+ *   @see https://github.com/Schepp/box-sizing-polyfill
+ * - Use the same CSS unit for grid width and gutter width (use px for both or
+ *   use % for both, etc.) and set the box-sizing variable to content-box.
+ *   $zen-box-sizing: content-box; */o;
+;;;i&;	@;
+[ ;["è/* You can generate more efficient CSS if you manually apply the
+ * zen-grid-item-base mixin to all grid items from within a single ruleset. */o;;0;"zen-auto-include-item-base;i(;o:Sass::Script::Bool;i(;	@;F;	@;
+[ o;
+;;;i);	@;
+[ ;["3/* $zen-auto-include-flow-item-base: false; */o;
+;;;i,;	@;
+[ ;["/*
+ * Center the page.
+ */o:Sass::Tree::RuleNode:@parsed_ruleso:"Sass::Selector::CommaSequence:@filename" ;i1:@members[o:Sass::Selector::Sequence;[o:#Sass::Selector::SimpleSequence
+;@<;i1:@sourceso:Set:
+@hash{ :@subject0;[o:Sass::Selector::Id;@<;["	page;i1o; ;["
+o;!
+;@<;i1;"o;#;${ ;%0;[o:Sass::Selector::Class;@<;["region-bottom;i1;i1;T;	@:
+@tabsi ;
+[	o;
+;;;i2;	@;
+[ ;["q/* For screen sizes larger than 1200px, prevent excessively long lines of text
+   by setting a max-width. */o:Sass::Tree::PropNode;["margin-left;i4;	@;(i ;
+[ :@prop_syntax:new;o:Sass::Script::String;:identifier;	@;"	autoo;);["margin-right;i5;	@;(i ;
+[ ;*;+;o;,;;-;	@;"	autoo;);["max-width;i6;	@;(i ;
+[ ;*;+;o;,;;-;	@;"1200px:
+@rule["#page,
+.region-bottomo;
+;;;i9;	@;
+[ ;["X/*
+ * Apply the shared properties of grid items in a single, efficient ruleset.
+ */o;
+;;;i<;	@;
+[ ;["@/* See the note about $zen-auto-include-item-base above. */o;;o;;" ;iB;[
+o; ;[o;!
+;@t;iB;"o;#;${ ;%0;[o;&;@t;["header;iBo; ;["
+o;!
+;@t;iB;"o;#;${ ;%0;[o;&;@t;["content;iBo; ;["
+o;!
+;@t;iB;"o;#;${ ;%0;[o;';@t;["region-sidebar-first;iBo; ;["
+o;!
+;@t;iB;"o;#;${ ;%0;[o;';@t;["region-sidebar-second;iBo; ;["
+o;!
+;@t;iB;"o;#;${ ;%0;[o;&;@t;["footer;iB;iB;T;	@;(i ;
+[o:Sass::Tree::MixinNode;"zen-grid-item-base;iC:@keywords{ ;	@;
+[ :@splat0:
+@args[ ;.["N#header,
+#content,
+.region-sidebar-first,
+.region-sidebar-second,
+#footero;
+;;;iF;	@;
+[ ;["8/*
+ * Containers for grid items and flow items.
+ */o;;o;;" ;iL;[o; ;[o;!
+;@∞;iL;"o;#;${ ;%0;[o;&;@∞;["header;iLo; ;["
+o;!
+;@∞;iL;"o;#;${ ;%0;[o;&;@∞;["	main;iLo; ;["
+o;!
+;@∞;iL;"o;#;${ ;%0;[o;&;@∞;["footer;iL;iL;T;	@;(i ;
+[o;/;"zen-grid-container;iM;0{ ;	@;
+[ ;10;2[ ;.["#header,
+#main,
+#footero;;o;;" ;iQ;[o; ;[o;!
+;@Ÿ;iQ;"o;#;${ ;%0;[o;';@Ÿ;["view-footer;iQo; ;["
+o;!
+;@Ÿ;iQ;"o;#;${ ;%0;[o;';@Ÿ;["view-header;iQ;iQ;T;	@;(i ;
+[o;/;"clearfix;iR;0{ ;	@;
+[ ;10;2[ ;.[".view-footer,
+.view-headero;
+;;;iU;	@;
+[ ;["/*
+ * Navigation bar
+ */o:Sass::Tree::MediaNode;iY;T;	@;(i ;
+[o;;o;;" ;i\;[o; ;[o;!
+;@˛;i\;"o;#;${ ;%0;[o:Sass::Selector::Element	;@˛;["li;i\:@namespace0o;';@˛;["article;i\o;!
+;@˛;i\;"o;#;${ ;%0;[o;4	;@˛;["figure;i\;50o; ;["
+o;!
+;@˛;i\;"o;#;${ ;%0;[o;4	;@˛;["article;i\;50o;';@˛;["node-teaser;i\o;!
+;@˛;i\;"o;#;${ ;%0;[o;';@˛;["field-name-field-image;i\o; ;["
+o;!
+;@˛;i\;"o;#;${ ;%0;[o;4	;@˛;["article;i\;50o;';@˛;["build-mode-teaser;i\o;!
+;@˛;i\;"o;#;${ ;%0;[o;4	;@˛;["figure;i\;50;i\;T;	@;(i ;
+[o;);["
+width;i];	@;(i ;
+[ ;*;+;o;,;;-;	@;"25%;.["ili.article figure,
+  article.node-teaser .field-name-field-image,
+  article.build-mode-teaser figure:@query["all"
+ and "(o;,	;;-;iY;	@;"max-width": o;;"
+480px;iY;	@;[ ;i‡;["px");" o;
+;;;ia;	@;
+[ ;["D/* Pseudo resources should be in a UL  with class .resources */o;;o;;" ;ib;[o; ;[o;!
+;@X;ib;"o;#;${ ;%0;[o;4	;@X;["ul;ib;50o;';@X;["resources;ib;ib;T;	@;(i ;
+[o;/;"no-bullets;ic;0{ ;	@;
+[ ;10;2[ o;);["padding;id;	@;(i ;
+[ ;*;+;o;,;;-;	@;"0o;);["margin;if;	@;(i ;
+[ ;*;+;o;;"0;ie;	@;@;i ;[ ;.["ul.resourceso;3;ih;T;	@;(i ;
+[o;
+;;;ii;	@;
+[ ;["5/*
+ * Use 2 grid columns for medium screens.
+ */o;;0;"zen-column-count;il;o;;"4;il;	@;@;i	;[ ;	@;
+[ o;;o;;" ;im;[o; ;[o;!
+;@â;im;"o;#;${ ;%0;[o;';@â;["resource-container;im;im;T;	@;(i ;
+[o;/;"zen-nested-container;in;0{ ;	@;
+[ ;10;2[ o;
+;;;in;	@;
+[ ;["H/* Since we're making every block in this region be a grid item. */o;;o;;" ;ip;[o; ;[o;!
+;@†;ip;"o;#;${ ;%0;[o:Sass::Selector::Parent;@†;ipo;';@†;["narrow-items;ipo;!
+;@†;ip;"o;#;${ ;%0;[o;4	;@†;["article;ip;50o; ;["
+o;!
+;@†;ip;"o;#;${ ;%0;[o;7;@†;ipo;';@†;["narrow-items;ipo;!
+;@†;ip;"o;#;${ ;%0;[o;4	;@†;["li;ip;50o;';@†;["article;ip;ip;T;	@;(i ;
+[o;/;"zen-grid-item-base;iq;0{ ;	@;
+[ ;10;2[ o;;o;;" ;ir;[o; ;[o;!
+;@–;ir;"o;#;${ ;%0;[o;7;@–;iro:Sass::Selector::Pseudo
+;@–;["nth-child;:
+class;ir:	@arg["	2n+1;ir;T;	@;(i ;
+[o;
+;;;ir;	@;
+[ ;["?/* Span 1 column, starting in the 1st column from left. */o;/;"zen-grid-item;is;0{ ;	@;
+[ ;10;2[o;;"2;is;	@;@;i;[ o;;"1;is;	@;@;i;[ o;/;"zen-clear;it;0{ ;	@;
+[ ;10;2[ ;.["&:nth-child(2n+1)o;;o;;" ;iv;[o; ;[o;!
+;@˜;iv;"o;#;${ ;%0;[o;7;@˜;ivo;8
+;@˜;["nth-child;;9;iv;:["2n;iv;T;	@;(i ;
+[o;
+;;;iv;	@;
+[ ;["?/* Span 1 column, starting in the 1st column from left. */o;/;"zen-grid-item;iw;0{ ;	@;
+[ ;10;2[o;;"2;iw;	@;@;i;[ o;;"3;iw;	@;@;i;[ ;.["&:nth-child(2n);.[":&.narrow-items article,
+    &.narrow-items li.article;.[".resource-container;6["all"
+ and "(o;,	;;-;ih;	@;"min-width": o;;"
+480px;ih;	@;[ ;i‡;["px")"
+ and "(o;,	;;-;ih;	@;"max-width": o;;"
+759px;ih;	@;[ ;i˜;["px");" o;3;i~;T;	@;(i ;
+[o;
+;;;i;	@;
+[ ;["5/*
+ * Use 4 grid columns for larger screens.
+ */o;;o;;" ;i~;[o; ;[o;!
+;@<;i~;"o;#;${ ;%0;[o;&;@<;["	page;i~o; ;["
+o;!
+;@<;i~;"o;#;${ ;%0;[o;';@<;["region-bottom;i~;i~;T;	@;(i ;
+[
+o;
+;;;i;	@;
+[ ;["q/* For screen sizes larger than 1200px, prevent excessively long lines of text
+   by setting a max-width. */o;);["margin-left;iÅ;	@;(i ;
+[ ;*;+;o;,;;-;	@;"	autoo;);["margin-right;iÇ;	@;(i ;
+[ ;*;+;o;,;;-;	@;"	autoo;);["max-width;iÉ;	@;(i ;
+[ ;*;+;o;,;;-;	@;"
+960pxo;);["padding-bottom;iÑ;	@;(i ;
+[ ;*;+;o;,;;-;	@;"10%;.["#page,
+    .region-bottomo;;0;"zen-column-count;iÜ;o;;"4;iÜ;	@;@;i	;[ ;	@;
+[ o;;o;;" ;iá;[o; ;[o;!
+;@x;iá;"o;#;${ ;%0;[o;4	;@x;["div;iá;50o;&;@x;["page-leader;iá;iá;T;	@;(i ;
+[o;);["margin;ià;	@;(i ;
+[ ;*;+;o;,;;-;	@;"
+1em 0o;);["padding-top;iâ;	@;(i ;
+[ ;*;+;o;,;;-;	@;"3emo;);["position;iä;	@;(i ;
+[ ;*;+;o;,;;-;	@;"relative;.["div#page-leadero;;o;;" ;iå;[o; ;[o;!
+;@ù;iå;"o;#;${ ;%0;[o;&;@ù;["logout;iå;iå;T;	@;(i ;
+[o;);["position;iç;	@;(i ;
+[ ;*;+;o;,;;-;	@;"absoluteo;);["
+right;ié;	@;(i ;
+[ ;*;+;o;,;;-;	@;"1emo;);["top;iè;	@;(i ;
+[ ;*;+;o;,;;-;	@;"0;.["#logouto;;o;;" ;ië;[o; ;[o;!
+;@ø;ië;"o;#;${ ;%0;[o;&;@ø;["header;ië;ië;T;	@;(i ;
+[	o;);["padding-top;ií;	@;(i ;
+[ ;*;+;o;,;;-;	@;"4emo;/;"zen-clear;iì;0{ ;	@;
+[ ;10;2[ o;/;"zen-grid-item;iî;0{ ;	@;
+[ ;10;2[o;;"1;iî;	@;@;i;[ o;;"4;iî;	@;@;i	;[ o;/;"zen-grid-item-base;iï;0{ ;	@;
+[ ;10;2[ ;.["#headero;;o;;" ;ió;[o; ;[o;!
+;@Í;ió;"o;#;${ ;%0;[o;&;@Í;["navigation;ió;ió;T;	@;(i ;
+[	o;/;"zen-grid-item;iò;0{ ;	@;
+[ ;10;2[o;;"3;iò;	@;@;i;[ o;;"1;iò;	@;@;i;[ o;/;"zen-grid-item-base;iô;0{ ;	@;
+[ ;10;2[ o;;o;;" ;iö;[o; ;[o;!
+;@;iö;"o;#;${ ;%0;[o;&;@;["main-menu;iö;iö;T;	@;(i ;
+[o;/;"padding-leader;iõ;0{ ;	@;
+[ ;10;2[o;;"1;iõ;	@;@;i;[ o;);["padding-top;iú;	@;(i ;
+[ ;*;+;o;,;;-;	@;"	25px;.["#main-menuo;;o;;" ;iû;[o; ;[o;!
+;@&;iû;"o;#;${ ;%0;[o;4	;@&;["ul;iû;50o;';@&;["
+links;iû;iû;T;	@;(i ;
+[o;);["margin;iü;	@;(i ;
+[ ;*;+;o;,;;-;	@;"0;.["ul.links;.["#navigationo;;o;;" ;i¢;[o; ;[o;!
+;@A;i¢;"o;#;${ ;%0;[o;4	;@A;["div;i¢;50o;';@A;["	tabs;i¢;i¢;T;	@;(i ;
+[o;/;"zen-nested-container;i£;0{ ;	@;
+[ ;10;2[ o;
+;;;i£;	@;
+[ ;["H/* Since we're making every block in this region be a grid item. */o;);["position;i§;	@;(i ;
+[ ;*;+;o;,;;-;	@;"relativeo;
+;;;i•;	@;
+[ ;["/*margin-top: 10px; */o;/;"clearfix;i¶;0{ ;	@;
+[ ;10;2[ o;;0;"zen-column-count;iß;o;;"16;iß;	@;@;i;[ ;	@;
+[ o;;o;;" ;i®;[o; ;[o;!
+;@p;i®;"o;#;${ ;%0;[o;4	;@p;["h1;i®;50o;';@p;["
+title;i®;i®;T;	@;(i ;
+[o;
+;;;i©;	@;
+[ ;["(/*@include zen-grid-item(10, 1); */o;/;"zen-grid-item-base;i™;0{ ;	@;
+[ ;10;2[ ;.["h1.titleo;;o;;" ;i¨;[o; ;[o;!
+;@å;i¨;"o;#;${ ;%0;[o;4	;@å;["ul;i¨;50o;';@å;["	tabs;i¨;i¨;T;	@;(i ;
+[o;);["position;i≠;	@;(i ;
+[ ;*;+;o;,;;-;	@;"absoluteo;);["bottom;iÆ;	@;(i ;
+[ ;*;+;o;,;;-;	@;"0o;);["
+right;iØ;	@;(i ;
+[ ;*;+;o;,;;-;	@;"0;.["ul.tabs;.["div.tabso;
+;;;i≥;	@;
+[ ;["+/* Show sidebar second on the right */o;;o;;" ;i¥;[o; ;[o;!
+;@∑;i¥;"o;#;${ ;%0;[o;4	;@∑;["	body;i¥;50o;';@∑;["sidebar-second;i¥;i¥;T;	@;(i ;
+[o;;0;"zen-column-count;iµ;o;;"4;iµ;	@;@;i	;[ ;	@;
+[ o;;o;;" ;i∂;[o; ;[o;!
+;@Œ;i∂;"o;#;${ ;%0;[o;&;@Œ;["content;i∂;i∂;T;	@;(i ;
+[o;/;"zen-grid-item;i∑;0{ ;	@;
+[ ;10;2[o;;"3;i∑;	@;@;i;[ o;;"1;i∑;	@;@;i;[ ;.["#contento;;o;;" ;iπ;[o; ;[o;!
+;@È;iπ;"o;#;${ ;%0;[o;';@È;["region-sidebar-second;iπ;iπ;T;	@;(i ;
+[o;/;"zen-grid-item;i∫;0{ ;	@;
+[ ;10;2[o;;"1;i∫;	@;@;i;[ o;;"4;i∫;	@;@;i	;[ o;;o;;" ;iª;[o; ;[o;!
+;@;iª;"o;#;${ ;%0;[o;';@;["item-list;iª;iª;T;	@;(i ;
+[o;;o;;" ;iº;[o; ;[o;!
+;@;iº;"o;#;${ ;%0;[o;4	;@;["ul;iº;50;iº;T;	@;(i ;
+[o;;o;;" ;iΩ;[o; ;[o;!
+;@;iΩ;"o;#;${ ;%0;[o;4	;@;["li;iΩ;50;iΩ;T;	@;(i ;
+[o;);["list-style;iæ;	@;(i ;
+[ ;*;+;o;,;;-;	@;"	none;.["li;.["ul;.[".item-list;.[".region-sidebar-second;.["body.sidebar-secondo;;0;"zen-column-count;i∆;o;;"4;i∆;	@;@;i	;[ ;	@;
+[ o;;o;;" ;i«;[o; ;[o;!
+;@B;i«;"o;#;${ ;%0;[o;';@B;["resource-container;i«;i«;T;	@;(i ;
+[o;/;"zen-nested-container;i»;0{ ;	@;
+[ ;10;2[ o;
+;;;i»;	@;
+[ ;["H/* Since we're making every block in this region be a grid item. */o;;o;;" ;i ;[o; ;[o;!
+;@Y;i ;"o;#;${ ;%0;[o;7;@Y;i o;';@Y;["container-full;i o;';@Y;["narrow-items;i o;!
+;@Y;i ;"o;#;${ ;%0;[o;4	;@Y;["article;i ;50o; ;["
+o;!
+;@Y;i ;"o;#;${ ;%0;[o;7;@Y;i o;';@Y;["container-full;i o;';@Y;["narrow-items;i o;!
+;@Y;i ;"o;#;${ ;%0;[o;4	;@Y;["li;i ;50o;';@Y;["article;i ;i ;T;	@;(i ;
+[o;;o;;" ;iÀ;[o; ;[o;!
+;@ä;iÀ;"o;#;${ ;%0;[o;4	;@ä;["h2;iÀ;50;iÀ;T;	@;(i ;
+[o;);["font-size;iÃ;	@;(i ;
+[ ;*;+;o;,;;-;	@;"1em;.["h2o;/;"zen-grid-item-base;iŒ;0{ ;	@;
+[ ;10;2[ o;;o;;" ;iœ;[o; ;[o;!
+;@•;iœ;"o;#;${ ;%0;[o;7;@•;iœo;8
+;@•;["nth-child;;9;iœ;:["	4n+1;iœ;T;	@;(i ;
+[	o;
+;;;iœ;	@;
+[ ;["?/* Span 1 column, starting in the 1st column from left. */o;/;"zen-grid-item;i–;0{ ;	@;
+[ ;10;2[o;;"1;i–;	@;@;i;[ o;;"1;i–;	@;@;i;[ o;/;"zen-clear;i—;0{ ;	@;
+[ ;10;2[ o;);["padding-left;i“;	@;(i ;
+[ ;*;+;o;,;;-;	@;"0;.["&:nth-child(4n+1)o;;o;;" ;i‘;[o; ;[o;!
+;@“;i‘;"o;#;${ ;%0;[o;7;@“;i‘o;8
+;@“;["nth-child;;9;i‘;:["	4n+2;i‘;T;	@;(i ;
+[o;/;"zen-grid-item;i’;0{ ;	@;
+[ ;10;2[o;;"1;i’;	@;@;i;[ o;;"2;i’;	@;@;i;[ ;.["&:nth-child(4n+2)o;;o;;" ;i◊;[o; ;[o;!
+;@;i◊;"o;#;${ ;%0;[o;7;@;i◊o;8
+;@;["nth-child;;9;i◊;:["	4n+3;i◊;T;	@;(i ;
+[o;/;"zen-grid-item;iÿ;0{ ;	@;
+[ ;10;2[o;;"1;iÿ;	@;@;i;[ o;;"3;iÿ;	@;@;i;[ ;.["&:nth-child(4n+3)o;;o;;" ;i⁄;[o; ;[o;!
+;@;i⁄;"o;#;${ ;%0;[o;7;@;i⁄o;8
+;@;["nth-child;;9;i⁄;:["4n;i⁄;T;	@;(i ;
+[o;/;"zen-grid-item;i€;0{ ;	@;
+[ ;10;2[o;;"1;i€;	@;@;i;[ o;;"4;i€;	@;@;i	;[ o;);["padding-right;i‹;	@;(i ;
+[ ;*;+;o;,;;-;	@;"0;.["&:nth-child(4n)o;;o;;" ;iﬁ;[o; ;[o;!
+;@2;iﬁ;"o;#;${ ;%0;[o;7;@2;iﬁo;';@2;["highlight-image;iﬁ;iﬁ;T;	@;(i ;
+[o;);["padding;iﬂ;	@;(i ;
+[ ;*;+;o;,;;-;	@;"0;.["&.highlight-image;.["Z&.container-full.narrow-items article,
+      &.container-full.narrow-items li.articleo;;o;;" ;i„;[o; ;[o;!
+;@K;i„;"o;#;${ ;%0;[o;7;@K;i„o;';@K;["container-full;i„o;';@K;["wide-items;i„o;!
+;@K;i„;"o;#;${ ;%0;[o;4	;@K;["article;i„;50o; ;["
+o;!
+;@K;i„;"o;#;${ ;%0;[o;7;@K;i„o;';@K;["container-full;i„o;';@K;["wide-items;i„o;!
+;@K;i„;"o;#;${ ;%0;[o;4	;@K;["li;i„;50o;';@K;["article;i„;i„;T;	@;(i ;
+[	o;/;"zen-grid-item-base;i‰;0{ ;	@;
+[ ;10;2[ o;;o;;" ;iÂ;[o; ;[o;!
+;@Å;iÂ;"o;#;${ ;%0;[o;7;@Å;iÂo;8
+;@Å;["nth-child;;9;iÂ;:["	2n+1;iÂ;T;	@;(i ;
+[	o;
+;;;iÂ;	@;
+[ ;["?/* Span 2 column, starting in the 1st column from left. */o;/;"zen-grid-item;iÊ;0{ ;	@;
+[ ;10;2[o;;"2;iÊ;	@;@;i;[ o;;"1;iÊ;	@;@;i;[ o;/;"zen-clear;iÁ;0{ ;	@;
+[ ;10;2[ o;);["padding-left;iË;	@;(i ;
+[ ;*;+;o;,;;-;	@;"0;.["&:nth-child(2n+1)o;;o;;" ;iÍ;[o; ;[o;!
+;@Æ;iÍ;"o;#;${ ;%0;[o;7;@Æ;iÍo;8
+;@Æ;["nth-child;;9;iÍ;:["2n;iÍ;T;	@;(i ;
+[o;/;"zen-grid-item;iÎ;0{ ;	@;
+[ ;10;2[o;;"2;iÎ;	@;@;i;[ o;;"3;iÎ;	@;@;i;[ o;);["padding-right;iÏ;	@;(i ;
+[ ;*;+;o;,;;-;	@;"0;.["&:nth-child(2n)o;;o;;" ;iÓ;[o; ;[o;!
+;@“;iÓ;"o;#;${ ;%0;[o;7;@“;iÓo;8
+;@“;["nth-child;;9;iÓ;:["	-n+2;iÓ;T;	@;(i ;
+[ ;.["&:nth-child(-n+2);.["V&.container-full.wide-items article,
+      &.container-full.wide-items li.articleo;
+;;;iÒ;	@;
+[ ;["/* Nested items */o;;o;;" ;iÚ;[o; ;[o;!
+;@Î;iÚ;"o;#;${ ;%0;[o;';@Î;["container-inner;iÚ;iÚ;T;	@;(i ;
+[
+o;/;"zen-grid-item-base;iÛ;0{ ;	@;
+[ ;10;2[ o;/;"zen-nested-container;iÙ;0{ ;	@;
+[ ;10;2[ o;;o;;" ;iı;[o; ;[o;!
+;@;iı;"o;#;${ ;%0;[o;7;@;iıo;8
+;@;["nth-child;;9;iı;:["	2n+1;iı;T;	@;(i ;
+[	o;
+;;;iı;	@;
+[ ;["?/* Span 2 column, starting in the 1st column from left. */o;/;"zen-grid-item;iˆ;0{ ;	@;
+[ ;10;2[o;;"2;iˆ;	@;@;i;[ o;;"1;iˆ;	@;@;i;[ o;/;"zen-clear;i˜;0{ ;	@;
+[ ;10;2[ o;);["padding-left;i¯;	@;(i ;
+[ ;*;+;o;,;;-;	@;"0;.["&:nth-child(2n+1)o;;o;;" ;i˙;[o; ;[o;!
+;@0;i˙;"o;#;${ ;%0;[o;7;@0;i˙o;8
+;@0;["nth-child;;9;i˙;:["2n;i˙;T;	@;(i ;
+[o;/;"zen-grid-item;i˚;0{ ;	@;
+[ ;10;2[o;;"2;i˚;	@;@;i;[ o;;"3;i˚;	@;@;i;[ o;);["padding-right;i¸;	@;(i ;
+[ ;*;+;o;,;;-;	@;"0;.["&:nth-child(2n)o;;o;;" ;iˇ;[o; ;[o;!
+;@T;iˇ;"o;#;${ ;%0;[o;';@T;["narrow-items;iˇo;!
+;@T;iˇ;"o;#;${ ;%0;[o;4	;@T;["article;iˇ;50o; ;["
+o;!
+;@T;iˇ;"o;#;${ ;%0;[o;';@T;["narrow-items;iˇo;!
+;@T;iˇ;"o;#;${ ;%0;[o;4	;@T;["li;iˇ;50o;';@T;["article;iˇ;iˇ;T;	@;(i ;
+[
+o;;0;"zen-column-count;i ;o;;"2;i ;	@;@;i;[ ;	@;
+[ o;/;"zen-grid-item-base;i;0{ ;	@;
+[ ;10;2[ o;;o;;" ;i;[o; ;[o;!
+;@à;i;"o;#;${ ;%0;[o;7;@à;io;8
+;@à;["nth-child;;9;i;:["	2n+1;i;T;	@;(i ;
+[	o;
+;;;i;	@;
+[ ;["?/* Span 1 column, starting in the 1st column from left. */o;/;"zen-grid-item;i;0{ ;	@;
+[ ;10;2[o;;"1;i;	@;@;i;[ o;;"1;i;	@;@;i;[ o;/;"zen-clear;i;0{ ;	@;
+[ ;10;2[ o;);["padding-left;i;	@;(i ;
+[ ;*;+;o;,;;-;	@;"0;.["&:nth-child(2n+1)o;;o;;" ;i;[o; ;[o;!
+;@µ;i;"o;#;${ ;%0;[o;7;@µ;io;8
+;@µ;["nth-child;;9;i;:["	2n+2;i;T;	@;(i ;
+[o;/;"zen-grid-item;i;0{ ;	@;
+[ ;10;2[o;;"1;i;	@;@;i;[ o;;"2;i;	@;@;i;[ o;);["padding-right;i	;	@;(i ;
+[ ;*;+;o;,;;-;	@;"0;.["&:nth-child(2n+2)o;;o;;" ;i;[o; ;[o;!
+;@Ÿ;i;"o;#;${ ;%0;[o;7;@Ÿ;io;';@Ÿ;["highlight-image;i;i;T;	@;(i ;
+[o;);["padding;i;	@;(i ;
+[ ;*;+;o;,;;-;	@;"0;.["&.highlight-image;.[":.narrow-items article,
+      .narrow-items li.article;.[".container-inner;.[".resource-containero;;o;;" ;i;[o; ;[o;!
+;@ˆ;i;"o;#;${ ;%0;[o;';@ˆ;["facet-management;i;i;T;	@;(i ;
+[o;/;"clearfix;i;0{ ;	@;
+[ ;10;2[ o;;o;;" ;i;[o; ;[o;!
+;@	;i;"o;#;${ ;%0;[o;4	;@	;["
+table;i;50;i;T;	@;(i ;
+[
+o;);["border-collapse;i;	@;(i ;
+[ ;*;+;o;,;;-;	@;"separateo;);["border-spacing;i;	@;(i ;
+[ ;*;+;o;,;;-;	@;"
+0 1emo;;o;;" ;i;[o; ;[o;!
+;@#;i;"o;#;${ ;%0;[o;7;@#;io;8
+;@#;["nth-child;;9;i;:["	2n+1;i;T;	@;(i ;
+[	o;
+;;;i;	@;
+[ ;["?/* Span 1 column, starting in the 1st column from left. */o;/;"zen-grid-item;i;0{ ;	@;
+[ ;10;2[o;;"1;i;	@;@;i;[ o;;"1;i;	@;@;i;[ o;/;"zen-clear;i;0{ ;	@;
+[ ;10;2[ o;);["padding-right;i;	@;(i ;
+[ ;*;+;o;,;;-;	@;"1em;.["&:nth-child(2n+1)o;;o;;" ;i;[o; ;[o;!
+;@P;i;"o;#;${ ;%0;[o;7;@P;io;8
+;@P;["nth-child;;9;i;:["	2n+2;i;T;	@;(i ;
+[o;/;"zen-grid-item;i;0{ ;	@;
+[ ;10;2[o;;"1;i;	@;@;i;[ o;;"2;i;	@;@;i;[ ;.["&:nth-child(2n+2)o;;o;;" ;i;[o; ;[o;!
+;@n;i;"o;#;${ ;%0;[o;4	;@n;["td;i;50;i;T;	@;(i ;
+[o;);["padding;i;	@;(i ;
+[ ;*;+;o;,;;-;	@;"
+0.5em;.["td;.["
+table;.[".facet-managemento;
+;;;i#;	@;
+[ ;["/* Plot pages */o;;o;;" ;i$;[o; ;[o;!
+;@å;i$;"o;#;${ ;%0;[o;';@å;["plot-container;i$;i$;T;	@;(i ;
+[
+o;);["position;i%;	@;(i ;
+[ ;*;+;o;,;;-;	@;"relativeo;;0;"zen-column-count;i&;o;;"2;i&;	@;@;i;[ ;	@;
+[ o;;o;;" ;i';[o; ;[o;!
+;@¶;i';"o;#;${ ;%0;[o;4	;@¶;["div;i';50o;';@¶;["exhibit-viewPanel;i';i';T;	@;(i ;
+[
+o;/;"zen-grid-item-base;i(;0{ ;	@;
+[ ;10;2[ o;/;"zen-grid-item;i);0{ ;	@;
+[ ;10;2[o;;"1;i);	@;@;i;[ o;;"1;i);	@;@;i;[ o;/;"zen-clear;i*;0{ ;	@;
+[ ;10;2[ o;);["padding-left;i+;	@;(i ;
+[ ;*;+;o;,;;-;	@;"0o;;o;;" ;i,;[o; ;[o;!
+;@“;i,;"o;#;${ ;%0;[o;4	;@“;["ol;i,;50o;';@“;["exhibit-tileView-body;i,;i,;T;	@;(i ;
+[o;/;"clearfix;i-;0{ ;	@;
+[ ;10;2[ o;;o;;" ;i.;[o; ;[o;!
+;@Ë;i.;"o;#;${ ;%0;[o;4	;@Ë;["li;i.;50;i.;T;	@;(i ;
+[o;;o;;" ;i/;[o; ;[o;!
+;@ˆ;i/;"o;#;${ ;%0;[o;7;@ˆ;i/o;8
+;@ˆ;["nth-child;;9;i/;:["	2n+1;i/;T;	@;(i ;
+[	o;
+;;;i/;	@;
+[ ;["?/* Span 1 column, starting in the 1st column from left. */o;/;"zen-grid-item;i0;0{ ;	@;
+[ ;10;2[o;;"1;i0;	@;@;i;[ o;;"1;i0;	@;@;i;[ o;/;"zen-clear;i1;0{ ;	@;
+[ ;10;2[ o;);["padding-right;i2;	@;(i ;
+[ ;*;+;o;,;;-;	@;"1em;.["&:nth-child(2n+1)o;;o;;" ;i4;[o; ;[o;!
+;@#;i4;"o;#;${ ;%0;[o;7;@#;i4o;8
+;@#;["nth-child;;9;i4;:["	2n+2;i4;T;	@;(i ;
+[o;/;"zen-grid-item;i5;0{ ;	@;
+[ ;10;2[o;;"1;i5;	@;@;i;[ o;;"2;i5;	@;@;i;[ ;.["&:nth-child(2n+2);.["li;.["ol.exhibit-tileView-body;.["div.exhibit-viewPanelo;;o;;" ;i:;[o; ;[o;!
+;@G;i:;"o;#;${ ;%0;[o;4	;@G;["div;i:;50o;';@G;["events;i:;i:;T;	@;(i ;
+[o;;o;;" ;i;;[o; ;[o;!
+;@X;i;;"o;#;${ ;%0;[o;7;@X;i;o;8
+;@X;["nth-child;;9;i;;:["	2n+1;i;;T;	@;(i ;
+[	o;
+;;;i;;	@;
+[ ;["?/* Span 1 column, starting in the 1st column from left. */o;/;"zen-grid-item;i<;0{ ;	@;
+[ ;10;2[o;;"1;i<;	@;@;i;[ o;;"1;i<;	@;@;i;[ o;/;"zen-clear;i=;0{ ;	@;
+[ ;10;2[ o;);["padding-right;i>;	@;(i ;
+[ ;*;+;o;,;;-;	@;"1em;.["&:nth-child(2n+1)o;;o;;" ;i@;[o; ;[o;!
+;@Ö;i@;"o;#;${ ;%0;[o;7;@Ö;i@o;8
+;@Ö;["nth-child;;9;i@;:["	2n+2;i@;T;	@;(i ;
+[o;/;"zen-grid-item;iA;0{ ;	@;
+[ ;10;2[o;;"1;iA;	@;@;i;[ o;;"2;iA;	@;@;i;[ ;.["&:nth-child(2n+2);.["div.eventso;;o;;" ;iD;[o; ;[o;!
+;@•;iD;"o;#;${ ;%0;[o;4	;@•;["div;iD;50o;';@•;["elements-container;iD;iD;T;	@;(i ;
+[	o;/;"zen-grid-item-base;iE;0{ ;	@;
+[ ;10;2[ o;/;"zen-grid-item;iF;0{ ;	@;
+[ ;10;2[o;;"1;iF;	@;@;i;[ o;;"2;iF;	@;@;i;[ o;);["position;iG;	@;(i ;
+[ ;*;+;o;,;;-;	@;"absoluteo;);["top;iH;	@;(i ;
+[ ;*;+;o;,;;-;	@;"
+550px;.["div.elements-container;.[".plot-container;6["all"
+ and "(o;,	;;-;i~;	@;"min-width": o;;"
+760px;i~;	@;[ ;i¯;["px");" o;
+;;;iM;	@;
+[ ;[""/*
+ * Comment title field
+ */o;3;iQ;T;	@;(i ;
+[o;;o;;" ;iR;[o; ;[o;!
+;@Í;iR;"o;#;${ ;%0;[o;';@Í;["comment-form;iRo;!
+;@Í;iR;"o;#;${ ;%0;[o;&;@Í;["edit-subject;iR;iR;T;	@;(i ;
+[o;);["
+width;iS;	@;(i ;
+[ ;*;+;o;,;;-;	@;"95%;.[" .comment-form #edit-subject;6["all"
+ and "(o;,	;;-;iQ;	@;"max-width": o;;"
+650px;iQ;	@;[ ;iä;["px");" o;
+;;;iW;	@;
+[ ;["/**
+ * Media Element
+ */o;;o;;" ;i\;[o; ;[o;!
+;@	;i\;"o;#;${ ;%0;[o;4	;@	;["li;i\;50o;';@	;["article;i\o; ;["
+o;!
+;@	;i\;"o;#;${ ;%0;[o;4	;@	;["article;i\;50o;';@	;["node-teaser_suggested;i\o; ;["
+o;!
+;@	;i\;"o;#;${ ;%0;[o;4	;@	;["article;i\;50o;';@	;["node-teaser;i\;i\;T;	@;(i ;
+[o;;o;;" ;i^;[o; ;[o;!
+;@D	;i^;"o;#;${ ;%0;[o;';@D	;["field-name-field-image;i^o; ;["
+o;!
+;@D	;i^;"o;#;${ ;%0;[o;4	;@D	;["figure;i^;50;i^;T;	@;(i ;
+[o;);["
+float;i_;	@;(i ;
+[ ;*;+;o;,;;-;	@;"	lefto;);["margin-right;i`;	@;(i ;
+[ ;*;+;o;,;;-;	@;"	10px;.["&.field-name-field-image,
+  figureo;;o;;" ;ib;[o; ;[o;!
+;@j	;ib;"o;#;${ ;%0;[o;';@j	;["content;ib;ib;T;	@;(i ;
+[o;/;"clearfix;ic;0{ ;	@;
+[ ;10;2[ ;.[".content;.["Cli.article,
+article.node-teaser_suggested,
+article.node-teasero;;o;;" ;if;[o; ;[o;!
+;@Å	;if;"o;#;${ ;%0;[o;4	;@Å	;["article;if;50o;';@Å	;["highlight-image;if;if;T;	@;(i ;
+[o;;o;;" ;ig;[o; ;[o;!
+;@í	;ig;"o;#;${ ;%0;[o;';@í	;["article-inner;ig;ig;T;	@;(i ;
+[o;);["position;ih;	@;(i ;
+[ ;*;+;o;,;;-;	@;"relative;.[".article-innero;;o;;" ;ij;[o; ;[o;!
+;@®	;ij;"o;#;${ ;%0;[o;4	;@®	;["figure;ij;50;ij;T;	@;(i ;
+[o;);["text-align;ik;	@;(i ;
+[ ;*;+;o;,;;-;	@;"center;.["figureo;;o;;" ;im;[o; ;[o;!
+;@æ	;im;"o;#;${ ;%0;[o;';@æ	;["content;im;im;T;	@;(i ;
+[o;);["position;in;	@;(i ;
+[ ;*;+;o;,;;-;	@;"absoluteo;);["bottom;io;	@;(i ;
+[ ;*;+;o;,;;-;	@;"0o;);["background-color;ip;	@;(i ;
+[ ;*;+;o:Sass::Script::Funcall;"	rgba;ip;0{ ;	@;10;2[	o;;"0;ip;	@;@;i ;[ o;;"0;ip;	@;@;i ;[ o;;"0;ip;	@;@;i ;[ o;;"	0.75;ip;	@;@;f	0.75;[ o;);["padding;iq;	@;(i ;
+[ ;*;+;o;,;;-;	@;"
+0.5emo;);["
+color;ir;	@;(i ;
+[ ;*;+;o;,;;-;	@;"	#fffo;;o;;" ;is;[o; ;[o;!
+;@˘	;is;"o;#;${ ;%0;[o;7;@˘	;iso;!
+;@˘	;is;"o;#;${ ;%0;[o;4	;@˘	;["a;is;50;is;T;	@;(i ;
+[o;);["
+color;it;	@;(i ;
+[ ;*;+;o;,;;-;	@;"inherit;.["& a;.[".content;.["article.highlight-imageo;
+;;;ix;	@;
+[ ;["1/* Hide and display overlay for non-touch */o;;o;;" ;iy;[o; ;[o;!
+;@
+;iy;"o;#;${ ;%0;[o;';@
+;["no-touch;iyo;!
+;@
+;iy;"o;#;${ ;%0;[o;';@
+;["highlight-image;iy;iy;T;	@;(i ;
+[o;;o;;" ;iz;[o; ;[o;!
+;@1
+;iz;"o;#;${ ;%0;[o;';@1
+;["content;iz;iz;T;	@;(i ;
+[o;);["
+width;i{;	@;(i ;
+[ ;*;+;o;,;;-;	@;"	100%o;);["margin;i|;	@;(i ;
+[ ;*;+;o;,;;-;	@;"0o;);["padding;i};	@;(i ;
+[ ;*;+;o;,;;-;	@;"0o;;o;;" ;i~;[o; ;[o;!
+;@Q
+;i~;"o;#;${ ;%0;[o;4	;@Q
+;["p;i~;50o; ;[o;!
+;@Q
+;i~;"o;#;${ ;%0;[o;4	;@Q
+;["h2;i~;50;i~;T;	@;(i ;
+[o;);["padding;i;	@;(i ;
+[ ;*;+;o;,;;-;	@;"0.25em 0.5em;.["
+p, h2o;);["opacity;iÅ;	@;(i ;
+[ ;*;+;o;,;;-;	@;"0o;/;"transition-property;iÇ;0{ ;	@;
+[ ;10;2[o;,	;;-;iÇ;	@;"opacityo;/;"transition-duration;iÉ;0{ ;	@;
+[ ;10;2[o;;"	0.5s;iÉ;	@;[ ;f0.5;["so;/;"transition-timing-function;iÑ;0{ ;	@;
+[ ;10;2[o;,	;;-;iÑ;	@;"ease-in;.[".contento;;o;;" ;iÜ;[o; ;[o;!
+;@ë
+;iÜ;"o;#;${ ;%0;[o;7;@ë
+;iÜo;8
+;@ë
+;["
+hover;;9;iÜ;:0o;!
+;@ë
+;iÜ;"o;#;${ ;%0;[o;';@ë
+;["content;iÜ;iÜ;T;	@;(i ;
+[o;);["opacity;iá;	@;(i ;
+[ ;*;+;o;,;;-;	@;"1;.["&:hover .content;.[".no-touch .highlight-imageo;;o;;" ;iä;[o; ;[o;!
+;@±
+;iä;"o;#;${ ;%0;[o;4	;@±
+;["article;iä;50o;';@±
+;["node-type-dec-object;iä;iä;T;	@;(i ;
+[o;;o;;" ;iã;[o; ;[o;!
+;@¬
+;iã;"o;#;${ ;%0;[o;';@¬
+;["media-container;iã;iã;T;	@;(i ;
+[o;;o;;" ;iå;[o; ;[o;!
+;@–
+;iå;"o;#;${ ;%0;[o;4	;@–
+;["figure;iå;50;iå;T;	@;(i ;
+[o;);["
+float;iç;	@;(i ;
+[ ;*;+;o;,;;-;	@;"	lefto;);["margin-right;ié;	@;(i ;
+[ ;*;+;o;,;;-;	@;"	10px;.["figureo;;o;;" ;iê;[o; ;[o;!
+;@Ï
+;iê;"o;#;${ ;%0;[o;';@Ï
+;["meta-content;iê;iê;T;	@;(i ;
+[o;/;"clearfix;ië;0{ ;	@;
+[ ;10;2[ o;);["margin-top;ií;	@;(i ;
+[ ;*;+;o;,;;-;	@;"	10em;.[".meta-content;.[".media-container;.["!article.node-type-dec-objecto;;o;;" ;iñ;[o; ;[o;!
+;@;iñ;"o;#;${ ;%0;[o;';@;["view-workspace;iño;!
+;@;iñ;"o;#;${ ;%0;[o;4	;@;["article;iñ;50;iñ;T;	@;(i ;
+[o;);["
+float;ió;	@;(i ;
+[ ;*;+;o;,;;-;	@;"	left;.[".view-workspace articleo;;o;;" ;iô;[o; ;[o;!
+;@(;iô;"o;#;${ ;%0;[o;4	;@(;["li;iô;50o;';@(;["article;iô;iô;T;	@;(i ;
+[o;;o;;" ;iö;[o; ;[o;!
+;@9;iö;"o;#;${ ;%0;[o;4	;@9;["figure;iö;50;iö;T;	@;(i ;
+[o;);["
+width;iõ;	@;(i ;
+[ ;*;+;o;,;;-;	@;"25%;.["figureo;;o;;" ;iù;[o; ;[o;!
+;@O;iù;"o;#;${ ;%0;[o;4	;@O;["h2;iù;50;iù;T;	@;(i ;
+[o;);["margin-top;iû;	@;(i ;
+[ ;*;+;o;,;;-;	@;"0;.["h2o;;o;;" ;i†;[o; ;[o;!
+;@e;i†;"o;#;${ ;%0;[o;4	;@e;["p;i†;50;i†;T;	@;(i ;
+[o;);["margin-bottom;i°;	@;(i ;
+[ ;*;+;o;,;;-;	@;"
+0.5emo;;o;;" ;i¢;[o; ;[o;!
+;@y;i¢;"o;#;${ ;%0;[o;4	;@y;["	span;i¢;50o;';@y;["
+label;i¢;i¢;T;	@;(i ;
+[o;);["font-weight;i£;	@;(i ;
+[ ;*;+;o;,;;-;	@;"	bold;.["span.label;.["p;.["li.articleo;
+;;;iß;	@;
+[ ;[":/*
+/* Layout of Story section
+.node-type-section,
+.page-dossiers-stories-sections {
+  $zen-column-count: 4;
+  .pane-objects-pane-object-details {
+    @include zen-grid-item-base();
+    @include zen-grid-item(2, 1);
+  }
+  .pane-views-object-object-stories-section-object-object-stories-pane {
+    @include zen-grid-item-base();
+    @include zen-grid-item(2, 3);
+   }
+  .pane-dossier-events-search-api-dossier-events-pane {
+    @include zen-grid-item-base();
+    @include zen-clear();
+    @include zen-grid-item(3, 1);
+  }
+  .pane-facetapi {
+    @include zen-grid-item-base();
+    @include zen-clear(right);
+    @include zen-grid-item(1, 1, right);
+  }
+ * Write Page
+  .middle-wrapper{
+    $zen-column-count: 12;
+    .pane-section-events-panel-pane-section-events {
+      @include zen-grid-item-base();
+      @include zen-grid-item(5, 1);
+    }
+    .pane-form {
+      @include zen-grid-item-base();
+      @include zen-grid-item(7, 6);
+    }
+  }
+  .form-field-name-field-story-set {
+    @include zen-nested-container(); // Since we're making every block in this region be a grid item.
+    .field-name-field-story-set-object {
+      @include zen-grid-item-base();
+      @include zen-grid-item(2, 1);
+    }
+    .field-name-field-story-set-snapshot-os{
+      @include zen-grid-item-base();
+      @include zen-grid-item(10, 3);
+    }
+  }
+}
+*/ */

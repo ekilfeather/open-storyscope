@@ -1,0 +1,9 @@
+name = "DECIPHER Recommender integration"
+description = "Demo module to connect to the SemRecommender service"
+version = "7.x-1.0"
+core = "7.x"
+package = "DECIPHER"
+
+dependencies[] = background_process
+
+configure = admin/config/services/dec_rec

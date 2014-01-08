@@ -1,0 +1,73 @@
+<?php
+
+/**
+ * Implements hook_bean_types().
+ */
+function bean_all_bean_types() {
+  $plugins = array();
+
+  $default = array(
+    'file' => 'all.inc',
+    'path' => drupal_get_path('module', 'bean_all') . '/plugins',
+    'handler' => array(
+      'class' => 'BeanAll',
+      'parent' => 'bean',
+    ),
+  );
+
+  foreach (module_implements('block_info') as $module) {
+    if ($module !== 'bean') {
+      $module_blocks = module_invoke($module, 'block_info');
+      if (!empty($module_blocks)) {
+        foreach ($module_blocks as $delta => $block) {
+          $block = (object) $block;
+          $block->module = $module;
+          $block->delta = $delta;
+          $name = "{$module}_{$delta}";
+          $plugins[$name] = array(
+            'label' => $block->info,
+            'description' => $block->info,
+            'name' => $name,
+            'block' => $block,
+          ) + $default;
+        }
+      }
+    }
+  }
+
+  return $plugins;
+}
+
+/**
+ * Implements hook_bean_types_api_info().
+ */
+function bean_all_bean_types_api_info() {
+  return array(
+    'api' => 5,
+  );
+}
+
+/**
+ * Implements hook_block_info_alter().
+ *
+function bean_all_block_info_alter(&$blocks, $theme, $code_blocks) {
+$blocks_to_ignore = array(
+'bean' => TRUE,
+'system' => array('main', 'help', 'powered-by'),
+);
+
+drupal_alter('bean_blocks_to_allow', $blocks_to_ignore);
+
+$modules_ignore = array_keys($blocks_to_ignore);
+
+foreach ($blocks as $module => $module_blocks) {
+if (!(in_array($module, $modules_ignore) && $blocks_to_ignore[$module] === TRUE)) {
+foreach ($module_blocks as $delta => $block) {
+if (!isset($blocks_to_ignore[$module][$delta])) {
+$blocks[$module][$delta]['status'] = FALSE;
+$blocks[$module][$delta]['disabled'] = FALSE;
+}
+}
+}
+}
+}*/

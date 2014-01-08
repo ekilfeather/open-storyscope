@@ -1,0 +1,7 @@
+<?php
+/**
+ * @file
+ * Code for the Context Facets Object Story add existing Events feature.
+ */
+
+include_once 'context_facets_object_story_add_existing_events.features.inc';

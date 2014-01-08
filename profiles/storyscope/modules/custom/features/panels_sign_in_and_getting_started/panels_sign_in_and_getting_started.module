@@ -1,0 +1,7 @@
+<?php
+/**
+ * @file
+ * Code for the Panels Sign in and Getting Started feature.
+ */
+
+include_once 'panels_sign_in_and_getting_started.features.inc';

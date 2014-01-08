@@ -1,0 +1,612 @@
+/**
+ * @file
+ * RTL companion for the responsive-sidebars.css file.
+ */
+/**
+ * @file
+ * Positioning for responsive layout .
+ *
+ * Define CSS classes to create a table-free, 3-column, 2-column, or single
+ * column layout depending on whether blocks are enabled in the left or right
+ * columns.
+ *
+ * This layout uses the Zen Grids plugin for Compass: http://zengrids.com
+ */
+/*
+ * Center the page.
+ */
+/* line 44, /Applications/MAMP/htdocs/decipher/drupal-7/profiles/storyscope/themes/story-output/sass/layouts/responsive-sidebars.scss */
+#page,
+.region-bottom {
+  /* For screen sizes larger than 1200px, prevent excessively long lines of text
+     by setting a max-width. */
+  margin-left: auto;
+  margin-right: auto;
+  max-width: 1200px;
+}
+
+/*
+ * Apply the shared properties of grid items in a single, efficient ruleset.
+ */
+/* line 61, /Applications/MAMP/htdocs/decipher/drupal-7/profiles/storyscope/themes/story-output/sass/layouts/responsive-sidebars.scss */
+#header,
+#content,
+.region-sidebar-first,
+.region-sidebar-second,
+#footer {
+  padding-left: 10px;
+  padding-right: 10px;
+  -moz-box-sizing: border-box;
+  -webkit-box-sizing: border-box;
+  -ms-box-sizing: border-box;
+  box-sizing: border-box;
+  word-wrap: break-word;
+}
+
+/*
+ * Containers for grid items and flow items.
+ */
+/* line 52, /Applications/MAMP/htdocs/decipher/drupal-7/profiles/storyscope/themes/story-output/sass-extensions/zen-grids/stylesheets/zen/_grids.scss */
+#header:before, #header:after,
+#main:before,
+#main:after,
+#footer:before,
+#footer:after {
+  content: "";
+  display: table;
+}
+/* line 56, /Applications/MAMP/htdocs/decipher/drupal-7/profiles/storyscope/themes/story-output/sass-extensions/zen-grids/stylesheets/zen/_grids.scss */
+#header:after,
+#main:after,
+#footer:after {
+  clear: both;
+}
+
+/* line 76, /Applications/MAMP/htdocs/decipher/drupal-7/profiles/storyscope/themes/story-output/sass/layouts/responsive-sidebars.scss */
+.view-footer,
+.view-header {
+  overflow: hidden;
+}
+
+/*
+ * Navigation bar
+ */
+@media all and (max-width: 480px) {
+  /* line 87, /Applications/MAMP/htdocs/decipher/drupal-7/profiles/storyscope/themes/story-output/sass/layouts/responsive-sidebars.scss */
+  li.article figure,
+  article.node-teaser .field-name-field-image,
+  article.build-mode-teaser figure {
+    width: 25%;
+  }
+}
+/* Pseudo resources should be in a UL  with class .resources */
+/* line 93, /Applications/MAMP/htdocs/decipher/drupal-7/profiles/storyscope/themes/story-output/sass/layouts/responsive-sidebars.scss */
+ul.resources {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+/* line 11, /Library/Ruby/Gems/1.8/gems/compass-0.12.2/frameworks/compass/stylesheets/compass/typography/lists/_bullets.scss */
+ul.resources li {
+  list-style-image: none;
+  list-style-type: none;
+  margin-left: 0;
+}
+
+@media all and (min-width: 480px) and (max-width: 759px) {
+  /*
+   * Use 2 grid columns for medium screens.
+   */
+  /* line 104, /Applications/MAMP/htdocs/decipher/drupal-7/profiles/storyscope/themes/story-output/sass/layouts/responsive-sidebars.scss */
+  .resource-container {
+    padding-left: 0;
+    padding-right: 0;
+  }
+  /* line 107, /Applications/MAMP/htdocs/decipher/drupal-7/profiles/storyscope/themes/story-output/sass/layouts/responsive-sidebars.scss */
+  .resource-container.narrow-items article, .resource-container.narrow-items li.article {
+    padding-left: 10px;
+    padding-right: 10px;
+    -moz-box-sizing: border-box;
+    -webkit-box-sizing: border-box;
+    -ms-box-sizing: border-box;
+    box-sizing: border-box;
+    word-wrap: break-word;
+  }
+  /* line 109, /Applications/MAMP/htdocs/decipher/drupal-7/profiles/storyscope/themes/story-output/sass/layouts/responsive-sidebars.scss */
+  .resource-container.narrow-items article:nth-child(2n+1), .resource-container.narrow-items li.article:nth-child(2n+1) {
+    /* Span 1 column, starting in the 1st column from left. */
+    float: right;
+    width: 50%;
+    margin-right: 0%;
+    margin-left: -50%;
+    clear: right;
+  }
+  /* line 113, /Applications/MAMP/htdocs/decipher/drupal-7/profiles/storyscope/themes/story-output/sass/layouts/responsive-sidebars.scss */
+  .resource-container.narrow-items article:nth-child(2n), .resource-container.narrow-items li.article:nth-child(2n) {
+    /* Span 1 column, starting in the 1st column from left. */
+    float: right;
+    width: 50%;
+    margin-right: 50%;
+    margin-left: -100%;
+  }
+}
+@media all and (min-width: 760px) {
+  /*
+   * Use 4 grid columns for larger screens.
+   */
+  /* line 126, /Applications/MAMP/htdocs/decipher/drupal-7/profiles/storyscope/themes/story-output/sass/layouts/responsive-sidebars.scss */
+  #page,
+  .region-bottom {
+    /* For screen sizes larger than 1200px, prevent excessively long lines of text
+       by setting a max-width. */
+    margin-left: auto;
+    margin-right: auto;
+    max-width: 960px;
+    padding-bottom: 10%;
+  }
+
+  /* line 135, /Applications/MAMP/htdocs/decipher/drupal-7/profiles/storyscope/themes/story-output/sass/layouts/responsive-sidebars.scss */
+  div#page-leader {
+    margin: 1em 0;
+    padding-top: 3em;
+    position: relative;
+  }
+
+  /* line 140, /Applications/MAMP/htdocs/decipher/drupal-7/profiles/storyscope/themes/story-output/sass/layouts/responsive-sidebars.scss */
+  #logout {
+    position: absolute;
+    right: 1em;
+    top: 0;
+  }
+
+  /* line 145, /Applications/MAMP/htdocs/decipher/drupal-7/profiles/storyscope/themes/story-output/sass/layouts/responsive-sidebars.scss */
+  #header {
+    padding-top: 4em;
+    clear: right;
+    float: right;
+    width: 25%;
+    margin-right: 75%;
+    margin-left: -100%;
+    padding-left: 10px;
+    padding-right: 10px;
+    -moz-box-sizing: border-box;
+    -webkit-box-sizing: border-box;
+    -ms-box-sizing: border-box;
+    box-sizing: border-box;
+    word-wrap: break-word;
+  }
+
+  /* line 151, /Applications/MAMP/htdocs/decipher/drupal-7/profiles/storyscope/themes/story-output/sass/layouts/responsive-sidebars.scss */
+  #navigation {
+    float: right;
+    width: 75%;
+    margin-right: 0%;
+    margin-left: -75%;
+    padding-left: 10px;
+    padding-right: 10px;
+    -moz-box-sizing: border-box;
+    -webkit-box-sizing: border-box;
+    -ms-box-sizing: border-box;
+    box-sizing: border-box;
+    word-wrap: break-word;
+  }
+  /* line 154, /Applications/MAMP/htdocs/decipher/drupal-7/profiles/storyscope/themes/story-output/sass/layouts/responsive-sidebars.scss */
+  #navigation #main-menu {
+    padding-top: 1.5em;
+    padding-top: 25px;
+  }
+  /* line 158, /Applications/MAMP/htdocs/decipher/drupal-7/profiles/storyscope/themes/story-output/sass/layouts/responsive-sidebars.scss */
+  #navigation ul.links {
+    margin: 0;
+  }
+
+  /* line 162, /Applications/MAMP/htdocs/decipher/drupal-7/profiles/storyscope/themes/story-output/sass/layouts/responsive-sidebars.scss */
+  div.tabs {
+    padding-left: 0;
+    padding-right: 0;
+    position: relative;
+    overflow: hidden;
+  }
+  /* line 168, /Applications/MAMP/htdocs/decipher/drupal-7/profiles/storyscope/themes/story-output/sass/layouts/responsive-sidebars.scss */
+  div.tabs h1.title {
+    padding-left: 10px;
+    padding-right: 10px;
+    -moz-box-sizing: border-box;
+    -webkit-box-sizing: border-box;
+    -ms-box-sizing: border-box;
+    box-sizing: border-box;
+    word-wrap: break-word;
+  }
+  /* line 172, /Applications/MAMP/htdocs/decipher/drupal-7/profiles/storyscope/themes/story-output/sass/layouts/responsive-sidebars.scss */
+  div.tabs ul.tabs {
+    position: absolute;
+    bottom: 0;
+    right: 0;
+  }
+
+  /* line 182, /Applications/MAMP/htdocs/decipher/drupal-7/profiles/storyscope/themes/story-output/sass/layouts/responsive-sidebars.scss */
+  body.sidebar-second #content {
+    float: right;
+    width: 75%;
+    margin-right: 0%;
+    margin-left: -75%;
+  }
+  /* line 185, /Applications/MAMP/htdocs/decipher/drupal-7/profiles/storyscope/themes/story-output/sass/layouts/responsive-sidebars.scss */
+  body.sidebar-second .region-sidebar-second {
+    float: right;
+    width: 25%;
+    margin-right: 75%;
+    margin-left: -100%;
+  }
+  /* line 189, /Applications/MAMP/htdocs/decipher/drupal-7/profiles/storyscope/themes/story-output/sass/layouts/responsive-sidebars.scss */
+  body.sidebar-second .region-sidebar-second .item-list ul li {
+    list-style: none;
+  }
+
+  /* line 199, /Applications/MAMP/htdocs/decipher/drupal-7/profiles/storyscope/themes/story-output/sass/layouts/responsive-sidebars.scss */
+  .resource-container {
+    padding-left: 0;
+    padding-right: 0;
+    /* Nested items */
+  }
+  /* line 202, /Applications/MAMP/htdocs/decipher/drupal-7/profiles/storyscope/themes/story-output/sass/layouts/responsive-sidebars.scss */
+  .resource-container.container-full.narrow-items article, .resource-container.container-full.narrow-items li.article {
+    padding-left: 10px;
+    padding-right: 10px;
+    -moz-box-sizing: border-box;
+    -webkit-box-sizing: border-box;
+    -ms-box-sizing: border-box;
+    box-sizing: border-box;
+    word-wrap: break-word;
+  }
+  /* line 203, /Applications/MAMP/htdocs/decipher/drupal-7/profiles/storyscope/themes/story-output/sass/layouts/responsive-sidebars.scss */
+  .resource-container.container-full.narrow-items article h2, .resource-container.container-full.narrow-items li.article h2 {
+    font-size: 1em;
+  }
+  /* line 207, /Applications/MAMP/htdocs/decipher/drupal-7/profiles/storyscope/themes/story-output/sass/layouts/responsive-sidebars.scss */
+  .resource-container.container-full.narrow-items article:nth-child(4n+1), .resource-container.container-full.narrow-items li.article:nth-child(4n+1) {
+    /* Span 1 column, starting in the 1st column from left. */
+    float: right;
+    width: 25%;
+    margin-right: 0%;
+    margin-left: -25%;
+    clear: right;
+    padding-left: 0;
+  }
+  /* line 212, /Applications/MAMP/htdocs/decipher/drupal-7/profiles/storyscope/themes/story-output/sass/layouts/responsive-sidebars.scss */
+  .resource-container.container-full.narrow-items article:nth-child(4n+2), .resource-container.container-full.narrow-items li.article:nth-child(4n+2) {
+    float: right;
+    width: 25%;
+    margin-right: 25%;
+    margin-left: -50%;
+  }
+  /* line 215, /Applications/MAMP/htdocs/decipher/drupal-7/profiles/storyscope/themes/story-output/sass/layouts/responsive-sidebars.scss */
+  .resource-container.container-full.narrow-items article:nth-child(4n+3), .resource-container.container-full.narrow-items li.article:nth-child(4n+3) {
+    float: right;
+    width: 25%;
+    margin-right: 50%;
+    margin-left: -75%;
+  }
+  /* line 218, /Applications/MAMP/htdocs/decipher/drupal-7/profiles/storyscope/themes/story-output/sass/layouts/responsive-sidebars.scss */
+  .resource-container.container-full.narrow-items article:nth-child(4n), .resource-container.container-full.narrow-items li.article:nth-child(4n) {
+    float: right;
+    width: 25%;
+    margin-right: 75%;
+    margin-left: -100%;
+    padding-right: 0;
+  }
+  /* line 222, /Applications/MAMP/htdocs/decipher/drupal-7/profiles/storyscope/themes/story-output/sass/layouts/responsive-sidebars.scss */
+  .resource-container.container-full.narrow-items article.highlight-image, .resource-container.container-full.narrow-items li.article.highlight-image {
+    padding: 0;
+  }
+  /* line 227, /Applications/MAMP/htdocs/decipher/drupal-7/profiles/storyscope/themes/story-output/sass/layouts/responsive-sidebars.scss */
+  .resource-container.container-full.wide-items article, .resource-container.container-full.wide-items li.article {
+    padding-left: 10px;
+    padding-right: 10px;
+    -moz-box-sizing: border-box;
+    -webkit-box-sizing: border-box;
+    -ms-box-sizing: border-box;
+    box-sizing: border-box;
+    word-wrap: break-word;
+  }
+  /* line 229, /Applications/MAMP/htdocs/decipher/drupal-7/profiles/storyscope/themes/story-output/sass/layouts/responsive-sidebars.scss */
+  .resource-container.container-full.wide-items article:nth-child(2n+1), .resource-container.container-full.wide-items li.article:nth-child(2n+1) {
+    /* Span 2 column, starting in the 1st column from left. */
+    float: right;
+    width: 50%;
+    margin-right: 0%;
+    margin-left: -50%;
+    clear: right;
+    padding-left: 0;
+  }
+  /* line 234, /Applications/MAMP/htdocs/decipher/drupal-7/profiles/storyscope/themes/story-output/sass/layouts/responsive-sidebars.scss */
+  .resource-container.container-full.wide-items article:nth-child(2n), .resource-container.container-full.wide-items li.article:nth-child(2n) {
+    float: right;
+    width: 50%;
+    margin-right: 50%;
+    margin-left: -100%;
+    padding-right: 0;
+  }
+  /* line 242, /Applications/MAMP/htdocs/decipher/drupal-7/profiles/storyscope/themes/story-output/sass/layouts/responsive-sidebars.scss */
+  .resource-container .container-inner {
+    padding-left: 10px;
+    padding-right: 10px;
+    -moz-box-sizing: border-box;
+    -webkit-box-sizing: border-box;
+    -ms-box-sizing: border-box;
+    box-sizing: border-box;
+    word-wrap: break-word;
+    padding-left: 0;
+    padding-right: 0;
+  }
+  /* line 245, /Applications/MAMP/htdocs/decipher/drupal-7/profiles/storyscope/themes/story-output/sass/layouts/responsive-sidebars.scss */
+  .resource-container .container-inner:nth-child(2n+1) {
+    /* Span 2 column, starting in the 1st column from left. */
+    float: right;
+    width: 50%;
+    margin-right: 0%;
+    margin-left: -50%;
+    clear: right;
+    padding-left: 0;
+  }
+  /* line 250, /Applications/MAMP/htdocs/decipher/drupal-7/profiles/storyscope/themes/story-output/sass/layouts/responsive-sidebars.scss */
+  .resource-container .container-inner:nth-child(2n) {
+    float: right;
+    width: 50%;
+    margin-right: 50%;
+    margin-left: -100%;
+    padding-right: 0;
+  }
+  /* line 255, /Applications/MAMP/htdocs/decipher/drupal-7/profiles/storyscope/themes/story-output/sass/layouts/responsive-sidebars.scss */
+  .resource-container .container-inner .narrow-items article,
+  .resource-container .container-inner .narrow-items li.article {
+    padding-left: 10px;
+    padding-right: 10px;
+    -moz-box-sizing: border-box;
+    -webkit-box-sizing: border-box;
+    -ms-box-sizing: border-box;
+    box-sizing: border-box;
+    word-wrap: break-word;
+  }
+  /* line 258, /Applications/MAMP/htdocs/decipher/drupal-7/profiles/storyscope/themes/story-output/sass/layouts/responsive-sidebars.scss */
+  .resource-container .container-inner .narrow-items article:nth-child(2n+1),
+  .resource-container .container-inner .narrow-items li.article:nth-child(2n+1) {
+    /* Span 1 column, starting in the 1st column from left. */
+    float: right;
+    width: 50%;
+    margin-right: 0%;
+    margin-left: -50%;
+    clear: right;
+    padding-left: 0;
+  }
+  /* line 263, /Applications/MAMP/htdocs/decipher/drupal-7/profiles/storyscope/themes/story-output/sass/layouts/responsive-sidebars.scss */
+  .resource-container .container-inner .narrow-items article:nth-child(2n+2),
+  .resource-container .container-inner .narrow-items li.article:nth-child(2n+2) {
+    float: right;
+    width: 50%;
+    margin-right: 50%;
+    margin-left: -100%;
+    padding-right: 0;
+  }
+  /* line 267, /Applications/MAMP/htdocs/decipher/drupal-7/profiles/storyscope/themes/story-output/sass/layouts/responsive-sidebars.scss */
+  .resource-container .container-inner .narrow-items article.highlight-image,
+  .resource-container .container-inner .narrow-items li.article.highlight-image {
+    padding: 0;
+  }
+
+  /* line 273, /Applications/MAMP/htdocs/decipher/drupal-7/profiles/storyscope/themes/story-output/sass/layouts/responsive-sidebars.scss */
+  .facet-management {
+    overflow: hidden;
+  }
+  /* line 275, /Applications/MAMP/htdocs/decipher/drupal-7/profiles/storyscope/themes/story-output/sass/layouts/responsive-sidebars.scss */
+  .facet-management table {
+    border-collapse: separate;
+    border-spacing: 0 1em;
+  }
+  /* line 278, /Applications/MAMP/htdocs/decipher/drupal-7/profiles/storyscope/themes/story-output/sass/layouts/responsive-sidebars.scss */
+  .facet-management table:nth-child(2n+1) {
+    /* Span 1 column, starting in the 1st column from left. */
+    float: right;
+    width: 50%;
+    margin-right: 0%;
+    margin-left: -50%;
+    clear: right;
+    padding-right: 1em;
+  }
+  /* line 283, /Applications/MAMP/htdocs/decipher/drupal-7/profiles/storyscope/themes/story-output/sass/layouts/responsive-sidebars.scss */
+  .facet-management table:nth-child(2n+2) {
+    float: right;
+    width: 50%;
+    margin-right: 50%;
+    margin-left: -100%;
+  }
+  /* line 286, /Applications/MAMP/htdocs/decipher/drupal-7/profiles/storyscope/themes/story-output/sass/layouts/responsive-sidebars.scss */
+  .facet-management table td {
+    padding: 0.5em;
+  }
+
+  /* line 292, /Applications/MAMP/htdocs/decipher/drupal-7/profiles/storyscope/themes/story-output/sass/layouts/responsive-sidebars.scss */
+  .plot-container {
+    position: relative;
+  }
+  /* line 295, /Applications/MAMP/htdocs/decipher/drupal-7/profiles/storyscope/themes/story-output/sass/layouts/responsive-sidebars.scss */
+  .plot-container div.exhibit-viewPanel {
+    padding-left: 10px;
+    padding-right: 10px;
+    -moz-box-sizing: border-box;
+    -webkit-box-sizing: border-box;
+    -ms-box-sizing: border-box;
+    box-sizing: border-box;
+    word-wrap: break-word;
+    float: right;
+    width: 50%;
+    margin-right: 0%;
+    margin-left: -50%;
+    clear: right;
+    padding-left: 0;
+  }
+  /* line 300, /Applications/MAMP/htdocs/decipher/drupal-7/profiles/storyscope/themes/story-output/sass/layouts/responsive-sidebars.scss */
+  .plot-container div.exhibit-viewPanel ol.exhibit-tileView-body {
+    overflow: hidden;
+  }
+  /* line 303, /Applications/MAMP/htdocs/decipher/drupal-7/profiles/storyscope/themes/story-output/sass/layouts/responsive-sidebars.scss */
+  .plot-container div.exhibit-viewPanel ol.exhibit-tileView-body li:nth-child(2n+1) {
+    /* Span 1 column, starting in the 1st column from left. */
+    float: right;
+    width: 50%;
+    margin-right: 0%;
+    margin-left: -50%;
+    clear: right;
+    padding-right: 1em;
+  }
+  /* line 308, /Applications/MAMP/htdocs/decipher/drupal-7/profiles/storyscope/themes/story-output/sass/layouts/responsive-sidebars.scss */
+  .plot-container div.exhibit-viewPanel ol.exhibit-tileView-body li:nth-child(2n+2) {
+    float: right;
+    width: 50%;
+    margin-right: 50%;
+    margin-left: -100%;
+  }
+  /* line 315, /Applications/MAMP/htdocs/decipher/drupal-7/profiles/storyscope/themes/story-output/sass/layouts/responsive-sidebars.scss */
+  .plot-container div.events:nth-child(2n+1) {
+    /* Span 1 column, starting in the 1st column from left. */
+    float: right;
+    width: 50%;
+    margin-right: 0%;
+    margin-left: -50%;
+    clear: right;
+    padding-right: 1em;
+  }
+  /* line 320, /Applications/MAMP/htdocs/decipher/drupal-7/profiles/storyscope/themes/story-output/sass/layouts/responsive-sidebars.scss */
+  .plot-container div.events:nth-child(2n+2) {
+    float: right;
+    width: 50%;
+    margin-right: 50%;
+    margin-left: -100%;
+  }
+  /* line 324, /Applications/MAMP/htdocs/decipher/drupal-7/profiles/storyscope/themes/story-output/sass/layouts/responsive-sidebars.scss */
+  .plot-container div.elements-container {
+    padding-left: 10px;
+    padding-right: 10px;
+    -moz-box-sizing: border-box;
+    -webkit-box-sizing: border-box;
+    -ms-box-sizing: border-box;
+    box-sizing: border-box;
+    word-wrap: break-word;
+    float: right;
+    width: 50%;
+    margin-right: 50%;
+    margin-left: -100%;
+    position: absolute;
+    top: 550px;
+  }
+}
+/*
+ * Comment title field
+ */
+@media all and (max-width: 650px) {
+  /* line 338, /Applications/MAMP/htdocs/decipher/drupal-7/profiles/storyscope/themes/story-output/sass/layouts/responsive-sidebars.scss */
+  .comment-form #edit-subject {
+    width: 95%;
+  }
+}
+/**
+ * Media Element
+ */
+/* line 350, /Applications/MAMP/htdocs/decipher/drupal-7/profiles/storyscope/themes/story-output/sass/layouts/responsive-sidebars.scss */
+li.article .field-name-field-image,
+li.article figure,
+article.node-teaser_suggested .field-name-field-image,
+article.node-teaser_suggested figure,
+article.node-teaser .field-name-field-image,
+article.node-teaser figure {
+  float: left;
+  margin-right: 10px;
+}
+/* line 354, /Applications/MAMP/htdocs/decipher/drupal-7/profiles/storyscope/themes/story-output/sass/layouts/responsive-sidebars.scss */
+li.article .content,
+article.node-teaser_suggested .content,
+article.node-teaser .content {
+  overflow: hidden;
+}
+
+/* line 359, /Applications/MAMP/htdocs/decipher/drupal-7/profiles/storyscope/themes/story-output/sass/layouts/responsive-sidebars.scss */
+article.highlight-image .article-inner {
+  position: relative;
+}
+/* line 362, /Applications/MAMP/htdocs/decipher/drupal-7/profiles/storyscope/themes/story-output/sass/layouts/responsive-sidebars.scss */
+article.highlight-image figure {
+  text-align: center;
+}
+/* line 365, /Applications/MAMP/htdocs/decipher/drupal-7/profiles/storyscope/themes/story-output/sass/layouts/responsive-sidebars.scss */
+article.highlight-image .content {
+  position: absolute;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.75);
+  padding: 0.5em;
+  color: #fff;
+}
+/* line 371, /Applications/MAMP/htdocs/decipher/drupal-7/profiles/storyscope/themes/story-output/sass/layouts/responsive-sidebars.scss */
+article.highlight-image .content a {
+  color: inherit;
+}
+
+/* line 378, /Applications/MAMP/htdocs/decipher/drupal-7/profiles/storyscope/themes/story-output/sass/layouts/responsive-sidebars.scss */
+.no-touch .highlight-image .content {
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  opacity: 0;
+  -webkit-transition-property: opacity;
+  -moz-transition-property: opacity;
+  -o-transition-property: opacity;
+  transition-property: opacity;
+  -webkit-transition-duration: 0.5s;
+  -moz-transition-duration: 0.5s;
+  -o-transition-duration: 0.5s;
+  transition-duration: 0.5s;
+  -webkit-transition-timing-function: ease-in;
+  -moz-transition-timing-function: ease-in;
+  -o-transition-timing-function: ease-in;
+  transition-timing-function: ease-in;
+}
+/* line 382, /Applications/MAMP/htdocs/decipher/drupal-7/profiles/storyscope/themes/story-output/sass/layouts/responsive-sidebars.scss */
+.no-touch .highlight-image .content p, .no-touch .highlight-image .content h2 {
+  padding: 0.25em 0.5em;
+}
+/* line 390, /Applications/MAMP/htdocs/decipher/drupal-7/profiles/storyscope/themes/story-output/sass/layouts/responsive-sidebars.scss */
+.no-touch .highlight-image:hover .content {
+  opacity: 1;
+}
+
+/* line 396, /Applications/MAMP/htdocs/decipher/drupal-7/profiles/storyscope/themes/story-output/sass/layouts/responsive-sidebars.scss */
+article.node-type-dec-object .media-container figure {
+  float: left;
+  margin-right: 10px;
+}
+/* line 400, /Applications/MAMP/htdocs/decipher/drupal-7/profiles/storyscope/themes/story-output/sass/layouts/responsive-sidebars.scss */
+article.node-type-dec-object .media-container .meta-content {
+  overflow: hidden;
+  margin-top: 10em;
+}
+
+/* line 406, /Applications/MAMP/htdocs/decipher/drupal-7/profiles/storyscope/themes/story-output/sass/layouts/responsive-sidebars.scss */
+.view-workspace article {
+  float: left;
+}
+
+/* line 410, /Applications/MAMP/htdocs/decipher/drupal-7/profiles/storyscope/themes/story-output/sass/layouts/responsive-sidebars.scss */
+li.article figure {
+  width: 25%;
+}
+/* line 413, /Applications/MAMP/htdocs/decipher/drupal-7/profiles/storyscope/themes/story-output/sass/layouts/responsive-sidebars.scss */
+li.article h2 {
+  margin-top: 0;
+}
+/* line 416, /Applications/MAMP/htdocs/decipher/drupal-7/profiles/storyscope/themes/story-output/sass/layouts/responsive-sidebars.scss */
+li.article p {
+  margin-bottom: 0.5em;
+}
+/* line 418, /Applications/MAMP/htdocs/decipher/drupal-7/profiles/storyscope/themes/story-output/sass/layouts/responsive-sidebars.scss */
+li.article p span.label {
+  font-weight: bold;
+}

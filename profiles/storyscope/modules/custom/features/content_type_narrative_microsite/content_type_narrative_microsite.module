@@ -1,0 +1,7 @@
+<?php
+/**
+ * @file
+ * Code for the Content Type Narrative Microsite feature.
+ */
+
+include_once 'content_type_narrative_microsite.features.inc';

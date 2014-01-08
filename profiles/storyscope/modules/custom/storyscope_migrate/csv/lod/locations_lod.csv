@@ -1,0 +1,98 @@
+id,parentid,topic,mid,geolocation_latitude,geolocation_longitude,EOL
+location001,event142|event145|event152,Achill Island,http://freebase.com/en/achill_island,53.9667,-10,EOL
+location002,event445,Algarve,http://freebase.com/en/algarve,37.24541025,-8.1961852,EOL
+location003,event1015|event78,Amsterdam,http://freebase.com/en/amsterdam,52.37,4.89,EOL
+location004,event460,Aran Islands,http://freebase.com/en/aran_islands,53.1166666667,-9.7,EOL
+location005,event124,Arezzo,http://www.freebase.com/m/0pbjg,43.4667,11.8833,EOL
+location006,event2019,Argenteuil,http://freebase.com/en/argenteuil,48.9486,2.2483,EOL
+location007,event2005,Barbizon,http://www.freebase.com/m/060m32,48.4467,2.6056,EOL
+location008,event110,"Basilica di San Lorenzo, Firenze",http://freebase.com/en/basilica_di_san_lorenzo_di_firenze,43.775293,11.253537,EOL
+location009,event161,Bath,http://www.freebase.com/m/0bdg5,51.3833,-2.3667,EOL
+location010,event132|event168,Belfast,http://freebase.com/en/belfast,54.6,-5.9166666667,EOL
+location011,event215|event216|event217|event437,Berlin,http://freebase.com/en/berlin,52.523337,13.412687,EOL
+location012,event3019,Birmingham,http://freebase.com/en/birmingham,52.48,-1.91,EOL
+location013,event543,Bogside,http://freebase.com/en/bogside,54.9977777778,-7.3272222222,EOL
+location014,event117|event244|event121|event185|event205|event243|event244|event54|event63|event65|event80|event81|event82|event83|event93,Bologna,http://freebase.com/en/bologna,44.5,11.35,EOL
+location015,event184|event225,Cadogan Square,https://www.freebase.com/m/03mhcz4,51.4952777778,-0.1605555556,EOL
+location016,event531,Calgary,http://freebase.com/m/01r32,51.0544444444,-114.066944444,EOL
+location017,event193|event234|event56|event57,Cento,http://freebase.com/en/cento,44.789145,11.316605,EOL
+location018,event2,Chelsea,http://www.freebase.com/m/01t21q,51.4875,-0.1684,EOL
+location019,event3012,Claremorris,http://www.freebase.com/m/034thf,53.7167,-9,EOL
+location020,event3016,Connemara,http://freebase.com/en/connemara,53.523166,-9.968948,EOL
+location021,event544,Croke Park,http://freebase.com/en/croke_park,53.3608,-6.2513,EOL
+location022,event504B,Derry,http://freebase.com/en/derry,55.00322,-7.307682,EOL
+location023,event47,Detroit,http://freebase.com/en/detroit_michigan,42.3314,-83.0458,EOL
+location024,event540|event539|event1006|event1007|event1008|event1009|event1011|event1012|event1013|event1014|event1015|event1016|event1018|event1019|event1020|event1022|event1023|event1024|event1025|event1026|event1027|event1028|event1029|event1030|event1031|event101|event1009|event144|event146|event147|event158|event172|event179|event23|event24|event254|event441|event444|event446|event448|event449|event451|event453|event454|event457|event458|event459|event462|event49|event500B|event501|event502|event502B|event503|event503B|event506|event506B|event507|event511|event512|event515|event524|event525|event526|event64|event562|event555|event553,Dublin,http://freebase.com/en/dublin,53.3428,-6.2661,EOL
+location025,event560|event550,Dún Laoghaire,http://www.freebase.com/m/01jr0f,53.3,-6.1333,EOL
+location026,event425,Enniscorthy,http://freebase.com/en/enniscorthy,52.5003,-6.5689,EOL
+location027,event167|event177,Enniskillen,http://freebase.com/en/enniskillen,54.3471520055,-7.6399612427,EOL
+location028,event214,Eton College,http://freebase.com/en/eton_college,51.49083,-0.611376,EOL
+location029,event1,Europe,http://freebase.com/en/europe,53,9,EOL
+location030,event101|event102|event104|event107|event111|event114|event123|event125|event127|event130|event202|event68|event90,Florence,http://freebase.com/en/florence,43.7717,11.2536,EOL
+location031,event3015,Flushing Meadows–Corona Park,http://freebase.com/en/flushing_meadows-corona_park,40.745833,-73.844722,EOL
+location032,event1021|event2007|event432|event461|event2006|object503|object502,France,http://freebase.com/en/france,46,2,EOL
+location033,event52,Germany,http://freebase.com/en/germany,51,9,EOL
+location034,event2018,Giverny,http://www.freebase.com/m/03sd00,49.0769444444,1.53,EOL
+location035,event3011,Goldsmiths' College,http://www.freebase.com/m/015wy_,51.473324,-0.032619,EOL
+location036,event153,Greenock,http://freebase.com/en/greenock,55.9496,-4.7641,EOL
+location037,event2014,Honfleur,http://freebase.com/en/honfleur,49.4194,0.2325,EOL
+location038,event34,Hythe,http://freebase.com/en/hythe_united_kingdom,51.074,1.082,EOL
+location039,event3018,Ibiza,https://www.freebase.com/m/0h2c3,38.98,1.43,EOL
+location040,event548,Inchicore,http://freebase.com/en/inchicore,53.3333333333,-6.35,EOL
+location041,event257,India,http://freebase.com/en/india,21.7678895778,78.8717605778,EOL
+location042,event1002|event1003|event1005|event1010|event1017|event504|event513|object377|object376|object375|object374|object501|object2,Ireland,http://freebase.com/en/ireland,53,-7,EOL
+location043,event1030|event103|event1029|event1028|event1027|event1026|event1025|event1024|event1023|event1022|event1021|event1020|event102|event1019|event1018|event112|event113|event175|event187|event76,Italy,http://freebase.com/en/italy,44.2632,11.4402833333,EOL
+location044,event559,"Jacob's Biscuit Factory, Bishop Street, Dublin",http://freebase.com/en/dublin,53.338587,-6.267704,EOL
+location045,event3002,Kent,http://freebase.com/en/kent,51.2878,0.0565,EOL
+location046,event431,La Chaux-de-Fonds,http://freebase.com/en/la_chaux-de-fonds,47.1013888889,6.825,EOL
+location047,event2012,Le Havre,http://freebase.com/en/le_havre,49.4997222222,0.12,EOL
+location048,event237,Leipzig,http://freebase.com/en/leipzig,51.34,12.38,EOL
+location049,event247,Les Andelys,http://freebase.com/en/les_andelys,49.2461,1.4125,EOL
+location050,event447|event91,Lisbon,http://freebase.com/en/lisbon,38.7,-9.1833,EOL
+location051,event552,Liverpool,http://www.freebase.com/m/04lh6,53.4166666667,-3,EOL
+location052,event1004|event1301|event140|event157|event159|event163|event174|event178|event182|event183|event192|event194|event196|event197|event198|event199|event2017|event208|event209|event210|event211|event212|event218|event221|event222|event223|event224|event227|event228|event232|event238|event255|event33|event35|event37|event38|event39|event406|event41|event426|event44|event442|event443|event45|event456|event48|event50|event51|event527|event528|event538|event62|event71|event72|event73|event74|event75|event85|event86|event94|event98|event99|event3021|event3020|event3010|event3001,London,http://freebase.com/en/london,51.517124,-0.106196,EOL
+location053,event3003,"London Port Authority building at Surrey Docks, London Docklands",https://www.freebase.com/m/02fy_,51.493315,-0.046695,EOL
+location054,event1302,Los Angeles,http://freebase.com/en/los_angeles,34.0522,-118.2428,EOL
+location055,event3023,Madrid,https://www.freebase.com/m/056_y,40.4,-3.6833,EOL
+location056,event547,"Mark street, Dublin",http://freebase.com/en/dublin,53.345479,-6.251289,EOL
+location057,event558,"Monkstown Hospital, Dublin",http://freebase.com/en/dublin,53.356289,-6.258144,EOL
+location058,event414|event415,Morocco,http://freebase.com/en/morocco,32.7502457516,-6.1915661765,EOL
+location059,event556|event554,Mountjoy prison,http://www.freebase.com/m/06z805,53.36175,-6.2674444444,EOL
+location060,event2002,National Gallery of Ireland,http://freebase.com/en/national_gallery_of_ireland,53.341354,-6.252301,EOL
+location061,event100|event532|event533|event534|event535|event536,New York City,http://freebase.com/en/new_york,40.7142,-74.0064,EOL
+location062,event2008,Normandy,http://www.freebase.com/m/05g56,49.05947,-0.496216,EOL
+location063,event561|event549|event546|event545|event542|event541,O'Connell Street,http://www.freebase.com/m/016lpx,53.3494,-6.2603,EOL
+location064,event160,Osaka,http://freebase.com/en/osaka,34.6603223648,135.523223877,EOL
+location065,event103,Ospedale degli Innocenti,http://freebase.com/en/ospedale_degli_innocenti,43.7763083333,11.2612138889,EOL
+location066,event219|event220|event36|event40|event87,Oxford,https://www.freebase.com/m/05l5n,51.7511111111,-1.2558333333,EOL
+location067,event69,Padua,http://freebase.com/en/padua,45.4167,11.8667,EOL
+location068,event1001|event1032|event1033|event1034|event1017|event134|event135|event2003|event2004|event2010|event2013|event2015|event2016|event2024|event207|event236|event26|event27|event416|event424|event419|event420|event421|event422|event423|event424|event427|event428|event430|event433|event434|event435|event440|event450|event46|event500|event505|event508|event509|event516|event517|event520|event521|event522|event529|event530|event77|event3014|event3014,Paris,http://freebase.com/en/paris,48.8742,2.346954,EOL
+location069,event43,Poland,http://freebase.com/en/poland,51.4273231276,20.1725912757,EOL
+location070,event176,Pont-Aven,http://freebase.com/en/pont-aven,47.8564,-3.7458,EOL
+location071,event3017,Prestatyn,https://www.freebase.com/m/02xdcz,53.3355884114,-3.4061050415,EOL
+location072,event154|event155,Raidió Teilifís Éireann,http://freebase.com/en/radio_telefis_eireann,53.292002,-9.555559,EOL
+location073,event181|event186|event204|event248|event253|event263|event264|event265|event403|event404|event455|event53|event58|event60|event61|event66|event67|event92,Rome,http://freebase.com/en/rome,41.9,12.5,EOL
+location074,event3008|event3007,Royal Academy,http://freebase.com/en/royal_academy,51.509891,-0.139697,EOL
+location075,event557,"Royal Albert Hall, London",http://www.freebase.com/m/018g60,51.5009,-0.1774,EOL
+location076,event173,Ruabon,http://freebase.com/en/ruabon,52.987,-3.0397,EOL
+location077,event97,Russia,http://freebase.com/en/russia,54.8270488441,55.0423189997,EOL
+location078,event59,Saint Peter's Basilica,https://www.freebase.com/m/03qq9f,45.434,12.333,EOL
+location079,event109,San Marco,https://www.freebase.com/m/0272rmj,43.778221,11.258276,EOL
+location080,event400,Sandycove,http://freebase.com/en/sandycove,53.286,-6.116,EOL
+location081,event171,Somerset,http://freebase.com/en/somerset,51.091448,-2.950287,EOL
+location082,event3004,"South Dock, Rotherhithe, Surrey Commercial Docks, England",https://www.freebase.com/m/0nc1q,51.49624,-0.045691,EOL
+location083,event505B,Spain,http://freebase.com/en/spain,40.6985822539,-3.2949461984,EOL
+location084,event3024|event3006,"Tate Gallery, Britain",http://www.freebase.com/m/0g8shd,52.075286,4.300404,EOL
+location085,event79,The Hague,http://freebase.com/en/the_hague,52.0799279918,4.3111038208,EOL
+location086,event551,Tonypandy,https://www.freebase.com/m/02z8r_,51.622325,-3.451203,EOL
+location087,event1033,United Kingdom,http://freebase.com/en/united_kingdom,53.1142456495,-2.5771136842,EOL
+location088,event417|event537,United States of America,http://freebase.com/en/united_states,40.4230003233,-98.7372244786,EOL
+location089,event252,Urbino,http://freebase.com/en/urbino,43.7167,12.6333,EOL
+location090,event170|event233|event501B|event3022|event3009,Venice,http://freebase.com/en/venice,45.4333,12.3167,EOL
+location091,event188|event189|event190,Villa Aldobrandini,http://freebase.com/en/villa_aldobrandini,41.8035583,12.6833806,EOL
+location092,event84,Villa Ludovisi,http://freebase.com/en/villa_ludovisi,41.915563,12.487278,EOL
+location093,event108,Villa Medici,http://freebase.com/en/villa_medici,41.908,12.483,EOL
+location094,event3005,"Walker Art Center, Minneapolis, USA",https://www.freebase.com/m/02c3s7,44.96917,-93.28839,EOL
+location095,event510|event514,Western Europe,http://freebase.com/en/western_europe,47.279229,1.303709,EOL
+location096,event226,Westport House,http://freebase.com/en/westport_house,53.806733,-9.540968,EOL
+location097,event32|event88|event89|event95|event96,Windsor Castle,http://freebase.com/en/windsor_castle,51.4839,-0.6044,EOL

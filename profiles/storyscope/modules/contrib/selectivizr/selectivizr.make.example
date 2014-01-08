@@ -1,0 +1,9 @@
+; Selectivizr
+
+api = 2
+core = 7.x
+
+libraries[selectivizr][download][type] = "get"
+libraries[selectivizr][download][url] = "https://github.com/keithclark/selectivizr/zipball/master"
+libraries[selectivizr][directory_name] = "selectivizr"
+libraries[selectivizr][type] = "library"

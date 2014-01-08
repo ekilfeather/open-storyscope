@@ -1,0 +1,26 @@
+From cac167f93e4245f1ae7949fad785175f29c55caa Mon Sep 17 00:00:00 2001
+From: Anthony Lindsay <anthony@netrunner.ie>
+Date: Thu, 2 May 2013 14:40:44 +0100
+Subject: [PATCH] Upped the timeout limit for ajax in Timeline to 30 secs (in
+ timeline.js)
+
+---
+ .../storyscope/modules/custom/storyscope_timeline/js/timeline.js        | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/drupal-7/profiles/storyscope/modules/custom/storyscope_timeline/js/timeline.js b/drupal-7/profiles/storyscope/modules/custom/storyscope_timeline/js/timeline.js
+index 10fdc7d..f46b3ed 100644
+--- a/drupal-7/profiles/storyscope/modules/custom/storyscope_timeline/js/timeline.js
++++ b/drupal-7/profiles/storyscope/modules/custom/storyscope_timeline/js/timeline.js
+@@ -536,7 +536,7 @@ if(typeof VMM != 'undefined') {
+ 	VMM.getJSON = function(url, data, callback) {
+ 		if( typeof( jQuery ) != 'undefined' ){
+ 			jQuery.ajaxSetup({
+-			     timeout: 3000
++			     timeout: 30000
+ 			});
+ 			/* CHECK FOR IE
+ 			================================================== */
+-- 
+1.7.12.4 (Apple Git-37)
+

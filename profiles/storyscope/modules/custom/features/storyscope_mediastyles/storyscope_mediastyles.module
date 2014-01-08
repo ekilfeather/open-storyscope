@@ -1,0 +1,7 @@
+<?php
+/**
+ * @file
+ * Code for the Storyscope mediastyles feature.
+ */
+
+include_once 'storyscope_mediastyles.features.inc';

@@ -1,0 +1,140 @@
+//
+// "base" partial
+//
+// To make it easier to use all variables and mixins in any Sass file in this
+// theme, each .scss file has a @import "base" declaration. And this _base.scss
+// file is in charge of importing all the other partials needed for the theme.
+//
+// This base partial is organized in this way:
+// - First we set any shared Sass variables.
+// - Next we import Compass plug-ins (Sass mixin libraries).
+// - Last we import a _custom.scss partial that includes our custom mixins.
+//
+
+
+//
+// Legacy IE support
+//
+// These variables are used by many mixins to add additional CSS to support
+// specific versions of IE or specific vendor prefixes.
+//
+// To turn on support for IE6 or IE7, set those variables to true.
+//
+// Zen does not require special handling for IE8 or later. But Compass uses that
+// variable for a couple edge cases. We include it for completeness sake. See
+// the documentation at http://compass-style.org/reference/compass/support/
+$box-sizing-polyfill-path: "/profiles/storyscope/themes/storyscopezen/js/boxsizing.htc";
+$legacy-support-for-ie6: false;
+$legacy-support-for-ie7: true;
+$legacy-support-for-ie8: true;
+
+
+//
+// Font faces, stacks and sizes.
+//
+
+// Compass' vertical_rhythm extension is a powerful tool to set up a vertical
+// rhythm for your entire page. You can see some of its mixins and functions in
+// use in the normalize.scss file.
+// @see http://compass-style.org/reference/compass/typography/vertical_rhythm/
+
+$base-font-size:   13px; // The font size set on the root html element.
+$base-line-height: 18px; // This line-height determines the basic unit of vertical rhythm.
+
+$h1-font-size: 1.6 * $base-font-size;
+$h2-font-size: 1.5 * $base-font-size;
+$h3-font-size: 1.5 * $base-font-size;
+$h4-font-size: 1    * $base-font-size;
+$h5-font-size: 0.83 * $base-font-size;
+$h6-font-size: 0.75 * $base-font-size;
+
+// The following font family declarations are based on the Microsoft core web
+// fonts which are common fonts available on most computer systems. The DejaVu
+// and Nimbus Sans fonts are commonly available on Linux systems where the MS
+// fonts are less common. Tahoma and Helvetica are also widely available.
+//
+// A user's web browser will look at the comma-separated list and will
+// attempt to use each font in turn until it finds one that is available
+// on the user's computer. The final "generic" font (sans-serif, serif or
+// monospace) hints at what type of font to use if the web browser doesn't
+// find any of the fonts in the list.
+
+// First, let's create some font stacks.
+$times-new-roman: "Times New Roman", Times, Georgia, "DejaVu Serif", serif;
+$times:           Times, "Times New Roman", Georgia, "DejaVu Serif", serif;
+$georgia:         Georgia, "Times New Roman", "DejaVu Serif", serif;
+
+$verdana:         Verdana, Tahoma, "DejaVu Sans", sans-serif;
+$tahoma:          Tahoma, Verdana, "DejaVu Sans", sans-serif;
+$helvetica:       Helvetica, Arial, "Nimbus Sans L", sans-serif;
+$arial:           Arial, Helvetica, "Nimbus Sans L", sans-serif;
+
+// For an explanation of why "sans-serif" is at the end of this list, see
+// http://meyerweb.com/eric/thoughts/2010/02/12/fixed-monospace-sizing/
+$courier:         "Courier New", "DejaVu Sans Mono", monospace, sans-serif;
+
+// Now create some variables for the font stacks we want to use on this site.
+$base-font-family: $arial; // The font family set on the html element.
+$font-body:        $arial;
+$font-monospace:   $courier;
+
+
+//
+// Colors, etc.
+//
+
+$dossier-color: #F17BA9; // Pink
+$object-color: #e2903d; // Orange-ish
+$object-color-background: rgba(226,144,61,0.1); // Orange-ish
+$joyride-color: #edae6f; // Orange-ish
+$survey-color: #7AC953; //green
+$object-story-color: #F9CC67; // orange
+$object-story-background-color: rgba(249,204,103,0.1); // orange
+$event-color: #7AC953; // green
+$event-color-background: rgba(122,201,83,0.05); // green
+$source-event-color: #7AC953; // green
+$plot-color: #3FA9F5; //blue aka story-outline
+$story-color: #3FA9F5;
+$story-color-background: rgba(63,169,245,0.05);
+$plot-element-color: #A35EBC; //purplelyish - aka story-section
+$section-color: $plot-element-color;
+$ref-color: #00A99D;
+$ref-color-background: rgba(0,169,157,0.05);//
+//$narrative-color: #EE3524;
+$narrative-color: #ff5800; //red
+$visualisation-color: #FCB816;
+$event_color: #7AC953; //same as source event
+$event_properties_color: #47667b;
+$dark-gray: #4E4E4E; // Primary
+$light-gray: #CDCCCB; // Secondary
+$med-gray: #A0A0A0;
+$very-light-gray: #E5E5E5;
+$very-light-gray-alpha: rgba(229,229,229,0.5);
+$white: #FFF;
+$primary-button: #A6CEF3;
+$primary-outline: #8CBAE4;
+
+$link-gray: #A1A3A6;
+$hover-gray: #545658;
+$link-visited: #A1A3A6;
+
+$gray-green: #79b2ac;
+
+$gray-green: #79b2ac;
+
+// The amount lists, blockquotes and comments are indented.
+$indent-amount: 30px;
+
+
+//
+// Partials to be shared with all .scss files.
+//
+
+@import "compass/support";  // Add Compass' IE and vendor prefix support variables.
+@import "compass/utilities/general/clearfix"; // Better than Drupal's clearfix.
+@import "compass/utilities/sprites"; // See http://compass-style.org/help/tutorials/spriting/
+@import "compass/css3";     // Use one CSS3 mixin instead of multiple vendor prefixes.
+@import "compass/typography/vertical_rhythm"; // Helps set up a vertical rhythm.
+@import "zen";              // Add the Zen Grids responsive layout mixins.
+
+@import "custom";           // Import our custom mixins last.

@@ -1,0 +1,27 @@
+<?php
+
+/**
+ * Implementation of hook_install().
+ */
+function similarity_search_install() {
+  // set default variable for sec store api server address
+  variable_set('sec_store_api', 'http://knot01.fit.vutbr.cz:8081');
+  
+  // set default variable for sec store api timeout
+  variable_set('sec_store_api_timeout', 20);
+  
+  // number of result to return from SEC Store API
+  variable_set('sec_store_api_results_count', 20);
+  
+  // date format for similarity search detail page
+  variable_set('sec_store_detail_date_format', 'd.m.Y');
+}
+
+/**
+ * Implementation of hook_uninstall().
+ */
+function similarity_search_uninstall() {
+  variable_del('sec_store_api');
+  variable_del('sec_store_api_timeout');
+}
+

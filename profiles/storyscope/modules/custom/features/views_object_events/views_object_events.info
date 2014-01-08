@@ -1,0 +1,10 @@
+name = Views object events
+description = Lists events associated with a given object.
+core = 7.x
+package = Features
+php = 5.2.4
+dependencies[] = ctools
+dependencies[] = views
+features[ctools][] = views:views_default:3.0
+features[features_api][] = api:1
+features[views_view][] = object_events

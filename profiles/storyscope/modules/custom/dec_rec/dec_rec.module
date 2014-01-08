@@ -1,0 +1,60 @@
+<?php
+
+/**
+ * file: dec_rec.module
+ *
+ * Manage interactions with the DECIPHER SemRecommender service. 
+ *
+ * Joe Corneli <holtzermann17@gmail.com>
+ *
+ */
+
+/**
+ * function dec_rec_menu
+ */
+
+function dec_rec_menu(){
+     $items['admin/config/services/dec_rec'] = array(
+	 'title' => 'SemRecommender service',
+	 'description' => 'Configure the location of the SemRecommender service used by StoryScope.',
+	 'page callback' => 'drupal_get_form',
+	 'page arguments' => array('dec_rec_form_config'),
+	 'access callback' => 'user_access',
+	 'access arguments' => array('administer site configuration'),
+     );
+     return $items;
+}
+
+/**
+ * function dec_rec_form_config
+ */
+
+function dec_rec_form_config(){
+    $form['dec_semrecommender_address'] = array(
+        '#type' => 'textfield',
+        '#title' => t('SemRecommender Address'),
+        '#default_value' => variable_get('dec_semrecommender_address'),
+        '#description' => t('This recommender provides various subservices via an API.'),
+        '#required' => TRUE,
+    );   
+
+    return system_settings_form($form);
+}
+
+/**
+ * function: dec_rec_node_update
+ *
+ * @param $node
+ *   A node
+ *
+ * Implements hook_node_update
+ *
+ * Call recommender service when a node is updated, updating the associated recommendations.
+ * These calls are to be processed in the background.
+ */
+
+function dec_rec_node_update($node){
+  background_process_http_request("http://knot09.fit.vutbr.cz:8080/SemRecommender/dossier/".$node->nid."/recommendEvents/recalculate");
+  background_process_http_request("http://knot09.fit.vutbr.cz:8080/SemRecommender/dossier".$node->nid."recommendBinaryPlots/recalculate");
+  background_process_http_request("http://knot09.fit.vutbr.cz:8080/SemRecommender/dossier".$node->nid."recommendRelatedPlots/recalculate");
+}

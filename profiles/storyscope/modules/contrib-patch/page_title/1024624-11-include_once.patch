@@ -1,0 +1,13 @@
+diff --git page_title/page_title.module page_title/page_title.module
+index 321a57c..5af39e2 100644
+--- page_title/page_title.module
++++ page_title/page_title.module
+@@ -655,7 +655,7 @@ function page_title_include_api_files() {
+   // We also avoice using include_once due to its performance hit on the Filesystem
+   foreach (page_title_get_module_apis() as $module => $info) {
+     if (file_exists(DRUPAL_ROOT . "/{$info['path']}/{$module}.page_title.inc")) {
+-      include DRUPAL_ROOT . "/{$info['path']}/{$module}.page_title.inc";
++      include_once DRUPAL_ROOT . "/{$info['path']}/{$module}.page_title.inc";
+     }
+   }
+ 

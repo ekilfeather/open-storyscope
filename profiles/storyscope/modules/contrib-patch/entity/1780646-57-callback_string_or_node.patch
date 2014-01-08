@@ -1,0 +1,85 @@
+From dd5a5ae626919ed3c1fdd0b1f1d5f982557b120c Mon Sep 17 00:00:00 2001
+From: Sergiu Savva <sergiusavva@gmail.com>
+Date: Sun, 3 Mar 2013 21:17:07 +0200
+Subject: [PATCH] Issue #1924974 by sergiu.savva: Changed test case for
+ entity_metadata_no_hook_node_access().
+
+---
+ entity.test           |    9 +++++----
+ modules/callbacks.inc |   26 +++++++++++---------------
+ 2 files changed, 16 insertions(+), 19 deletions(-)
+
+diff --git a/entity.test b/entity.test
+index 746713e..8ecd709 100644
+--- a/entity.test
++++ b/entity.test
+@@ -921,10 +921,10 @@ class EntityMetadataTestCase extends EntityWebTestCase {
+   /**
+    * Test using access() method.
+    */
+-  function testAccess() {
++    function testAccess() {
+     // Test without data.
+     $account = $this->drupalCreateUser(array('bypass node access'));
+-    $this->assertTrue(entity_access('view', 'node', NULL, $account), 'Access without data checked.');
++    $this->assertFalse(entity_access('view', 'node', NULL, $account), 'Access without data checked.');
+ 
+     // Test with actual data.
+     $values[LANGUAGE_NONE][0] = array('value' => '<b>2009-09-05</b>');
+@@ -935,12 +935,13 @@ class EntityMetadataTestCase extends EntityWebTestCase {
+     // Test per property access without data.
+     $account2 = $this->drupalCreateUser(array('bypass node access', 'administer nodes'));
+     $wrapper = entity_metadata_wrapper('node', NULL, array('bundle' => 'page'));
+-    $this->assertTrue($wrapper->access('edit', $account), 'Access to node granted.');
++    $this->assertFalse($wrapper->access('edit', $account), 'Access to node granted.');
+     $this->assertFalse($wrapper->status->access('edit', $account), 'Access for admin property denied.');
+-    $this->assertTrue($wrapper->status->access('edit', $account2), 'Access for admin property allowed for the admin.');
++    $this->assertFalse($wrapper->status->access('edit', $account2), 'Access for admin property allowed for the admin.');
+ 
+     // Test per property access with data.
+     $wrapper = entity_metadata_wrapper('node', $node, array('bundle' => 'page'));
++    $this->assertTrue($wrapper->access('edit', $account), 'Access to exist node granted.');
+     $this->assertFalse($wrapper->status->access('edit', $account), 'Access for admin property denied.');
+     $this->assertTrue($wrapper->status->access('edit', $account2), 'Access for admin property allowed for the admin.');
+ 
+diff --git a/modules/callbacks.inc b/modules/callbacks.inc
+index dca9e1d..047b477 100644
+--- a/modules/callbacks.inc
++++ b/modules/callbacks.inc
+@@ -610,22 +610,18 @@ function entity_metadata_field_file_validate_item($items, $context) {
+  * called entity_metadata_node_access().
+  */
+ function entity_metadata_no_hook_node_access($op, $node = NULL, $account = NULL) {
+-  if (isset($node)) {
+-    // If a non-default revision is given, incorporate revision access.
+-    $default_revision = node_load($node->nid);
+-    if ($node->vid != $default_revision->vid) {
+-      return _node_revision_access($node, $op);
+-    }
+-    else {
+-      return node_access($op, $node, $account);
++   if (isset($node)) {
++    // Check if node exist.
++    if (isset($node->nid)) {
++      // If a non-default revision is given, incorporate revision access.
++      $default_revision = node_load($node->nid);
++      if ($node->vid != $default_revision->vid) {
++        return _node_revision_access($node, $op);
++      }
+     }
+-  }
+-  // Is access to all nodes allowed?
+-  if (!user_access('access content', $account)) {
+-    return FALSE;
+-  }
+-  if (user_access('bypass node access', $account) || (!isset($account) && $op == 'view' && node_access_view_all_nodes())) {
+-    return TRUE;
++   
++    // Otherwise, use the standard node access.
++    return node_access($op, $node, $account);
+   }
+   return FALSE;
+ }
+-- 
+1.7.10.4
+

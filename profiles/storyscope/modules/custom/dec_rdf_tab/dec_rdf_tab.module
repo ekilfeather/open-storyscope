@@ -1,0 +1,95 @@
+<?php
+
+/* Add "/rdf" path to nodes of interest to get an RDF/XML feed of their contents
+*/
+
+function dec_rdf_tab_menu() {
+  $items = array();
+  $items['dossiers/%node/rdf'] = array(
+      'type' => MENU_NORMAL_ITEM,
+      'title' => 'Source',
+      'title callback' => 'dec_rdf_tab_title',
+      'page callback' => 'dec_rdf_tab_show_listing',
+      'page arguments' => array(1,"dossiers"),
+      'access callback' => TRUE,
+  );
+
+  $items['dossiers/%node/objectstories/%node/rdf'] = array(
+      'type' => MENU_NORMAL_ITEM,
+      'title' => 'Source',
+      'title callback' => 'dec_rdf_tab_title',
+      'page callback' => 'dec_rdf_tab_show_listing',
+      'page arguments' => array(3,"objectstories"),
+      'access callback' => TRUE,
+  );
+
+  $items['dossiers/%node/objectstories/%node/objects/%node/rdf'] = array(
+      'type' => MENU_NORMAL_ITEM,
+      'title' => 'Source',
+      'title callback' => 'dec_rdf_tab_title',
+      'page callback' => 'dec_rdf_tab_show_listing',
+      'page arguments' => array(5,"objects"),
+      'access callback' => TRUE,
+  );
+
+  $items['dossiers/%node/events/%node/rdf'] = array(
+      'type' => MENU_NORMAL_ITEM,
+      'title' => 'Source',
+      'title callback' => 'dec_rdf_tab_title',
+      'page callback' => 'dec_rdf_tab_show_listing',
+      'page arguments' => array(3,"events"),
+      'access callback' => TRUE,
+  );
+
+  $items['dossiers/%node/stories/%node/rdf'] = array(
+      'type' => MENU_NORMAL_ITEM,
+      'title' => 'Source',
+      'title callback' => 'dec_rdf_tab_title',
+      'page callback' => 'dec_rdf_tab_show_listing',
+      'page arguments' => array(3,"stories"),
+      'access callback' => TRUE,
+  );
+
+  $items['dossiers/%node/references/%node/rdf'] = array(
+      'type' => MENU_NORMAL_ITEM,
+      'title' => 'Source',
+      'title callback' => 'dec_rdf_tab_title',
+      'page callback' => 'dec_rdf_tab_show_listing',
+      'page arguments' => array(3,"references"),
+      'access callback' => TRUE,
+  );
+
+
+  return $items;
+}
+
+function dec_rdf_tab_title ()
+{
+  return "XML/RDF";
+}
+
+function dec_rdf_tab_show_listing($node,$type) {
+  $page = "";
+  //dd($node);
+
+  $openrdfhost = variable_get('dec_triple_store', 'http://decipher.open.ac.uk/openrdf-sesame');
+  $repository = variable_get('dec_triple_repo', 'Decipher');
+  $base_url = variable_get('dec_triples_base_url', trim(url("<front>", Array("absolute" => TRUE))),"/");
+  
+  $request_url = $openrdfhost. "/repositories/". $repository ."/statements?context=%3C".$base_url."/".$type."/".$node->nid."%3E";
+  
+  //dd($request_url);
+
+  $data = drupal_http_request( $request_url , array("method"=>"GET", "headers" => array("Accept"=>"application/rdf+xml;q=0.9,application/xml;q=0.8,*/*;q=0.5")));
+  
+  $page .= $data->data;
+
+  header('Content-type: application/rdf+xml');
+  print $page;
+  exit();
+}
+
+// Useful for determining the internal path
+// function dec_rdf_tab_node_view (){
+//  dd(arg());
+// }

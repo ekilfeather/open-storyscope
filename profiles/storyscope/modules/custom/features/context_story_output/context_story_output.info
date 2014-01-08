@@ -1,0 +1,11 @@
+name = Context Story Output
+core = 7.x
+package = Features
+php = 5.2.4
+dependencies[] = context
+dependencies[] = ctools
+dependencies[] = storyscope_story
+dependencies[] = views
+features[context][] = section_web_output
+features[ctools][] = context:context:3
+features[features_api][] = api:1

@@ -1,0 +1,7 @@
+<?php
+/**
+ * @file
+ * Code for the Context Joyride - Story/Section Overview feature.
+ */
+
+include_once 'context_joyride_story_section_overview.features.inc';

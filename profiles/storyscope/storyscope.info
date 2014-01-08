@@ -1,0 +1,381 @@
+name = StoryScope Profile
+description = "Installs a Story Scope instance"
+version = VERSION
+core = 7.x
+
+; These are only enabled on install
+dependencies[] = block
+;dependencies[] = color
+dependencies[] = comment
+dependencies[] = contextual
+dependencies[] = dashboard
+dependencies[] = help
+dependencies[] = image
+dependencies[] = list
+dependencies[] = menu
+dependencies[] = number
+dependencies[] = options
+dependencies[] = path
+dependencies[] = taxonomy
+dependencies[] = dblog
+dependencies[] = search
+dependencies[] = shortcut
+dependencies[] = toolbar
+dependencies[] = overlay
+dependencies[] = field_ui
+dependencies[] = file
+dependencies[] = rdf
+dependencies[] = update
+dependencies[] = trigger
+files[] = annerprofile.profile
+
+; Building blocks
+dependencies[] = context
+dependencies[] = context_ui
+dependencies[] = views
+dependencies[] = views_ui
+dependencies[] = features
+dependencies[] = ftools
+dependencies[] = strongarm
+dependencies[] = diff
+dependencies[] = bean
+dependencies[] = menu_block
+dependencies[] = menu_position
+dependencies[] = custom_breadcrumbsapi
+dependencies[] = custom_breadcrumbs
+dependencies[] = page_title
+dependencies[] = main_links
+dependencies[] = boxes
+dependencies[] = views_xml_backend
+
+; Panels
+dependencies[] = ctools
+dependencies[] = panels
+dependencies[] = page_manager
+dependencies[] = views_content
+
+; Other essentials
+dependencies[] = webform
+dependencies[] = draggableviews
+dependencies[] = backup_migrate
+dependencies[] = environment_indicator
+dependencies[] = pathauto 
+;dependencies[] = redirect
+dependencies[] = token
+dependencies[] = transliteration
+dependencies[] = googleanalytics 
+;dependencies[] = mollom
+dependencies[] = field_group
+dependencies[] = field_collection
+dependencies[] = email
+dependencies[] = link
+;dependencies[] = ds
+dependencies[] = select_or_other
+dependencies[] = site_map
+dependencies[] = clone
+dependencies[] = views_slideshow
+dependencies[] = libraries
+dependencies[] = flexslider
+dependencies[] = flexslider_views_slideshow
+dependencies[] = flexslider_views
+dependencies[] = eva
+dependencies[] = colorbox
+dependencies[] = colorbox_node
+dependencies[] = disable_messages
+
+; Entity related modules.
+dependencies[] = entity
+dependencies[] = entitycache
+dependencies[] = entity_token
+dependencies[] = entityreference
+dependencies[] = inline_entity_form
+dependencies[] = nodeaccess_userreference
+dependencies[] = entityreference_prepopulate
+dependencies[] = entityreference_view_widget
+dependencies[] = field_formatter_settings
+dependencies[] = field_multiple_limit
+
+; Wysiwyg modules
+dependencies[] = wysiwyg
+dependencies[] = wysiwyg_linebreaks
+dependencies[] = ckeditor_tweak
+
+; Media modules
+dependencies[] = file_entity
+dependencies[] = file_entity_link
+dependencies[] = media
+;dependencies[] = media_gallery
+dependencies[] = media_internet
+dependencies[] = media_youtube
+dependencies[] = media_vimeo
+dependencies[] = media_soundcloud
+dependencies[] = media_colorbox
+dependencies[] = field_slideshow
+dependencies[] = video_embed_field
+dependencies[] = video_embed_facebook
+
+; Rules
+dependencies[] = rules
+dependencies[] = rules_admin
+
+; Date modules
+dependencies[] = date 
+dependencies[] = date_api
+dependencies[] = date_views
+dependencies[] = date_popup
+dependencies[] = partial_date
+
+; Timeline modules
+dependencies[] = views_timelinejs
+dependencies[] = views_timelinejs_feature
+
+; Map Modules
+dependencies[] = openlayers
+dependencies[] = geofield
+dependencies[] = geophp
+dependencies[] = openlayers_ui
+dependencies[] = openlayers_views
+
+; Search modules
+dependencies[] = search_api
+dependencies[] = search_api_solr
+dependencies[] = facetapi
+dependencies[] = search_api_facetapi
+dependencies[] = search_api_views
+dependencies[] = search_api_saved_searches
+
+; SPARQL modules
+dependencies[] = sparql
+
+; RDF
+dependencies[] = rdfx
+
+; Tips and Tours modules
+dependencies[] = joyride
+
+;UI Cleanup - simplify seemed to throw an error when adding objects - removed for the moment
+;dependencies[] = simplify
+
+; Development modules
+dependencies[] = devel 
+dependencies[] = devel_generate 
+
+; Custom features
+dependencies[] = content_page
+dependencies[] = news_type
+dependencies[] = extra_html
+dependencies[] = extra_html_wysiwyg
+dependencies[] = only_html_input_format
+dependencies[] = content_type_dossier
+dependencies[] = content_type_object_story
+dependencies[] = content_type_object
+dependencies[] = content_type_reference
+dependencies[] = content_type_source_event
+dependencies[] = content_type_event
+dependencies[] = content_type_plot
+dependencies[] = content_type_plot_element
+dependencies[] = content_type_narrative_microsite
+dependencies[] = content_type_story
+dependencies[] = content_type_section
+dependencies[] = semrecommender_xml_views
+
+dependencies[] = views_dossier_events
+dependencies[] = views_dossier_object_stories
+dependencies[] = views_dossier_objects
+dependencies[] = views_dossier_references
+; dependencies[] = views_dossier_plots
+dependencies[] = views_dossiers
+; dependencies[] = views_dossier_narratives
+dependencies[] = views_dossier_stories
+
+dependencies[] = views_event_stories
+dependencies[] = views_events
+dependencies[] = views_events_objects
+dependencies[] = views_source_event_interpretations
+dependencies[] = views_event_detail
+
+dependencies[] = views_object_stories
+dependencies[] = views_object_story_dossiers
+dependencies[] = views_object_story_events
+dependencies[] = views_object_story_objects
+dependencies[] = views_story_references
+
+dependencies[] = views_objects
+dependencies[] = views_object_events
+dependencies[] = views_object_object_stories
+dependencies[] = views_object_media_slideshow
+
+; dependencies[] = views_plot_plot_elements
+; dependencies[] = views_plot_events
+; dependencies[] = views_plot_objects
+; dependencies[] = views_plot_object_stories
+
+; dependencies[] = views_plot_element_events
+; dependencies[] = views_plot_element_object_stories
+; dependencies[] = views_plot_element_objects
+; dependencies[] = views_plot_element_references
+
+dependencies[] = views_story_sections
+dependencies[] = views_section_events
+dependencies[] = views_section_objects 
+
+dependencies[] = views_reference_dossiers
+dependencies[] = views_reference_object_stories
+dependencies[] = views_references
+
+dependencies[] = permissions_trial_user
+
+; SQL based versions, not using now as we have Solr versions.
+;dependencies[] = views_dossier_object_stories_add_existing
+;dependencies[] = views_dossier_references_add_existing
+;dependencies[] = views_dossier_events_add_existing
+;dependencies[] = views_dossier_objects_add_existing
+;dependencies[] = views_object_story_references_add_existing
+;dependencies[] = views_object_story_events_add_existing
+;dependencies[] = views_object_story_objects_add_existing
+
+dependencies[] = views_dossier_add_object_stories_searchapi
+dependencies[] = views_dossier_add_events_searchapi
+dependencies[] = views_dossier_add_references_searchapi
+dependencies[] = views_dossier_add_objects_searchapi
+dependencies[] = views_object_story_add_objects_searchapi
+dependencies[] = views_object_story_add_references_searchapi
+dependencies[] = views_object_story_add_events_searchapi
+dependencies[] = views_events_search_api_
+dependencies[] = views_object_stories_search_api
+dependencies[] = views_objects_search_api
+dependencies[] = views_dossier_events_search_api
+dependencies[] = views_object_image_slideshow
+
+; dependencies[] = views_narrative_objects
+; dependencies[] = views_narrative_events
+; dependencies[] = views_narrative_object_stories
+; dependencies[] = views_narrative_plot_elements
+
+dependencies[] = search_api_solr_config
+
+dependencies[] = context_facets_add_existing_events
+dependencies[] = context_facets_add_existing_objects
+dependencies[] = context_facets_add_existing_objectstories
+dependencies[] = context_facets_object_story_add_existing_events
+dependencies[] = context_facets_dossier_events_listing
+dependencies[] = context_facets_dossier_add_objects
+dependencies[] = context_facets_dossier_objectstories_add_objects
+dependencies[] = context_facets_objects
+dependencies[] = context_joyride_add_existing_object_story
+dependencies[] = context_joyride_add_existing_object_event
+dependencies[] = context_joyride_object_objectstory_event_overview
+dependencies[] = context_joyride_add_event
+dependencies[] = context_joyride_dossier_overview
+dependencies[] = context_joyride_create_event
+dependencies[] = context_joyride_front
+dependencies[] = context_joyride_story_section_overview
+dependencies[] = context_joyride_story_create 
+dependencies[] = search_object_story_add_ca_objects
+
+;dependencies[] = context_timeline_blocks
+
+dependencies[] = context_joyride_add_existing_object_event
+dependencies[] = context_joyride_front
+
+dependencies[] = context_joyride_story_section_overview
+
+
+dependencies[] = views_dossier_activity
+
+dependencies[] = variables_storyscope
+
+dependencies[] = flexslider_options_set
+
+dependencies[] = views_pick_object_example
+dependencies[] = views_pick_object_story_example
+
+dependencies[] = views_pick_object_example
+dependencies[] = views_pick_object_story_example
+
+dependencies[] = storyscope_imagestyles
+dependencies[] = storyscope_mediastyles
+dependencies[] = storyscope_content
+dependencies[] = storyscope_story
+dependencies[] = context_storyscope
+dependencies[] = context_section
+dependencies[] = context_story_output
+; Causes some errors when saving content atm, will review when a priority.
+;dependencies[] = storyscope_control
+dependencies[] = storyscope_nav
+dependencies[] = storyscope_tweaks
+; dependencies[] = storyscope_narrative
+
+dependencies[] = taxonomy_creator_role
+dependencies[] = taxonomy_object_identifier
+dependencies[] = taxonomy_event_genre
+dependencies[] = taxonomy_event_theme
+dependencies[] = taxonomy_event_object
+dependencies[] = taxonomy_event_location
+dependencies[] = taxonomy_event_agent
+dependencies[] = taxonomy_event_activity
+dependencies[] = taxonomy_creator_culture
+dependencies[] = taxonomy_credit_line
+dependencies[] = taxonomy_creator_name
+dependencies[] = taxonomy_collection_location
+dependencies[] = taxonomy_materials
+dependencies[] = taxonomy_event_style_movement
+dependencies[] = taxonomy_object_classification
+
+;Freebase Suggest
+dependencies[] = jquery_freebase
+dependencies[] = storyscope_freebase
+
+dependencies[] = openlayers_geofield_event_map
+
+dependencies[] = annertech_panels
+dependencies[] = storyscope_panels 
+dependencies[] = panels_node_dossier
+dependencies[] = panels_node_object
+dependencies[] = panels_node_object_stories
+dependencies[] = panels_node_events
+dependencies[] = panels_node_source_event
+dependencies[] = panels_node_story
+dependencies[] = panels_node_section
+dependencies[] = panels_node_edit_section
+dependencies[] = panels_sign_in_and_getting_started
+; dependencies[] = panels_node_plot
+; dependencies[] = panels_node_plot_element
+; dependencies[] = panels_node_narrative_as_website
+; dependencies[] = panels_field_collection_edit_form_narrative_set
+
+dependencies[] = overlay_paths
+dependencies[] = selectivizr
+dependencies[] = respondjs
+
+; Custom Modules
+dependencies[] = storyscope_viewmodes
+dependencies[] = storyscope_listings
+dependencies[] = storyscope_timeline
+dependencies[] = extra_fields
+
+; BUT Custom Modules
+dependencies[] = annotation_editor
+dependencies[] = similarity_search
+dependencies[] = annotation_translator
+
+dependencies[] = ca_search
+dependencies[] = search_api_decipher_ca_config
+dependencies[] = content_aggregator_search_view
+
+; Czech translation
+dependencies[] = locale
+dependencies[] = variable
+dependencies[] = i18n
+dependencies[] = i18n_string
+dependencies[] = i18n_translation
+dependencies[] = i18n_menu
+
+
+dependencies[] = progress
+dependencies[] = background_process
+dependencies[] = dec_rdf
+;dependencies[] = dec_rec
+
+;Feedback Module
+dependencies[] = feedback

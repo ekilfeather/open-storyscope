@@ -1,0 +1,40 @@
+id,parentid,topic,mid,EOL
+material001,object366|object64,Acrylic Glass,https://www.freebase.com/m/017c6v,EOL
+material002,object78|object73|object65|object61|object86|object76,Acrylic paint,http://freebase.com/en/acrylic_paint,EOL
+material003,object704|object359|object68|object362|object51,Aluminium,http://freebase.com/en/aluminium,EOL
+material004,object89|object356|object373|object373|object53,Bronze,http://www.freebase.com/m/01brf,EOL
+material005,object60,Chrome steel,https://www.freebase.com/m/0bf61n,EOL
+material006,object52|object368|object51,Chromogenic color print,http://freebase.com/en/type_c_print,EOL
+material007,object57,DVD,https://www.freebase.com/m/029j_,EOL
+material008,object701,Encaustic painting,http://www.freebase.com/m/0cjhq,EOL
+material009,object356,Gold leaf,https://www.freebase.com/m/025sj5f,EOL
+material010,object503|object523,Gouache,http://freebase.com/en/gouache,EOL
+material011,object501,Hardboard,http://freebase.com/en/hardboard,EOL
+material012,object360|object360,Ink,https://www.freebase.com/m/03yhk,EOL
+material013,object526|object525,Ink wash painting,http://www.freebase.com/m/02h4q_t,EOL
+material014,object53,Lead,https://www.freebase.com/m/025r_0t,EOL
+material015,object359,Marble,https://www.freebase.com/m/04tdh,EOL
+material016,object75|object50,Mixed Media,http://freebase.com/en/mixed_media,EOL
+material017,object356,Neon sign,https://www.freebase.com/m/01s4b5,EOL
+material018,object76,Nylon,https://www.freebase.com/m/05d6r,EOL
+material019,object501|object362,Oil paint,https://www.freebase.com/m/031cgw,EOL
+material020,object363|object84|object88|object90|object504|object505|object506|object507|object508|object509|object510|object511|object512|object513|object514|object515|object516|object517|object518|object519|object520|object601|object602|object603|object604|object605|object606|object607|object608|object609|object610|object521|object522|object527|object705|object613|object614|object615|object708|object709|object363|object86|object601|object604|object605|object89|object2|object301|object302|object305|object355|object358|object361|object363|object364|object365|object367|object49|object502|object55|object63|object67|object365|object7|object79|object79,Oil painting,http://freebase.com/en/oil_painting,EOL
+material021,object64,Paint,https://www.freebase.com/m/05y4t,EOL
+material022,object76|object702|object702,Painted Metal,https://www.freebase.com/m/03qrcxq,EOL
+material023,object357|object360|object360|object362|object612|object304,Paper,http://freebase.com/en/paper,EOL
+material024,object612|object304,Pencil,http://www.freebase.com/m/063w2,EOL
+material025,object48|object87,Photograph,http://freebase.com/en/photograph,EOL
+material026,object54,Printmaking,http://freebase.com/en/printmaking,EOL
+material027,object373,Rock,https://www.freebase.com/m/01cbzq,EOL
+material028,object59|object91,Screen-printing,http://freebase.com/en/screen-printing,EOL
+material029,object501,Shantung silk,http://freebase.com/m/0nb8dnm,EOL
+material030,object72,Stainless steel,http://freebase.com/en/stainless_steel,EOL
+material031,object51,Synthetic fabric,https://www.freebase.com/m/03cds14,EOL
+material032,object71|object300,Tempera,http://freebase.com/en/tempera,EOL
+material033,object53,Textile,https://www.freebase.com/m/0dnr7,EOL
+material034,object47,Triplochiton scleroxylon,https://www.freebase.com/m/02q2n3g,EOL
+material035,object356,Walnut,https://www.freebase.com/m/015_77,EOL
+material036,object524,Watercolor paint,http://www.freebase.com/m/018ktp,EOL
+material037,object356|object360|object360|object64|object76|object362|object51|object366,Wood,https://www.freebase.com/m/083vt,EOL
+material038,object73,Wood Veneer,https://www.freebase.com/m/080y3x,EOL
+material039,object356,Wood carving,http://freebase.com/en/wood_carving,EOL

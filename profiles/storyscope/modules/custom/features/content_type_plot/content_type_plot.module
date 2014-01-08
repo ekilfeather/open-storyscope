@@ -1,0 +1,7 @@
+<?php
+/**
+ * @file
+ * Code for the Content Type Plot feature.
+ */
+
+include_once 'content_type_plot.features.inc';

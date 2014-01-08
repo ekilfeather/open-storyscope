@@ -1,0 +1,7 @@
+<?php
+/**
+ * @file
+ * Code for the Views similarity dossier event feature.
+ */
+
+include_once 'views_similarity_dossier_event.features.inc';

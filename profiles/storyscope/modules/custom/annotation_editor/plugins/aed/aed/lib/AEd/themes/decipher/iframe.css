@@ -1,0 +1,237 @@
+/* RESET http://meyerweb.com/eric/tools/css/reset/ */  
+html, body, div, span, applet, object, iframe,
+h1, h2, h3, h4, h5, h6, p, blockquote, pre,
+a, abbr, acronym, address, big, cite, code,
+del, dfn, em, img, ins, kbd, q, s, samp,
+small, strike, strong, sub, sup, tt, var,
+b, u, i, center,
+dl, dt, dd, ol, ul, li,
+fieldset, form, label, legend,
+table, caption, tbody, tfoot, thead, tr, th, td,
+article, aside, canvas, details, embed, 
+figure, figcaption, footer, header, hgroup, 
+menu, nav, output, ruby, section, summary,
+time, mark, audio, video {
+	/*margin: 0;*/
+	padding: 0;
+	border: 0;
+	font-size: 100%;
+	font: inherit;
+	vertical-align: baseline;
+}
+/* HTML5 display-role reset for older browsers */
+article, aside, details, figcaption, figure, 
+footer, header, hgroup, menu, nav, section {
+	display: block;
+}
+body {
+	line-height: 1.2;
+	
+}
+ol, ul {
+	list-style: none;
+}
+blockquote, q {
+	quotes: none;
+}
+blockquote:before, blockquote:after,
+q:before, q:after {
+	content: '';
+	content: none;
+}
+table {
+	border-collapse: collapse;
+	border-spacing: 0;
+}
+/* END OF RESET */
+
+
+body {font-family: Verdana,Arial,sans-serif; font-size: 0.7em; padding: 10px; color: #ffffff;}
+
+.aed-form legend, .aed-form label { font-weight: normal; }
+.aed-form { color: #000; width: 100%; height: 100%;}
+.aed-form fieldset { border: 1px solid #445461; padding:1em; margin-bottom: 0.5em;}
+.aed-form table {width: 100%;}
+.aed-form table .aed-ui-table-column1 {width: 25%; vertical-align: middle}
+.aed-form table td { padding : 0.3em;}
+.aed-form input {width: 100%; font-size: 0.9em; font-family: Verdana,Arial,sans-serif; }
+.aed-form .checkbox {width: 25%; margin-right: 24%; float: right; display: inline; font-size: 0.9em; font-family: Verdana,Arial,sans-serif; }
+.aed-form select {width: 100%; font-size: 0.9em; font-family: Verdana,Arial,sans-serif; }
+.aed-form textarea {width: 100%; font-size: 0.9em; font-family: Verdana,Arial,sans-serif; }
+.aed-form textarea.aed-disabled { background-color: #cfd1d4; color:#505050; }     
+.aed-form input.aed-disabled { background-color: #cfd1d4; color:#505050; }  
+
+#aedEmptyDiv { height: 1em; }
+
+/* FRAGMENT */
+#aedFragmentSimpleAttr {margin: 7px;}
+#aedFragmentNestedAttr {margin: 0px;}
+
+/* DLG ANNOTATE */
+#aedFormAnnotate {position: relative;}
+#aedAnnotateLeft {position: absolute; top: 10px; left: 10px; width: 210px;}
+#aedAnnotateRight {margin-left: 210px; }
+#aedType {width: 70%;} 
+#aedSimpleType, #aedGeoPointType, #aedEntityType, #aedNestedAnnotationType {width: 70%;}
+#aedAnnotationLinkValue {width: 70%;}
+
+#aedSuggestions, 
+#aedSimpleSuggestions,
+#aedGeoPointSuggestions,
+#aedEntitySuggestions,
+#aedEntityNameSuggestions,
+#aedNestedAnnotationSuggestions {position: relative; height: 1px;} 
+
+#aedEntityDescription {margin-top: 7px; min-height: 10px;}
+#aedEntityImage
+{
+    margin-top: 7px;
+    min-height: 100px;
+    max-height: 150px;
+    min-width: 100px;
+    max-width: 150px;
+    background-size: contain;
+    background-repeat: no-repeat;
+}
+
+#aedSuggestions .aed-ui-suggestions_bar, 
+#aedSimpleSuggestions .aed-ui-suggestions_bar,
+#aedGeoPointSuggestions .aed-ui-suggestions_bar,
+#aedNestedAnnotationSuggestions .aed-ui-suggestions_bar {position: absolute; height: 170px; top: 0; left: 0; width: 100%; z-index: 1; }
+#aedAddToTypeAttributesWrapper  {color: #000;}
+.aed-ui-suggestions_bar_item {color: #555555;} 
+
+#aedAnnotateTreeWrapper { width: 182px; height: 246px; overflow: auto; }
+
+#aedAttrTypesSuggestions {position: relative; height: 1px;}
+#aedAttrTypesSuggestions .aed-ui-suggestions_bar {position: absolute; height: 170px; top: 0; left: 0; width: 100%; z-index: 1; }
+
+/* DLG SUGGEST ANNOTATIONS */
+#aedFormSuggestAnnotations {position: relative;}
+#aedSuggestType {width: 70%;}
+#aedSuggestSuggestions {position: relative; height: 1px;}
+#aedSuggestSuggestions .aed-ui-suggestions_bar {position: absolute; height: 170px; top: 0; left: 0; width: 100%; z-index: 1; }
+
+/* DLG SETTINGS */
+#aedFormSettings {position: relative;}
+#aedSettingsLeft {position: absolute; top: 10px; left: 10px; width: 200px; }
+#aedSettingsRight {margin-left: 250px; }
+
+#aedSettingsTreeWrapper { height: 257px; overflow: auto; }
+
+#aedSettingsClientAnnotationTypeColorTable td {padding: 0 0.5em;}
+#aedSettingsClientAnnotationTypeColorTableHeader .aed-ui-table-column1 {width: 40%;}
+#aedSettingsClientAnnotationTypeColorTableHeader .aed-ui-table-column2 {width: 40%;}
+#aedSettingsClientAnnotationTypeColorTableHeader .aed-ui-table-column3 {width: 10%; min-width: 4.1em;}
+#aedSettingsClientAnnotationTypeColorTableHeader .aed-ui-table-column4 {width: 10%; min-width: 4.1em;}
+#aedSettingsClientAnnotationTypeColorTable .aed-ui-table-column1 {width: 40%;}
+#aedSettingsClientAnnotationTypeColorTable .aed-ui-table-column2 {width: 40%;}
+#aedSettingsClientAnnotationTypeColorTable .aed-ui-table-column3 {width: 10%;}
+#aedSettingsClientAnnotationTypeColorTable .aed-ui-table-column4 {width: 10%;}
+#aedSettingsClientAnnotationTypeColorTable .aed-ui-btn { margin: 0.1em -0.7em 0.1em 0; }
+#aedSettingsClientAnnotationTypeColorTable input {background-color: #cfd1d4; border: 1px solid #7D8496;  border-radius: 3px; padding: 0.3em; color: #000;}
+
+#aedSettingsClientAdvancedToolbarOptionsAllinOneValue {display: inline-block; float: left; width: 16px;}
+#aedSettingsClientAdvancedToolbarOptionsAllInOneWrapper {display: block; margin: 13px 0 0 0; }
+#aedSettingsClientAdvancedToolbarOptionsTwoToolbarsValue {display: inline-block; float: left; width: 16px;}
+#aedSettingsClientAdvancedToolbarOptionsTwoToolbarsWrapper {display: block; margin: 13px 0 0 0; }
+
+#aedSettingsClientRefuseSuggestionValue {display: inline-block; float: left; width: 16px;}
+#aedSettingsClientRefuseSuggestionWrapper {display: block; margin: 13px 0 0 0; }
+#aedSettingsClientFoldingOfAttributesValue, #aedSettingsClientFoldingOfNestedsValue {display: inline-block; float: left; width: 16px;}
+#aedSettingsClientFoldingOfAttributesWrapper, #aedSettingsClientFoldingOfNestedsWrapper {display: block; margin: 13px 0 0 0; }
+#aedSettingsClientFoldingOfAttributesResizeValue, #aedSettingsClientFoldingOfAttributesHideButtonValue, #aedSettingsClientFoldingOfNestedsHideButtonValue {display: inline-block; float: left; width: 16px; }
+#aedSettingsClientFoldingOfAttributesResizeWrapper, #aedSettingsClientFoldingOfAttributesHideButtonWrapper, #aedSettingsClientFoldingOfNestedsHideButtonWrapper {display: block; margin: 10px 0 0 30px;}
+#aedSettingsFieldsetClientFoldingOfAttributes .aed-ui-table-column1 { width: 80%; padding-top: 12px; font-weight: normal; }
+
+#aedSettingsUnknownTable td {padding: 0 0.5em;}
+#aedSettingsUnknownTableHeader .aed-ui-table-column1 {width: 45%;}
+#aedSettingsUnknownTableHeader .aed-ui-table-column2 {width: 45%;}
+#aedSettingsUnknownTableHeader .aed-ui-table-column3 {width: 10%; min-width: 5em;}
+#aedSettingsUnknownTable .aed-ui-table-column1 {width: 45%;}
+#aedSettingsUnknownTable .aed-ui-table-column2 {width: 45%;}
+#aedSettingsUnknownTable .aed-ui-table-column3 {width: 10%;}   
+#aedSettingsUnknownTable .aed-ui-btn { margin: 0.1em 0 0.1em 0; }  
+#aedSettingsUnknownTable input {background-color: #cfd1d4; border: 1px solid #7D8496;  border-radius: 3px; padding: 0.3em; color: #000;}
+
+/* DLG SUBSCRIPTIONS */
+#aedTableSubscriptions td {padding: 0 0.5em;}
+#aedTableSubscriptions .aed-ui-table-column1 {width: 30%;}
+#aedTableSubscriptions .aed-ui-table-column2 {width: 30%;}
+#aedTableSubscriptions .aed-ui-table-column3 {width: 30%;}        
+#aedTableSubscriptions .aed-ui-btn { margin: 0.1em 0 0.1em 0; } 
+#aedTableSubscriptions  input {background-color: #cfd1d4; border: 1px solid #7D8496;  border-radius: 3px; padding: 0.3em; color: #000;}
+
+/* DLG PERSONS */
+.aed-form #aedPersonsSearch {width: 90%;}
+.aed-form #aedGroupsSearch {width: 90%;}
+
+/* DLG TYPECOLORS */
+#aedFormTypeColors {position: relative;}
+#aedTypeColorsType {width: 70%;}
+#aedTypeColorsSuggestions {position: relative; height: 1px;}
+#aedTypeColorsSuggestions .aed-ui-suggestions_bar {position: absolute; height: 170px; top: 0; left: 0; width: 100%; z-index: 1; }
+#aedTypeColorsAlpha {width: 15%;}
+
+/* DLG ANNOTATE + TYPES + DLG ATTRTYPES */
+#aedTypesTreeWrapper { height: 175px; overflow: auto; }
+#aedAttrTypesTreeWrapper {max-height: 175px; overflow: auto; }
+.aed-form #aedAddType {width: 80%;}
+#aedAddToTypeAttributes,
+#aedAddToTypeAttributesSimple,
+#aedAddToTypeAttributesGeoPoint,
+#aedAddToTypeAttributesEntity,
+#aedAddToTypeAttributesNested {display: inline-block; float: left; width: 16px;}
+#aedRequired,
+#aedRequiredSimple,
+#aedRequiredGeoPoint,
+#aedRequiredEntity,
+#aedRequiredNested {display: inline-block; float: left; width: 16px; }
+#aedAddToTypeAttributesWrapper {display: block; }
+#aedAddToTypeAttributesWrapperSimple,
+#aedAddToTypeAttributesWrapperGeoPoint,
+#aedAddToTypeAttributesWrapperEntity,
+#aedAddToTypeAttributesWrapperNested {display: block; margin: 13px 0 0 0; }
+#aedRequiredWrapper,
+#aedRequiredWrapperSimple,
+#aedRequiredWrapperGeoPoint,
+#aedRequiredWrapperEntity,
+#aedRequiredWrapperNested {display: block; margin: 10px 0 0 30px;}
+#aedRequiredWrapper,
+#aedRequiredWrapperSimple,
+#aedRequiredWrapperGeoPoint,
+#aedRequiredWrapperNested span{padding: 4px 0 0 0; display: block}
+
+#aedSimpleBtnBinaryBrowse, #aedSimpleBtnDownloadBinary {position:relative}
+#aedSimpleBtnBinaryBrowse #FileContent, #aedSimpleBtnDownloadBinary #fileDownload {position: absolute;top:-1px;left:-1px;z-index:1}
+#aedSimpleBtnBinaryBrowse .aed-ui-btn-text, #aedSimpleBtnDownloadBinary .aed-ui-btn-text {z-index:2}
+
+table.aedEntityNameAutocompleter
+{
+    width: 100%;
+}
+
+table.aedEntityNameAutocompleter .aed-ui-table-column1
+{
+    width: 20px;
+    text-align: center;
+    vertical-align: middle;
+}
+
+table.aedEntityNameAutocompleter .aed-ui-table-column1 img
+{
+    max-width: 20px;
+    max-height: 20px;
+}
+
+table.aedEntityNameAutocompleter .aed-ui-table-column2
+{
+    vertical-align: middle;
+}
+
+table.aedEntityNameAutocompleter .aed-ui-table-column3
+{
+    text-align: right;
+    font-size:85%;
+    vertical-align: middle;
+}

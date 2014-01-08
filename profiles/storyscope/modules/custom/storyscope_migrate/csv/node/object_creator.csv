@@ -1,0 +1,137 @@
+id,objectid,Creator Name,dob - day,dob - month,dob - year,approx,death - day,death - month,death - year,approx,,EOL
+objectcreator1,object120,Sir Denis Mahon,8,11,1910,,24,4,2011,,object120|object114|object113|object110|object109|object107|object103|object94|object137|object142,EOL
+objectcreator1b,object114,Sir Denis Mahon,8,11,1910,,24,4,2011,,object120|object114|object113|object110|object109|object107|object103|object94|object137|object142,EOL
+objectcreator1c,object113,Sir Denis Mahon,8,11,1910,,24,4,2011,,object120|object114|object113|object110|object109|object107|object103|object94|object137|object142,EOL
+objectcreator1d,object110,Sir Denis Mahon,8,11,1910,,24,4,2011,,object120|object114|object113|object110|object109|object107|object103|object94|object137|object142,EOL
+objectcreator1e,object109,Sir Denis Mahon,8,11,1910,,24,4,2011,,object120|object114|object113|object110|object109|object107|object103|object94|object137|object142,EOL
+objectcreator1f,object107,Sir Denis Mahon,8,11,1910,,24,4,2011,,object120|object114|object113|object110|object109|object107|object103|object94|object137|object142,EOL
+objectcreator1g,object103,Sir Denis Mahon,8,11,1910,,24,4,2011,,object120|object114|object113|object110|object109|object107|object103|object94|object137|object142,EOL
+objectcreator1h,object94,Sir Denis Mahon,8,11,1910,,24,4,2011,,object120|object114|object113|object110|object109|object107|object103|object94|object137|object142,EOL
+objectcreator1i,object137,Sir Denis Mahon,8,11,1910,,24,4,2011,,object120|object114|object113|object110|object109|object107|object103|object94|object137|object142,EOL
+objectcreator1j,object142,Sir Denis Mahon,8,11,1910,,24,4,2011,,object120|object114|object113|object110|object109|object107|object103|object94|object137|object142,EOL
+objectcreator2,object133,John Hinde,17,5,1916,,26,12,1997,,,EOL
+objectcreator3,object134,Giovanni Francesco Barbieri (Guercino),8,2,1591,,22,12,1666,,object134|object119|object118|object136|object507|object509|object510,EOL
+objectcreator3b,object119,Giovanni Francesco Barbieri (Guercino),8,2,1591,,22,12,1666,,object134|object119|object118|object136|object507|object509|object510,EOL
+objectcreator3c,object118,Giovanni Francesco Barbieri (Guercino),8,2,1591,,22,12,1666,,object134|object119|object118|object136|object507|object509|object510,EOL
+objectcreator3d,object136,Giovanni Francesco Barbieri (Guercino),8,2,1591,,22,12,1666,,object134|object119|object118|object136|object507|object509|object510,EOL
+objectcreator3e,object507,Giovanni Francesco Barbieri (Guercino),8,2,1591,,22,12,1666,,object134|object119|object118|object136|object507|object509|object510,EOL
+objectcreator3f,object509,Giovanni Francesco Barbieri (Guercino),8,2,1591,,22,12,1666,,object134|object119|object118|object136|object507|object509|object510,EOL
+objectcreator3g,object510,Giovanni Francesco Barbieri (Guercino),8,2,1591,,22,12,1666,,object134|object119|object118|object136|object507|object509|object510,EOL
+objectcreator4,object135,Annibale Carracci,3,11,1560,,15,7,1609,,,EOL
+objectcreator6,object10,Pellegrino Antonio Orlandi,,,1660,,,,1727,,,EOL
+objectcreator7,object7,Paul Henry,11,4,1887,,25,8,1958,,object7,EOL
+objectcreator8,object9,Richard Lassels,,,1603,,,,1668,,,EOL
+objectcreator9,object8,Filippo Baldinucci,,,1624,,,,1697,,,EOL
+objectcreator10,object143,Giuseppe Ghezzi,,,1634,,,,1721,,,EOL
+objectcreator11,object96,Lady Alice Mahon,31,3,1887,,6,8,1970,,object96|object99,EOL
+objectcreator11b,object99,Lady Alice Mahon,31,3,1887,,6,8,1970,,object96|object99,EOL
+objectcreator12,object102,J.G. Cloots,,,,,,,,,,EOL
+objectcreator13,object104,Kenneth Clark,13,7,1903,,21,5,1983,,,EOL
+objectcreator14,object105,Giovanni Battista Falda,,,1640,circa,,,1678,,,EOL
+objectcreator15,object106,Marco Dente da Ravenna,,,1493,,,,1527,,,EOL
+objectcreator16,object108,Delius Giese,,,,,,,,,,EOL
+objectcreator17,object111,Francesco Bartolozzi,,,1725,,,,1815,,object111|object112,EOL
+objectcreator17b,object112,Francesco Bartolozzi,,,1725,,,,1815,,object111|object112,EOL
+objectcreator18,object115,R.E.A. Wilson,,,,,,,,,,EOL
+objectcreator19,object116,Pietro Faccini,,,1562,,,,1602,,,EOL
+objectcreator20,object117,"Frederik Johannes ""Frits"" Lugt ",4,5,1884,,15,7,1970,,,EOL
+objectcreator21,object121,Michael Wynne,,,,,,,,,,EOL
+objectcreator22,object122,Sir Ernst Hans Josef Gombrich,30,3,1909,,3,11,2001,,,EOL
+objectcreator23,object123,Peter Murray,,,1920,,,,1992,,,EOL
+objectcreator24,object125,Giorgio Vasari,30,7,1511,,27,6,1574,,,EOL
+objectcreator25,object128,Carlo Cesare Malvasia,,,1616,,,,1693,,,EOL
+objectcreator26,object129,Jacopo Alessandro Calvi,,,1740,,,,1815,,,EOL
+objectcreator27,object130,Cesare Ripa,,,1560,circa,,,1645,circa,,EOL
+objectcreator28,object86,Micheál Farrell,,,1940,,,,2000,,object86,EOL
+objectcreator29,object89,F.E. McWilliam,30,4,1909,,13,5,1992,,object89,EOL
+objectcreator31,object68,Oisín Kelly,17,5,1915,,,,1981,,object68,EOL
+objectcreator32,object138,William Scott,15,2,1913,,28,12,1989,,object138|object139|object100,EOL
+objectcreator32b,object139,William Scott,15,2,1913,,28,12,1989,,object138|object139|object100,EOL
+objectcreator32c,object100,William Scott,15,2,1913,,28,12,1989,,object138|object139|object100,EOL
+objectcreator34,object61,Robert Ballagh,22,9,1943,,,,,,object61|object50,EOL
+objectcreator34b,object50,Robert Ballagh,22,9,1943,,,,,,object61|object50,EOL
+objectcreator35,object106,Marcantonio Raimondi,,,1480,,,,1534,,object106,EOL
+objectcreator36,object79,Jack B. Yeats,29,8,1871,,28,3,1957,,object79|object302|object709,EOL
+objectcreator36b,object302,Jack B. Yeats,29,8,1871,,28,3,1957,,object79|object302|object709,EOL
+objectcreator36c,object709,Jack B. Yeats,29,8,1871,,28,3,1957,,object79|object302|object709,EOL
+objectcreator38,object71,John Luke,19,1,1906,,4,2,1975,,object71,EOL
+objectcreator39,object141,Giovanni Pietro Bellori,,,1613,,,,1696,,,EOL
+objectcreator40,object143,Raffaello Borghini,,,1537,,,,1588,,,EOL
+objectcreator41,object522,Mainie Jellett,,,1897,,,,1944,,object522|object523|object524|object525|object526|object527|object705|object706,EOL
+objectcreator41b,object523,Mainie Jellett,,,1897,,,,1944,,object522|object523|object524|object525|object526|object527|object705|object706,EOL
+objectcreator41c,object524,Mainie Jellett,,,1897,,,,1944,,object522|object523|object524|object525|object526|object527|object705|object706,EOL
+objectcreator41d,object525,Mainie Jellett,,,1897,,,,1944,,object522|object523|object524|object525|object526|object527|object705|object706,EOL
+objectcreator41e,object526,Mainie Jellett,,,1897,,,,1944,,object522|object523|object524|object525|object526|object527|object705|object706,EOL
+objectcreator41f,object527,Mainie Jellett,,,1897,,,,1944,,object522|object523|object524|object525|object526|object527|object705|object706,EOL
+objectcreator41g,object705,Mainie Jellett,,,1897,,,,1944,,object522|object523|object524|object525|object526|object527|object705|object706,EOL
+objectcreator41,object706,Mainie Jellett,,,1897,,,,1944,,object522|object523|object524|object525|object526|object527|object705|object706,EOL
+objectcreator42,object301,William Orpen,,,1878,,,,1931,,,EOL
+objectcreator55,object355,Brian O'Doherty,,,1928,,,,,,object355|object360,EOL
+objectcreator55b,object360,Brian O'Doherty,,,1928,,,,,,object355|object360,EOL
+objectcreator56,object356,Niamh McCann,,,,,,,,,object356,EOL
+objectcreator57,object357,Tim Mara,,,1948,,,,1997,,object357,EOL
+objectcreator58,object49,Anne Madden,,,1932,,,,,,object49,EOL
+objectcreator59,object358,Basil Blackshaw,,,1932,,,,,,object358,EOL
+objectcreator60,object359,Brian King,,,1942,,,,,,object359,EOL
+objectcreator62,object361,Camille Souter,,,1929,,,,,,object361|object362,EOL
+objectcreator62b,object362,Camille Souter,,,1929,,,,,,object361|object362,EOL
+objectcreator64,object363,Cecil King,,,1921,,,,1986,,object363,EOL
+objectcreator65,object364,Deborah Brown ,,,1927,,,,,,object364,EOL
+objectcreator66,object365,Edward McGuire,,,1932,,,,1986,,object365,EOL
+objectcreator67,object366,Eva Rothschild,,,1972,,,,,,object366,EOL
+objectcreator68,object367,Gerard Dillon,,,1916,,,,1971,,object367,EOL
+objectcreator69,object368,Hannah Starkey,,,1971,,,,,,object368,EOL
+objectcreator70,object501,Louis le Brocquy,,,1916,,,,2012,,object701,EOL
+objectcreator71,object502,Georges Braque,,,1882,,,,1963,,,EOL
+objectcreator72,object503,Albert Gleizes,,,1881,,,,1953,,object521,EOL
+objectcreator73,object512,Luca Giordano,,,1634,,,,1705,,object512|object513|object514|object515|object516|object517|object518|object519|object520,EOL
+objectcreator73b,object513,Luca Giordano,,,1634,,,,1705,,object512|object513|object514|object515|object516|object517|object518|object519|object520,EOL
+objectcreator73c,object514,Luca Giordano,,,1634,,,,1705,,object512|object513|object514|object515|object516|object517|object518|object519|object520,EOL
+objectcreator73d,object515,Luca Giordano,,,1634,,,,1705,,object512|object513|object514|object515|object516|object517|object518|object519|object520,EOL
+objectcreator73e,object516,Luca Giordano,,,1634,,,,1705,,object512|object513|object514|object515|object516|object517|object518|object519|object520,EOL
+objectcreator73f,object517,Luca Giordano,,,1634,,,,1705,,object512|object513|object514|object515|object516|object517|object518|object519|object520,EOL
+objectcreator73g,object518,Luca Giordano,,,1634,,,,1705,,object512|object513|object514|object515|object516|object517|object518|object519|object520,EOL
+objectcreator73h,object519,Luca Giordano,,,1634,,,,1705,,object512|object513|object514|object515|object516|object517|object518|object519|object520,EOL
+objectcreator73i,object520,Luca Giordano,,,1634,,,,1705,,object512|object513|object514|object515|object516|object517|object518|object519|object520,EOL
+objectcreator73j,object504,Luca Giordano,,,1634,,,,1705,,object512|object513|object514|object515|object516|object517|object518|object519|object520,EOL
+objectcreator74,object506,Domenichino,,,1581,,,,1641,,object508,EOL
+objectcreator74b,object508,Domenichino,,,1581,,,,1641,,object508,EOL
+objectcreator75,object511,Guido Reni,,,1575,,,,1642,,,EOL
+objectcreator76,object505,Bartolomeo Schedoni,,,1578,,,,1615,,,EOL
+objectcreator77,object601,Claude Monet,14,11,1840,,5,12,1926,,object602|object603|object604|object605|object606|object607|object609|object612|object615,EOL
+objectcreator77b,object602,Claude Monet,14,11,1840,,5,12,1926,,object602|object603|object604|object605|object606|object607|object609|object612|object615,EOL
+objectcreator77c,object603,Claude Monet,14,11,1840,,5,12,1926,,object602|object603|object604|object605|object606|object607|object609|object612|object615,EOL
+objectcreator77d,object604,Claude Monet,14,11,1840,,5,12,1926,,object602|object603|object604|object605|object606|object607|object609|object612|object615,EOL
+objectcreator77e,object605,Claude Monet,14,11,1840,,5,12,1926,,object602|object603|object604|object605|object606|object607|object609|object612|object615,EOL
+objectcreator77f,object606,Claude Monet,14,11,1840,,5,12,1926,,object602|object603|object604|object605|object606|object607|object609|object612|object615,EOL
+objectcreator77g,object607,Claude Monet,14,11,1840,,5,12,1926,,object602|object603|object604|object605|object606|object607|object609|object612|object615,EOL
+objectcreator77h,object608,Claude Monet,14,11,1840,,5,12,1926,,object602|object603|object604|object605|object606|object607|object609|object612|object615,EOL
+objectcreator77i,object612,Claude Monet,14,11,1840,,5,12,1926,,object602|object603|object604|object605|object606|object607|object609|object612|object615,EOL
+objectcreator77j,object615,Claude Monet,14,11,1840,,5,12,1926,,object602|object603|object604|object605|object606|object607|object609|object612|object615,EOL
+objectcreator78j,object608,Jean-Francois Millet,4,10,1814,,20,1,1875,,object608,EOL
+objectcreator79k,object610,Édouard Manet,23,1,1832,,30,4,1883,,object610,EOL
+objectcreator80,object611,Nadar (Gaspard-Félix Tournachon),6,4,1820,,21,4,1910,,object611,EOL
+objectcreator81,object613,Nicolas Poussin,,,1594,,,,1665,,,EOL
+objectcreator82,object614,Eugene Boudin,,,1824,,,,1898,,,EOL
+objectcreator83,object63,"Collins, Patrick",,,1910,,,,1944,,object63,EOL
+objectcreator84,object64,"Cruz-Diez, Carlos",,,1923,,,,,,object64,EOL
+objectcreator85,object702,"Burke, John",,,1946,,,,2006,,object702|object707,EOL
+objectcreator85b,object707,"Burke, John",,,1946,,,,2006,,object702|object707,EOL
+objectcreator86,object65,"Dias, Antonio",,,1944,,,,,,object65,EOL
+objectcreator87,object703,Irish Museum of Modern Art,,,1990,,,,,,object703,EOL
+objectcreator88,object67,"Hennessy, Patrick",,,1915,,,,1980,,object67,EOL
+objectcreator89,object91,"Jones, Allen",,,1937,,,,,,object91,EOL
+objectcreator90,object87,"Kosuth, Joseph",,,1945,,,,,,object87,EOL
+objectcreator91,object704,"Le Parc, Julio",,,1928,,,,,,object704,EOL
+objectcreator92,object60,"Morellet, François",,,1926,,,,,,object60,EOL
+objectcreator93,object73,"Morris, Frank",,,1928,,,,1970,,object73,EOL
+objectcreator95,object85,"O'Doherty, Brian",,,1928,,,,,,object85|object360|object355,EOL
+objectcreator95b,object360,"O'Doherty, Brian",,,1928,,,,,,object85|object360|object355,EOL
+objectcreator95c,object355,"O'Doherty, Brian",,,1928,,,,,,object85|object360|object355,EOL
+objectcreator96,object59,"Riley, Bridget",,,1931,,,,,,object59,EOL
+objectcreator97,object75,"Sheridan, Noel",,,1936,,,,2006,,object75,EOL
+objectcreator98,object708,"Campbell, George",,,1917,,,,1979,,object708|,EOL
+objectcreator99,object76,"Soto, Jesús Rafael",,,1923,,,,2005,,object76,EOL
+objectcreator100,object90,"Swift, Patrick",,,1927,,,,1983,,object90,EOL
+objectcreator101,object78,"Vasarely, Victor ",,,1906,,,,1997,,object78,EOL
+objectcreator102,object48,"Oppenheim, Dennis",,,1938,,,,2011,,object48,EOL

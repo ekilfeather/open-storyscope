@@ -1,0 +1,632 @@
+/**
+ * @file
+ * Positioning for responsive layout .
+ *
+ * Define CSS classes to create a table-free, 3-column, 2-column, or single
+ * column layout depending on whether blocks are enabled in the left or right
+ * columns.
+ *
+ * This layout uses the Zen Grids plugin for Compass: http://zengrids.com
+ */
+/*
+ * Center the page.
+ */
+/* line 44, ../../sass/layouts/responsive-sidebars.scss */
+#page,
+.region-bottom {
+  /* For screen sizes larger than 1200px, prevent excessively long lines of text
+     by setting a max-width. */
+  margin-left: auto;
+  margin-right: auto;
+  max-width: 1200px;
+}
+
+/*
+ * Apply the shared properties of grid items in a single, efficient ruleset.
+ */
+/* line 61, ../../sass/layouts/responsive-sidebars.scss */
+#header,
+#content,
+.region-sidebar-first,
+.region-sidebar-second,
+#footer {
+  padding-left: 10px;
+  padding-right: 10px;
+  -moz-box-sizing: border-box;
+  -webkit-box-sizing: border-box;
+  -ms-box-sizing: border-box;
+  box-sizing: border-box;
+  word-wrap: break-word;
+  *behavior: url("/profiles/storyscope/themes/storyscopezen/js/boxsizing.htc");
+}
+
+/*
+ * Containers for grid items and flow items.
+ */
+/* line 71, ../../sass/layouts/responsive-sidebars.scss */
+#header,
+#main,
+#footer {
+  *position: relative;
+  *zoom: 1;
+}
+/* line 52, ../../sass-extensions/zen-grids/stylesheets/zen/_grids.scss */
+#header:before, #header:after,
+#main:before,
+#main:after,
+#footer:before,
+#footer:after {
+  content: "";
+  display: table;
+}
+/* line 56, ../../sass-extensions/zen-grids/stylesheets/zen/_grids.scss */
+#header:after,
+#main:after,
+#footer:after {
+  clear: both;
+}
+
+/* line 76, ../../sass/layouts/responsive-sidebars.scss */
+.view-footer,
+.view-header {
+  overflow: hidden;
+  *zoom: 1;
+}
+
+/*
+ * Navigation bar
+ */
+@media all and (max-width: 480px) {
+  /* line 87, ../../sass/layouts/responsive-sidebars.scss */
+  li.article figure,
+  article.node-teaser .field-name-field-image,
+  article.build-mode-teaser figure {
+    width: 25%;
+  }
+}
+/* Pseudo resources should be in a UL  with class .resources */
+/* line 93, ../../sass/layouts/responsive-sidebars.scss */
+ul.resources {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+/* line 11, ../../../../../../../../../../../Library/Ruby/Gems/1.8/gems/compass-0.12.2/frameworks/compass/stylesheets/compass/typography/lists/_bullets.scss */
+ul.resources li {
+  list-style-image: none;
+  list-style-type: none;
+  margin-left: 0;
+}
+
+@media all and (min-width: 480px) and (max-width: 759px) {
+  /*
+   * Use 2 grid columns for medium screens.
+   */
+  /* line 104, ../../sass/layouts/responsive-sidebars.scss */
+  .resource-container {
+    padding-left: 0;
+    padding-right: 0;
+  }
+  /* line 107, ../../sass/layouts/responsive-sidebars.scss */
+  .resource-container.narrow-items article, .resource-container.narrow-items li.article {
+    padding-left: 10px;
+    padding-right: 10px;
+    -moz-box-sizing: border-box;
+    -webkit-box-sizing: border-box;
+    -ms-box-sizing: border-box;
+    box-sizing: border-box;
+    word-wrap: break-word;
+    *behavior: url("/profiles/storyscope/themes/storyscopezen/js/boxsizing.htc");
+  }
+  /* line 109, ../../sass/layouts/responsive-sidebars.scss */
+  .resource-container.narrow-items article:nth-child(2n+1), .resource-container.narrow-items li.article:nth-child(2n+1) {
+    /* Span 1 column, starting in the 1st column from left. */
+    float: left;
+    width: 50%;
+    margin-left: 0%;
+    margin-right: -50%;
+    clear: left;
+  }
+  /* line 113, ../../sass/layouts/responsive-sidebars.scss */
+  .resource-container.narrow-items article:nth-child(2n), .resource-container.narrow-items li.article:nth-child(2n) {
+    /* Span 1 column, starting in the 1st column from left. */
+    float: left;
+    width: 50%;
+    margin-left: 50%;
+    margin-right: -100%;
+  }
+}
+@media all and (min-width: 760px) {
+  /*
+   * Use 4 grid columns for larger screens.
+   */
+  /* line 126, ../../sass/layouts/responsive-sidebars.scss */
+  #page,
+  .region-bottom {
+    /* For screen sizes larger than 1200px, prevent excessively long lines of text
+       by setting a max-width. */
+    margin-left: auto;
+    margin-right: auto;
+    max-width: 960px;
+    padding-bottom: 10%;
+  }
+
+  /* line 135, ../../sass/layouts/responsive-sidebars.scss */
+  div#page-leader {
+    margin: 1em 0;
+    padding-top: 3em;
+    position: relative;
+  }
+
+  /* line 140, ../../sass/layouts/responsive-sidebars.scss */
+  #logout {
+    position: absolute;
+    right: 1em;
+    top: 0;
+  }
+
+  /* line 145, ../../sass/layouts/responsive-sidebars.scss */
+  #header {
+    padding-top: 4em;
+    clear: left;
+    float: left;
+    width: 25%;
+    margin-left: 75%;
+    margin-right: -100%;
+    padding-left: 10px;
+    padding-right: 10px;
+    -moz-box-sizing: border-box;
+    -webkit-box-sizing: border-box;
+    -ms-box-sizing: border-box;
+    box-sizing: border-box;
+    word-wrap: break-word;
+    *behavior: url("/profiles/storyscope/themes/storyscopezen/js/boxsizing.htc");
+  }
+
+  /* line 151, ../../sass/layouts/responsive-sidebars.scss */
+  #navigation {
+    float: left;
+    width: 75%;
+    margin-left: 0%;
+    margin-right: -75%;
+    padding-left: 10px;
+    padding-right: 10px;
+    -moz-box-sizing: border-box;
+    -webkit-box-sizing: border-box;
+    -ms-box-sizing: border-box;
+    box-sizing: border-box;
+    word-wrap: break-word;
+    *behavior: url("/profiles/storyscope/themes/storyscopezen/js/boxsizing.htc");
+  }
+  /* line 154, ../../sass/layouts/responsive-sidebars.scss */
+  #navigation #main-menu {
+    padding-top: 1.38462em;
+    padding-top: 25px;
+  }
+  /* line 158, ../../sass/layouts/responsive-sidebars.scss */
+  #navigation ul.links {
+    margin: 0;
+  }
+
+  /* line 162, ../../sass/layouts/responsive-sidebars.scss */
+  div.tabs {
+    padding-left: 0;
+    padding-right: 0;
+    position: relative;
+    overflow: hidden;
+    *zoom: 1;
+  }
+  /* line 168, ../../sass/layouts/responsive-sidebars.scss */
+  div.tabs h1.title {
+    padding-left: 10px;
+    padding-right: 10px;
+    -moz-box-sizing: border-box;
+    -webkit-box-sizing: border-box;
+    -ms-box-sizing: border-box;
+    box-sizing: border-box;
+    word-wrap: break-word;
+    *behavior: url("/profiles/storyscope/themes/storyscopezen/js/boxsizing.htc");
+  }
+  /* line 172, ../../sass/layouts/responsive-sidebars.scss */
+  div.tabs ul.tabs {
+    position: absolute;
+    bottom: 0;
+    right: 0;
+  }
+
+  /* line 182, ../../sass/layouts/responsive-sidebars.scss */
+  body.sidebar-second #content {
+    float: left;
+    width: 75%;
+    margin-left: 0%;
+    margin-right: -75%;
+  }
+  /* line 185, ../../sass/layouts/responsive-sidebars.scss */
+  body.sidebar-second .region-sidebar-second {
+    float: left;
+    width: 25%;
+    margin-left: 75%;
+    margin-right: -100%;
+  }
+  /* line 189, ../../sass/layouts/responsive-sidebars.scss */
+  body.sidebar-second .region-sidebar-second .item-list ul li {
+    list-style: none;
+  }
+
+  /* line 199, ../../sass/layouts/responsive-sidebars.scss */
+  .resource-container {
+    padding-left: 0;
+    padding-right: 0;
+    /* Nested items */
+  }
+  /* line 202, ../../sass/layouts/responsive-sidebars.scss */
+  .resource-container.container-full.narrow-items article, .resource-container.container-full.narrow-items li.article {
+    padding-left: 10px;
+    padding-right: 10px;
+    -moz-box-sizing: border-box;
+    -webkit-box-sizing: border-box;
+    -ms-box-sizing: border-box;
+    box-sizing: border-box;
+    word-wrap: break-word;
+    *behavior: url("/profiles/storyscope/themes/storyscopezen/js/boxsizing.htc");
+  }
+  /* line 203, ../../sass/layouts/responsive-sidebars.scss */
+  .resource-container.container-full.narrow-items article h2, .resource-container.container-full.narrow-items li.article h2 {
+    font-size: 1em;
+  }
+  /* line 207, ../../sass/layouts/responsive-sidebars.scss */
+  .resource-container.container-full.narrow-items article:nth-child(4n+1), .resource-container.container-full.narrow-items li.article:nth-child(4n+1) {
+    /* Span 1 column, starting in the 1st column from left. */
+    float: left;
+    width: 25%;
+    margin-left: 0%;
+    margin-right: -25%;
+    clear: left;
+    padding-left: 0;
+  }
+  /* line 212, ../../sass/layouts/responsive-sidebars.scss */
+  .resource-container.container-full.narrow-items article:nth-child(4n+2), .resource-container.container-full.narrow-items li.article:nth-child(4n+2) {
+    float: left;
+    width: 25%;
+    margin-left: 25%;
+    margin-right: -50%;
+  }
+  /* line 215, ../../sass/layouts/responsive-sidebars.scss */
+  .resource-container.container-full.narrow-items article:nth-child(4n+3), .resource-container.container-full.narrow-items li.article:nth-child(4n+3) {
+    float: left;
+    width: 25%;
+    margin-left: 50%;
+    margin-right: -75%;
+  }
+  /* line 218, ../../sass/layouts/responsive-sidebars.scss */
+  .resource-container.container-full.narrow-items article:nth-child(4n), .resource-container.container-full.narrow-items li.article:nth-child(4n) {
+    float: left;
+    width: 25%;
+    margin-left: 75%;
+    margin-right: -100%;
+    padding-right: 0;
+  }
+  /* line 222, ../../sass/layouts/responsive-sidebars.scss */
+  .resource-container.container-full.narrow-items article.highlight-image, .resource-container.container-full.narrow-items li.article.highlight-image {
+    padding: 0;
+  }
+  /* line 227, ../../sass/layouts/responsive-sidebars.scss */
+  .resource-container.container-full.wide-items article, .resource-container.container-full.wide-items li.article {
+    padding-left: 10px;
+    padding-right: 10px;
+    -moz-box-sizing: border-box;
+    -webkit-box-sizing: border-box;
+    -ms-box-sizing: border-box;
+    box-sizing: border-box;
+    word-wrap: break-word;
+    *behavior: url("/profiles/storyscope/themes/storyscopezen/js/boxsizing.htc");
+  }
+  /* line 229, ../../sass/layouts/responsive-sidebars.scss */
+  .resource-container.container-full.wide-items article:nth-child(2n+1), .resource-container.container-full.wide-items li.article:nth-child(2n+1) {
+    /* Span 2 column, starting in the 1st column from left. */
+    float: left;
+    width: 50%;
+    margin-left: 0%;
+    margin-right: -50%;
+    clear: left;
+    padding-left: 0;
+  }
+  /* line 234, ../../sass/layouts/responsive-sidebars.scss */
+  .resource-container.container-full.wide-items article:nth-child(2n), .resource-container.container-full.wide-items li.article:nth-child(2n) {
+    float: left;
+    width: 50%;
+    margin-left: 50%;
+    margin-right: -100%;
+    padding-right: 0;
+  }
+  /* line 242, ../../sass/layouts/responsive-sidebars.scss */
+  .resource-container .container-inner {
+    padding-left: 10px;
+    padding-right: 10px;
+    -moz-box-sizing: border-box;
+    -webkit-box-sizing: border-box;
+    -ms-box-sizing: border-box;
+    box-sizing: border-box;
+    word-wrap: break-word;
+    *behavior: url("/profiles/storyscope/themes/storyscopezen/js/boxsizing.htc");
+    padding-left: 0;
+    padding-right: 0;
+  }
+  /* line 245, ../../sass/layouts/responsive-sidebars.scss */
+  .resource-container .container-inner:nth-child(2n+1) {
+    /* Span 2 column, starting in the 1st column from left. */
+    float: left;
+    width: 50%;
+    margin-left: 0%;
+    margin-right: -50%;
+    clear: left;
+    padding-left: 0;
+  }
+  /* line 250, ../../sass/layouts/responsive-sidebars.scss */
+  .resource-container .container-inner:nth-child(2n) {
+    float: left;
+    width: 50%;
+    margin-left: 50%;
+    margin-right: -100%;
+    padding-right: 0;
+  }
+  /* line 255, ../../sass/layouts/responsive-sidebars.scss */
+  .resource-container .container-inner .narrow-items article,
+  .resource-container .container-inner .narrow-items li.article {
+    padding-left: 10px;
+    padding-right: 10px;
+    -moz-box-sizing: border-box;
+    -webkit-box-sizing: border-box;
+    -ms-box-sizing: border-box;
+    box-sizing: border-box;
+    word-wrap: break-word;
+    *behavior: url("/profiles/storyscope/themes/storyscopezen/js/boxsizing.htc");
+  }
+  /* line 258, ../../sass/layouts/responsive-sidebars.scss */
+  .resource-container .container-inner .narrow-items article:nth-child(2n+1),
+  .resource-container .container-inner .narrow-items li.article:nth-child(2n+1) {
+    /* Span 1 column, starting in the 1st column from left. */
+    float: left;
+    width: 50%;
+    margin-left: 0%;
+    margin-right: -50%;
+    clear: left;
+    padding-left: 0;
+  }
+  /* line 263, ../../sass/layouts/responsive-sidebars.scss */
+  .resource-container .container-inner .narrow-items article:nth-child(2n+2),
+  .resource-container .container-inner .narrow-items li.article:nth-child(2n+2) {
+    float: left;
+    width: 50%;
+    margin-left: 50%;
+    margin-right: -100%;
+    padding-right: 0;
+  }
+  /* line 267, ../../sass/layouts/responsive-sidebars.scss */
+  .resource-container .container-inner .narrow-items article.highlight-image,
+  .resource-container .container-inner .narrow-items li.article.highlight-image {
+    padding: 0;
+  }
+
+  /* line 273, ../../sass/layouts/responsive-sidebars.scss */
+  .facet-management {
+    overflow: hidden;
+    *zoom: 1;
+  }
+  /* line 275, ../../sass/layouts/responsive-sidebars.scss */
+  .facet-management table {
+    border-collapse: separate;
+    border-spacing: 0 1em;
+  }
+  /* line 278, ../../sass/layouts/responsive-sidebars.scss */
+  .facet-management table:nth-child(2n+1) {
+    /* Span 1 column, starting in the 1st column from left. */
+    float: left;
+    width: 50%;
+    margin-left: 0%;
+    margin-right: -50%;
+    clear: left;
+    padding-right: 1em;
+  }
+  /* line 283, ../../sass/layouts/responsive-sidebars.scss */
+  .facet-management table:nth-child(2n+2) {
+    float: left;
+    width: 50%;
+    margin-left: 50%;
+    margin-right: -100%;
+  }
+  /* line 286, ../../sass/layouts/responsive-sidebars.scss */
+  .facet-management table td {
+    padding: 0.5em;
+  }
+
+  /* line 292, ../../sass/layouts/responsive-sidebars.scss */
+  .plot-container {
+    position: relative;
+  }
+  /* line 295, ../../sass/layouts/responsive-sidebars.scss */
+  .plot-container div.exhibit-viewPanel {
+    padding-left: 10px;
+    padding-right: 10px;
+    -moz-box-sizing: border-box;
+    -webkit-box-sizing: border-box;
+    -ms-box-sizing: border-box;
+    box-sizing: border-box;
+    word-wrap: break-word;
+    *behavior: url("/profiles/storyscope/themes/storyscopezen/js/boxsizing.htc");
+    float: left;
+    width: 50%;
+    margin-left: 0%;
+    margin-right: -50%;
+    clear: left;
+    padding-left: 0;
+  }
+  /* line 300, ../../sass/layouts/responsive-sidebars.scss */
+  .plot-container div.exhibit-viewPanel ol.exhibit-tileView-body {
+    overflow: hidden;
+    *zoom: 1;
+  }
+  /* line 303, ../../sass/layouts/responsive-sidebars.scss */
+  .plot-container div.exhibit-viewPanel ol.exhibit-tileView-body li:nth-child(2n+1) {
+    /* Span 1 column, starting in the 1st column from left. */
+    float: left;
+    width: 50%;
+    margin-left: 0%;
+    margin-right: -50%;
+    clear: left;
+    padding-right: 1em;
+  }
+  /* line 308, ../../sass/layouts/responsive-sidebars.scss */
+  .plot-container div.exhibit-viewPanel ol.exhibit-tileView-body li:nth-child(2n+2) {
+    float: left;
+    width: 50%;
+    margin-left: 50%;
+    margin-right: -100%;
+  }
+  /* line 315, ../../sass/layouts/responsive-sidebars.scss */
+  .plot-container div.events:nth-child(2n+1) {
+    /* Span 1 column, starting in the 1st column from left. */
+    float: left;
+    width: 50%;
+    margin-left: 0%;
+    margin-right: -50%;
+    clear: left;
+    padding-right: 1em;
+  }
+  /* line 320, ../../sass/layouts/responsive-sidebars.scss */
+  .plot-container div.events:nth-child(2n+2) {
+    float: left;
+    width: 50%;
+    margin-left: 50%;
+    margin-right: -100%;
+  }
+  /* line 324, ../../sass/layouts/responsive-sidebars.scss */
+  .plot-container div.elements-container {
+    padding-left: 10px;
+    padding-right: 10px;
+    -moz-box-sizing: border-box;
+    -webkit-box-sizing: border-box;
+    -ms-box-sizing: border-box;
+    box-sizing: border-box;
+    word-wrap: break-word;
+    *behavior: url("/profiles/storyscope/themes/storyscopezen/js/boxsizing.htc");
+    float: left;
+    width: 50%;
+    margin-left: 50%;
+    margin-right: -100%;
+    position: absolute;
+    top: 550px;
+  }
+}
+/*
+ * Comment title field
+ */
+@media all and (max-width: 650px) {
+  /* line 338, ../../sass/layouts/responsive-sidebars.scss */
+  .comment-form #edit-subject {
+    width: 95%;
+  }
+}
+/**
+ * Media Element
+ */
+/* line 350, ../../sass/layouts/responsive-sidebars.scss */
+li.article .field-name-field-image,
+li.article figure,
+article.node-teaser_suggested .field-name-field-image,
+article.node-teaser_suggested figure,
+article.node-teaser .field-name-field-image,
+article.node-teaser figure {
+  float: left;
+  margin-right: 10px;
+}
+/* line 354, ../../sass/layouts/responsive-sidebars.scss */
+li.article .content,
+article.node-teaser_suggested .content,
+article.node-teaser .content {
+  overflow: hidden;
+  *zoom: 1;
+}
+
+/* line 359, ../../sass/layouts/responsive-sidebars.scss */
+article.highlight-image .article-inner {
+  position: relative;
+}
+/* line 362, ../../sass/layouts/responsive-sidebars.scss */
+article.highlight-image figure {
+  text-align: center;
+}
+/* line 365, ../../sass/layouts/responsive-sidebars.scss */
+article.highlight-image .content {
+  position: absolute;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.75);
+  padding: 0.5em;
+  color: #fff;
+}
+/* line 371, ../../sass/layouts/responsive-sidebars.scss */
+article.highlight-image .content a {
+  color: inherit;
+}
+
+/* line 378, ../../sass/layouts/responsive-sidebars.scss */
+.no-touch .highlight-image .content {
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  opacity: 0;
+  -webkit-transition-property: opacity;
+  -moz-transition-property: opacity;
+  -o-transition-property: opacity;
+  transition-property: opacity;
+  -webkit-transition-duration: 0.5s;
+  -moz-transition-duration: 0.5s;
+  -o-transition-duration: 0.5s;
+  transition-duration: 0.5s;
+  -webkit-transition-timing-function: ease-in;
+  -moz-transition-timing-function: ease-in;
+  -o-transition-timing-function: ease-in;
+  transition-timing-function: ease-in;
+}
+/* line 382, ../../sass/layouts/responsive-sidebars.scss */
+.no-touch .highlight-image .content p, .no-touch .highlight-image .content h2 {
+  padding: 0.25em 0.5em;
+}
+/* line 390, ../../sass/layouts/responsive-sidebars.scss */
+.no-touch .highlight-image:hover .content {
+  opacity: 1;
+}
+
+/* line 396, ../../sass/layouts/responsive-sidebars.scss */
+article.node-type-dec-object .media-container figure {
+  float: left;
+  margin-right: 10px;
+}
+/* line 400, ../../sass/layouts/responsive-sidebars.scss */
+article.node-type-dec-object .media-container .meta-content {
+  overflow: hidden;
+  *zoom: 1;
+  margin-top: 10em;
+}
+
+/* line 406, ../../sass/layouts/responsive-sidebars.scss */
+.view-workspace article {
+  float: left;
+}
+
+/* line 410, ../../sass/layouts/responsive-sidebars.scss */
+li.article figure {
+  width: 25%;
+}
+/* line 413, ../../sass/layouts/responsive-sidebars.scss */
+li.article h2 {
+  margin-top: 0;
+}
+/* line 416, ../../sass/layouts/responsive-sidebars.scss */
+li.article p {
+  margin-bottom: 0.5em;
+}
+/* line 418, ../../sass/layouts/responsive-sidebars.scss */
+li.article p span.label {
+  font-weight: bold;
+}

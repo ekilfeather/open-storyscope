@@ -1,0 +1,7 @@
+<?php
+/**
+ * @file
+ * Code for the panels node object stories feature.
+ */
+
+include_once 'panels_node_object_stories.features.inc';

@@ -1,0 +1,151 @@
+<?php
+/**
+ * @file
+ * Install functions for the News Archive module.
+ */
+
+// Default pathauto path for News Archive nodes.
+//define('NEWS_ARCHIVE_DEFAULT_NODE_PATH', 'news/[node:created:custom:Y]/[node:created:custom:m]/[node:created:custom:d]/[node:title]');
+
+/**
+ * Implements hook_requirements().
+ */
+ /*
+function news_archive_requirements($phase) {
+  $t = get_t();
+
+  // The news-post URL structure works best with:
+  // - pathauto enabled.
+  // - the path set to /news/YYYY/MM/DD/title
+
+  $requirements = array();
+  if ($phase == 'runtime') {
+    $has_pathauto = module_exists('pathauto');
+    $has_correct_path = variable_get('pathauto_node_news_archive_pattern', '') == NEWS_ARCHIVE_DEFAULT_NODE_PATH;
+
+    if (!$has_pathauto) {
+      $requirements['news_archive'] = array(
+        'title' => $t('News archive'), 
+        'description' => $t("Pathauto is recommended to provide News archive's recommended URL structure. Download pathauto from the <a href='@pathauto_url'>pathauto project page</a>.", array('@pathauto_url' => 'http://drupal.org/project/pathauto')),
+        'value' => $t('Missing pathauto'),
+        'severity' => REQUIREMENT_WARNING,
+      );
+    }
+    elseif (!$has_correct_path) {
+      $requirements['news_archive'] = array(
+        'title' => $t('News archive'), 
+        'description' => $t("The pattern for all News archive post paths is not set to the recommended pattern.<br />It's currently %current_pattern and should be %recommended_pattern.  This can be changed on the <a href='@url_patterns_url'>URL aliases' patterns page</a>.", array('%current_pattern' => variable_get('pathauto_node_news_archive_pattern', $t('not set')), '%recommended_pattern' => $recommended_url_path, '@url_patterns_url' => url('admin/config/search/path/patterns'))),
+        'value' => $t('Incorrect URL alias pattern'),
+        'severity' => REQUIREMENT_WARNING,
+      );
+    }
+    else {
+      $requirements['news_archive'] = array(
+        'title' => $t('News archive'), 
+        'description' => $t("Pathauto is enabled and the News archive path is correctly set."),
+        'value' => $t('Configuration correct'),
+        'severity' => REQUIREMENT_OK,
+      );
+    }
+    
+  }
+  return $requirements;
+}
+*/
+
+/**
+ * Implements hook_install().
+ */
+/*
+function news_archive_install() {
+  // Include the module-file to load the constants.
+  require_once(dirname(__FILE__) . '/news_archive.module');
+
+  $t = get_t();
+
+  // Add the body field to the News archive content type.
+  node_types_rebuild();
+  $types = node_type_get_types();
+  node_add_body_field($types[NEWS_ARCHIVE_DEFAULT_CTYPE], $t('Body'));
+
+  // Add a taxonomy vocabulary.
+  _news_archive_create_vocabulary();
+
+  // Configure pathauto with the appropriate path structure:
+  // /news/yyyy/mm/dd/node-title.
+  variable_set('pathauto_node_news_archive_pattern', NEWS_ARCHIVE_DEFAULT_NODE_PATH);
+}
+*/
+
+
+
+
+/**
+ * Create the 'news_archive_tags' vocabulary (if it doesn't already exist).
+ */
+ /*
+function _news_archive_create_vocabulary() {
+  $t = get_t();
+
+  // If we enable News archive at the same time as taxonomy we need to call
+  // field_associate_fields() as otherwise the field won't be enabled until
+  // hook modules_enabled is called which takes place after hook_enable events.
+  field_associate_fields('taxonomy');
+
+  // Create the forum vocabulary if it does not exist.
+  $vocabulary = taxonomy_vocabulary_load(variable_get('news_archive_vocabulary', 0));
+  if (!$vocabulary) {
+    $edit = array(
+      'name' => $t('News tags'),
+      'machine_name' => 'news_archive_tags',
+      'description' => t('Tags to categorise news posts'),
+      'hierarchy' => 1,
+      'module' => 'news_archive',
+    );
+    $vocabulary = (object) $edit;
+    taxonomy_vocabulary_save($vocabulary);
+    variable_set('news_archive_vocabulary', $vocabulary->vid);
+  }
+
+  // Create the 'taxonomy_news_archive_tags' field if it doesn't already exist.
+  if (!field_info_field('taxonomy_news_archive_tags')) {
+    $field = array(
+      'field_name' => 'taxonomy_' . $vocabulary->machine_name,
+      'type' => 'taxonomy_term_reference',
+      'settings' => array(
+        'allowed_values' => array(
+          array(
+            'vocabulary' => $vocabulary->machine_name,
+            'parent' => 0,
+          ),
+        ),
+      ),
+      'cardinality' => FIELD_CARDINALITY_UNLIMITED,
+    );
+    field_create_field($field);
+
+    // Create the instance on the bundle.
+    $instance = array(
+      'field_name' => 'taxonomy_' . $vocabulary->machine_name,
+      'entity_type' => 'node',
+      'label' => $vocabulary->name,
+      'bundle' => 'news_archive',
+      'required' => FALSE,
+      'widget' => array(
+        'type' => 'taxonomy_autocomplete',
+      ),
+      'display' => array(
+        'default' => array(
+          'type' => 'taxonomy_term_reference_link',
+          'weight' => 10,
+        ),
+        'teaser' => array(
+          'type' => 'taxonomy_term_reference_link',
+          'weight' => 10,
+        ),
+      ),
+    );
+    field_create_instance($instance);
+  }
+}
+*/

@@ -1,0 +1,51 @@
+diff --git includes/SolrSearchAPIFieldCollapseExtender.inc includes/SolrSearchAPIFieldCollapseExtender.inc
+index f7fd33c..9d779a0 100644
+--- includes/SolrSearchAPIFieldCollapseExtender.inc
++++ includes/SolrSearchAPIFieldCollapseExtender.inc
+@@ -15,6 +15,7 @@ class SolrSearchAPIFieldCollapseExtender extends SearchApiAbstractQueryExtender
+       'group_sort_direction' => isset($this->options['group_sort_direction']) ? $this->options['group_sort_direction'] : 'asc',
+       'group_limit' => isset($this->options['group_limit']) ? $this->options['group_limit'] : 1,
+       'truncate' => isset($this->options['truncate']) ? $this->options['truncate'] : TRUE,
++      'group_facet' => isset($this->options['group_facet']) ? $this->options['group_facet'] : FALSE,
+     );
+     $query->setOption('search_api_solr_field_collapse', $options);
+   }
+@@ -84,7 +85,7 @@ class SolrSearchAPIFieldCollapseExtender extends SearchApiAbstractQueryExtender
+       '#title' => t('Group limit'),
+       '#options' => range(0, 1000),
+       '#default_value' => $default_limit,
+-      '#description' => t('Choose how many items within each group to return.')
++      '#description' => t('Choose how many items within each group to return.'),
+     );
+ 
+     $default_truncate = isset($this->options['truncate']) ? $this->options['truncate'] : TRUE;
+@@ -96,6 +97,15 @@ class SolrSearchAPIFieldCollapseExtender extends SearchApiAbstractQueryExtender
+       '#default_value' => $default_truncate,
+     );
+ 
++    $default_group_facet = isset($this->options['group_facet']) ? $this->options['group_facet'] : FALSE;
++
++    $form['group_facet'] = array(
++      '#type' => 'checkbox',
++      '#title' => t('Use group facets'),
++      '#description' => t("If checked, facet counts are based on the groups, this won't work with Date facets, and requires Solr 4."),
++      '#default_value' => $default_group_facet,
++    );
++
+     return $form;
+   }
+ }
+diff --git service.inc service.inc
+index 8131b3d..465c7b0 100644
+--- service.inc
++++ service.inc
+@@ -570,6 +570,9 @@ class SearchApiSolrService extends SearchApiAbstractService {
+       if (!empty($field_collapse['truncate'])) {
+         $params['group.truncate'] = 'true';
+       }
++      if (!empty($field_collapse['group_facet'])) {
++        $params['group.facet'] = 'true';
++      }
+       foreach ($field_collapse['fields'] as $collapse_field) {
+         $params['group.field'][] = $fields[$collapse_field];
+       }

@@ -1,0 +1,7 @@
+<?php
+/**
+ * @file
+ * Code for the views object story objects feature.
+ */
+
+include_once 'views_object_story_objects.features.inc';

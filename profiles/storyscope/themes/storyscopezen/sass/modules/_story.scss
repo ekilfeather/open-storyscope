@@ -1,0 +1,187 @@
+/* Story Section Layout */
+.item-list ul {
+  padding: 0;
+  margin: 0;
+}
+.view-section-objects,
+.view-display-id-story_section_objects_panel_pane {
+  .view-content {
+    overflow: scroll;
+    /* EK - this seems to cut off the grid of Object tiny thumbnails
+    height: 4.5em;
+    */
+  }
+  article {
+    float: left;
+    .field-item {
+      float: left;
+      padding: 0.25em;
+    }
+    img {
+      width: 50px;
+      height: 50px;
+    }
+  }
+}
+.page-dossiers-stories, .node-type-section {
+  .panel-separator {
+    clear: both;
+  }
+  .view-id-dossier_object_stories_add_existing_search_api {
+    .field-name-field-image {
+      width: 50px;
+      height: 50px;
+      float: left;
+      margin-right: 0.5em;
+    }
+  }
+  .pane-storyscope-story-story-section-object-stories {
+    float: left;
+    .node-object-story {
+      .field-name-field-image {
+        width: 50px;
+        height: 50px;
+        float: left;
+        margin-right: 0.5em;
+      }
+    }
+  }
+  .pane-views-object-object-stories-section-object-object-stories-pane,
+  .pane-storyscope-story-story-section-object-stories {
+    .resource-container, &.resource-container {
+      .expand {
+          display: block;
+          cursor: pointer;
+          clear: both;
+          float: right;
+          color: $event-color;
+        }
+      .view-object-story-events {
+        border-bottom: 0;
+      }
+      article {
+        float: none;
+        clear: none;
+        .add-event {
+          position: relative;
+          z-index: 10;
+        }
+      }
+    }
+  }
+}
+
+.view-views-object-object-stories {
+  .expand {
+    display: block;
+    cursor: pointer;
+    clear: both;
+    //float: right;
+    color: $event-color;
+  }
+}
+.node-object.view-mode-image_and_properties, 
+.node-object.view-mode-thumbnail_image_and_properties {
+  .field-type-image{
+    background-color: gray;
+  }
+  .group-object-tombstone {
+    border: none;
+    background-color: $object-color;
+    padding-top: 3em;
+    padding-left: 10px;
+    padding-bottom: 20px;
+    color: white;
+    text-align: left;
+    position: relative;
+    legend {
+      @include adjust-font-size-to(20px);
+      top: 0.25em;
+      position: absolute;
+    }
+    .field {
+      padding-bottom: 15px;
+      .field-label{
+        color: #FFCC94;
+        font-size: 0.9em;
+        margin: 0;
+      }
+    }
+  }
+}
+#field-story-set-values {
+  .node-object {
+    float: left;
+    width: 50%;
+    &.view-mode-thumbnail_image_and_properties {
+      .group-object-tombstone {
+        clear: left;
+        float: left;
+        padding: 1em;
+      }
+    }
+  }
+}
+
+
+/* Story type */
+.pane-views-object-object-stories-section-object-object-stories-pane{
+  article.node-object-story {
+    > .article-inner {
+      p.suggest {
+        margin-left: -50px;
+      }
+    }
+  }
+}
+// Events in story section page should not be clickable
+.page-dossiers-stories-sections,
+.node-type-section {
+  .view-dossier-events-search-api .node-title a {
+    &:hover {
+      border-bottom: none;
+      cursor: default;
+    }
+  }
+}
+.form-field-name-field-story-set {
+  .field-name-field-story-snapshot-os-text + .form-submit,
+  .field-type-field-collection + .form-submit {
+    //background: transparent url(../images/remove.png) no-repeat;
+    //width: 18px;
+    //height: 18px;
+    //text-indent: -100em;
+    //border: none;
+    color: $light-gray;
+    border: none;
+    background-color: white;
+    margin-top: 25px;
+  }
+  .form-type-textarea > label,
+  .tabledrag-toggle-weight-wrapper {
+    display: none;
+  }
+}
+
+#block-storyscope-story-story-section-pager {
+  h2.block-title {
+    visibility: hidden;
+  }
+}
+
+/*
+ * Up and down arrows on Write page.
+ */
+.node-section-form {
+  .up-button, .down-button {
+    font-size: 2em;
+    font-weight: bold;
+    cursor: pointer;
+    margin-right: 0.25em;
+    &:hover {
+      color: $light-gray;
+      border-bottom: solid 1px $light-gray;
+    }
+  }
+}
+

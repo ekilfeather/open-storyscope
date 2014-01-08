@@ -1,0 +1,7 @@
+<?php
+/**
+ * @file
+ * Code for the panels node narrative element feature.
+ */
+
+include_once 'panels_node_narrative_element.features.inc';

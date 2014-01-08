@@ -1,0 +1,15 @@
+name = SemRecommender XML Views
+description = SemRecommender Section and Event views
+core = 7.x
+package = Features
+php = 5.2.4
+version = 7.x-1.0
+project = semrecommender_xml_views
+dependencies[] = ctools
+dependencies[] = views
+dependencies[] = dec_rdf
+features[ctools][] = views:views_default:3.0
+features[features_api][] = api:1
+features[views_view][] = semreccomender_story_section
+features[views_view][] = semrecommender_event_events_demo
+features[views_view][] = semrecommender_events_demo

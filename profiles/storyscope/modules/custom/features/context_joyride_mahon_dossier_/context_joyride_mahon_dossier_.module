@@ -1,0 +1,7 @@
+<?php
+/**
+ * @file
+ * Code for the Context Joyride - Mahon dossier  feature.
+ */
+
+include_once 'context_joyride_mahon_dossier_.features.inc';

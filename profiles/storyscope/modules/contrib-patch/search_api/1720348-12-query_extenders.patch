@@ -1,0 +1,663 @@
+diff --git contrib/search_api_views/includes/query.inc contrib/search_api_views/includes/query.inc
+index f30beaa..fb4e3cd 100644
+--- contrib/search_api_views/includes/query.inc
++++ contrib/search_api_views/includes/query.inc
+@@ -133,6 +133,9 @@ class SearchApiViewsQuery extends views_plugin_query {
+       'search_api_bypass_access' => array(
+         'default' => FALSE,
+       ),
++      'query_extenders' => array(
++        'default' => array(),
++      ),
+     );
+   }
+ 
+@@ -150,6 +153,21 @@ class SearchApiViewsQuery extends views_plugin_query {
+       '#description' => t('If the underlying search index has access checks enabled, this option allows to disable them for this view.'),
+       '#default_value' => $this->options['search_api_bypass_access'],
+     );
++
++    // Load in the admin include from Search API, as we need its form builder.
++    form_load_include('inc', 'search_api', 'search_api.admin');
++    $form = search_api_admin_query_extender_form($form, $form_state, $this->index, $this->options['query_extenders'], array('query', 'options'));
++
++  }
++
++  function options_validate(&$form, &$form_state) {
++    search_api_admin_query_extender_form_validate($form['options'], $form_state, $form_state['values']['query']['options']);
++    parent::options_validate($form, $form_state);
++  }
++
++  function options_submit(&$form, &$form_state) {
++    search_api_admin_query_extender_form_submit($form['options'], $form_state, $form_state['values']['query']['options']);
++    parent::options_submit($form, $form_state);
+   }
+ 
+   /**
+@@ -203,6 +221,10 @@ class SearchApiViewsQuery extends views_plugin_query {
+     if (!empty($this->options['search_api_bypass_access'])) {
+       $this->query->setOption('search_api_bypass_access', TRUE);
+     }
++    // Add any query extenders requested.
++    if (!empty($this->options['query_extenders'])) {
++      $this->query->setOption('query_extenders', $this->options['query_extenders']);
++    }
+   }
+ 
+   /**
+diff --git includes/query.inc includes/query.inc
+index bba27fc..b377d5a 100644
+--- includes/query.inc
++++ includes/query.inc
+@@ -293,7 +293,6 @@ interface SearchApiQueryInterface {
+    *   An associative array of query options.
+    */
+   public function &getOptions();
+-
+ }
+ 
+ /**
+@@ -356,6 +355,13 @@ class SearchApiQuery implements SearchApiQueryInterface {
+   protected static $count = 0;
+ 
+   /**
++   * All enabled query_extenders for this index.
++   *
++   * @var array
++   */
++  protected $query_extenders = NULL;
++
++  /**
+    * Constructor for SearchApiQuery objects.
+    *
+    * @param SearchApiIndex $index
+@@ -409,6 +415,7 @@ class SearchApiQuery implements SearchApiQueryInterface {
+       'parse mode' => 'terms',
+       'filter class' => 'SearchApiQueryFilter',
+       'search id' => __CLASS__,
++      'query_extenders' => array(),
+     );
+     $this->filter = $this->createFilter('AND');
+     $this->sort = array();
+@@ -774,6 +781,11 @@ class SearchApiQuery implements SearchApiQueryInterface {
+     // Preprocess query.
+     $this->index->preprocessSearchQuery($this);
+ 
++    // Prepreprocess query with Query Extenders.
++    foreach ($this->getQueryExtenders() as $query_extender) {
++      $query_extender->preprocessSearchQuery($this);
++    }
++
+     // Let modules alter the query.
+     drupal_alter('search_api_query', $this);
+   }
+@@ -788,6 +800,11 @@ class SearchApiQuery implements SearchApiQueryInterface {
+    *   The results returned by the server, which may be altered.
+    */
+   public function postExecute(array &$results) {
++    // Postpreprocess query with Query Extenders.
++    foreach ($this->getQueryExtenders() as $query_extender) {
++      $query_extender->postprocessSearchResults($results, $this);
++    }
++
+     // Postprocess results.
+     $this->index->postprocessSearchResults($results, $this);
+   }
+@@ -888,6 +905,43 @@ class SearchApiQuery implements SearchApiQueryInterface {
+     return $this->options;
+   }
+ 
++  /**
++   * @return array
++   *   All enabled extenders for this query, as SearchApiQueryExtenderInterface
++   *   objects.
++   */
++  protected function getQueryExtenders() {
++    if (isset($this->query_extenders)) {
++      return $this->query_extenders;
++    }
++
++    $this->query_extenders = array();
++    if (empty($this->options['query_extenders'])) {
++      return $this->query_extenders;
++    }
++    $query_extenders_settings = $this->options['query_extenders'];
++    $infos = search_api_get_query_extenders();
++
++    foreach ($query_extenders_settings as $id => $settings) {
++      if (empty($settings['status'])) {
++        continue;
++      }
++      if (empty($infos[$id]) || !class_exists($infos[$id]['class'])) {
++        watchdog('search_api', t('Undefined query extender @class specified in query', array('@class' => $id)), NULL, WATCHDOG_WARNING);
++        continue;
++      }
++      $class = $infos[$id]['class'];
++      $query_extender = new $class($this->getIndex(), isset($settings['settings']) ? $settings['settings'] : array());
++      if (!($query_extender instanceof SearchApiQueryExtenderInterface)) {
++        watchdog('search_api', t('Unknown query extender class @class specified for query extender @name', array('@class' => $class, '@name' => $id)), NULL, WATCHDOG_WARNING);
++        continue;
++      }
++
++      $this->query_extenders[$id] = $query_extender;
++    }
++    return $this->query_extenders;
++  }
++
+ }
+ 
+ /**
+diff --git includes/query_extender.inc includes/query_extender.inc
+new file mode 100644
+index 0000000..2d239d0
+--- /dev/null
++++ includes/query_extender.inc
+@@ -0,0 +1,217 @@
++<?php
++
++/**
++ * Interface representing a Search API pre- and/or post-query extender.
++ *
++ * A Query Extender should make it clear in its description or documentation
++ * when it will run and what effect it will have.
++ */
++interface SearchApiQueryExtenderInterface {
++
++  /**
++   * Construct a query extender.
++   *
++   * @param SearchApiIndex $index
++   *   The index on which queries will be generated that will be extended.
++   * @param array $options
++   *   The query extender options set for this index.
++   */
++  public function __construct(SearchApiIndex $index, array $options = array());
++
++  /**
++   * Check whether this query extender is applicable for a certain index.
++   *
++   * This can be used for hiding the query extender on the queries configuration
++   * form. To avoid confusion, you should only use criteria that are immutable,
++   * such as the index's item type. Also, since this is only used for UI
++   * purposes, you should not completely rely on this to ensure certain index
++   * configurations and at least throw an exception with a descriptive error
++   * message if this is violated on runtime.
++   *
++   * @param SearchApiIndex $index
++   *   The index to check for.
++   *
++   * @return boolean
++   *   TRUE if the query extender can run on the given index; FALSE otherwise.
++   */
++  public function supportsIndex(SearchApiIndex $index);
++
++  /**
++   * Display a form for configuring this query extender.
++   * Since forcing users to specify options for disabled query extenders makes
++   * no sense, none of the form elements should have the '#required' attribute
++   * set.
++   *
++   * @return array
++   *   A form array for configuring this query extender, or FALSE if no
++   *   configuration is possible.
++   */
++  public function configurationForm();
++
++  /**
++   * Validation callback for the form returned by configurationForm().
++   *
++   * @param array $form
++   *   The form returned by configurationForm().
++   * @param array $values
++   *   The part of the $form_state['values'] array corresponding to this form.
++   * @param array $form_state
++   *   The complete form state.
++   */
++  public function configurationFormValidate(array $form, array &$values, array &$form_state);
++
++  /**
++   * Submit callback for the form returned by configurationForm().
++   *
++   * This method should both return the new options and set them internally.
++   *
++   * @param array $form
++   *   The form returned by configurationForm().
++   * @param array $values
++   *   The part of the $form_state['values'] array corresponding to this form.
++   * @param array $form_state
++   *   The complete form state.
++   *
++   * @return array
++   *   The new options array for this callback.
++   */
++  public function configurationFormSubmit(array $form, array &$values, array &$form_state);
++
++  /**
++   * Preprocess a search query.
++   *
++   * @param SearchApiQuery $query
++   *   The object representing the query to be executed.
++   */
++  public function preprocessSearchQuery(SearchApiQuery $query);
++
++  /**
++   * Postprocess search results before display.
++   *
++   * If a class is used for both pre- and post-processing a search query, the
++   * same object will be used for both calls (so preserving some data or state
++   * locally is possible).
++   *
++   * @param array $response
++   *   An array containing the search results. See the return value of
++   *   SearchApiQueryInterface->execute() for the detailed format.
++   * @param SearchApiQuery $query
++   *   The object representing the executed query.
++   */
++  public function postprocessSearchResults(array &$response, SearchApiQuery $query);
++
++}
++
++/**
++ * Abstract query extender implementation that provides a solid base to start.
++ */
++abstract class SearchApiAbstractQueryExtender implements SearchApiQueryExtenderInterface {
++
++  /**
++   * @var SearchApiIndex
++   */
++  protected $index;
++
++  /**
++   * @var array
++   */
++  protected $options;
++
++  /**
++   * Constructor, saving its arguments into properties.
++   */
++  public function __construct(SearchApiIndex $index, array $options = array()) {
++    $this->index   = $index;
++    $this->options = $options;
++  }
++
++  public function supportsIndex(SearchApiIndex $index) {
++    return TRUE;
++  }
++
++  public function configurationForm() {
++    $form['#attached']['css'][] = drupal_get_path('module', 'search_api') . '/search_api.admin.css';
++
++    $fields = $this->index->getFields();
++    $field_options = array();
++    $default_fields = array();
++    if (isset($this->options['fields'])) {
++      $default_fields = drupal_map_assoc(array_keys($this->options['fields']));
++    }
++    foreach ($fields as $name => $field) {
++      $field_options[$name] = $field['name'];
++      if (!empty($default_fields[$name]) || (!isset($this->options['fields']) && $this->testField($name, $field))) {
++        $default_fields[$name] = $name;
++      }
++    }
++
++    $form['fields'] = array(
++      '#type' => 'checkboxes',
++      '#title' => t('Fields to run on'),
++      '#options' => $field_options,
++      '#default_value' => $default_fields,
++      '#attributes' => array('class' => array('search-api-checkboxes-list')),
++    );
++
++    return $form;
++  }
++
++  public function configurationFormValidate(array $form, array &$values, array &$form_state) {
++    $fields = array_filter($values['fields']);
++    if ($fields) {
++      $fields = array_combine($fields, array_fill(0, count($fields), TRUE));
++    }
++    $values['fields'] = $fields;
++  }
++
++  public function configurationFormSubmit(array $form, array &$values, array &$form_state) {
++    $this->options = $values;
++    return $values;
++  }
++
++  /**
++   * Does nothing.
++   */
++  public function preprocessSearchQuery(SearchApiQuery $query) {
++
++  }
++
++  /**
++   * Does nothing.
++   */
++  public function postprocessSearchResults(array &$response, SearchApiQuery $query) {
++
++  }
++
++  /**
++   * Determine if this extender should process the given field.
++   *
++   * @param $name
++   *   The field's machine name.
++   * @param array $field
++   *   The field's information.
++   *
++   * @return
++   *   TRUE, iff the field should be processed.
++   */
++  protected function testField($name, array $field) {
++    if (empty($this->options['fields'])) {
++      return $this->testType($field['type']);
++    }
++    return !empty($this->options['fields'][$name]);
++  }
++
++  /**
++   * Determine if this extender should process the given field type.
++   *
++   * @param $type
++   *   The type of field to test.
++   *
++   * @return
++   *   TRUE, iff the type should be processed.
++   */
++  protected function testType($type) {
++    return search_api_is_text_type($type, array('text', 'tokens'));
++  }
++
++}
+diff --git search_api.admin.inc search_api.admin.inc
+index 7db8608..ea32750 100644
+--- search_api.admin.inc
++++ search_api.admin.inc
+@@ -1968,3 +1968,162 @@ function search_api_admin_confirm_submit(array $form, array &$form_state) {
+       ? "admin/config/search/search_api"
+       : "admin/config/search/search_api/$type/$id";
+ }
++
++/**
++ * Build a query extender configuration form.
++ *
++ * @param $form
++ *   The form array that the query extender UI should be added to.
++ * @param $form_state
++ *   The form state corresponding to the the given $form.
++ * @param $index
++ *   The search index being queried.
++ * @param $options
++ *   The current query extender configurations.
++ * @param $form_parents
++ *   The parents of the query extender UI in the form.
++ *
++ * @return
++ *   The form array given in the $form parameter, with the query extender UI
++ *   added.
++ *
++ * @see search_api_admin_query_extender_form_validate
++ * @see search_api_admin_query_extender_form_submit
++ */
++function search_api_admin_query_extender_form(array $form, array &$form_state, SearchApiIndex $index, array $query_extenders, array $form_parents) {
++  $query_extenders_info = search_api_get_query_extenders();
++
++  $query_extenders_objects = isset($form_state['query_extenders']) ? $form_state['query_extenders'] : array();
++  foreach ($query_extenders_info as $name => $query_extender) {
++    if (!isset($query_extenders[$name])) {
++      $query_extenders[$name]['status'] = 0;
++      $query_extenders[$name]['weight'] = $query_extender['weight'];
++    }
++    $settings = empty($query_extenders[$name]['settings']) ? array() : $query_extenders[$name]['settings'];
++    if (empty($query_extenders_objects[$name]) && class_exists($query_extender['class'])) {
++      $query_extenders_objects[$name] = new $query_extender['class']($index, $settings);
++    }
++    if (!(class_exists($query_extender['class']) && $query_extenders_objects[$name] instanceof SearchApiQueryExtenderInterface)) {
++      watchdog('search_api', t('Query Extender @id specifies illegal extender class @class.', array('@id' => $name, '@class' => $query_extender['class'])), NULL, WATCHDOG_WARNING);
++      unset($query_extenders_info[$name]);
++      unset($query_extenders[$name]);
++      unset($query_extenders_objects[$name]);
++      continue;
++    }
++    if (!$query_extenders_objects[$name]->supportsIndex($index)) {
++      unset($query_extenders_info[$name]);
++      unset($query_extenders[$name]);
++      unset($query_extenders_objects[$name]);
++      continue;
++    }
++  }
++  $form_state['query_extenders'] = $query_extenders_objects;
++  $form['#query_extenders'] = $query_extenders;
++  $form['query_extenders'] = array(
++    '#type' => 'fieldset',
++    '#title' => t('Extenders'),
++    '#description' => t('Select extenders which will pre- and post-process the query at search time, and their order.'),
++    '#collapsible' => TRUE,
++    '#collapsed' => !count($query_extenders_info),
++    '#tree' => TRUE,
++    '#attached' => array(
++      'js' => array(
++        drupal_get_path('module', 'search_api') . '/search_api.admin.js',
++      ),
++    ),
++  );
++
++  // Query extender status.
++  $form['query_extenders']['status'] = array(
++    '#type' => 'item',
++    '#title' => t('Enabled extenders'),
++    '#prefix' => '<div class="search-api-status-wrapper">',
++    '#suffix' => '</div>',
++  );
++  foreach ($query_extenders_info as $name => $query_extender) {
++    $form['query_extenders']['status'][$name] = array(
++      '#type' => 'checkbox',
++      '#title' => $query_extender['name'],
++      '#default_value' => $query_extenders[$name]['status'],
++      '#parents' => array_merge($form_parents, array('query_extenders', $name, 'status')),
++      '#description' => $query_extender['description'],
++      '#weight' => $query_extender['weight'],
++    );
++  }
++
++  // Query extender order (tabledrag).
++  $form['query_extenders']['order'] = array(
++    '#type' => 'item',
++    '#title' => t('Extender processing order'),
++    '#description' => t('Set the order in which preprocessing will be done at index and search time. ' .
++        'Postprocessing of search results will be in the exact opposite direction.'),
++    '#theme' => 'search_api_admin_item_order',
++    '#table_id' => 'search-api-query-extender-order-table',
++  );
++  foreach ($query_extenders_info as $name => $query_extender) {
++    $form['query_extenders']['order'][$name]['item'] = array(
++      '#markup' => $query_extender['name'],
++    );
++    $form['query_extenders']['order'][$name]['weight'] = array(
++      '#type' => 'weight',
++      '#delta' => 50,
++      '#default_value' => $query_extenders[$name]['weight'],
++      '#parents' => array_merge($form_parents, array('query_extenders', $name, 'weight')),
++    );
++    $form['query_extenders']['order'][$name]['#weight'] = $query_extenders[$name]['weight'];
++  }
++
++  // Processor settings.
++  $form['query_extenders']['settings_title'] = array(
++    '#type' => 'item',
++    '#title' => t('Extender settings'),
++  );
++  $form['query_extenders']['settings'] = array(
++    '#type' => 'vertical_tabs',
++  );
++
++  foreach ($query_extenders_info as $name => $query_extender) {
++    $settings_form = $query_extenders_objects[$name]->configurationForm();
++    if (!empty($settings_form)) {
++      $form['query_extenders']['settings'][$name] = array(
++        '#type' => 'fieldset',
++        '#title' => $query_extender['name'],
++        '#parents' => array_merge($form_parents, array('query_extenders', $name, 'settings')),
++        '#weight' => $query_extender['weight'],
++      );
++      $form['query_extenders']['settings'][$name] += $settings_form;
++    }
++  }
++
++  return $form;
++}
++
++/**
++ * Form validator for the query extenders form.
++ *
++ * @see search_api_admin_query_extender_form()
++ */
++function search_api_admin_query_extender_form_validate(&$form, &$form_state, &$form_values) {
++  // Call validation functions.
++  foreach ($form_state['query_extenders'] as $name => $query_extender) {
++    if (isset($form['query_extenders']['settings'][$name]) && isset($form_values['query_extenders'][$name]['settings'])) {
++      $query_extender->configurationFormValidate($form['query_extenders']['settings'][$name], $form_values['query_extenders'][$name]['settings'], $form_state);
++    }
++  }
++}
++
++/**
++ * Form submit function for the query extenders form.
++ *
++ * @see search_api_admin_query_extender_form()
++ */
++function search_api_admin_query_extender_form_submit(&$form, &$form_state, &$form_values) {
++  foreach ($form_state['query_extenders'] as $name => $query_extender) {
++    $query_extender_form = isset($form['query_extenders']['settings'][$name]) ? $form['query_extenders']['settings'][$name] : array();
++    $form_values['query_extenders'][$name] += array('settings' => array());
++    $form_values['query_extenders'][$name]['settings'] = $query_extender->configurationFormSubmit($query_extender_form, $form_values['query_extenders'][$name]['settings'], $form_state);
++  }
++
++  // Save the already sorted arrays to avoid having to sort them at each use.
++  uasort($form_values['query_extenders'], 'search_api_admin_element_compare');
++}
+diff --git search_api.admin.js search_api.admin.js
+index d841ec1..e271fcf 100644
+--- search_api.admin.js
++++ search_api.admin.js
+@@ -27,7 +27,7 @@ Drupal.behaviors.searchApiStatus = {
+           }
+         }
+         // Restripe table after toggling visibility of table row.
+-        Drupal.tableDrag['search-api-' + $checkbox.attr('id').replace(/^edit-([^-]+)-.*$/, '$1') + '-order-table'].restripeTable();
++        Drupal.tableDrag[$row.closest('table').attr('id')].restripeTable();
+       });
+ 
+       // Attach summary for configurable items (only for screen-readers).
+diff --git search_api.api.php search_api.api.php
+index f7506f3..e679b95 100644
+--- search_api.api.php
++++ search_api.api.php
+@@ -256,6 +256,51 @@ function hook_search_api_processor_info() {
+ }
+ 
+ /**
++ * Registers one or more query extenders. These are classes implementing the
++ * SearchApiQueryExtenderInterface interface which can be used at search
++ * time to pre-process item data or the search query, and to
++ * post-process the returned search results. Query extenders can also provide a
++ * UI to allow end uers to configure the extender per-query.
++ *
++ * @see SearchApiQueryExtenderInterface
++ *
++ * @return array
++ *   An associative array keyed by the query extender id and containing arrays
++ *   with the following keys:
++ *   - name: The name to display for this query extender.
++ *   - description: A short description of what the query extender does at each
++ *     phase.
++ *   - class: The query extender class, which has to implement the
++ *     SearchApiQueryExtenderInterface interface.
++ *   - weight: (optional) Defines the order in which query extenders are
++ *     displayed  (and, therefore, invoked) by default. Defaults to 0.
++ */
++function hook_search_api_query_extender_info() {
++  $extenders['example_extender'] = array(
++    'name' => t('Example extender'),
++    'description' => t('Allows per-query configurable manipulation.'),
++    'class' => 'ExampleSearchApiQueryExtender',
++    'weight' => -1,
++  );
++
++  return $extenders;
++}
++
++/**
++ * Alter the definition of query extenders provided by other modules.
++ *
++ * @param $query_extenders
++ *   An associative array of query extenders. See
++ *   hook_search_api_query_extender_info() for details of its contents.
++ *
++ * @see hook_search_api_query_extender_info()
++ */
++function hook_search_api_query_extender_info_alter(&$query_extenders) {
++  // Don't allow the 'example_extender' to be defined.
++  unset($query_extenders['example_extender']);
++}
++
++/**
+  * Allows you to log or alter the items that are indexed.
+  *
+  * Please be aware that generally preventing the indexing of certain items is
+diff --git search_api.info search_api.info
+index 5654629..f61e359 100644
+--- search_api.info
++++ search_api.info
+@@ -25,6 +25,7 @@ files[] = includes/processor_ignore_case.inc
+ files[] = includes/processor_stopwords.inc
+ files[] = includes/processor_tokenizer.inc
+ files[] = includes/query.inc
++files[] = includes/query_extender.inc
+ files[] = includes/server_entity.inc
+ files[] = includes/service.inc
+ 
+diff --git search_api.module search_api.module
+index bba0681..30190a8 100644
+--- search_api.module
++++ search_api.module
+@@ -1386,6 +1386,38 @@ function search_api_get_processors() {
+ }
+ 
+ /**
++ * Returns a list of all available query extenders.
++ *
++ * @see hook_search_api_query_extender_info()
++ *
++ * @return array
++ *   An array of all available query extenders, keyed by id.
++ */
++function search_api_get_query_extenders() {
++  $query_extenders = &drupal_static(__FUNCTION__);
++
++  if (!isset($query_extenders)) {
++    $query_extenders = module_invoke_all('search_api_query_extender_info');
++
++    // If there were no query extenders defined at all, or something else was
++    // returned, default to an en empty array of them.
++    if (!is_array($query_extenders)) {
++      $query_extenders = array();
++    }
++
++    // Allow the definition of query extenders to be altered.
++    drupal_alter('search_api_query_extender_info', $query_extenders);
++
++    // Initialization of optional entries with default values.
++    foreach ($query_extenders as $id => $query_extender) {
++      $query_extenders[$id] += array('weight' => 0);
++    }
++  }
++
++  return $query_extenders;
++}
++
++/**
+  * Implements hook_search_api_query_alter().
+  *
+  * Adds node access to the query, if enabled.

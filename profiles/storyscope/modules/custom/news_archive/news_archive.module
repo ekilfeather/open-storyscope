@@ -1,0 +1,179 @@
+<?php
+
+/**
+ * Implements hook_views_api().
+ */
+function news_archive_views_api() {
+  return array(
+    'api' => 3,
+  );
+}
+
+/**
+ * Implements hook_theme().
+ */
+function news_archive_theme() {
+  return array(
+    // news_archive_block is the sidebar menu which displays the news navigation.
+    'news_archive_block' => array(
+      'render element' => 'element',
+      'file' => 'news_archive.theme.inc',
+    ),
+  );
+}
+
+/**
+ * Implements hook_block_info().
+ */
+function news_archive_block_info() {
+  $blocks['news_archive_date_navigation'] = array(
+    'info' => t('News archive navigation'),
+    // The block displays a navigation menu, which may have active menu-items.
+    // The active menu-items will change per page, and the accessible news
+    // posts may change per user, depending on permissions.
+    'cache' => DRUPAL_CACHE_PER_PAGE | DRUPAL_CACHE_PER_USER,
+  );
+  return $blocks;
+}
+
+/**
+ * Implements hook_block_view().
+ */
+function news_archive_block_view($delta = '') {
+  $block = array();
+  switch ($delta) {
+    case 'news_archive_date_navigation':
+      $archive = _news_archive_get_news_archive_tree();
+      // If there aren't any news posts, hide the block.
+      if (empty($archive)) {
+        return;
+      }
+
+      $block = array(
+        'subject' => t('News Archive'),
+        'content' => array(
+          //'show_all_link' => l(t('All news posts'), 'news'),
+          'archive' => $archive,
+          '#theme' => 'news_archive_block',
+          '#cache' => DRUPAL_CACHE_PER_PAGE | DRUPAL_CACHE_PER_USER,
+        ),
+      );
+  }
+  return $block;
+}
+
+/**
+ * Build a data tree of all published news posts, with their year, month, and
+ * post-counts.
+ *
+ * Format:
+ * [2010] =>
+ *           count  => 3
+ *           text   => 2010
+ *           months =>
+ *                     [2] =>
+ *                            count => 1
+ *                            text  => February
+ *                            days  =>
+ *                                     [16] =>
+ *                                             count => 1
+ *                                             text  => Tuesday
+ */
+function _news_archive_get_news_archive_tree() {
+  $tree = array();
+  drupal_add_js(drupal_get_path('module', 'news_archive') . '/news_archive.js');
+  
+  // Declare the use of month-names and days to ensure translation tools can
+  // discover language-use in this module.
+  array(
+    t('Sunday'),
+    t('Monday'),
+    t('Tuesday'),
+    t('Wednesday'),
+    t('Thursday'),
+    t('Friday'),
+    t('Saturday'),
+  );
+  array(
+    t('January'),
+    t('February'),
+    t('March'),
+    t('April'),
+    t('May'),
+    t('June'),
+    t('July'),
+    t('August'),
+    t('September'),
+    t('October'),
+    t('November'),
+    t('December'),
+  );
+
+  foreach (_news_archive__get_news_posts() as $post) {
+    // Assume that getdate will return month-names in English.
+    $date = (object) getdate($post->created);
+
+    // Add the year.
+    if (!array_key_exists($date->year, $tree)) {
+      $tree[$date->year] = array(
+        'count' => 0,
+        // The year is numeric (e.g. 2011) so is not translated.
+        'text' => $date->year,
+        'url' => 'news/archives/' . $date->year,
+        'months' => array(),
+      );
+    }
+
+    // Add the month.
+    if (!array_key_exists($date->mon, $tree[$date->year]['months'])) {
+      $tree[$date->year]['months'][$date->mon] = array(
+        'count' => 0,
+        // The month-name is a string (January, February, etc) so is translated.
+        'text' => t($date->month),
+        'url' => $tree[$date->year]['url'] . '/' . str_pad($date->mon, 2, '0', STR_PAD_LEFT),
+        'days' => array(),
+      );
+    }
+    
+
+     // Add the day.
+     /*
+    if (!array_key_exists($date->mday, $tree[$date->year]['months'][$date->mon]['days'])) {
+      $tree[$date->year]['months'][$date->mon]['days'][$date->mday] = array(
+        'count' => 0,
+        // The week-day is numeric (0 - 31) so is not translated.
+        'text' => $date->weekday,
+        'url' => $tree[$date->year]['months'][$date->mon]['url'] . '/' . str_pad($date->mday, 2, '0', STR_PAD_LEFT),
+      );
+    }
+    */
+    $tree[$date->year]['count']++;
+    $tree[$date->year]['months'][$date->mon]['count']++;
+    //$tree[$date->year]['months'][$date->mon]['days'][$date->mday]['count']++;
+  }
+  return $tree;
+}
+
+/**
+ * Fetch the nid and created-date of all published news-posts.
+ *
+ * @return array
+ * An array of objects, each with the property nid and created, sorted by
+ * creation-time (new to old).
+ */
+function _news_archive__get_news_posts() {
+  $news_posts = &drupal_static(__FUNCTION__, NULL);
+  if (is_null($news_posts)) {
+    // Query for news archive nodes which the current user has access to.
+    $news_posts = db_select('node', 'n')
+      ->fields('n', array('nid', 'created'))
+      ->condition('n.type', 'news_item')
+      ->condition('n.status', NODE_PUBLISHED)
+      ->orderBy('n.created', 'DESC')
+      ->addTag('node_access')
+      ->execute()
+      ->fetchAll();
+  }
+  return $news_posts;
+}
+

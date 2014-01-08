@@ -1,0 +1,7 @@
+<?php
+/**
+ * @file
+ * Code for the Views narrative plot elements feature.
+ */
+
+include_once 'views_narrative_plot_elements.features.inc';

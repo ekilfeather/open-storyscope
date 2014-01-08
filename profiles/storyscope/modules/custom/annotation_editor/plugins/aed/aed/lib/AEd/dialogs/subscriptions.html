@@ -1,0 +1,97 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+    <head>
+        <title>Subscribtions Dialog</title>
+
+        <script type="text/javascript">
+    
+            AEd = window.parent.AEd;
+            document.write('<script type="text/javascript" src="css.js"><\/script>');
+
+        </script>
+    </head>
+    <body>
+
+        <form class="aed-form" onsubmit="return false;" action="" name="aedFormSubscriptions">
+            <fieldset>
+                <legend>
+                    <script type="text/javascript">
+                        document.write(AEd.I18n.t("Dlg_subscribtions_label_subscribtions"));
+                    </script>
+                </legend>
+
+
+
+                <table id="aedTableSubscriptions">
+                    <tr>
+                        <th class="aed-ui-table-column1">
+                            <label for="aedSubscriptionsUser"><script type="text/javascript">
+                                document.write(AEd.I18n.t("Dlg_subscribtions_label_user"));
+                                </script>:</label></th>
+                        <th class="aed-ui-table-column2">
+                            <label for="aedSubscriptionsType"><script type="text/javascript">
+                                document.write(AEd.I18n.t("Dlg_subscribtions_label_type"));
+                                </script>:</label></th>
+                        <th>
+                            <label for="aedSubscriptionsUri"><script type="text/javascript">
+                                document.write(AEd.I18n.t("Dlg_subscribtions_label_uri"));
+                                </script>:</label></th>                  
+                        <th>&nbsp;</th>
+                        <th>&nbsp;</th> 
+                    </tr>    
+                    <tr>
+                        <td class="aed-ui-table-column1">
+                            <input type="text" name ="aedSubscriptionsUser" id="aedSubscriptionsUser"/>
+                            <div id="aedSubscriptionsUserSuggestions"></div>   
+                        </td>
+                        <td class="aed-ui-table-column2">
+                            <input type="text" name ="aedSubscriptionsType" id="aedSubscriptionsType"/>
+                            <div id="aedSubscriptionsTypeSuggestions"></div>   
+                        </td>
+                        <td class="aed-ui-table-column3">
+                            <input type="text" name="aedSubscriptionsUri" id="aedSubscriptionsUri" />
+                            <div id="aedSubscriptionsUriSuggestions"></div>   
+                        </td>
+                        <td>
+                            <button type="button" class="aed-ui-btn aed-ui-btn-noicon" id="aedSubscriptionsBtnSubscribe">
+                                <span class="aed-ui-btn-text">
+                                    <script type="text/javascript">
+                                        document.write(AEd.I18n.t("Dlg_subscribtions_button_subscribe"));
+                                    </script></span>
+                            </button>      
+                        </td>
+                        <td>
+                            <button type="button" class="aed-ui-btn aed-ui-btn-noicon" id="aedSubscriptionsBtnUnsubscribe">
+                                <span class="aed-ui-btn-text">
+                                    <script type="text/javascript">
+                                        document.write(AEd.I18n.t("Dlg_subscribtions_button_unsubscribe"));
+                                    </script></span>
+                            </button>      
+                        </td>
+                    </tr>
+                </table>
+
+            </fieldset>
+
+   <fieldset class="aed-ui-subscribtions-subscribed">
+            <legend>
+                <script type="text/javascript">
+                    document.write(AEd.I18n.t("Dlg_subscribtions_legend_subscribed"));
+                </script>
+            </legend>
+            <div id="aedSubscriptionsContainerSubscribed"></div>
+        </fieldset>
+        <fieldset  class="aed-ui-subscribtions-unsubscribed">
+            <legend>
+                <script type="text/javascript">
+                    document.write(AEd.I18n.t("Dlg_subscribtions_lagend_unsubscribed"));
+                </script>
+            </legend>
+            <div id="aedSubscriptionsContainerUnsubscribed"></div>
+        </fieldset>
+        </form>
+     
+
+
+    </body>
+</html>

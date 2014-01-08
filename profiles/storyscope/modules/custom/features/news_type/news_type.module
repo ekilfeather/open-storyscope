@@ -1,0 +1,7 @@
+<?php
+/**
+ * @file
+ * Code for the Athenry News Type feature.
+ */
+
+include_once('news_type.features.inc');

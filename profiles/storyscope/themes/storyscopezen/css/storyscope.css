@@ -1,0 +1,4614 @@
+/*
+ * jQuery FlexSlider v2.0
+ * http://www.woothemes.com/flexslider/
+ *
+ * Copyright 2012 WooThemes
+ * Free to use under the GPLv2 license.
+ * http://www.gnu.org/licenses/gpl-2.0.html
+ *
+ * Contributing author: Tyler Smith (@mbmufffin)
+ */
+/* Browser Resets */
+/* line 17, ../sass/_flexslider.scss */
+.flex-container a:active,
+.flexslider a:active,
+.flex-container a:focus,
+.flexslider a:focus {
+  outline: none;
+}
+
+/* line 20, ../sass/_flexslider.scss */
+.slides,
+.flex-control-nav,
+.flex-direction-nav {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* FlexSlider Necessary Styles
+*********************************/
+/* line 24, ../sass/_flexslider.scss */
+.flexslider {
+  margin: 0;
+  padding: 0;
+}
+
+/* line 25, ../sass/_flexslider.scss */
+.flexslider .slides > li {
+  display: none;
+  -webkit-backface-visibility: hidden;
+}
+
+/* Hide the slides before the JS is loaded. Avoids image jumping */
+/* line 26, ../sass/_flexslider.scss */
+.flex-pauseplay span {
+  text-transform: capitalize;
+}
+
+/* Clearfix for the .slides element */
+/* line 29, ../sass/_flexslider.scss */
+.slides:after {
+  content: ".";
+  display: block;
+  clear: both;
+  visibility: hidden;
+  line-height: 0;
+  height: 0;
+}
+
+/* line 30, ../sass/_flexslider.scss */
+html[xmlns] .slides {
+  display: block;
+}
+
+/* line 31, ../sass/_flexslider.scss */
+* html .slides {
+  height: 1%;
+}
+
+/* No JavaScript Fallback */
+/* If you are not using another script, such as Modernizr, make sure you
+ * include js that eliminates this class on page load */
+/* line 36, ../sass/_flexslider.scss */
+.no-js .slides > li:first-child {
+  display: block;
+}
+
+/* FlexSlider Default Theme
+*********************************/
+/* line 41, ../sass/_flexslider.scss */
+.flexslider {
+  margin: 0 0 0;
+  background: #fff;
+  border: 4px solid white;
+  position: relative;
+  -webkit-border-radius: 4px;
+  -moz-border-radius: 4px;
+  -o-border-radius: 4px;
+  border-radius: 4px;
+  -webkit-box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
+  zoom: 1;
+}
+
+/* line 42, ../sass/_flexslider.scss */
+.flex-viewport {
+  max-height: 2000px;
+  -webkit-transition: all 1s ease;
+  -moz-transition: all 1s ease;
+  transition: all 1s ease;
+}
+
+/* line 43, ../sass/_flexslider.scss */
+.loading .flex-viewport {
+  max-height: 300px;
+}
+
+/* line 44, ../sass/_flexslider.scss */
+.flexslider .slides {
+  zoom: 1;
+}
+
+/* line 46, ../sass/_flexslider.scss */
+.carousel li {
+  margin-right: 5px;
+}
+
+/* Direction Nav */
+/* line 50, ../sass/_flexslider.scss */
+.flex-direction-nav a {
+  width: 30px;
+  height: 30px;
+  margin: -20px 0 0;
+  display: block;
+  background: url(images/bg_direction_nav.png) no-repeat 0 0;
+  position: absolute;
+  top: 50%;
+  cursor: pointer;
+  text-indent: -9999px;
+  opacity: 0;
+  -webkit-transition: all 0.3s ease;
+}
+
+/* line 51, ../sass/_flexslider.scss */
+.flex-direction-nav .flex-next {
+  background-position: 100% 0;
+  right: -36px;
+}
+
+/* line 52, ../sass/_flexslider.scss */
+.flex-direction-nav .flex-prev {
+  left: -36px;
+}
+
+/* line 53, ../sass/_flexslider.scss */
+.flexslider:hover .flex-next {
+  opacity: 0.8;
+  right: 5px;
+}
+
+/* line 54, ../sass/_flexslider.scss */
+.flexslider:hover .flex-prev {
+  opacity: 0.8;
+  left: 5px;
+}
+
+/* line 55, ../sass/_flexslider.scss */
+.flexslider:hover .flex-next:hover, .flexslider:hover .flex-prev:hover {
+  opacity: 1;
+}
+
+/* line 56, ../sass/_flexslider.scss */
+.flex-direction-nav .disabled {
+  opacity: .3!important;
+  filter: alpha(opacity=30);
+  cursor: default;
+}
+
+/* Control Nav */
+/* line 59, ../sass/_flexslider.scss */
+.flex-control-nav {
+  width: 100%;
+  position: absolute;
+  top: 40px;
+  right: 40px;
+  text-align: center;
+}
+
+/* line 60, ../sass/_flexslider.scss */
+.flex-control-nav li {
+  margin: 0 6px;
+  display: inline-block;
+  zoom: 1;
+  *display: inline;
+}
+
+/* line 61, ../sass/_flexslider.scss */
+.flex-control-paging li a {
+  width: 11px;
+  height: 11px;
+  display: block;
+  background: #666;
+  background: rgba(0, 0, 0, 0.5);
+  cursor: pointer;
+  text-indent: -9999px;
+  box-shadow: inset 0 0 3px rgba(0, 0, 0, 0.3);
+}
+
+/* line 62, ../sass/_flexslider.scss */
+.flex-control-paging li a:hover {
+  background: #333;
+  background: rgba(0, 0, 0, 0.7);
+}
+
+/* line 63, ../sass/_flexslider.scss */
+.flex-control-paging li a.flex-active {
+  background: #000;
+  background: rgba(0, 0, 0, 0.9);
+  cursor: default;
+}
+
+/* line 65, ../sass/_flexslider.scss */
+.flex-control-thumbs {
+  margin: 5px 0 0;
+  position: static;
+  overflow: hidden;
+}
+
+/* line 66, ../sass/_flexslider.scss */
+.flex-control-thumbs li {
+  float: left;
+  margin: 0;
+}
+
+/* line 67, ../sass/_flexslider.scss */
+.flex-control-thumbs img {
+  width: 100%;
+  display: block;
+  opacity: .7;
+  cursor: pointer;
+}
+
+/* line 68, ../sass/_flexslider.scss */
+.flex-control-thumbs img:hover {
+  opacity: 1;
+}
+
+/* line 69, ../sass/_flexslider.scss */
+.flex-control-thumbs .active {
+  opacity: 1;
+  cursor: default;
+}
+
+@media screen and (max-width: 860px) {
+  /* line 72, ../sass/_flexslider.scss */
+  .flex-direction-nav .flex-prev {
+    opacity: 1;
+    left: 0;
+  }
+
+  /* line 73, ../sass/_flexslider.scss */
+  .flex-direction-nav .flex-next {
+    opacity: 1;
+    right: 0;
+  }
+}
+/* line 76, ../sass/_flexslider.scss */
+.media-resources {
+  position: relative;
+}
+
+/* line 79, ../sass/_flexslider.scss */
+.flex-control-nav {
+  position: absolute;
+  top: 10px;
+  right: 40px;
+  text-align: left;
+  width: auto;
+  padding: 0.5em;
+  -webkit-border-radius: 2px;
+  -moz-border-radius: 2px;
+  -ms-border-radius: 2px;
+  -o-border-radius: 2px;
+  border-radius: 2px;
+}
+
+/* line 91, ../sass/_flexslider.scss */
+.flex-control-paging li a {
+  display: block;
+  font-size: 0;
+  color: transparent;
+  background-color: #dabec6;
+  -webkit-transition: background-color 0.5s;
+  -moz-transition: background-color 0.5s;
+  -o-transition: background-color 0.5s;
+  transition: background-color 0.5s;
+}
+/* line 98, ../sass/_flexslider.scss */
+.flex-control-paging li a:hover {
+  background-color: #f9f9f9;
+}
+/* line 101, ../sass/_flexslider.scss */
+.flex-control-paging li a.flex-active {
+  background-color: #2582f4;
+}
+
+/* Story Section Layout */
+/* line 2, ../sass/modules/_story.scss */
+.item-list ul {
+  padding: 0;
+  margin: 0;
+}
+
+/* line 8, ../sass/modules/_story.scss */
+.view-section-objects .view-content,
+.view-display-id-story_section_objects_panel_pane .view-content {
+  overflow: scroll;
+  /* EK - this seems to cut off the grid of Object tiny thumbnails
+  height: 4.5em;
+  */
+}
+/* line 14, ../sass/modules/_story.scss */
+.view-section-objects article,
+.view-display-id-story_section_objects_panel_pane article {
+  float: left;
+}
+/* line 16, ../sass/modules/_story.scss */
+.view-section-objects article .field-item,
+.view-display-id-story_section_objects_panel_pane article .field-item {
+  float: left;
+  padding: 0.25em;
+}
+/* line 20, ../sass/modules/_story.scss */
+.view-section-objects article img,
+.view-display-id-story_section_objects_panel_pane article img {
+  width: 50px;
+  height: 50px;
+}
+
+/* line 27, ../sass/modules/_story.scss */
+.page-dossiers-stories .panel-separator, .node-type-section .panel-separator {
+  clear: both;
+}
+/* line 31, ../sass/modules/_story.scss */
+.page-dossiers-stories .view-id-dossier_object_stories_add_existing_search_api .field-name-field-image, .node-type-section .view-id-dossier_object_stories_add_existing_search_api .field-name-field-image {
+  width: 50px;
+  height: 50px;
+  float: left;
+  margin-right: 0.5em;
+}
+/* line 38, ../sass/modules/_story.scss */
+.page-dossiers-stories .pane-storyscope-story-story-section-object-stories, .node-type-section .pane-storyscope-story-story-section-object-stories {
+  float: left;
+}
+/* line 41, ../sass/modules/_story.scss */
+.page-dossiers-stories .pane-storyscope-story-story-section-object-stories .node-object-story .field-name-field-image, .node-type-section .pane-storyscope-story-story-section-object-stories .node-object-story .field-name-field-image {
+  width: 50px;
+  height: 50px;
+  float: left;
+  margin-right: 0.5em;
+}
+/* line 52, ../sass/modules/_story.scss */
+.page-dossiers-stories .pane-views-object-object-stories-section-object-object-stories-pane .resource-container .expand, .page-dossiers-stories .pane-views-object-object-stories-section-object-object-stories-pane.resource-container .expand,
+.page-dossiers-stories .pane-storyscope-story-story-section-object-stories .resource-container .expand,
+.page-dossiers-stories .pane-storyscope-story-story-section-object-stories.resource-container .expand, .node-type-section .pane-views-object-object-stories-section-object-object-stories-pane .resource-container .expand, .node-type-section .pane-views-object-object-stories-section-object-object-stories-pane.resource-container .expand,
+.node-type-section .pane-storyscope-story-story-section-object-stories .resource-container .expand,
+.node-type-section .pane-storyscope-story-story-section-object-stories.resource-container .expand {
+  display: block;
+  cursor: pointer;
+  clear: both;
+  float: right;
+  color: #7ac953;
+}
+/* line 59, ../sass/modules/_story.scss */
+.page-dossiers-stories .pane-views-object-object-stories-section-object-object-stories-pane .resource-container .view-object-story-events, .page-dossiers-stories .pane-views-object-object-stories-section-object-object-stories-pane.resource-container .view-object-story-events,
+.page-dossiers-stories .pane-storyscope-story-story-section-object-stories .resource-container .view-object-story-events,
+.page-dossiers-stories .pane-storyscope-story-story-section-object-stories.resource-container .view-object-story-events, .node-type-section .pane-views-object-object-stories-section-object-object-stories-pane .resource-container .view-object-story-events, .node-type-section .pane-views-object-object-stories-section-object-object-stories-pane.resource-container .view-object-story-events,
+.node-type-section .pane-storyscope-story-story-section-object-stories .resource-container .view-object-story-events,
+.node-type-section .pane-storyscope-story-story-section-object-stories.resource-container .view-object-story-events {
+  border-bottom: 0;
+}
+/* line 62, ../sass/modules/_story.scss */
+.page-dossiers-stories .pane-views-object-object-stories-section-object-object-stories-pane .resource-container article, .page-dossiers-stories .pane-views-object-object-stories-section-object-object-stories-pane.resource-container article,
+.page-dossiers-stories .pane-storyscope-story-story-section-object-stories .resource-container article,
+.page-dossiers-stories .pane-storyscope-story-story-section-object-stories.resource-container article, .node-type-section .pane-views-object-object-stories-section-object-object-stories-pane .resource-container article, .node-type-section .pane-views-object-object-stories-section-object-object-stories-pane.resource-container article,
+.node-type-section .pane-storyscope-story-story-section-object-stories .resource-container article,
+.node-type-section .pane-storyscope-story-story-section-object-stories.resource-container article {
+  float: none;
+  clear: none;
+}
+/* line 65, ../sass/modules/_story.scss */
+.page-dossiers-stories .pane-views-object-object-stories-section-object-object-stories-pane .resource-container article .add-event, .page-dossiers-stories .pane-views-object-object-stories-section-object-object-stories-pane.resource-container article .add-event,
+.page-dossiers-stories .pane-storyscope-story-story-section-object-stories .resource-container article .add-event,
+.page-dossiers-stories .pane-storyscope-story-story-section-object-stories.resource-container article .add-event, .node-type-section .pane-views-object-object-stories-section-object-object-stories-pane .resource-container article .add-event, .node-type-section .pane-views-object-object-stories-section-object-object-stories-pane.resource-container article .add-event,
+.node-type-section .pane-storyscope-story-story-section-object-stories .resource-container article .add-event,
+.node-type-section .pane-storyscope-story-story-section-object-stories.resource-container article .add-event {
+  position: relative;
+  z-index: 10;
+}
+
+/* line 75, ../sass/modules/_story.scss */
+.view-views-object-object-stories .expand {
+  display: block;
+  cursor: pointer;
+  clear: both;
+  color: #7ac953;
+}
+
+/* line 85, ../sass/modules/_story.scss */
+.node-object.view-mode-image_and_properties .field-type-image,
+.node-object.view-mode-thumbnail_image_and_properties .field-type-image {
+  background-color: gray;
+}
+/* line 88, ../sass/modules/_story.scss */
+.node-object.view-mode-image_and_properties .group-object-tombstone,
+.node-object.view-mode-thumbnail_image_and_properties .group-object-tombstone {
+  border: none;
+  background-color: #e2903d;
+  padding-top: 3em;
+  padding-left: 10px;
+  padding-bottom: 20px;
+  color: white;
+  text-align: left;
+  position: relative;
+}
+/* line 97, ../sass/modules/_story.scss */
+.node-object.view-mode-image_and_properties .group-object-tombstone legend,
+.node-object.view-mode-thumbnail_image_and_properties .group-object-tombstone legend {
+  font-size: 1.53846em;
+  line-height: 1.8em;
+  top: 0.25em;
+  position: absolute;
+}
+/* line 102, ../sass/modules/_story.scss */
+.node-object.view-mode-image_and_properties .group-object-tombstone .field,
+.node-object.view-mode-thumbnail_image_and_properties .group-object-tombstone .field {
+  padding-bottom: 15px;
+}
+/* line 104, ../sass/modules/_story.scss */
+.node-object.view-mode-image_and_properties .group-object-tombstone .field .field-label,
+.node-object.view-mode-thumbnail_image_and_properties .group-object-tombstone .field .field-label {
+  color: #FFCC94;
+  font-size: 0.9em;
+  margin: 0;
+}
+
+/* line 113, ../sass/modules/_story.scss */
+#field-story-set-values .node-object {
+  float: left;
+  width: 50%;
+}
+/* line 117, ../sass/modules/_story.scss */
+#field-story-set-values .node-object.view-mode-thumbnail_image_and_properties .group-object-tombstone {
+  clear: left;
+  float: left;
+  padding: 1em;
+}
+
+/* Story type */
+/* line 131, ../sass/modules/_story.scss */
+.pane-views-object-object-stories-section-object-object-stories-pane article.node-object-story > .article-inner p.suggest {
+  margin-left: -50px;
+}
+
+/* line 141, ../sass/modules/_story.scss */
+.page-dossiers-stories-sections .view-dossier-events-search-api .node-title a:hover,
+.node-type-section .view-dossier-events-search-api .node-title a:hover {
+  border-bottom: none;
+  cursor: default;
+}
+
+/* line 149, ../sass/modules/_story.scss */
+.form-field-name-field-story-set .field-name-field-story-snapshot-os-text + .form-submit,
+.form-field-name-field-story-set .field-type-field-collection + .form-submit {
+  color: #cdcccb;
+  border: none;
+  background-color: white;
+  margin-top: 25px;
+}
+/* line 161, ../sass/modules/_story.scss */
+.form-field-name-field-story-set .form-type-textarea > label,
+.form-field-name-field-story-set .tabledrag-toggle-weight-wrapper {
+  display: none;
+}
+
+/* line 167, ../sass/modules/_story.scss */
+#block-storyscope-story-story-section-pager h2.block-title, #block-storyscope-story-story-section-pager .node-story-visualisation .exhibit-collectionView-body ol li > div > div.block-title:first-child, .node-story-visualisation .exhibit-collectionView-body ol #block-storyscope-story-story-section-pager li > div > div.block-title:first-child {
+  visibility: hidden;
+}
+
+/*
+ * Up and down arrows on Write page.
+ */
+/* line 176, ../sass/modules/_story.scss */
+.node-section-form .up-button, .node-section-form .down-button {
+  font-size: 2em;
+  font-weight: bold;
+  cursor: pointer;
+  margin-right: 0.25em;
+}
+/* line 181, ../sass/modules/_story.scss */
+.node-section-form .up-button:hover, .node-section-form .down-button:hover {
+  color: #cdcccb;
+  border-bottom: solid 1px #cdcccb;
+}
+
+/* line 6, ../sass/storyscope.scss */
+body {
+  color: #4e4e4e;
+}
+
+/* =============================================================================
+   Links
+   ========================================================================== */
+/*
+ * The order of link states are based on Eric Meyer's article:
+ * http://meyerweb.com/eric/thoughts/2007/06/11/who-ordered-the-link-states
+ */
+/* line 21, ../sass/storyscope.scss */
+a:visited,
+a:link {
+  color: #a1a3a6;
+  text-decoration: none;
+  border-bottom: solid 1px transparent;
+}
+/* line 25, ../sass/storyscope.scss */
+a:visited.has-image,
+a:link.has-image {
+  border-bottom: none;
+}
+
+/*
+a:visited {
+  color: $link-visited;
+  border-bottom: solid 1px $light-gray;
+}
+*/
+/* line 37, ../sass/storyscope.scss */
+a:hover,
+a:focus,
+a:active {
+  color: #545658;
+  border-bottom: solid 1px #cdcccb;
+}
+
+/* Headings */
+/* line 49, ../sass/storyscope.scss */
+h1,
+h2,
+.node-story-visualisation .exhibit-collectionView-body ol li > div > div:first-child,
+h3,
+h4,
+h5,
+h6 {
+  line-height: 1.3em;
+  font-weight: normal;
+}
+
+/* line 57, ../sass/storyscope.scss */
+h2.title, .node-story-visualisation .exhibit-collectionView-body ol li > div > div:first-child {
+  font-size: 1.2em;
+}
+
+/* line 60, ../sass/storyscope.scss */
+h2.node-title, .node-story-visualisation .exhibit-collectionView-body ol li > div > div.node-title:first-child {
+  margin-top: 10px !important;
+}
+
+/* line 63, ../sass/storyscope.scss */
+h3 {
+  color: #a0a0a0;
+  margin-bottom: 0.4em;
+}
+
+/* line 67, ../sass/storyscope.scss */
+p {
+  margin: 0 0 1.5em 0;
+}
+
+/* Navigation */
+/* line 75, ../sass/storyscope.scss */
+.action-links {
+  display: none;
+}
+
+/* line 80, ../sass/storyscope.scss */
+#navigation a {
+  color: #4e4e4e;
+  border-bottom: none;
+  font-weight: bold;
+}
+/* line 24, ../../../../../../../../../../Library/Ruby/Gems/1.8/gems/compass-0.12.2/frameworks/compass/stylesheets/compass/typography/links/_link-colors.scss */
+#navigation a:hover {
+  color: #a0a0a0;
+}
+
+/* line 86, ../sass/storyscope.scss */
+.more-link {
+  padding-bottom: 0 !important;
+  text-align: left;
+}
+/* line 89, ../sass/storyscope.scss */
+.more-link a:link {
+  text-decoration: underline !important;
+}
+
+/* hide show row weigths */
+/* line 94, ../sass/storyscope.scss */
+.tabledrag-toggle-weight-wrapper {
+  display: none;
+}
+
+/* Admin Section */
+/* line 98, ../sass/storyscope.scss */
+.section-admin a {
+  /**
+  @include link-colors($dark-gray);
+  border-bottom: none;
+  */
+}
+
+/* Home page */
+/* line 106, ../sass/storyscope.scss */
+.front #page-leader {
+  background-color: #b5d5e9;
+  margin-top: 0 !important;
+}
+/* line 110, ../sass/storyscope.scss */
+.front #highlighted {
+  display: none;
+}
+/* line 113, ../sass/storyscope.scss */
+.front #content {
+  padding: 0;
+  border: none;
+}
+/* line 117, ../sass/storyscope.scss */
+.front #main-menu {
+  display: none;
+}
+/* line 120, ../sass/storyscope.scss */
+.front #header {
+  display: none;
+}
+/* line 123, ../sass/storyscope.scss */
+.front #navigation {
+  margin-left: 3%;
+  padding-bottom: 40px;
+}
+/* line 127, ../sass/storyscope.scss */
+.front .tabs {
+  display: none;
+}
+/* line 131, ../sass/storyscope.scss */
+.front .panel-top,
+.front .container-full {
+  background-color: #dddbc0;
+  padding: 25px;
+  height: 100%;
+}
+/* line 135, ../sass/storyscope.scss */
+.front .panel-top .pane-1,
+.front .container-full .pane-1 {
+  float: left;
+  width: 47%;
+  height: inherit;
+  margin-left: 2%;
+}
+/* line 141, ../sass/storyscope.scss */
+.front .panel-top .pane-2,
+.front .container-full .pane-2 {
+  float: right;
+  width: 45%;
+  height: inherit;
+  padding-top: 25px;
+}
+/* line 147, ../sass/storyscope.scss */
+.front .panel-top .pane-user-login,
+.front .container-full .pane-user-login {
+  float: right;
+  width: 30%;
+  height: inherit;
+  padding-top: 25px;
+}
+/* line 152, ../sass/storyscope.scss */
+.front .panel-top .pane-user-login .form-required,
+.front .container-full .pane-user-login .form-required {
+  display: none;
+}
+/* line 156, ../sass/storyscope.scss */
+.front .panel-top .pane-user-login #edit-name,
+.front .panel-top .pane-user-login #edit-pass,
+.front .container-full .pane-user-login #edit-name,
+.front .container-full .pane-user-login #edit-pass {
+  width: 215px;
+}
+/* line 159, ../sass/storyscope.scss */
+.front .panel-top .pane-user-login li,
+.front .container-full .pane-user-login li {
+  list-style: none;
+}
+/* line 164, ../sass/storyscope.scss */
+.front .panel-middle-3 {
+  display: none;
+}
+/* line 168, ../sass/storyscope.scss */
+.front .middle-4-wrapper {
+  background-color: #b5d5e9;
+  height: 10px;
+  margin: 15px 0;
+  padding: 0;
+}
+
+/*hightlighted section */
+/* line 176, ../sass/storyscope.scss */
+.pane-dossier-activity-panel-pane-1 article {
+  padding: 2px !important;
+}
+
+/* Blocks on dossier pages */
+/* line 180, ../sass/storyscope.scss */
+.item-list ul.add-resource {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  overflow: hidden;
+  *zoom: 1;
+}
+/* line 60, ../../../../../../../../../../Library/Ruby/Gems/1.8/gems/compass-0.12.2/frameworks/compass/stylesheets/compass/typography/lists/_horizontal-list.scss */
+.item-list ul.add-resource li {
+  list-style-image: none;
+  list-style-type: none;
+  margin-left: 0;
+  white-space: nowrap;
+  display: inline;
+  float: left;
+  padding-left: 4px;
+  padding-right: 4px;
+}
+/* line 48, ../../../../../../../../../../Library/Ruby/Gems/1.8/gems/compass-0.12.2/frameworks/compass/stylesheets/compass/typography/lists/_horizontal-list.scss */
+.item-list ul.add-resource li:first-child, .item-list ul.add-resource li.first {
+  padding-left: 0;
+}
+/* line 49, ../../../../../../../../../../Library/Ruby/Gems/1.8/gems/compass-0.12.2/frameworks/compass/stylesheets/compass/typography/lists/_horizontal-list.scss */
+.item-list ul.add-resource li:last-child {
+  padding-right: 0;
+}
+/* line 50, ../../../../../../../../../../Library/Ruby/Gems/1.8/gems/compass-0.12.2/frameworks/compass/stylesheets/compass/typography/lists/_horizontal-list.scss */
+.item-list ul.add-resource li.last {
+  padding-right: 0;
+}
+/* line 182, ../sass/storyscope.scss */
+.item-list ul.add-resource li {
+  border-right: solid 2px #cdcccb;
+  padding-right: 1em;
+  margin-right: 1em;
+}
+/* line 186, ../sass/storyscope.scss */
+.item-list ul.add-resource li:last-child {
+  border-right: none;
+}
+
+/* line 193, ../sass/storyscope.scss */
+article .block.list-properties .item-list ul {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  overflow: hidden;
+  *zoom: 1;
+}
+/* line 49, ../../../../../../../../../../Library/Ruby/Gems/1.8/gems/compass-0.12.2/frameworks/compass/stylesheets/compass/typography/lists/_inline-block-list.scss */
+article .block.list-properties .item-list ul li {
+  list-style-image: none;
+  list-style-type: none;
+  margin-left: 0;
+  display: -moz-inline-stack;
+  display: inline-block;
+  vertical-align: middle;
+  *vertical-align: auto;
+  zoom: 1;
+  *display: inline;
+  white-space: nowrap;
+}
+/* line 195, ../sass/storyscope.scss */
+article .block.list-properties .item-list ul li {
+  background-color: #e5e5e5;
+  padding: 0.5em 1em;
+  margin: 0.25em;
+}
+/* line 204, ../sass/storyscope.scss */
+article .block.generate-resources .item-list ul, article .block.view-resources .item-list ul {
+  list-style: none;
+  padding-left: 0;
+}
+/* line 11, ../../../../../../../../../../Library/Ruby/Gems/1.8/gems/compass-0.12.2/frameworks/compass/stylesheets/compass/typography/lists/_bullets.scss */
+article .block.generate-resources .item-list ul li, article .block.view-resources .item-list ul li {
+  list-style-image: none;
+  list-style-type: none;
+  margin-left: 0;
+}
+/* line 208, ../sass/storyscope.scss */
+article .block.generate-resources .item-list ul li a, article .block.view-resources .item-list ul li a {
+  background-color: #cdcccb;
+  padding: 0.75em;
+  margin: 0.25em;
+  display: block;
+  border-bottom: none;
+  color: #000;
+}
+/* line 216, ../sass/storyscope.scss */
+article .block.generate-resources .item-list ul li a.dec-story:hover, article .block.view-resources .item-list ul li a.dec-story:hover {
+  background-color: #f9cc67;
+}
+/* line 217, ../sass/storyscope.scss */
+article .block.generate-resources .item-list ul li a.dec-object:hover, article .block.view-resources .item-list ul li a.dec-object:hover {
+  background-color: #e2903d;
+}
+/* line 218, ../sass/storyscope.scss */
+article .block.generate-resources .item-list ul li a.dec-tagged-event:hover, article .block.view-resources .item-list ul li a.dec-tagged-event:hover {
+  background-color: #7ac953;
+}
+/* line 219, ../sass/storyscope.scss */
+article .block.generate-resources .item-list ul li a.dec-plot:hover, article .block.view-resources .item-list ul li a.dec-plot:hover {
+  background-color: #3fa9f5;
+}
+/* line 220, ../sass/storyscope.scss */
+article .block.generate-resources .item-list ul li a.dec-narrative:hover, article .block.view-resources .item-list ul li a.dec-narrative:hover {
+  background-color: #ff5800;
+}
+/* line 221, ../sass/storyscope.scss */
+article .block.generate-resources .item-list ul li a.dec-visualisation:hover, article .block.view-resources .item-list ul li a.dec-visualisation:hover {
+  background-color: #fcb816;
+}
+/* line 222, ../sass/storyscope.scss */
+article .block.generate-resources .item-list ul li a.dec-reference:hover, article .block.view-resources .item-list ul li a.dec-reference:hover {
+  background-color: #00a99d;
+}
+/* line 227, ../sass/storyscope.scss */
+article .block.view-resources .item-list ul li {
+  display: inline-block;
+  width: 49%;
+}
+/* line 233, ../sass/storyscope.scss */
+article .block p.manage-facets {
+  overflow: hidden;
+  *zoom: 1;
+  margin-top: 1em;
+}
+/* line 236, ../sass/storyscope.scss */
+article .block p.manage-facets a {
+  float: right;
+}
+
+/* line 246, ../sass/storyscope.scss */
+.similarity-search-item-description-text .view-dossier-objects,
+.panel .resource-container .view-dossier-objects {
+  border-bottom: none;
+}
+/* line 249, ../sass/storyscope.scss */
+.similarity-search-item-description-text > .container-inner:first-child,
+.panel .resource-container > .container-inner:first-child {
+  padding: 0 10px 0 10px;
+  margin: 10px 0;
+}
+/* line 254, ../sass/storyscope.scss */
+.similarity-search-item-description-text > .container-inner:nth-child(2),
+.panel .resource-container > .container-inner:nth-child(2) {
+  padding-left: 18px;
+  margin: 10px 0;
+  border-left: solid 1px #cdcccb;
+}
+
+/* line 260, ../sass/storyscope.scss */
+.panel .resource-container.view-dossier-objects {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+/* line 265, ../sass/storyscope.scss */
+.pane-dossier-object-stories-panel-pane-1 h3 {
+  margin-top: 0;
+}
+
+/* line 269, ../sass/storyscope.scss */
+.resource-container.media-container {
+  background-color: gray;
+}
+
+/* line 272, ../sass/storyscope.scss */
+.resource-container.container_full.container_inner.media-container {
+  background-color: orange;
+}
+
+/* line 276, ../sass/storyscope.scss */
+.resource-container li .article-inner,
+.resource-container article .article-inner {
+  border-top: solid 2px #4e4e4e;
+  margin: 0 0 0.5em;
+  padding: 0.5em;
+}
+
+/* line 282, ../sass/storyscope.scss */
+.resource-container article.highlight-image .article-inner {
+  border-top: none;
+  padding-top: 0;
+}
+
+/* line 289, ../sass/storyscope.scss */
+.panel .middle-wrapper .middle-2-2 {
+  border-left: none;
+}
+
+/* line 297, ../sass/storyscope.scss */
+li.node-object-story > .article-inner,
+article.node-object-story > .article-inner {
+  border-color: #f9cc67;
+  background-color: rgba(249, 204, 103, 0.1);
+  position: relative;
+  min-height: 135px;
+  min-width: 145px;
+}
+/* line 303, ../sass/storyscope.scss */
+li.node-object-story > .article-inner p.type-identifier,
+article.node-object-story > .article-inner p.type-identifier {
+  color: #f9cc67;
+}
+/* line 306, ../sass/storyscope.scss */
+li.node-object-story > .article-inner p.object-story-dossier,
+article.node-object-story > .article-inner p.object-story-dossier {
+  color: #f9cc67;
+}
+
+/* line 310, ../sass/storyscope.scss */
+#stories {
+  color: #f9cc67;
+}
+
+/* line 314, ../sass/storyscope.scss */
+li.node-dossier > .article-inner,
+article.node-dossier > .article-inner {
+  border-color: #f17ba9;
+}
+/* line 316, ../sass/storyscope.scss */
+li.node-dossier > .article-inner p.type-identifier,
+article.node-dossier > .article-inner p.type-identifier {
+  color: #f17ba9;
+}
+
+/* line 321, ../sass/storyscope.scss */
+li.node-object > .article-inner,
+article.node-object > .article-inner {
+  border-color: #e2903d;
+  background-color: rgba(226, 144, 61, 0.1);
+}
+/* line 325, ../sass/storyscope.scss */
+li.node-object > .article-inner p.type-identifier,
+article.node-object > .article-inner p.type-identifier {
+  color: #e2903d;
+}
+
+/* line 329, ../sass/storyscope.scss */
+#objects {
+  color: #e2903d;
+}
+
+/* line 334, ../sass/storyscope.scss */
+li.node-event > .article-inner,
+article.node-event > .article-inner {
+  border-color: #7ac953;
+  background-color: rgba(122, 201, 83, 0.05);
+  min-height: 95px;
+}
+/* line 338, ../sass/storyscope.scss */
+li.node-event > .article-inner p.type-identifier,
+article.node-event > .article-inner p.type-identifier {
+  color: #7ac953;
+}
+
+/* line 342, ../sass/storyscope.scss */
+#events {
+  color: #7ac953;
+}
+
+/* line 346, ../sass/storyscope.scss */
+li.node-source-event > .article-inner,
+article.node-source-event > .article-inner {
+  border-color: #7ac953;
+}
+/* line 348, ../sass/storyscope.scss */
+li.node-source-event > .article-inner p.type-identifier,
+article.node-source-event > .article-inner p.type-identifier {
+  color: #7ac953;
+}
+
+/* line 353, ../sass/storyscope.scss */
+li.node-plot > .article-inner,
+article.node-plot > .article-inner {
+  border-color: #3fa9f5;
+}
+/* line 355, ../sass/storyscope.scss */
+li.node-plot > .article-inner p.type-identifier,
+article.node-plot > .article-inner p.type-identifier {
+  color: #3fa9f5;
+}
+
+/* line 360, ../sass/storyscope.scss */
+li.node-story > .article-inner,
+article.node-story > .article-inner {
+  border-color: #3fa9f5;
+  background-color: rgba(63, 169, 245, 0.05);
+}
+/* line 363, ../sass/storyscope.scss */
+li.node-story > .article-inner p.type-identifier,
+article.node-story > .article-inner p.type-identifier {
+  color: #3fa9f5;
+}
+
+/* line 367, ../sass/storyscope.scss */
+#narratives {
+  color: #3fa9f5;
+}
+
+/* line 370, ../sass/storyscope.scss */
+article.node-plot-description > .article-inner {
+  border-color: #3fa9f5;
+}
+/* line 372, ../sass/storyscope.scss */
+article.node-plot-description > .article-inner p.type-identifier {
+  color: #3fa9f5;
+}
+
+/* line 376, ../sass/storyscope.scss */
+article.node-plot-element > .article-inner {
+  border-color: #a35ebc;
+}
+/* line 378, ../sass/storyscope.scss */
+article.node-plot-element > .article-inner p.type-identifier {
+  color: #a35ebc;
+}
+
+/* line 382, ../sass/storyscope.scss */
+article.node-section > .article-inner {
+  border-color: #a35ebc;
+}
+/* line 384, ../sass/storyscope.scss */
+article.node-section > .article-inner p.type-identifier {
+  color: #a35ebc;
+}
+
+/* line 388, ../sass/storyscope.scss */
+article.node-plot-description > .article-inner {
+  border-color: #3fa9f5;
+}
+/* line 390, ../sass/storyscope.scss */
+article.node-plot-description > .article-inner p.type-identifier {
+  color: #3fa9f5;
+}
+
+/* line 394, ../sass/storyscope.scss */
+article.node-narrative-microsite > .article-inner {
+  border-color: #ff5800;
+}
+/* line 396, ../sass/storyscope.scss */
+article.node-narrative-microsite > .article-inner p.type-identifier {
+  color: #ff5800;
+}
+
+/* line 400, ../sass/storyscope.scss */
+article.node-story-visualisation > .article-inner {
+  border-color: #fcb816;
+}
+/* line 402, ../sass/storyscope.scss */
+article.node-story-visualisation > .article-inner p.type-identifier {
+  color: #a1a3a6;
+}
+
+/* line 407, ../sass/storyscope.scss */
+article.node-reference > .article-inner {
+  border-color: #00a99d;
+  background-color: rgba(0, 169, 157, 0.05);
+}
+/* line 411, ../sass/storyscope.scss */
+article.node-reference > .article-inner span.label,
+article.node-reference > .article-inner p.type-identifier {
+  color: #00a99d;
+}
+
+/* line 415, ../sass/storyscope.scss */
+#references {
+  color: #00a99d;
+}
+
+/* line 424, ../sass/storyscope.scss */
+.resource-container .view-mode-thumbnail .article-inner,
+li.article .view-mode-thumbnail .article-inner,
+article .view-mode-thumbnail .article-inner {
+  min-height: 175px;
+}
+/* line 428, ../sass/storyscope.scss */
+.resource-container p.type-identifier,
+li.article p.type-identifier,
+article p.type-identifier {
+  text-transform: uppercase;
+  font: normal 10px Arial, sans-serif;
+  margin: 0 0 0.25em 0;
+}
+/* line 433, ../sass/storyscope.scss */
+.resource-container p.object-story-dossier,
+li.article p.object-story-dossier,
+article p.object-story-dossier {
+  text-transform: uppercase;
+  font: normal 10px Arial, sans-serif;
+  margin: 0 0 0.25em 0;
+}
+/* line 438, ../sass/storyscope.scss */
+.resource-container p.suggest,
+li.article p.suggest,
+article p.suggest {
+  text-align: right;
+  margin-top: 0;
+  margin-left: 1em;
+}
+
+/* line 446, ../sass/storyscope.scss */
+.view .view-content {
+  overflow: hidden;
+  *zoom: 1;
+}
+
+/* line 451, ../sass/storyscope.scss */
+.view-dossier-object-stories .more-link a {
+  color: #f9cc67 !important;
+}
+/* line 456, ../sass/storyscope.scss */
+.view-dossier-object-stories .node-object-story .article-inner {
+  min-height: 116px;
+}
+/* line 460, ../sass/storyscope.scss */
+.view-dossier-object-stories .views-exposed-widget .form-text {
+  width: 20% !important;
+}
+
+/* line 466, ../sass/storyscope.scss */
+.view-dossier-objects .more-link a {
+  color: #e2903d !important;
+}
+
+/* line 473, ../sass/storyscope.scss */
+.view-dossier-events .more-link a {
+  color: #7ac953 !important;
+}
+
+/* line 480, ../sass/storyscope.scss */
+.view-dossier-references .more-link a {
+  color: #00a99d !important;
+}
+
+/* line 487, ../sass/storyscope.scss */
+.view-dossier-stories .more-link a {
+  color: #3fa9f5 !important;
+}
+
+/* line 492, ../sass/storyscope.scss */
+p.suggest {
+  /*tool tip span*/
+  /* Create a downward pointing arrow for the tool tip */
+  margin: 0 0 0.5em;
+}
+/* line 494, ../sass/storyscope.scss */
+p.suggest span {
+  background: #F8F8F8;
+  border: 2px solid #dfdfdf;
+  color: #717171;
+  font-size: 12px;
+  height: 18px;
+  line-height: 19px;
+  position: absolute;
+  text-align: center;
+  text-transform: uppercase;
+  bottom: 36px;
+  right: 8px;
+  display: none;
+  padding: 0 20px;
+}
+/* line 511, ../sass/storyscope.scss */
+p.suggest span:after {
+  content: '';
+  position: absolute;
+  bottom: -5px;
+  width: 5px;
+  height: 5px;
+  border-bottom: 2px solid #dfdfdf;
+  border-right: 2px solid #dfdfdf;
+  background: #f8f8f8;
+  -moz-transform: rotate(45deg);
+  -webkit-transform: rotate(45deg);
+  transform: rotate(45deg);
+}
+/* line 528, ../sass/storyscope.scss */
+.view-footer p.suggest, .view-header p.suggest {
+  float: right;
+  display: block;
+}
+
+/* line 534, ../sass/storyscope.scss */
+p.add-event a {
+  padding: 1.2em 0.2em 1em 0;
+  opacity: 0.75;
+}
+/* line 537, ../sass/storyscope.scss */
+p.add-event a:hover {
+  opacity: 1;
+  text-decoration: underline;
+  border: none;
+}
+/* line 543, ../sass/storyscope.scss */
+.view-footer p.add-event a, .view-header p.add-event a {
+  float: right;
+  display: block;
+}
+/* line 549, ../sass/storyscope.scss */
+p.add-event:hover span {
+  display: block;
+}
+
+/* line 554, ../sass/storyscope.scss */
+.node-object-story p.add-event a {
+  color: #f9cc67;
+}
+
+/* line 557, ../sass/storyscope.scss */
+.node-object p.add-event a {
+  color: #e2903d;
+}
+
+/* line 561, ../sass/storyscope.scss */
+p.remove-event a {
+  background: transparent url(../images/trash.png) 0 0 no-repeat;
+  opacity: 0.20;
+  padding: 1.2em 2.5em 1em 0;
+  position: absolute;
+  right: 0;
+  bottom: 0;
+}
+/* line 568, ../sass/storyscope.scss */
+p.remove-event a:hover {
+  opacity: 0.55;
+  border: none;
+}
+/* line 573, ../sass/storyscope.scss */
+.view-footer p.remove-event a, .view-header p.remove-event a {
+  float: right;
+  display: block;
+}
+/* line 579, ../sass/storyscope.scss */
+p.remove-event:hover span {
+  display: block;
+}
+
+/* line 585, ../sass/storyscope.scss */
+.node {
+  position: relative;
+}
+
+/* line 591, ../sass/storyscope.scss */
+p.button a {
+  /*
+  background-color: $very-light-gray;
+  padding: 0.5em 1em;
+  margin: 0.25em 0.25em 0.5em;
+  */
+}
+/* line 597, ../sass/storyscope.scss */
+p.button a:visited {
+  color: inherit;
+}
+/* line 600, ../sass/storyscope.scss */
+p.button a:hover {
+  /*
+  background-color: $link-visited;
+  color: #fff;
+  border: none;
+  */
+  color: #545658;
+  border-bottom: solid 1px #cdcccb;
+}
+/* line 610, ../sass/storyscope.scss */
+.view-footer p.button a, .view-header p.button a {
+  float: right;
+  display: block;
+}
+
+/* line 619, ../sass/storyscope.scss */
+div.button a {
+  background-color: #a6cef3;
+  border: solid 1px #8cbae4;
+  padding: 0.5em 1em;
+  margin: 0.25em 0.25em 0.5em;
+  color: #4e4e4e;
+}
+/* line 625, ../sass/storyscope.scss */
+div.button a:visited {
+  color: #4e4e4e;
+}
+/* line 628, ../sass/storyscope.scss */
+div.button a:hover {
+  background-color: #a1a3a6;
+  color: white;
+}
+/* line 633, ../sass/storyscope.scss */
+.view-footer div.button a, .view-header div.button a {
+  float: right;
+  display: block;
+  color: white;
+}
+
+/* line 646, ../sass/storyscope.scss */
+.node-type-object .pane-content .add-resource {
+  float: right;
+}
+/* line 648, ../sass/storyscope.scss */
+.node-type-object .pane-content .add-resource li {
+  padding: 0.5em 1em;
+}
+/* line 651, ../sass/storyscope.scss */
+.node-type-object .pane-content .add-resource li a {
+  background-color: #a6cef3;
+  border: solid 1px #8cbae4;
+  padding: 0.5em 1em;
+  color: #4e4e4e;
+}
+/* line 656, ../sass/storyscope.scss */
+.node-type-object .pane-content .add-resource li a:visited {
+  color: #4e4e4e;
+}
+/* line 659, ../sass/storyscope.scss */
+.node-type-object .pane-content .add-resource li a:hover {
+  background-color: #a1a3a6;
+  color: white;
+}
+/* line 664, ../sass/storyscope.scss */
+.view-footer .node-type-object .pane-content .add-resource li a, .view-header .node-type-object .pane-content .add-resource li a {
+  float: right;
+  display: block;
+  color: #4e4e4e;
+}
+
+/* line 674, ../sass/storyscope.scss */
+.view-mode-image_and_properties {
+  background-color: #e2903d;
+  color: white;
+}
+/* line 676, ../sass/storyscope.scss */
+.view-mode-image_and_properties .remove-event a {
+  opacity: 0.55;
+}
+/* line 678, ../sass/storyscope.scss */
+.view-mode-image_and_properties .remove-event a:hover {
+  opacity: 0.75;
+  border: none;
+}
+/* line 685, ../sass/storyscope.scss */
+.view-mode-image_and_properties .node-title {
+  font-size: 1.5em;
+}
+/* line 689, ../sass/storyscope.scss */
+.view-mode-image_and_properties a {
+  color: white;
+  text-decoration: underline;
+}
+/* line 693, ../sass/storyscope.scss */
+.view-mode-image_and_properties .view-empty {
+  padding-top: 15px;
+}
+/* line 700, ../sass/storyscope.scss */
+.view-mode-image_and_properties .field .field-items,
+.view-mode-image_and_properties .field .freebase-link,
+.view-mode-image_and_properties .field .agent,
+.view-mode-image_and_properties .field .entity-field-collection-item {
+  position: relative;
+  top: -18px;
+  right: -32%;
+  width: 68%;
+}
+/* line 706, ../sass/storyscope.scss */
+.view-mode-image_and_properties .field .field-label {
+  top: 0;
+  right: 0;
+  color: white;
+}
+/* line 712, ../sass/storyscope.scss */
+.view-mode-image_and_properties .entity-field-collection-item {
+  position: relative;
+  top: -18px;
+  right: -32%;
+  width: 68%;
+}
+/* line 718, ../sass/storyscope.scss */
+.view-mode-image_and_properties .field-collection-item-field-object-dimensions .field-item {
+  float: left;
+  width: 80%;
+}
+/* line 722, ../sass/storyscope.scss */
+.view-mode-image_and_properties .field-collection-item-field-object-dimensions .field-label {
+  float: left;
+  color: white;
+}
+/* line 726, ../sass/storyscope.scss */
+.view-mode-image_and_properties .field-name-field-image .field-items {
+  top: 0;
+  right: 0;
+  width: 100% !important;
+}
+
+/* line 735, ../sass/storyscope.scss */
+.node-type-object-story .pane-content .add-resource li {
+  padding: 0.5em 0.5em 0.5em 0;
+  margin-right: 0.5em;
+}
+/* line 738, ../sass/storyscope.scss */
+.node-type-object-story .pane-content .add-resource li a {
+  background-color: #a6cef3;
+  border: solid 1px #8cbae4;
+  padding: 0.5em 1em;
+  color: #4e4e4e;
+}
+/* line 743, ../sass/storyscope.scss */
+.node-type-object-story .pane-content .add-resource li a:visited {
+  color: #4e4e4e;
+}
+/* line 746, ../sass/storyscope.scss */
+.node-type-object-story .pane-content .add-resource li a:hover {
+  background-color: #a1a3a6;
+  color: white;
+}
+/* line 751, ../sass/storyscope.scss */
+.view-footer .node-type-object-story .pane-content .add-resource li a, .view-header .node-type-object-story .pane-content .add-resource li a {
+  float: right;
+  display: block;
+  color: #4e4e4e;
+}
+
+/* line 763, ../sass/storyscope.scss */
+.node-type-dossier .middle-2-1,
+.node-type-dossier .middle-4-1 {
+  border-right: solid 1px #cdcccb;
+}
+/* line 766, ../sass/storyscope.scss */
+.node-type-dossier .panel-pane > .button {
+  float: right;
+}
+
+/* line 771, ../sass/storyscope.scss */
+#main {
+  border-top: solid 1px #cdcccb;
+}
+
+/* line 774, ../sass/storyscope.scss */
+.breadcrumb {
+  padding: 1em;
+  text-transform: uppercase;
+  font-size: 0.92308em;
+  line-height: 1.5em;
+}
+
+/* Search */
+/* line 781, ../sass/storyscope.scss */
+.reset-search, #views-exposed-form-dossier-events-page .views-exposed-widget .form-text,
+#views-exposed-form-dossier-object-stories-page .views-exposed-widget .form-text,
+#views-exposed-form-dossier-events-add-existing-search-api-page-add-event .views-exposed-widget .form-text,
+#views-exposed-form-object-story-objects-add-existing-search-api-page-add-object-dossier-context-internal .views-exposed-widget .form-text,
+#views-exposed-form-dossier-references-add-existing-search-api-page-add-reference-internal .views-exposed-widget .form-text,
+#views-exposed-form-dossier-events-add-existing-search-api-page-add-event-search-internal .views-exposed-widget .form-text,
+#views-exposed-form-dossier-object-stories-add-existing-search-api-page-add-object-story-internal .views-exposed-widget .form-text,
+#views-exposed-form-object-story-events-add-existing-search-api-page-add-event-dossier-context-internal .views-exposed-widget .form-text,
+#views-exposed-form-object-story-references-add-existing-search-api-page-add-reference-dossier-context-internal .views-exposed-widget .form-text,
+#views-exposed-form-dossier-events-search-api-dossier-events-page .views-exposed-widget .form-text,
+#views-exposed-form-dossier-events-page-1 .views-exposed-widget .form-text,
+#block-search-form .views-exposed-widget .form-text,
+#views-exposed-form-ca-search-external-ca .views-exposed-widget .form-text,
+#views-exposed-form-dossier-objects-add-existing-search-api-page-add-object-internal .views-exposed-widget .form-text,
+#views-exposed-form-dossier-events-search-api-dossier-events-pane .views-exposed-widget .form-text,
+#views-exposed-form-dossier-events-search-api-story-section-dossier-events-pane .views-exposed-widget .form-text,
+#views-exposed-form-dossier-objects-search-api-page .views-exposed-widget .form-text,
+#views-exposed-form-dossier-events-search-api-dossier-events-pane-timeline .views-exposed-widget .form-text,
+#views-exposed-form-dossier-events-search-api-map-page .views-exposed-widget .form-text,
+#views-exposed-form-dossier-object-stories-add-existing-search-api-object-stories-add-to-section .views-exposed-widget .form-text,
+#views-exposed-form-ca-search-page-1 .views-exposed-widget .form-text {
+  background-color: #f7f7f7;
+  -webkit-box-shadow: none;
+  -moz-box-shadow: none;
+  box-shadow: none;
+  -webkit-appearance: none;
+  border: none;
+  margin: 0;
+}
+
+/* line 810, ../sass/storyscope.scss */
+#views-exposed-form-dossier-events-page .views-exposed-widget .form-text,
+#views-exposed-form-dossier-object-stories-page .views-exposed-widget .form-text,
+#views-exposed-form-dossier-events-add-existing-search-api-page-add-event .views-exposed-widget .form-text,
+#views-exposed-form-object-story-objects-add-existing-search-api-page-add-object-dossier-context-internal .views-exposed-widget .form-text,
+#views-exposed-form-dossier-references-add-existing-search-api-page-add-reference-internal .views-exposed-widget .form-text,
+#views-exposed-form-dossier-events-add-existing-search-api-page-add-event-search-internal .views-exposed-widget .form-text,
+#views-exposed-form-dossier-object-stories-add-existing-search-api-page-add-object-story-internal .views-exposed-widget .form-text,
+#views-exposed-form-object-story-events-add-existing-search-api-page-add-event-dossier-context-internal .views-exposed-widget .form-text,
+#views-exposed-form-object-story-references-add-existing-search-api-page-add-reference-dossier-context-internal .views-exposed-widget .form-text,
+#views-exposed-form-dossier-events-search-api-dossier-events-page .views-exposed-widget .form-text,
+#views-exposed-form-dossier-events-page-1 .views-exposed-widget .form-text,
+#block-search-form .views-exposed-widget .form-text,
+#views-exposed-form-ca-search-external-ca .views-exposed-widget .form-text,
+#views-exposed-form-dossier-objects-add-existing-search-api-page-add-object-internal .views-exposed-widget .form-text,
+#views-exposed-form-dossier-events-search-api-dossier-events-pane .views-exposed-widget .form-text,
+#views-exposed-form-dossier-events-search-api-story-section-dossier-events-pane .views-exposed-widget .form-text,
+#views-exposed-form-dossier-objects-search-api-page .views-exposed-widget .form-text,
+#views-exposed-form-dossier-events-search-api-dossier-events-pane-timeline .views-exposed-widget .form-text,
+#views-exposed-form-dossier-events-search-api-map-page .views-exposed-widget .form-text,
+#views-exposed-form-dossier-object-stories-add-existing-search-api-object-stories-add-to-section .views-exposed-widget .form-text,
+#views-exposed-form-ca-search-page-1 .views-exposed-widget .form-text {
+  font-size: 0.92em;
+  display: block;
+  float: left;
+  padding: 0.5em 0 0.45em 0.5em;
+  height: 14px;
+  width: 70%;
+  border: 1px solid #cdcccb;
+}
+/* line 820, ../sass/storyscope.scss */
+#views-exposed-form-dossier-events-page .views-exposed-widget .form-text:focus,
+#views-exposed-form-dossier-object-stories-page .views-exposed-widget .form-text:focus,
+#views-exposed-form-dossier-events-add-existing-search-api-page-add-event .views-exposed-widget .form-text:focus,
+#views-exposed-form-object-story-objects-add-existing-search-api-page-add-object-dossier-context-internal .views-exposed-widget .form-text:focus,
+#views-exposed-form-dossier-references-add-existing-search-api-page-add-reference-internal .views-exposed-widget .form-text:focus,
+#views-exposed-form-dossier-events-add-existing-search-api-page-add-event-search-internal .views-exposed-widget .form-text:focus,
+#views-exposed-form-dossier-object-stories-add-existing-search-api-page-add-object-story-internal .views-exposed-widget .form-text:focus,
+#views-exposed-form-object-story-events-add-existing-search-api-page-add-event-dossier-context-internal .views-exposed-widget .form-text:focus,
+#views-exposed-form-object-story-references-add-existing-search-api-page-add-reference-dossier-context-internal .views-exposed-widget .form-text:focus,
+#views-exposed-form-dossier-events-search-api-dossier-events-page .views-exposed-widget .form-text:focus,
+#views-exposed-form-dossier-events-page-1 .views-exposed-widget .form-text:focus,
+#block-search-form .views-exposed-widget .form-text:focus,
+#views-exposed-form-ca-search-external-ca .views-exposed-widget .form-text:focus,
+#views-exposed-form-dossier-objects-add-existing-search-api-page-add-object-internal .views-exposed-widget .form-text:focus,
+#views-exposed-form-dossier-events-search-api-dossier-events-pane .views-exposed-widget .form-text:focus,
+#views-exposed-form-dossier-events-search-api-story-section-dossier-events-pane .views-exposed-widget .form-text:focus,
+#views-exposed-form-dossier-objects-search-api-page .views-exposed-widget .form-text:focus,
+#views-exposed-form-dossier-events-search-api-dossier-events-pane-timeline .views-exposed-widget .form-text:focus,
+#views-exposed-form-dossier-events-search-api-map-page .views-exposed-widget .form-text:focus,
+#views-exposed-form-dossier-object-stories-add-existing-search-api-object-stories-add-to-section .views-exposed-widget .form-text:focus,
+#views-exposed-form-ca-search-page-1 .views-exposed-widget .form-text:focus {
+  outline: none;
+  border-color: #dadada;
+}
+/* line 824, ../sass/storyscope.scss */
+#views-exposed-form-dossier-events-page .views-exposed-widget .form-text.ac_input,
+#views-exposed-form-dossier-object-stories-page .views-exposed-widget .form-text.ac_input,
+#views-exposed-form-dossier-events-add-existing-search-api-page-add-event .views-exposed-widget .form-text.ac_input,
+#views-exposed-form-object-story-objects-add-existing-search-api-page-add-object-dossier-context-internal .views-exposed-widget .form-text.ac_input,
+#views-exposed-form-dossier-references-add-existing-search-api-page-add-reference-internal .views-exposed-widget .form-text.ac_input,
+#views-exposed-form-dossier-events-add-existing-search-api-page-add-event-search-internal .views-exposed-widget .form-text.ac_input,
+#views-exposed-form-dossier-object-stories-add-existing-search-api-page-add-object-story-internal .views-exposed-widget .form-text.ac_input,
+#views-exposed-form-object-story-events-add-existing-search-api-page-add-event-dossier-context-internal .views-exposed-widget .form-text.ac_input,
+#views-exposed-form-object-story-references-add-existing-search-api-page-add-reference-dossier-context-internal .views-exposed-widget .form-text.ac_input,
+#views-exposed-form-dossier-events-search-api-dossier-events-page .views-exposed-widget .form-text.ac_input,
+#views-exposed-form-dossier-events-page-1 .views-exposed-widget .form-text.ac_input,
+#block-search-form .views-exposed-widget .form-text.ac_input,
+#views-exposed-form-ca-search-external-ca .views-exposed-widget .form-text.ac_input,
+#views-exposed-form-dossier-objects-add-existing-search-api-page-add-object-internal .views-exposed-widget .form-text.ac_input,
+#views-exposed-form-dossier-events-search-api-dossier-events-pane .views-exposed-widget .form-text.ac_input,
+#views-exposed-form-dossier-events-search-api-story-section-dossier-events-pane .views-exposed-widget .form-text.ac_input,
+#views-exposed-form-dossier-objects-search-api-page .views-exposed-widget .form-text.ac_input,
+#views-exposed-form-dossier-events-search-api-dossier-events-pane-timeline .views-exposed-widget .form-text.ac_input,
+#views-exposed-form-dossier-events-search-api-map-page .views-exposed-widget .form-text.ac_input,
+#views-exposed-form-dossier-object-stories-add-existing-search-api-object-stories-add-to-section .views-exposed-widget .form-text.ac_input,
+#views-exposed-form-ca-search-page-1 .views-exposed-widget .form-text.ac_input {
+  background-position: 100% 6px;
+}
+/* line 827, ../sass/storyscope.scss */
+#views-exposed-form-dossier-events-page .views-exposed-widget .form-text.ac_loading,
+#views-exposed-form-dossier-object-stories-page .views-exposed-widget .form-text.ac_loading,
+#views-exposed-form-dossier-events-add-existing-search-api-page-add-event .views-exposed-widget .form-text.ac_loading,
+#views-exposed-form-object-story-objects-add-existing-search-api-page-add-object-dossier-context-internal .views-exposed-widget .form-text.ac_loading,
+#views-exposed-form-dossier-references-add-existing-search-api-page-add-reference-internal .views-exposed-widget .form-text.ac_loading,
+#views-exposed-form-dossier-events-add-existing-search-api-page-add-event-search-internal .views-exposed-widget .form-text.ac_loading,
+#views-exposed-form-dossier-object-stories-add-existing-search-api-page-add-object-story-internal .views-exposed-widget .form-text.ac_loading,
+#views-exposed-form-object-story-events-add-existing-search-api-page-add-event-dossier-context-internal .views-exposed-widget .form-text.ac_loading,
+#views-exposed-form-object-story-references-add-existing-search-api-page-add-reference-dossier-context-internal .views-exposed-widget .form-text.ac_loading,
+#views-exposed-form-dossier-events-search-api-dossier-events-page .views-exposed-widget .form-text.ac_loading,
+#views-exposed-form-dossier-events-page-1 .views-exposed-widget .form-text.ac_loading,
+#block-search-form .views-exposed-widget .form-text.ac_loading,
+#views-exposed-form-ca-search-external-ca .views-exposed-widget .form-text.ac_loading,
+#views-exposed-form-dossier-objects-add-existing-search-api-page-add-object-internal .views-exposed-widget .form-text.ac_loading,
+#views-exposed-form-dossier-events-search-api-dossier-events-pane .views-exposed-widget .form-text.ac_loading,
+#views-exposed-form-dossier-events-search-api-story-section-dossier-events-pane .views-exposed-widget .form-text.ac_loading,
+#views-exposed-form-dossier-objects-search-api-page .views-exposed-widget .form-text.ac_loading,
+#views-exposed-form-dossier-events-search-api-dossier-events-pane-timeline .views-exposed-widget .form-text.ac_loading,
+#views-exposed-form-dossier-events-search-api-map-page .views-exposed-widget .form-text.ac_loading,
+#views-exposed-form-dossier-object-stories-add-existing-search-api-object-stories-add-to-section .views-exposed-widget .form-text.ac_loading,
+#views-exposed-form-ca-search-page-1 .views-exposed-widget .form-text.ac_loading {
+  background-position: 100% -12px;
+}
+/* line 831, ../sass/storyscope.scss */
+#views-exposed-form-dossier-events-page .views-exposed-widget .form-submit,
+#views-exposed-form-dossier-object-stories-page .views-exposed-widget .form-submit,
+#views-exposed-form-dossier-events-add-existing-search-api-page-add-event .views-exposed-widget .form-submit,
+#views-exposed-form-object-story-objects-add-existing-search-api-page-add-object-dossier-context-internal .views-exposed-widget .form-submit,
+#views-exposed-form-dossier-references-add-existing-search-api-page-add-reference-internal .views-exposed-widget .form-submit,
+#views-exposed-form-dossier-events-add-existing-search-api-page-add-event-search-internal .views-exposed-widget .form-submit,
+#views-exposed-form-dossier-object-stories-add-existing-search-api-page-add-object-story-internal .views-exposed-widget .form-submit,
+#views-exposed-form-object-story-events-add-existing-search-api-page-add-event-dossier-context-internal .views-exposed-widget .form-submit,
+#views-exposed-form-object-story-references-add-existing-search-api-page-add-reference-dossier-context-internal .views-exposed-widget .form-submit,
+#views-exposed-form-dossier-events-search-api-dossier-events-page .views-exposed-widget .form-submit,
+#views-exposed-form-dossier-events-page-1 .views-exposed-widget .form-submit,
+#block-search-form .views-exposed-widget .form-submit,
+#views-exposed-form-ca-search-external-ca .views-exposed-widget .form-submit,
+#views-exposed-form-dossier-objects-add-existing-search-api-page-add-object-internal .views-exposed-widget .form-submit,
+#views-exposed-form-dossier-events-search-api-dossier-events-pane .views-exposed-widget .form-submit,
+#views-exposed-form-dossier-events-search-api-story-section-dossier-events-pane .views-exposed-widget .form-submit,
+#views-exposed-form-dossier-objects-search-api-page .views-exposed-widget .form-submit,
+#views-exposed-form-dossier-events-search-api-dossier-events-pane-timeline .views-exposed-widget .form-submit,
+#views-exposed-form-dossier-events-search-api-map-page .views-exposed-widget .form-submit,
+#views-exposed-form-dossier-object-stories-add-existing-search-api-object-stories-add-to-section .views-exposed-widget .form-submit,
+#views-exposed-form-ca-search-page-1 .views-exposed-widget .form-submit {
+  margin-top: 0px;
+  border: 1px solid #cdcccb;
+  display: block;
+  float: left;
+  background: transparent url('../images/search.png?1373533017') 50% 50% no-repeat;
+  width: 28px;
+  min-height: 27px;
+  text-indent: -99em;
+  background-color: transparent;
+  cursor: pointer;
+  margin-left: -1px;
+}
+/* line 840, ../sass/storyscope.scss */
+.lt-ie8 #views-exposed-form-dossier-events-page .views-exposed-widget .form-submit, .lt-ie8
+#views-exposed-form-dossier-object-stories-page .views-exposed-widget .form-submit, .lt-ie8
+#views-exposed-form-dossier-events-add-existing-search-api-page-add-event .views-exposed-widget .form-submit, .lt-ie8
+#views-exposed-form-object-story-objects-add-existing-search-api-page-add-object-dossier-context-internal .views-exposed-widget .form-submit, .lt-ie8
+#views-exposed-form-dossier-references-add-existing-search-api-page-add-reference-internal .views-exposed-widget .form-submit, .lt-ie8
+#views-exposed-form-dossier-events-add-existing-search-api-page-add-event-search-internal .views-exposed-widget .form-submit, .lt-ie8
+#views-exposed-form-dossier-object-stories-add-existing-search-api-page-add-object-story-internal .views-exposed-widget .form-submit, .lt-ie8
+#views-exposed-form-object-story-events-add-existing-search-api-page-add-event-dossier-context-internal .views-exposed-widget .form-submit, .lt-ie8
+#views-exposed-form-object-story-references-add-existing-search-api-page-add-reference-dossier-context-internal .views-exposed-widget .form-submit, .lt-ie8
+#views-exposed-form-dossier-events-search-api-dossier-events-page .views-exposed-widget .form-submit, .lt-ie8
+#views-exposed-form-dossier-events-page-1 .views-exposed-widget .form-submit, .lt-ie8
+#block-search-form .views-exposed-widget .form-submit, .lt-ie8
+#views-exposed-form-ca-search-external-ca .views-exposed-widget .form-submit, .lt-ie8
+#views-exposed-form-dossier-objects-add-existing-search-api-page-add-object-internal .views-exposed-widget .form-submit, .lt-ie8
+#views-exposed-form-dossier-events-search-api-dossier-events-pane .views-exposed-widget .form-submit, .lt-ie8
+#views-exposed-form-dossier-events-search-api-story-section-dossier-events-pane .views-exposed-widget .form-submit, .lt-ie8
+#views-exposed-form-dossier-objects-search-api-page .views-exposed-widget .form-submit, .lt-ie8
+#views-exposed-form-dossier-events-search-api-dossier-events-pane-timeline .views-exposed-widget .form-submit, .lt-ie8
+#views-exposed-form-dossier-events-search-api-map-page .views-exposed-widget .form-submit, .lt-ie8
+#views-exposed-form-dossier-object-stories-add-existing-search-api-object-stories-add-to-section .views-exposed-widget .form-submit, .lt-ie8
+#views-exposed-form-ca-search-page-1 .views-exposed-widget .form-submit {
+  font-size: 0;
+  line-height: 0;
+}
+
+/* line 852, ../sass/storyscope.scss */
+#edit-search-api-views-fulltext-wrapper .views-exposed-widget.form-submit {
+  margin: 0;
+  padding: 0;
+}
+
+/* line 858, ../sass/storyscope.scss */
+.views-exposed-form .views-exposed-widget {
+  float: none;
+  padding: 0;
+}
+
+/* Dossier Specific styling */
+/* line 868, ../sass/storyscope.scss */
+.node-type-dossier .panel .middle-wrapper .middle-2-2 {
+  border: none;
+}
+/* line 873, ../sass/storyscope.scss */
+.node-type-dossier .panel .middle-4-wrapper .middle-4-2 {
+  border: none;
+}
+
+/* Event Specific styling */
+/* line 883, ../sass/storyscope.scss */
+.panel-pane .field-name-field-fb-value .field-name-field-amount .field-items {
+  top: 0;
+  right: 0;
+}
+
+/* Object Specific styling */
+/*object story specific styling*/
+/* line 896, ../sass/storyscope.scss */
+.node-type-object .node-object_story-form #edit-field-object-story-editable,
+.node-type-object-story .node-object_story-form #edit-field-object-story-editable {
+  clear: both;
+}
+/* line 899, ../sass/storyscope.scss */
+.node-type-object .node-object_story-form #edit-media-select-widget,
+.node-type-object-story .node-object_story-form #edit-media-select-widget {
+  height: 120px;
+  clear: both;
+}
+/* line 902, ../sass/storyscope.scss */
+.node-type-object .node-object_story-form #edit-media-select-widget label,
+.node-type-object-story .node-object_story-form #edit-media-select-widget label {
+  margin: 0.25em;
+  float: left;
+}
+/* line 907, ../sass/storyscope.scss */
+.node-type-object .node-object_story-form #edit-media-select-widget .selected-media img,
+.node-type-object-story .node-object_story-form #edit-media-select-widget .selected-media img {
+  border: 5px solid #4e4e4e;
+}
+/* line 913, ../sass/storyscope.scss */
+.node-type-object .resource-container,
+.node-type-object-story .resource-container {
+  border: none;
+  padding: 0;
+}
+/* line 919, ../sass/storyscope.scss */
+.node-type-object .middle-wrapper .container-inner.middle-2-1,
+.node-type-object .panel .container-inner.middle-2-1,
+.node-type-object-story .middle-wrapper .container-inner.middle-2-1,
+.node-type-object-story .panel .container-inner.middle-2-1 {
+  border: none;
+  display: table;
+  background-color: #e2903d;
+  text-align: left;
+  color: white;
+  padding-top: 10px;
+}
+/* line 926, ../sass/storyscope.scss */
+.node-type-object .middle-wrapper .container-inner.middle-2-1 a,
+.node-type-object .panel .container-inner.middle-2-1 a,
+.node-type-object-story .middle-wrapper .container-inner.middle-2-1 a,
+.node-type-object-story .panel .container-inner.middle-2-1 a {
+  color: white;
+}
+/* line 929, ../sass/storyscope.scss */
+.node-type-object .middle-wrapper .container-inner.middle-2-1 .panel-pane,
+.node-type-object .panel .container-inner.middle-2-1 .panel-pane,
+.node-type-object-story .middle-wrapper .container-inner.middle-2-1 .panel-pane,
+.node-type-object-story .panel .container-inner.middle-2-1 .panel-pane {
+  padding-bottom: 15px;
+}
+/* line 932, ../sass/storyscope.scss */
+.node-type-object .middle-wrapper .container-inner.middle-2-1 .panel-pane .pane-title,
+.node-type-object .middle-wrapper .container-inner.middle-2-1 .panel-pane .field-label,
+.node-type-object .panel .container-inner.middle-2-1 .panel-pane .pane-title,
+.node-type-object .panel .container-inner.middle-2-1 .panel-pane .field-label,
+.node-type-object-story .middle-wrapper .container-inner.middle-2-1 .panel-pane .pane-title,
+.node-type-object-story .middle-wrapper .container-inner.middle-2-1 .panel-pane .field-label,
+.node-type-object-story .panel .container-inner.middle-2-1 .panel-pane .pane-title,
+.node-type-object-story .panel .container-inner.middle-2-1 .panel-pane .field-label {
+  color: white;
+  font-size: 0.9em;
+  margin: 0;
+}
+/* line 940, ../sass/storyscope.scss */
+.node-type-object .middle-wrapper .container-inner.middle-2-1 .panel-pane .field-items,
+.node-type-object .middle-wrapper .container-inner.middle-2-1 .panel-pane .agent,
+.node-type-object .middle-wrapper .container-inner.middle-2-1 .panel-pane .freebase-link,
+.node-type-object .middle-wrapper .container-inner.middle-2-1 .panel-pane .entity-field-collection-item,
+.node-type-object .panel .container-inner.middle-2-1 .panel-pane .field-items,
+.node-type-object .panel .container-inner.middle-2-1 .panel-pane .agent,
+.node-type-object .panel .container-inner.middle-2-1 .panel-pane .freebase-link,
+.node-type-object .panel .container-inner.middle-2-1 .panel-pane .entity-field-collection-item,
+.node-type-object-story .middle-wrapper .container-inner.middle-2-1 .panel-pane .field-items,
+.node-type-object-story .middle-wrapper .container-inner.middle-2-1 .panel-pane .agent,
+.node-type-object-story .middle-wrapper .container-inner.middle-2-1 .panel-pane .freebase-link,
+.node-type-object-story .middle-wrapper .container-inner.middle-2-1 .panel-pane .entity-field-collection-item,
+.node-type-object-story .panel .container-inner.middle-2-1 .panel-pane .field-items,
+.node-type-object-story .panel .container-inner.middle-2-1 .panel-pane .agent,
+.node-type-object-story .panel .container-inner.middle-2-1 .panel-pane .freebase-link,
+.node-type-object-story .panel .container-inner.middle-2-1 .panel-pane .entity-field-collection-item {
+  position: relative;
+  top: -18px;
+  right: -32%;
+  width: 68%;
+}
+/* line 946, ../sass/storyscope.scss */
+.node-type-object .middle-wrapper .container-inner.middle-2-1 .panel-pane .field-name-field-media .field-items,
+.node-type-object .panel .container-inner.middle-2-1 .panel-pane .field-name-field-media .field-items,
+.node-type-object-story .middle-wrapper .container-inner.middle-2-1 .panel-pane .field-name-field-media .field-items,
+.node-type-object-story .panel .container-inner.middle-2-1 .panel-pane .field-name-field-media .field-items {
+  top: 0;
+  right: 0;
+  width: 100%;
+}
+/* line 951, ../sass/storyscope.scss */
+.node-type-object .middle-wrapper .container-inner.middle-2-1 .panel-pane .field-collection-item-field-object-dimensions .field-label,
+.node-type-object .panel .container-inner.middle-2-1 .panel-pane .field-collection-item-field-object-dimensions .field-label,
+.node-type-object-story .middle-wrapper .container-inner.middle-2-1 .panel-pane .field-collection-item-field-object-dimensions .field-label,
+.node-type-object-story .panel .container-inner.middle-2-1 .panel-pane .field-collection-item-field-object-dimensions .field-label {
+  float: left;
+  color: white;
+}
+/* line 955, ../sass/storyscope.scss */
+.node-type-object .middle-wrapper .container-inner.middle-2-1 .panel-pane .field-collection-item-field-object-dimensions .field-item,
+.node-type-object .panel .container-inner.middle-2-1 .panel-pane .field-collection-item-field-object-dimensions .field-item,
+.node-type-object-story .middle-wrapper .container-inner.middle-2-1 .panel-pane .field-collection-item-field-object-dimensions .field-item,
+.node-type-object-story .panel .container-inner.middle-2-1 .panel-pane .field-collection-item-field-object-dimensions .field-item {
+  float: left;
+  width: 80%;
+}
+/* line 959, ../sass/storyscope.scss */
+.node-type-object .middle-wrapper .container-inner.middle-2-1 .panel-pane .field-name-field-image .field-items,
+.node-type-object .panel .container-inner.middle-2-1 .panel-pane .field-name-field-image .field-items,
+.node-type-object-story .middle-wrapper .container-inner.middle-2-1 .panel-pane .field-name-field-image .field-items,
+.node-type-object-story .panel .container-inner.middle-2-1 .panel-pane .field-name-field-image .field-items {
+  top: 0;
+  right: 0;
+  width: 100% !important;
+}
+/* line 964, ../sass/storyscope.scss */
+.node-type-object .middle-wrapper .container-inner.middle-2-1 .panel-pane .field-name-field-object-creator .field-items,
+.node-type-object .panel .container-inner.middle-2-1 .panel-pane .field-name-field-object-creator .field-items,
+.node-type-object-story .middle-wrapper .container-inner.middle-2-1 .panel-pane .field-name-field-object-creator .field-items,
+.node-type-object-story .panel .container-inner.middle-2-1 .panel-pane .field-name-field-object-creator .field-items {
+  top: 0;
+  right: 0;
+}
+/* line 968, ../sass/storyscope.scss */
+.node-type-object .middle-wrapper .container-inner.middle-2-1 .panel-pane .agent.freebase-link,
+.node-type-object .panel .container-inner.middle-2-1 .panel-pane .agent.freebase-link,
+.node-type-object-story .middle-wrapper .container-inner.middle-2-1 .panel-pane .agent.freebase-link,
+.node-type-object-story .panel .container-inner.middle-2-1 .panel-pane .agent.freebase-link {
+  padding-right: 10px;
+}
+/* line 973, ../sass/storyscope.scss */
+.node-type-object .middle-wrapper .container-inner.middle-2-1 .pane-1,
+.node-type-object .panel .container-inner.middle-2-1 .pane-1,
+.node-type-object-story .middle-wrapper .container-inner.middle-2-1 .pane-1,
+.node-type-object-story .panel .container-inner.middle-2-1 .pane-1 {
+  padding: 0;
+}
+/* line 976, ../sass/storyscope.scss */
+.node-type-object .middle-wrapper .container-inner.middle-2-1 .pane-object-image-slideshow-panel-pane-1,
+.node-type-object .panel .container-inner.middle-2-1 .pane-object-image-slideshow-panel-pane-1,
+.node-type-object-story .middle-wrapper .container-inner.middle-2-1 .pane-object-image-slideshow-panel-pane-1,
+.node-type-object-story .panel .container-inner.middle-2-1 .pane-object-image-slideshow-panel-pane-1 {
+  padding-top: 10px;
+}
+/* line 981, ../sass/storyscope.scss */
+.node-type-object .middle-wrapper .container-inner.middle-2-2,
+.node-type-object .middle-wrapper .middle-4-2,
+.node-type-object .panel .container-inner.middle-2-2,
+.node-type-object .panel .middle-4-2,
+.node-type-object-story .middle-wrapper .container-inner.middle-2-2,
+.node-type-object-story .middle-wrapper .middle-4-2,
+.node-type-object-story .panel .container-inner.middle-2-2,
+.node-type-object-story .panel .middle-4-2 {
+  border-left: none;
+  float: right;
+}
+/* line 984, ../sass/storyscope.scss */
+.node-type-object .middle-wrapper .container-inner.middle-2-2 h2, .node-type-object .middle-wrapper .container-inner.middle-2-2 .node-story-visualisation .exhibit-collectionView-body ol li > div > div:first-child, .node-story-visualisation .exhibit-collectionView-body ol .node-type-object .middle-wrapper .container-inner.middle-2-2 li > div > div:first-child,
+.node-type-object .middle-wrapper .middle-4-2 h2,
+.node-type-object .middle-wrapper .middle-4-2 .node-story-visualisation .exhibit-collectionView-body ol li > div > div:first-child,
+.node-story-visualisation .exhibit-collectionView-body ol .node-type-object .middle-wrapper .middle-4-2 li > div > div:first-child,
+.node-type-object .panel .container-inner.middle-2-2 h2,
+.node-type-object .panel .container-inner.middle-2-2 .node-story-visualisation .exhibit-collectionView-body ol li > div > div:first-child,
+.node-story-visualisation .exhibit-collectionView-body ol .node-type-object .panel .container-inner.middle-2-2 li > div > div:first-child,
+.node-type-object .panel .middle-4-2 h2,
+.node-type-object .panel .middle-4-2 .node-story-visualisation .exhibit-collectionView-body ol li > div > div:first-child,
+.node-story-visualisation .exhibit-collectionView-body ol .node-type-object .panel .middle-4-2 li > div > div:first-child,
+.node-type-object-story .middle-wrapper .container-inner.middle-2-2 h2,
+.node-type-object-story .middle-wrapper .container-inner.middle-2-2 .node-story-visualisation .exhibit-collectionView-body ol li > div > div:first-child,
+.node-story-visualisation .exhibit-collectionView-body ol .node-type-object-story .middle-wrapper .container-inner.middle-2-2 li > div > div:first-child,
+.node-type-object-story .middle-wrapper .middle-4-2 h2,
+.node-type-object-story .middle-wrapper .middle-4-2 .node-story-visualisation .exhibit-collectionView-body ol li > div > div:first-child,
+.node-story-visualisation .exhibit-collectionView-body ol .node-type-object-story .middle-wrapper .middle-4-2 li > div > div:first-child,
+.node-type-object-story .panel .container-inner.middle-2-2 h2,
+.node-type-object-story .panel .container-inner.middle-2-2 .node-story-visualisation .exhibit-collectionView-body ol li > div > div:first-child,
+.node-story-visualisation .exhibit-collectionView-body ol .node-type-object-story .panel .container-inner.middle-2-2 li > div > div:first-child,
+.node-type-object-story .panel .middle-4-2 h2,
+.node-type-object-story .panel .middle-4-2 .node-story-visualisation .exhibit-collectionView-body ol li > div > div:first-child,
+.node-story-visualisation .exhibit-collectionView-body ol .node-type-object-story .panel .middle-4-2 li > div > div:first-child {
+  margin-top: 0;
+}
+/* line 988, ../sass/storyscope.scss */
+.node-type-object .middle-wrapper .panel-bottom,
+.node-type-object .panel .panel-bottom,
+.node-type-object-story .middle-wrapper .panel-bottom,
+.node-type-object-story .panel .panel-bottom {
+  border-top: solid #cdcccb 1px;
+}
+
+/* line 1001, ../sass/storyscope.scss */
+.node-object .entity-field-collection-item .content div.field-name-field-object-creator-name,
+.node-object .entity-field-collection-item .content div.field-name-field-object-creator-culture,
+.node-object .entity-field-collection-item .content div.field-name-field-creator-birth-date,
+.node-object .entity-field-collection-item .content div.field-name-field-creator-death-date,
+.node-type-object .entity-field-collection-item .content div.field-name-field-object-creator-name,
+.node-type-object .entity-field-collection-item .content div.field-name-field-object-creator-culture,
+.node-type-object .entity-field-collection-item .content div.field-name-field-creator-birth-date,
+.node-type-object .entity-field-collection-item .content div.field-name-field-creator-death-date {
+  display: inline-block;
+  margin-right: 2px;
+}
+
+/* line 1010, ../sass/storyscope.scss */
+.node-object.view-mode-full .content-container {
+  border-top: solid 1px #cdcccb;
+  margin-top: 1em;
+}
+/* line 1014, ../sass/storyscope.scss */
+.node-object.view-mode-full .container-inner:first-child {
+  border: none;
+}
+/* line 1017, ../sass/storyscope.scss */
+.node-object.view-mode-full .media-container {
+  background-color: #4e4e4e;
+  color: #fff;
+}
+/* line 1020, ../sass/storyscope.scss */
+.node-object.view-mode-full .media-container figure {
+  float: left;
+  margin-right: 10px;
+}
+/* line 1024, ../sass/storyscope.scss */
+.node-object.view-mode-full .media-container .meta-content {
+  overflow: hidden;
+  *zoom: 1;
+  margin-top: 10em;
+}
+/* line 1029, ../sass/storyscope.scss */
+.node-object.view-mode-full .content {
+  margin: 1em 0;
+  padding: 0.5em 1em 1em;
+  background-color: #e2903d;
+  color: #fff;
+}
+
+/*object story specific styling*/
+/* line 1038, ../sass/storyscope.scss */
+.view-dossier-objects-add-existing-search-api .node-object {
+  position: relative;
+}
+
+/* Tweak the object node add form. */
+/* line 1044, ../sass/storyscope.scss */
+.form-field-name-field-object-story-objects .field-name-field-object-creator #field-object-creator-values th label {
+  display: none;
+}
+
+/*Objects in Media Slider*/
+/* line 1050, ../sass/storyscope.scss */
+.node-object.view-mode-slide .article-inner {
+  background-color: #4e4e4e;
+  overflow: auto;
+  color: white;
+  padding-top: 0;
+  border: 0;
+}
+/* line 1057, ../sass/storyscope.scss */
+.node-object.view-mode-slide .article-inner .field-name-field-image,
+.node-object.view-mode-slide .article-inner .field-name-field-media {
+  float: left;
+  margin-right: 1em;
+}
+/* line 1061, ../sass/storyscope.scss */
+.node-object.view-mode-slide .article-inner .content .node-title {
+  padding-top: 10em;
+}
+
+/* Object Story */
+/* line 1069, ../sass/storyscope.scss */
+.node-story.view-mode-full .media-resources {
+  overflow: hidden;
+  *zoom: 1;
+}
+/* line 1071, ../sass/storyscope.scss */
+.node-story.view-mode-full .media-resources ul {
+  list-style: none;
+}
+/* line 11, ../../../../../../../../../../Library/Ruby/Gems/1.8/gems/compass-0.12.2/frameworks/compass/stylesheets/compass/typography/lists/_bullets.scss */
+.node-story.view-mode-full .media-resources ul li {
+  list-style-image: none;
+  list-style-type: none;
+  margin-left: 0;
+}
+/* line 1074, ../sass/storyscope.scss */
+.node-story.view-mode-full .media-resources li {
+  width: 100%;
+}
+/* line 1076, ../sass/storyscope.scss */
+.node-story.view-mode-full .media-resources li .node-readmore {
+  float: right;
+}
+
+/* line 1082, ../sass/storyscope.scss */
+.article-inner .links .node-readmore {
+  float: right;
+  padding: 0 1em 1em 0;
+}
+
+/* References */
+/* line 1089, ../sass/storyscope.scss */
+.node-reference.view-mode-full .resource-container > .container-inner:first-child {
+  border-right: 0;
+}
+/* line 1092, ../sass/storyscope.scss */
+.node-reference.view-mode-full p.pdf {
+  background: transparent url(../images/pdf.png) 0 50% no-repeat;
+  padding: 5em 0 3em 10em;
+  border-top: solid 1px #cdcccb;
+}
+/* line 1096, ../sass/storyscope.scss */
+.node-reference.view-mode-full p.pdf a.button {
+  border: solid 1px #cdcccb;
+  border-radius: 10px;
+  box-shadow: 1px 1px #cdcccb;
+  padding: 0.25em 1em;
+  margin-left: 2em;
+}
+
+/* line 1108, ../sass/storyscope.scss */
+.node-type-reference .panel .middle-wrapper {
+  width: 50%;
+}
+
+/* Event form elements*/
+/* line 1115, ../sass/storyscope.scss */
+.hidden-input {
+  display: none;
+}
+
+/* Source Events*/
+/* line 1120, ../sass/storyscope.scss */
+.events-count {
+  color: #cdcccb;
+}
+
+/* line 1123, ../sass/storyscope.scss */
+p.events-display-date {
+  margin: 0;
+}
+
+/* line 1127, ../sass/storyscope.scss */
+.node-source-event h2 .event-count, .node-source-event .node-story-visualisation .exhibit-collectionView-body ol li > div > div:first-child .event-count, .node-story-visualisation .exhibit-collectionView-body ol .node-source-event li > div > div:first-child .event-count {
+  background: #cecece;
+  border-radius: 40%;
+  padding: 0.1em 0.4em;
+  overflow: visible;
+  margin-left: 0.1em;
+}
+
+/* line 1136, ../sass/storyscope.scss */
+.view-id-source_event_instances header {
+  display: none;
+}
+
+/* Tagged events */
+/* line 1142, ../sass/storyscope.scss */
+.node-event h2.node-title, .node-event .node-story-visualisation .exhibit-collectionView-body ol li > div > div.node-title:first-child, .node-story-visualisation .exhibit-collectionView-body ol .node-event li > div > div.node-title:first-child {
+  font-size: 1em;
+}
+
+/* line 1148, ../sass/storyscope.scss */
+.node-type-event .panel .middle-wrapper {
+  margin-top: 1em;
+}
+/* line 1150, ../sass/storyscope.scss */
+.node-type-event .panel .middle-wrapper .middle-2-1 {
+  border: none;
+  width: 49%;
+  display: table;
+  background-color: #47667b;
+  margin-top: 1em;
+  padding-left: 10px;
+  padding-bottom: 20px;
+  color: white;
+  text-align: left;
+}
+/* line 1168, ../sass/storyscope.scss */
+.node-type-event .panel .middle-wrapper .middle-2-1 .panel-pane .field-type-field-collection .field-items {
+  width: 100%;
+}
+/* line 1172, ../sass/storyscope.scss */
+.node-type-event .panel .middle-wrapper .middle-2-1 .panel-pane .freebase-link a {
+  color: white;
+}
+/* line 1177, ../sass/storyscope.scss */
+.node-type-event .panel .middle-wrapper .middle-2-1 .panel-pane .pane-title,
+.node-type-event .panel .middle-wrapper .middle-2-1 .panel-pane .field-label {
+  color: #97B5C9;
+  font-size: 0.9em;
+  margin: 0;
+}
+/* line 1184, ../sass/storyscope.scss */
+.node-type-event .panel .middle-wrapper .middle-2-1 .panel-pane .field-items,
+.node-type-event .panel .middle-wrapper .middle-2-1 .panel-pane .agent,
+.node-type-event .panel .middle-wrapper .middle-2-1 .panel-pane .freebase-link {
+  position: relative;
+  top: -18px;
+  right: -32%;
+  width: 68%;
+}
+/* line 1189, ../sass/storyscope.scss */
+.node-type-event .panel .middle-wrapper .middle-2-1 .panel-pane .field-items .field-item,
+.node-type-event .panel .middle-wrapper .middle-2-1 .panel-pane .agent .field-item,
+.node-type-event .panel .middle-wrapper .middle-2-1 .panel-pane .freebase-link .field-item {
+  color: white;
+}
+/* line 1193, ../sass/storyscope.scss */
+.node-type-event .panel .middle-wrapper .middle-2-1 .panel-pane .field-name-field-amount .field-items {
+  right: 0;
+  top: 0;
+}
+/* line 1197, ../sass/storyscope.scss */
+.node-type-event .panel .middle-wrapper .middle-2-1 .panel-pane .field-name-field-fb-currency-topic .field-items {
+  top: 0;
+  right: 0;
+  width: 200px;
+}
+/* line 1202, ../sass/storyscope.scss */
+.node-type-event .panel .middle-wrapper .middle-2-1 .panel-pane .agent.freebase-link {
+  padding-right: 10px;
+}
+/* line 1206, ../sass/storyscope.scss */
+.node-type-event .panel .middle-wrapper .middle-2-1 .pane-1 {
+  padding: 0;
+}
+/* line 1209, ../sass/storyscope.scss */
+.node-type-event .panel .middle-wrapper .middle-2-1 .pane-2 {
+  padding: 0;
+  margin: 0;
+}
+/* line 1216, ../sass/storyscope.scss */
+.node-type-event .panel .middle-wrapper .entity-field-collection-item .content div {
+  display: inline-block;
+  margin-right: 2px;
+  color: #a1a3a6;
+}
+/* line 1223, ../sass/storyscope.scss */
+.node-type-event .panel .middle-wrapper .middle-2-2 {
+  border-left: solid #cdcccb 1px;
+  float: right;
+}
+
+/* line 1230, ../sass/storyscope.scss */
+.container-inner .middle-2-2 {
+  margin: 1em 0;
+  padding: 0.5em 1em 1em;
+  background-color: #7ac953;
+  color: #fff;
+}
+/* line 1235, ../sass/storyscope.scss */
+.container-inner .middle-2-2 a {
+  color: #fff;
+}
+/* line 1238, ../sass/storyscope.scss */
+.container-inner .middle-2-2 dt {
+  text-transform: uppercase;
+  font-weight: bold;
+}
+/* line 1242, ../sass/storyscope.scss */
+.container-inner .middle-2-2 dd {
+  margin: 0 0 20px 0;
+}
+
+/* line 1250, ../sass/storyscope.scss */
+.view-source-event-instances .article-inner .title,
+.view-event-details.view-display-id-dossier_object_story_child_event_detail .article-inner .title {
+  padding-left: 10px;
+}
+/* line 1253, ../sass/storyscope.scss */
+.view-source-event-instances .article-inner .resource-container .container-inner,
+.view-event-details.view-display-id-dossier_object_story_child_event_detail .article-inner .resource-container .container-inner {
+  border: none;
+  width: 49%;
+  display: table;
+  background-color: #47667b;
+  margin-top: 1em;
+  padding: 10px 10px 20px 10px;
+  color: white;
+  text-align: left;
+}
+/* line 1263, ../sass/storyscope.scss */
+.view-source-event-instances .article-inner .resource-container .container-inner .add-event a, .view-source-event-instances .article-inner .resource-container .container-inner .remove-event a,
+.view-event-details.view-display-id-dossier_object_story_child_event_detail .article-inner .resource-container .container-inner .add-event a,
+.view-event-details.view-display-id-dossier_object_story_child_event_detail .article-inner .resource-container .container-inner .remove-event a {
+  color: #ddd;
+}
+/* line 1266, ../sass/storyscope.scss */
+.view-source-event-instances .article-inner .resource-container .container-inner .add-event a:hover, .view-source-event-instances .article-inner .resource-container .container-inner .remove-event a:hover,
+.view-event-details.view-display-id-dossier_object_story_child_event_detail .article-inner .resource-container .container-inner .add-event a:hover,
+.view-event-details.view-display-id-dossier_object_story_child_event_detail .article-inner .resource-container .container-inner .remove-event a:hover {
+  color: white;
+}
+/* line 1270, ../sass/storyscope.scss */
+.view-source-event-instances .article-inner .resource-container .container-inner .field-name-body,
+.view-event-details.view-display-id-dossier_object_story_child_event_detail .article-inner .resource-container .container-inner .field-name-body {
+  padding-bottom: 0;
+}
+/* line 1272, ../sass/storyscope.scss */
+.view-source-event-instances .article-inner .resource-container .container-inner .field-name-body .field-items .field-item p,
+.view-event-details.view-display-id-dossier_object_story_child_event_detail .article-inner .resource-container .container-inner .field-name-body .field-items .field-item p {
+  margin: 0;
+}
+/* line 1278, ../sass/storyscope.scss */
+.view-source-event-instances .article-inner .resource-container .container-inner .field-collection-item-field-fb-value .field-name-field-amount,
+.view-source-event-instances .article-inner .resource-container .container-inner .field-collection-item-field-fb-value .field-name-field-fb-currency-topic,
+.view-event-details.view-display-id-dossier_object_story_child_event_detail .article-inner .resource-container .container-inner .field-collection-item-field-fb-value .field-name-field-amount,
+.view-event-details.view-display-id-dossier_object_story_child_event_detail .article-inner .resource-container .container-inner .field-collection-item-field-fb-value .field-name-field-fb-currency-topic {
+  float: left;
+  padding-right: 10px;
+}
+/* line 1284, ../sass/storyscope.scss */
+.view-source-event-instances .article-inner .resource-container .container-inner .field,
+.view-event-details.view-display-id-dossier_object_story_child_event_detail .article-inner .resource-container .container-inner .field {
+  padding-bottom: 15px;
+}
+/* line 1286, ../sass/storyscope.scss */
+.view-source-event-instances .article-inner .resource-container .container-inner .field .field-label,
+.view-event-details.view-display-id-dossier_object_story_child_event_detail .article-inner .resource-container .container-inner .field .field-label {
+  color: #ddd;
+  font-size: 1.2em;
+  margin: 0;
+}
+/* line 1292, ../sass/storyscope.scss */
+.view-source-event-instances .article-inner .resource-container .container-inner .field-group-format-title,
+.view-event-details.view-display-id-dossier_object_story_child_event_detail .article-inner .resource-container .container-inner .field-group-format-title {
+  color: white;
+  font-weight: lighter;
+  font-size: 1em;
+}
+/* line 1297, ../sass/storyscope.scss */
+.view-source-event-instances .article-inner .resource-container .container-inner .field-group-fieldset,
+.view-event-details.view-display-id-dossier_object_story_child_event_detail .article-inner .resource-container .container-inner .field-group-fieldset {
+  border: none;
+  padding: 0;
+  margin: 0;
+}
+/* line 1301, ../sass/storyscope.scss */
+.view-source-event-instances .article-inner .resource-container .container-inner .field-group-fieldset .fieldset-legend,
+.view-event-details.view-display-id-dossier_object_story_child_event_detail .article-inner .resource-container .container-inner .field-group-fieldset .fieldset-legend {
+  line-height: 1.3em;
+  font-weight: normal;
+  font-size: 1.5em;
+}
+/* line 1305, ../sass/storyscope.scss */
+.view-source-event-instances .article-inner .resource-container .container-inner .field-group-fieldset .fieldset-legend .fieldset-title,
+.view-event-details.view-display-id-dossier_object_story_child_event_detail .article-inner .resource-container .container-inner .field-group-fieldset .fieldset-legend .fieldset-title {
+  color: white;
+}
+
+/* line 1315, ../sass/storyscope.scss */
+.facet-management table caption {
+  font-size: 1.2em;
+  color: #a0a0a0;
+  text-align: left;
+}
+/* line 1321, ../sass/storyscope.scss */
+.facet-management table.facets-unused tr {
+  background-color: transparent;
+}
+/* line 1323, ../sass/storyscope.scss */
+.facet-management table.facets-unused tr td {
+  border-bottom: solid 1px #cdcccb;
+}
+/* line 1325, ../sass/storyscope.scss */
+.facet-management table.facets-unused tr td:last-child {
+  text-align: right;
+}
+/* line 1334, ../sass/storyscope.scss */
+.facet-management table.facets-used tr td:last-child {
+  text-align: right;
+}
+
+/* Visualisations */
+/* line 1344, ../sass/storyscope.scss */
+.event-timeline {
+  background: url('../images/timeline.png?1380552101') 50% 50% no-repeat;
+  height: 137px;
+  width: 215px;
+}
+
+/* line 1351, ../sass/storyscope.scss */
+.event-map {
+  background: url('../images/map.png?1380552101') 50% 50% no-repeat;
+  height: 137px;
+  width: 215px;
+}
+
+/* line 1358, ../sass/storyscope.scss */
+.event-grid {
+  background: url('../images/grid.png?1380552101') 50% 50% no-repeat;
+  height: 137px;
+  width: 215px;
+}
+
+/* Visualisations [deprecated]*/
+/* line 1367, ../sass/storyscope.scss */
+.plot-container fieldset.facet-container,
+.plot-container fieldset.plot_description_vis_fieldset {
+  margin: 0 0 1em;
+  padding: 0 0 1em;
+  border-width: 0 0 1px;
+}
+/* line 1371, ../sass/storyscope.scss */
+.plot-container fieldset.facet-container legend,
+.plot-container fieldset.plot_description_vis_fieldset legend {
+  position: absolute !important;
+  height: 1px;
+  width: 1px;
+  overflow: hidden;
+  clip: rect(1px 1px 1px 1px);
+  clip: rect(1px, 1px, 1px, 1px);
+}
+/* line 1374, ../sass/storyscope.scss */
+.plot-container fieldset.facet-container .exhibit-facet-header,
+.plot-container fieldset.plot_description_vis_fieldset .exhibit-facet-header {
+  margin-bottom: 1em;
+}
+
+/* line 1380, ../sass/storyscope.scss */
+.node-story-visualisation.view-mode-full > .article-inner {
+  border-top: 0;
+}
+/* line 1387, ../sass/storyscope.scss */
+.node-story-visualisation .exhibit-collectionView-body ol {
+  list-style: none;
+  padding: 0;
+}
+/* line 11, ../../../../../../../../../../Library/Ruby/Gems/1.8/gems/compass-0.12.2/frameworks/compass/stylesheets/compass/typography/lists/_bullets.scss */
+.node-story-visualisation .exhibit-collectionView-body ol li {
+  list-style-image: none;
+  list-style-type: none;
+  margin-left: 0;
+}
+/* line 1390, ../sass/storyscope.scss */
+.node-story-visualisation .exhibit-collectionView-body ol li > div {
+  border-top: solid 1px #7ac953;
+  margin: 0 0 0.5em;
+  padding-top: 0.5em;
+}
+/* line 1394, ../sass/storyscope.scss */
+.node-story-visualisation .exhibit-collectionView-body ol li > div > div:first-child {
+  margin-bottom: 0.5em;
+  font-weight: normal!important;
+}
+/* line 1400, ../sass/storyscope.scss */
+.node-story-visualisation .exhibit-collectionView-body ol li > div a {
+  text-align: right;
+  display: block;
+  margin-right: 1em;
+}
+/* line 1409, ../sass/storyscope.scss */
+.node-story-visualisation .elements-container h2, .node-story-visualisation .elements-container .exhibit-collectionView-body ol li > div > div:first-child, .node-story-visualisation .exhibit-collectionView-body ol .elements-container li > div > div:first-child {
+  color: #4e4e4e;
+  font-size: 1.07692em;
+  line-height: 1.28571em;
+}
+/* line 1413, ../sass/storyscope.scss */
+.node-story-visualisation .elements-container article {
+  margin: 0 0 1em;
+  padding: 0.5em;
+}
+/* line 1416, ../sass/storyscope.scss */
+.node-story-visualisation .elements-container article h3 {
+  margin: 0;
+  color: #4e4e4e;
+  font-size: 0.92308em;
+  line-height: 1.5em;
+}
+/* line 1421, ../sass/storyscope.scss */
+.node-story-visualisation .elements-container article p {
+  text-align: right;
+}
+/* line 1425, ../sass/storyscope.scss */
+.node-story-visualisation .elements-container .events:nth-child(2n + 1) article {
+  background-color: #e5e5e5;
+  border-top: solid 2px transparent;
+}
+/* line 1429, ../sass/storyscope.scss */
+.node-story-visualisation .elements-container .events:nth-child(2n + 2) article {
+  border-top: solid 2px #e5e5e5;
+}
+
+/* line 1434, ../sass/storyscope.scss */
+.item-list ul li.hover-menu ul {
+  display: none;
+  visibility: hidden;
+}
+
+/* line 1439, ../sass/storyscope.scss */
+.item-list ul li.hover-menu:hover ul {
+  display: block;
+  visibility: visible;
+  position: absolute;
+  background-color: #fff;
+  padding: 5px;
+  border: 1px #eeeeee solid;
+  border-top: 0 none;
+}
+
+/* line 1449, ../sass/storyscope.scss */
+.item-list ul li.hover-menu ul.hover-menu li {
+  display: block;
+  float: none;
+  clear: both;
+  padding-left: 0;
+  border: 0 none;
+  margin: 5px 0;
+}
+
+/* line 1459, ../sass/storyscope.scss */
+.view-filters {
+  padding: 0 0 1.5em 0;
+}
+
+/* line 1463, ../sass/storyscope.scss */
+.article-inner .content .suggest {
+  text-align: right;
+  margin: 0;
+}
+
+/* line 1468, ../sass/storyscope.scss */
+.view-mode-slide .article-inner .content .suggest {
+  display: none;
+}
+
+/**
+ * Plot element panel node style tweaks.
+ */
+/* line 1476, ../sass/storyscope.scss */
+.node-type-plot-element .panel-middle-3 {
+  float: left;
+  width: 75%;
+}
+/* line 1480, ../sass/storyscope.scss */
+.node-type-plot-element .middle-4-wrapper {
+  display: none;
+}
+/* line 1483, ../sass/storyscope.scss */
+.node-type-plot-element .panel-top {
+  float: left;
+  width: 30%;
+}
+/* line 1487, ../sass/storyscope.scss */
+.node-type-plot-element .panel-top .pane-content ul {
+  list-style: none;
+  padding-left: 0;
+  border-right: solid 1px #cdcccb;
+}
+/* line 1491, ../sass/storyscope.scss */
+.node-type-plot-element .panel-top .pane-content ul li {
+  list-style: none;
+  font-size: 1.2em;
+  line-height: 1.2em;
+  padding: 5px;
+}
+/* line 1496, ../sass/storyscope.scss */
+.node-type-plot-element .panel-top .pane-content ul li .active {
+  color: #545658;
+  background-color: #efefef;
+  display: block;
+  padding: 5px 10px 5px 0;
+}
+/* line 1502, ../sass/storyscope.scss */
+.node-type-plot-element .panel-top .pane-content ul li .addnew {
+  font-size: .75em;
+}
+/* line 1509, ../sass/storyscope.scss */
+.node-type-plot-element .panel-middle-1 {
+  float: left;
+  width: 68%;
+  padding-left: 10px;
+  margin-top: 53px;
+}
+/* line 1514, ../sass/storyscope.scss */
+.node-type-plot-element .panel-middle-1 p {
+  margin-top: 0;
+}
+/* line 1518, ../sass/storyscope.scss */
+.node-type-plot-element .middle-wrapper {
+  float: left;
+  width: 68%;
+  border-bottom: none;
+  padding-left: 10px;
+}
+/* line 1523, ../sass/storyscope.scss */
+.node-type-plot-element .middle-wrapper h2, .node-type-plot-element .middle-wrapper .node-story-visualisation .exhibit-collectionView-body ol li > div > div:first-child, .node-story-visualisation .exhibit-collectionView-body ol .node-type-plot-element .middle-wrapper li > div > div:first-child {
+  margin-top: 0;
+}
+/* line 1526, ../sass/storyscope.scss */
+.node-type-plot-element .middle-wrapper .remove-event {
+  padding-right: 10px;
+}
+/* line 1529, ../sass/storyscope.scss */
+.node-type-plot-element .middle-wrapper .middle-2-1 {
+  float: left;
+  width: 25%;
+  border-right: none;
+}
+/* line 1533, ../sass/storyscope.scss */
+.node-type-plot-element .middle-wrapper .middle-2-1 .view-empty {
+  font-size: 1.1em;
+  margin-left: 15px;
+}
+/* line 1538, ../sass/storyscope.scss */
+.node-type-plot-element .middle-wrapper .middle-2-2 {
+  border-left: none;
+  float: left;
+  width: 25%;
+  border-left: solid 1px #cdcccb;
+}
+/* line 1543, ../sass/storyscope.scss */
+.node-type-plot-element .middle-wrapper .middle-2-2 .view-empty {
+  font-size: 1.1em;
+  margin-left: 15px;
+}
+/* line 1549, ../sass/storyscope.scss */
+.node-type-plot-element .panel-bottom {
+  width: 22%;
+  float: right;
+  margin-top: 50px;
+  margin-left: 20px;
+}
+/* line 1554, ../sass/storyscope.scss */
+.node-type-plot-element .panel-bottom ul {
+  margin: 0 0 10px 0;
+  padding-left: 25px;
+}
+/* line 1557, ../sass/storyscope.scss */
+.node-type-plot-element .panel-bottom ul li {
+  list-style: none;
+}
+/* line 1562, ../sass/storyscope.scss */
+.node-type-plot-element .panel-bottom .panel-pane {
+  float: left;
+  width: 100%;
+}
+/* line 1566, ../sass/storyscope.scss */
+.node-type-plot-element .panel-bottom .pane-title {
+  text-transform: uppercase;
+  font-size: 0.92308em;
+  line-height: 1.5em;
+  padding-left: 30px;
+  padding: 5px 5px 5px 15px;
+  border-bottom: solid 1px #eeeeee;
+  border-top: solid 1px #c4c4c4;
+}
+/* line 1575, ../sass/storyscope.scss */
+.node-type-plot-element .panel-bottom .pane-content {
+  padding-bottom: 10px;
+}
+
+/* line 1582, ../sass/storyscope.scss */
+.panel-pane select {
+  max-width: 100%;
+}
+
+/**
+ * Narrative Editor Styling
+ */
+/* line 1591, ../sass/storyscope.scss */
+.page-field-collection-field-narrative-set-edit h2.pane-title, .page-field-collection-field-narrative-set-edit .node-story-visualisation .exhibit-collectionView-body ol li > div > div.pane-title:first-child, .node-story-visualisation .exhibit-collectionView-body ol .page-field-collection-field-narrative-set-edit li > div > div.pane-title:first-child {
+  color: #a0a0a0;
+}
+/* line 1595, ../sass/storyscope.scss */
+.page-field-collection-field-narrative-set-edit .pane-field-collection-form-buttons .form-submit {
+  background-color: #e5e5e5;
+  padding: 0.25em 2em 0.25em 0.5em;
+  font-weight: bold;
+  color: #4e4e4e;
+}
+
+/* Basic Styling for Editing Narratives */
+/* line 1606, ../sass/storyscope.scss */
+#edit-field-narrative-set-section .entityreference-view-widget > .widget-left {
+  width: 33%;
+}
+/* line 1609, ../sass/storyscope.scss */
+#edit-field-narrative-set-section .entityreference-view-widget > .widget-right {
+  width: 66%;
+}
+/* line 1612, ../sass/storyscope.scss */
+#edit-field-narrative-set-section .field-multiple-table td.field-multiple-drag {
+  width: 13px;
+}
+/* line 1615, ../sass/storyscope.scss */
+#edit-field-narrative-set-section a.tabledrag-handle .handle {
+  width: 10px;
+}
+/* line 1618, ../sass/storyscope.scss */
+#edit-field-narrative-set-section .cke_contents {
+  height: 100px !important;
+}
+
+/* Hide all text format help */
+/* line 1624, ../sass/storyscope.scss */
+.text-format-wrapper .filter-wrapper {
+  display: none;
+}
+
+/**
+ * Joyride Styling
+ */
+/* line 1631, ../sass/storyscope.scss */
+#joyride-tips-content {
+  display: none;
+}
+
+/* line 1634, ../sass/storyscope.scss */
+.region.region-help h2, .region.region-help .node-story-visualisation .exhibit-collectionView-body ol li > div > div:first-child, .node-story-visualisation .exhibit-collectionView-body ol .region.region-help li > div > div:first-child {
+  border: none !important;
+}
+
+/* line 1637, ../sass/storyscope.scss */
+.block-joyride {
+  border: none;
+}
+
+/* line 1640, ../sass/storyscope.scss */
+.joyride-tip-guide {
+  width: 375px;
+}
+
+/* line 1643, ../sass/storyscope.scss */
+.joyride-start-link {
+  border: 1px solid #edae6f;
+  margin: 0 0 0.5em;
+  background-color: #eee;
+  padding: 0.5em 1em;
+  margin: 0.25em 0.25em 0.5em;
+  float: right;
+}
+/* line 1650, ../sass/storyscope.scss */
+.joyride-start-link:visited {
+  border: 1px solid #edae6f;
+}
+/* line 1653, ../sass/storyscope.scss */
+.joyride-start-link:link {
+  color: #e2903d;
+  border: 1px solid #edae6f;
+}
+/* line 1657, ../sass/storyscope.scss */
+.joyride-start-link:hover {
+  background-color: #edae6f;
+  border-color: #e2903d;
+  color: #fff;
+}
+
+/* line 1664, ../sass/storyscope.scss */
+.survey-link {
+  border: 1px solid #7ac953;
+  margin: 0 0 0.5em;
+  background-color: #eee;
+  padding: 0.5em 1em;
+  margin: 0.25em 0.25em 0.5em;
+  float: left;
+}
+/* line 1671, ../sass/storyscope.scss */
+.survey-link:visited {
+  border: 1px solid #7ac953;
+}
+/* line 1674, ../sass/storyscope.scss */
+.survey-link:link {
+  color: #e2903d;
+  border: 1px solid #7ac953;
+}
+/* line 1678, ../sass/storyscope.scss */
+.survey-link:hover {
+  background-color: #7ac953;
+  border-color: #e2903d;
+  color: #fff;
+}
+
+/* line 1685, ../sass/storyscope.scss */
+.joyride-content-wrapper {
+  padding: 10px 20px 20px 20px;
+}
+
+/* line 1688, ../sass/storyscope.scss */
+.joyride-close-tip {
+  color: #24384b !important;
+}
+
+/* line 1691, ../sass/storyscope.scss */
+.custom-right {
+  background: #e9e9e9;
+  box-shadow: 7px 10px 10px rgba(25, 25, 25, 0.5);
+  color: #333;
+  margin-top: -42px;
+  margin-left: 5px;
+  transition: background-color 0.3s;
+}
+/* line 1698, ../sass/storyscope.scss */
+.custom-right h2, .custom-right .node-story-visualisation .exhibit-collectionView-body ol li > div > div:first-child, .node-story-visualisation .exhibit-collectionView-body ol .custom-right li > div > div:first-child {
+  font-size: 1.5em;
+  color: #24384b;
+  font-weight: normal;
+  margin: 10px 0;
+}
+/* line 1704, ../sass/storyscope.scss */
+.custom-right span.joyride-nub.top {
+  margin-left: 30px;
+  border-color: #e9e9e9 !important;
+  border-top-color: transparent !important;
+  border-left-color: transparent !important;
+  border-right-color: transparent !important;
+}
+/* line 1711, ../sass/storyscope.scss */
+.custom-right span.joyride-nub.bottom {
+  border-color: #e9e9e9 !important;
+  border-bottom-color: transparent !important;
+  border-left-color: transparent !important;
+  border-right-color: transparent !important;
+}
+/* line 1717, ../sass/storyscope.scss */
+.custom-right span.joyride-nub.right {
+  border-color: #e9e9e9 !important;
+  border-bottom-color: transparent !important;
+  border-right-color: transparent !important;
+  border-top-color: transparent !important;
+}
+/* line 1723, ../sass/storyscope.scss */
+.custom-right span.joyride-nub.left {
+  border-color: #e9e9e9 !important;
+  border-bottom-color: transparent !important;
+  border-left-color: transparent !important;
+  border-top-color: transparent !important;
+}
+/* line 1729, ../sass/storyscope.scss */
+.custom-right .joyride-next-tip {
+  background: #edae6f;
+  text-shadow: none;
+  border: 1px solid #e2903d;
+  box-shadow: none;
+}
+/* line 1734, ../sass/storyscope.scss */
+.custom-right .joyride-next-tip:visited {
+  border: 1px solid #e2903d;
+}
+/* line 1737, ../sass/storyscope.scss */
+.custom-right .joyride-next-tip:link {
+  color: white;
+  border: 1px solid #e2903d;
+}
+/* line 1741, ../sass/storyscope.scss */
+.custom-right .joyride-next-tip:hover {
+  background-color: #edae6f;
+  border-color: #e2903d;
+  border: 1px solid #e2903d;
+  color: #fff;
+}
+
+/* line 1749, ../sass/storyscope.scss */
+.custom-left {
+  background: #e9e9e9;
+  box-shadow: -7px 10px 10px rgba(25, 25, 25, 0.5);
+  color: #333;
+  margin-top: -35px;
+  margin-left: -15px;
+  transition: background-color 0.3s;
+}
+/* line 1756, ../sass/storyscope.scss */
+.custom-left h2, .custom-left .node-story-visualisation .exhibit-collectionView-body ol li > div > div:first-child, .node-story-visualisation .exhibit-collectionView-body ol .custom-left li > div > div:first-child {
+  font-size: 1.5em;
+  color: #24384b;
+  font-weight: normal;
+  margin: 10px 0;
+}
+/* line 1762, ../sass/storyscope.scss */
+.custom-left span.joyride-nub.top {
+  margin-left: 30px;
+  border-color: #e9e9e9 !important;
+  border-top-color: transparent !important;
+  border-left-color: transparent !important;
+  border-right-color: transparent !important;
+}
+/* line 1769, ../sass/storyscope.scss */
+.custom-left span.joyride-nub.bottom {
+  border-color: #e9e9e9 !important;
+  border-bottom-color: transparent !important;
+  border-left-color: transparent !important;
+  border-right-color: transparent !important;
+}
+/* line 1775, ../sass/storyscope.scss */
+.custom-left span.joyride-nub.right {
+  border-color: #e9e9e9 !important;
+  border-bottom-color: transparent !important;
+  border-right-color: transparent !important;
+  border-top-color: transparent !important;
+}
+/* line 1781, ../sass/storyscope.scss */
+.custom-left span.joyride-nub.left {
+  border-color: #e9e9e9 !important;
+  border-bottom-color: transparent !important;
+  border-left-color: transparent !important;
+  border-top-color: transparent !important;
+}
+/* line 1787, ../sass/storyscope.scss */
+.custom-left .joyride-next-tip {
+  background: #edae6f;
+  text-shadow: none;
+  border: 1px solid #e2903d;
+  box-shadow: none;
+}
+/* line 1792, ../sass/storyscope.scss */
+.custom-left .joyride-next-tip:visited {
+  border: 1px solid #e2903d;
+}
+/* line 1795, ../sass/storyscope.scss */
+.custom-left .joyride-next-tip:link {
+  color: white;
+  border: 1px solid #e2903d;
+}
+/* line 1799, ../sass/storyscope.scss */
+.custom-left .joyride-next-tip:hover {
+  background-color: #edae6f;
+  border-color: #e2903d;
+  border: 1px solid #e2903d;
+  color: #fff;
+}
+
+/* line 1807, ../sass/storyscope.scss */
+.custom {
+  background: #e9e9e9;
+  box-shadow: 7px 10px 10px rgba(25, 25, 25, 0.5);
+  color: #333;
+  transition: background-color 0.3s;
+  margin-left: -30px;
+}
+/* line 1813, ../sass/storyscope.scss */
+.custom h2, .custom .node-story-visualisation .exhibit-collectionView-body ol li > div > div:first-child, .node-story-visualisation .exhibit-collectionView-body ol .custom li > div > div:first-child {
+  font-size: 1.5em;
+  color: #24384b;
+  font-weight: normal;
+  margin: 10px 0;
+}
+/* line 1819, ../sass/storyscope.scss */
+.custom span.joyride-nub.top {
+  margin-left: 30px;
+  border-color: #e9e9e9 !important;
+  border-top-color: transparent !important;
+  border-left-color: transparent !important;
+  border-right-color: transparent !important;
+}
+/* line 1826, ../sass/storyscope.scss */
+.custom span.joyride-nub.bottom {
+  border-color: #e9e9e9 !important;
+  border-bottom-color: transparent !important;
+  border-left-color: transparent !important;
+  border-right-color: transparent !important;
+}
+/* line 1832, ../sass/storyscope.scss */
+.custom span.joyride-nub.right {
+  border-color: #e9e9e9 !important;
+  border-bottom-color: transparent !important;
+  border-right-color: transparent !important;
+  border-top-color: transparent !important;
+}
+/* line 1838, ../sass/storyscope.scss */
+.custom span.joyride-nub.left {
+  border-color: #e9e9e9 !important;
+  border-bottom-color: transparent !important;
+  border-left-color: transparent !important;
+  border-top-color: transparent !important;
+}
+/* line 1844, ../sass/storyscope.scss */
+.custom .joyride-next-tip {
+  background: #edae6f;
+  text-shadow: none;
+  border: 1px solid #e2903d;
+  box-shadow: none;
+}
+/* line 1849, ../sass/storyscope.scss */
+.custom .joyride-next-tip:visited {
+  border: 1px solid #e2903d;
+}
+/* line 1852, ../sass/storyscope.scss */
+.custom .joyride-next-tip:link {
+  color: white;
+  border: 1px solid #e2903d;
+}
+/* line 1856, ../sass/storyscope.scss */
+.custom .joyride-next-tip:hover {
+  background-color: #edae6f;
+  border-color: #e2903d;
+  border: 1px solid #e2903d;
+  color: #fff;
+}
+
+/* line 1864, ../sass/storyscope.scss */
+.modal {
+  background: #dfdfdf;
+}
+
+/**
+ * form Styling
+ **/
+/* line 1871, ../sass/storyscope.scss */
+.text-format-wrapper .form-item {
+  margin-bottom: 1.5em;
+}
+
+/* line 1875, ../sass/storyscope.scss */
+.node-event-form .form-item-title {
+  padding: 1em 0;
+  margin: 0;
+}
+/* line 1879, ../sass/storyscope.scss */
+.node-event-form .field-type-text-with-summary.form-wrapper {
+  border: none;
+}
+/* line 1881, ../sass/storyscope.scss */
+.node-event-form .field-type-text-with-summary.form-wrapper .toggle-help-button {
+  top: -60px;
+}
+/* line 1884, ../sass/storyscope.scss */
+.node-event-form .field-type-text-with-summary.form-wrapper .toggle-help {
+  top: -40px;
+}
+/* line 1887, ../sass/storyscope.scss */
+.node-event-form .field-type-text-with-summary.form-wrapper .off {
+  top: -51px;
+}
+/* line 1892, ../sass/storyscope.scss */
+.node-event-form .form-field-name-field-event-activity.form-wrapper,
+.node-event-form .field-name-body.form-wrapper {
+  width: 98%;
+}
+/* line 1895, ../sass/storyscope.scss */
+.node-event-form .form-field-type-partial-date.form-wrapper {
+  width: 50%;
+  padding-bottom: 35px;
+}
+/* line 1899, ../sass/storyscope.scss */
+.node-event-form .form-field-type-partial-date.form-field-name-field-event-end-time.form-wrapper {
+  float: left;
+  width: 48%;
+}
+/* line 1908, ../sass/storyscope.scss */
+.node-event-form .form-field-name-field-fb-agent.form-wrapper,
+.node-event-form .form-field-name-field-fb-location.form-wrapper,
+.node-event-form .form-field-name-field-fb-genre.form-wrapper,
+.node-event-form .form-field-name-field-fb-style-movement.form-wrapper,
+.node-event-form .form-field-name-field-fb-tags.form-wrapper,
+.node-event-form .form-field-name-field-fb-value.form-wrapper {
+  width: 48%;
+  height: 100%;
+  float: left;
+  margin-right: 2%;
+  min-height: 120px;
+}
+/* line 1916, ../sass/storyscope.scss */
+.node-event-form .group-event-properties .form-wrapper {
+  width: 100%;
+}
+/* line 1922, ../sass/storyscope.scss */
+.node-event-form .form-field-name-field-fb-value .field-multiple-drag,
+.node-event-form .form-field-name-field-fb-value .form-submit {
+  display: none;
+}
+/* line 1930, ../sass/storyscope.scss */
+.node-event-form .form-field-name-field-fb-value input,
+.node-event-form .form-field-name-field-fb-value label {
+  width: 65px;
+}
+/* line 1939, ../sass/storyscope.scss */
+.node-event-form .form-item-field-event-activity-und input,
+.node-event-form .form-item-title input {
+  width: 402px;
+}
+
+/* line 1944, ../sass/storyscope.scss */
+.node-object-form {
+  /*
+  .form-field-name-field-video-item.form-wrapper,
+  .form-field-name-field-object-dimensions.form-wrapper,
+  .form-field-name-field-fb-materials.form-wrapper,
+  .form-field-name-field-fb-tags.form-wrapper,
+  .form-field-name-field-fb-country.form-wrapper,
+  .form-field-name-field-object-credit-line.form-wrapper {
+    float: right;
+  }
+  */
+}
+/* line 1945, ../sass/storyscope.scss */
+.node-object-form .form-item-title {
+  padding-bottom: 50px;
+}
+/* line 1948, ../sass/storyscope.scss */
+.node-object-form .media-item {
+  margin-left: 0;
+}
+/* line 1951, ../sass/storyscope.scss */
+.node-object-form .field-name-body.form-wrapper {
+  width: 98%;
+}
+/* line 1966, ../sass/storyscope.scss */
+.node-object-form .form-field-name-field-image.form-wrapper,
+.node-object-form .form-field-name-field-media.form-wrapper,
+.node-object-form .form-field-name-field-video-item.form-wrapper,
+.node-object-form .form-field-name-field-object-creation-date.form-wrapper,
+.node-object-form .form-field-name-field-object-dimensions.form-wrapper,
+.node-object-form .form-field-name-field-fb-classification.form-wrapper,
+.node-object-form .form-field-name-field-fb-materials.form-wrapper,
+.node-object-form .form-field-name-field-fb-location.form-wrapper,
+.node-object-form .form-field-name-field-fb-tags.form-wrapper,
+.node-object-form .form-field-name-field-fb-object-identifier.form-wrapper,
+.node-object-form .form-field-name-field-fb-country.form-wrapper,
+.node-object-form .form-field-name-field-fb-agent.form-wrapper,
+.node-object-form .form-field-name-field-object-credit-line.form-wrapper {
+  width: 48%;
+  margin-right: 2%;
+  height: 100%;
+  min-height: 125px;
+}
+/* line 1976, ../sass/storyscope.scss */
+.node-object-form .group-object-lido .form-wrapper {
+  width: 100%;
+}
+/* line 1982, ../sass/storyscope.scss */
+.node-object-form .form-field-name-field-image.form-wrapper .form-item .form-required,
+.node-object-form .form-field-name-field-media.form-wrapper .form-item .form-required {
+  display: none;
+}
+/* line 1985, ../sass/storyscope.scss */
+.node-object-form .form-field-name-field-image.form-wrapper .draggable,
+.node-object-form .form-field-name-field-media.form-wrapper .draggable {
+  position: relative;
+}
+/* line 1987, ../sass/storyscope.scss */
+.node-object-form .form-field-name-field-image.form-wrapper .draggable .field-multiple-drag,
+.node-object-form .form-field-name-field-media.form-wrapper .draggable .field-multiple-drag {
+  position: relative;
+  right: 0;
+  top: 22px;
+}
+/* line 1997, ../sass/storyscope.scss */
+.node-object-form .form-field-name-field-media-item .form-wrapper label {
+  display: none;
+}
+/* line 2015, ../sass/storyscope.scss */
+.node-object-form .form-field-name-field-object-dimensions.form-wrapper td .form-submit {
+  position: relative;
+  left: -86px;
+  top: 0px;
+}
+/* line 2023, ../sass/storyscope.scss */
+.node-object-form .form-field-name-field-object-dimensions .field-type-number-decimal {
+  width: 20%;
+}
+/* line 2025, ../sass/storyscope.scss */
+.node-object-form .form-field-name-field-object-dimensions .field-type-number-decimal input {
+  width: 80%;
+}
+
+/* line 2037, ../sass/storyscope.scss */
+.node-reference-form .field-name-body.form-wrapper,
+.node-reference-form .form-field-name-field-reference-text.form-wrapper,
+.node-reference-form .form-field-name-field-reference-source-text.form-wrapper,
+.node-reference-form .form-field-name-field-reference-source.form-wrapper,
+.node-reference-form .form-field-name-field-media.form-wrapper {
+  width: 48%;
+  margin-right: 2%;
+  height: 100%;
+  min-height: 125px;
+}
+
+/* line 2049, ../sass/storyscope.scss */
+.node-event-form,
+.node-object-form,
+.node-reference-form {
+  padding: 0 10px;
+}
+/* line 2050, ../sass/storyscope.scss */
+.node-event-form .form-wrapper div.tabledrag-changed-warning,
+.node-object-form .form-wrapper div.tabledrag-changed-warning,
+.node-reference-form .form-wrapper div.tabledrag-changed-warning {
+  width: 70%;
+}
+/* line 2053, ../sass/storyscope.scss */
+.node-event-form div.message,
+.node-object-form div.message,
+.node-reference-form div.message {
+  display: none;
+}
+/* line 2062, ../sass/storyscope.scss */
+.node-event-form .form-field-name-field-fb-value .field-multiple-drag,
+.node-event-form .form-field-name-field-fb-value .form-submit,
+.node-event-form .form-field-name-field-fb-classification .field-multiple-drag,
+.node-event-form .form-field-name-field-fb-classification .form-submit,
+.node-event-form .form-field-name-field-fb-object-identifier .field-multiple-drag,
+.node-event-form .form-field-name-field-fb-object-identifier .form-submit,
+.node-event-form .form-field-name-field-fb-country .field-multiple-drag,
+.node-event-form .form-field-name-field-fb-country .form-submit,
+.node-event-form .form-field-name-field-object-dimensions .field-multiple-drag,
+.node-event-form .form-field-name-field-object-dimensions .form-submit,
+.node-object-form .form-field-name-field-fb-value .field-multiple-drag,
+.node-object-form .form-field-name-field-fb-value .form-submit,
+.node-object-form .form-field-name-field-fb-classification .field-multiple-drag,
+.node-object-form .form-field-name-field-fb-classification .form-submit,
+.node-object-form .form-field-name-field-fb-object-identifier .field-multiple-drag,
+.node-object-form .form-field-name-field-fb-object-identifier .form-submit,
+.node-object-form .form-field-name-field-fb-country .field-multiple-drag,
+.node-object-form .form-field-name-field-fb-country .form-submit,
+.node-object-form .form-field-name-field-object-dimensions .field-multiple-drag,
+.node-object-form .form-field-name-field-object-dimensions .form-submit,
+.node-reference-form .form-field-name-field-fb-value .field-multiple-drag,
+.node-reference-form .form-field-name-field-fb-value .form-submit,
+.node-reference-form .form-field-name-field-fb-classification .field-multiple-drag,
+.node-reference-form .form-field-name-field-fb-classification .form-submit,
+.node-reference-form .form-field-name-field-fb-object-identifier .field-multiple-drag,
+.node-reference-form .form-field-name-field-fb-object-identifier .form-submit,
+.node-reference-form .form-field-name-field-fb-country .field-multiple-drag,
+.node-reference-form .form-field-name-field-fb-country .form-submit,
+.node-reference-form .form-field-name-field-object-dimensions .field-multiple-drag,
+.node-reference-form .form-field-name-field-object-dimensions .form-submit {
+  display: none;
+}
+/* line 2071, ../sass/storyscope.scss */
+.node-event-form .draggable a.tabledrag-handle,
+.node-object-form .draggable a.tabledrag-handle,
+.node-reference-form .draggable a.tabledrag-handle {
+  padding-right: 5px;
+}
+/* line 2076, ../sass/storyscope.scss */
+.node-event-form .vertical-tabs .form-type-textfield input,
+.node-object-form .vertical-tabs .form-type-textfield input,
+.node-reference-form .vertical-tabs .form-type-textfield input {
+  width: 75%;
+  padding-left: 10px;
+  -moz-box-sizing: border-box;
+  -webkit-box-sizing: border-box;
+  box-sizing: border-box;
+}
+/* line 2084, ../sass/storyscope.scss */
+.node-event-form .vertical-tabs .vertical-tabs-pane .form-item,
+.node-object-form .vertical-tabs .vertical-tabs-pane .form-item,
+.node-reference-form .vertical-tabs .vertical-tabs-pane .form-item {
+  float: none;
+}
+/* line 2087, ../sass/storyscope.scss */
+.node-event-form .vertical-tabs .vertical-tabs-pane .form-type-radio,
+.node-object-form .vertical-tabs .vertical-tabs-pane .form-type-radio,
+.node-reference-form .vertical-tabs .vertical-tabs-pane .form-type-radio {
+  width: 200%;
+}
+/* line 2092, ../sass/storyscope.scss */
+.node-event-form legend,
+.node-object-form legend,
+.node-reference-form legend {
+  font-weight: bold;
+}
+/* line 2096, ../sass/storyscope.scss */
+.node-event-form .form-item-field-video-item-und-0-video-url.label,
+.node-object-form .form-item-field-video-item-und-0-video-url.label,
+.node-reference-form .form-item-field-video-item-und-0-video-url.label {
+  display: none;
+}
+/* line 2102, ../sass/storyscope.scss */
+.node-event-form .form-field-type-taxonomy-term-reference input,
+.node-event-form .field-type-text-with-summary input,
+.node-event-form .form-field-type-text-long input,
+.node-object-form .form-field-type-taxonomy-term-reference input,
+.node-object-form .field-type-text-with-summary input,
+.node-object-form .form-field-type-text-long input,
+.node-reference-form .form-field-type-taxonomy-term-reference input,
+.node-reference-form .field-type-text-with-summary input,
+.node-reference-form .form-field-type-text-long input {
+  margin-bottom: 2em;
+}
+/* line 2106, ../sass/storyscope.scss */
+.node-event-form .form-field-type-taxonomy-term-reference label,
+.node-event-form .field-type-text-with-summary label,
+.node-event-form .form-field-type-text-long label,
+.node-object-form .form-field-type-taxonomy-term-reference label,
+.node-object-form .field-type-text-with-summary label,
+.node-object-form .form-field-type-text-long label,
+.node-reference-form .form-field-type-taxonomy-term-reference label,
+.node-reference-form .field-type-text-with-summary label,
+.node-reference-form .form-field-type-text-long label {
+  margin-bottom: 10px;
+}
+/* line 2110, ../sass/storyscope.scss */
+.node-event-form .form-field-type-image,
+.node-object-form .form-field-type-image,
+.node-reference-form .form-field-type-image {
+  /*
+  thead tr{
+    display: none;
+  }
+  .form-item label {
+      font-weight: normal;
+      font-size: 0.85em;
+      margin-top: 0;
+    td {
+      width: 100%;
+    }
+  }
+  */
+}
+/* line 2111, ../sass/storyscope.scss */
+.node-event-form .form-field-type-image div.image-widget-data,
+.node-object-form .form-field-type-image div.image-widget-data,
+.node-reference-form .form-field-type-image div.image-widget-data {
+  float: none !important;
+}
+/* line 2113, ../sass/storyscope.scss */
+.node-event-form .form-field-type-image div.image-widget-data .toggle-help-button,
+.node-object-form .form-field-type-image div.image-widget-data .toggle-help-button,
+.node-reference-form .form-field-type-image div.image-widget-data .toggle-help-button {
+  display: none;
+}
+/* line 2116, ../sass/storyscope.scss */
+.node-event-form .form-field-type-image div.image-widget-data .form-type-textfield input,
+.node-object-form .form-field-type-image div.image-widget-data .form-type-textfield input,
+.node-reference-form .form-field-type-image div.image-widget-data .form-type-textfield input {
+  width: 50%;
+}
+/* line 2134, ../sass/storyscope.scss */
+.node-event-form .form-wrapper,
+.node-object-form .form-wrapper,
+.node-reference-form .form-wrapper {
+  position: relative;
+  border-top: solid #cdcccb 1px;
+  float: left;
+  padding: 1em 0;
+}
+/* line 2140, ../sass/storyscope.scss */
+.node-event-form .form-wrapper .form-item.form-type-managed-file label,
+.node-object-form .form-wrapper .form-item.form-type-managed-file label,
+.node-reference-form .form-wrapper .form-item.form-type-managed-file label {
+  font-weight: normal;
+  font-size: 0.85em;
+  margin-top: 0;
+}
+/* line 2145, ../sass/storyscope.scss */
+.node-event-form .form-wrapper .form-item,
+.node-object-form .form-wrapper .form-item,
+.node-reference-form .form-wrapper .form-item {
+  position: relative;
+  margin: 0;
+}
+/* line 2149, ../sass/storyscope.scss */
+.node-event-form .form-wrapper .form-type-partial-datetime-element,
+.node-object-form .form-wrapper .form-type-partial-datetime-element,
+.node-reference-form .form-wrapper .form-type-partial-datetime-element {
+  float: left;
+  margin: 0;
+  padding: 1em 0;
+}
+/* line 2154, ../sass/storyscope.scss */
+.node-event-form .form-wrapper .form-type-checkbox,
+.node-object-form .form-wrapper .form-type-checkbox,
+.node-reference-form .form-wrapper .form-type-checkbox {
+  float: left;
+  margin-top: 30px;
+}
+/* line 2159, ../sass/storyscope.scss */
+.node-event-form .media-widget.form-wrapper,
+.node-object-form .media-widget.form-wrapper,
+.node-reference-form .media-widget.form-wrapper {
+  float: none;
+  padding: 0;
+  border-top: none;
+}
+/* line 2165, ../sass/storyscope.scss */
+.node-event-form .fieldset-wrapper .form-wrapper,
+.node-event-form fieldset.form-wrapper,
+.node-object-form .fieldset-wrapper .form-wrapper,
+.node-object-form fieldset.form-wrapper,
+.node-reference-form .fieldset-wrapper .form-wrapper,
+.node-reference-form fieldset.form-wrapper {
+  border: none;
+}
+/* line 2167, ../sass/storyscope.scss */
+.node-event-form .fieldset-wrapper .form-wrapper .field-type-text,
+.node-event-form fieldset.form-wrapper .field-type-text,
+.node-object-form .fieldset-wrapper .form-wrapper .field-type-text,
+.node-object-form fieldset.form-wrapper .field-type-text,
+.node-reference-form .fieldset-wrapper .form-wrapper .field-type-text,
+.node-reference-form fieldset.form-wrapper .field-type-text {
+  padding-left: 35px;
+}
+/* line 2171, ../sass/storyscope.scss */
+.node-event-form .form-type-textarea,
+.node-object-form .form-type-textarea,
+.node-reference-form .form-type-textarea {
+  width: 100%;
+}
+/* line 2175, ../sass/storyscope.scss */
+.node-event-form .form-field-name-field-object-dimensions .field-multiple-table tbody td.field-multiple-drag,
+.node-object-form .form-field-name-field-object-dimensions .field-multiple-table tbody td.field-multiple-drag,
+.node-reference-form .form-field-name-field-object-dimensions .field-multiple-table tbody td.field-multiple-drag {
+  padding-top: 31px;
+}
+/* line 2179, ../sass/storyscope.scss */
+.node-event-form .field-multiple-table,
+.node-object-form .field-multiple-table,
+.node-reference-form .field-multiple-table {
+  width: 100%;
+}
+/* line 2182, ../sass/storyscope.scss */
+.node-event-form .field-multiple-table tbody .draggable,
+.node-object-form .field-multiple-table tbody .draggable,
+.node-reference-form .field-multiple-table tbody .draggable {
+  position: relative;
+}
+/* line 2184, ../sass/storyscope.scss */
+.node-event-form .field-multiple-table tbody .draggable .media-widget,
+.node-object-form .field-multiple-table tbody .draggable .media-widget,
+.node-reference-form .field-multiple-table tbody .draggable .media-widget {
+  padding: 0;
+}
+/* line 2188, ../sass/storyscope.scss */
+.node-event-form .field-multiple-table tbody td,
+.node-object-form .field-multiple-table tbody td,
+.node-reference-form .field-multiple-table tbody td {
+  float: left;
+  width: 90%;
+}
+/* line 2191, ../sass/storyscope.scss */
+.node-event-form .field-multiple-table tbody td label,
+.node-object-form .field-multiple-table tbody td label,
+.node-reference-form .field-multiple-table tbody td label {
+  font-weight: normal;
+  font-size: 0.85em;
+}
+/* line 2195, ../sass/storyscope.scss */
+.node-event-form .field-multiple-table tbody td a,
+.node-object-form .field-multiple-table tbody td a,
+.node-reference-form .field-multiple-table tbody td a {
+  padding: 0;
+  border: none;
+  color: #cdcccb;
+  padding: 0;
+}
+/* line 2201, ../sass/storyscope.scss */
+.node-event-form .field-multiple-table tbody td .button,
+.node-object-form .field-multiple-table tbody td .button,
+.node-reference-form .field-multiple-table tbody td .button {
+  margin-right: 5px;
+  -webkit-appearance: button;
+  color: buttontext;
+  padding: 2px 6px 3px;
+  border: 2px outset buttonface;
+  background-color: buttonface;
+  box-sizing: border-box;
+  font: -webkit-small-control;
+  color: initial;
+  letter-spacing: normal;
+  word-spacing: normal;
+  text-transform: none;
+  text-indent: 0px;
+  text-shadow: none;
+  display: inline-block;
+}
+/* line 2219, ../sass/storyscope.scss */
+.node-event-form .field-multiple-table tbody td.field-multiple-drag,
+.node-object-form .field-multiple-table tbody td.field-multiple-drag,
+.node-reference-form .field-multiple-table tbody td.field-multiple-drag {
+  width: 30px;
+  padding-right: 0;
+  float: right;
+  padding-top: 13px;
+}
+/* line 2225, ../sass/storyscope.scss */
+.node-event-form .field-multiple-table tbody .form-submit,
+.node-object-form .field-multiple-table tbody .form-submit,
+.node-reference-form .field-multiple-table tbody .form-submit {
+  background-color: white;
+  border: none;
+  color: #cdcccb;
+  padding: 0;
+}
+/* line 2231, ../sass/storyscope.scss */
+.node-event-form .field-multiple-table tbody .form-wrapper,
+.node-object-form .field-multiple-table tbody .form-wrapper,
+.node-reference-form .field-multiple-table tbody .form-wrapper {
+  margin-right: 15px;
+  border: none;
+}
+/* line 2237, ../sass/storyscope.scss */
+.node-event-form .field-multiple-table tbody .field-name-field-object-dimension-value.form-wrapper,
+.node-event-form .field-multiple-table tbody .field-name-field-object-dimension-unit.form-wrapper,
+.node-event-form .field-multiple-table tbody .field-name-field-object-dimension-label.form-wrapper,
+.node-object-form .field-multiple-table tbody .field-name-field-object-dimension-value.form-wrapper,
+.node-object-form .field-multiple-table tbody .field-name-field-object-dimension-unit.form-wrapper,
+.node-object-form .field-multiple-table tbody .field-name-field-object-dimension-label.form-wrapper,
+.node-reference-form .field-multiple-table tbody .field-name-field-object-dimension-value.form-wrapper,
+.node-reference-form .field-multiple-table tbody .field-name-field-object-dimension-unit.form-wrapper,
+.node-reference-form .field-multiple-table tbody .field-name-field-object-dimension-label.form-wrapper {
+  width: 70px;
+}
+/* line 2240, ../sass/storyscope.scss */
+.node-event-form .field-multiple-table tbody .field-name-field-object-dimension-value.form-wrapper .form-item input,
+.node-event-form .field-multiple-table tbody .field-name-field-object-dimension-unit.form-wrapper .form-item input,
+.node-event-form .field-multiple-table tbody .field-name-field-object-dimension-label.form-wrapper .form-item input,
+.node-object-form .field-multiple-table tbody .field-name-field-object-dimension-value.form-wrapper .form-item input,
+.node-object-form .field-multiple-table tbody .field-name-field-object-dimension-unit.form-wrapper .form-item input,
+.node-object-form .field-multiple-table tbody .field-name-field-object-dimension-label.form-wrapper .form-item input,
+.node-reference-form .field-multiple-table tbody .field-name-field-object-dimension-value.form-wrapper .form-item input,
+.node-reference-form .field-multiple-table tbody .field-name-field-object-dimension-unit.form-wrapper .form-item input,
+.node-reference-form .field-multiple-table tbody .field-name-field-object-dimension-label.form-wrapper .form-item input {
+  width: 65px;
+}
+/* line 2251, ../sass/storyscope.scss */
+.node-event-form .form-submit.ajax-processed,
+.node-object-form .form-submit.ajax-processed,
+.node-reference-form .form-submit.ajax-processed {
+  background-color: white;
+  border: none;
+  color: #cdcccb;
+  padding: 0;
+}
+/* line 2258, ../sass/storyscope.scss */
+.node-event-form .form-actions .form-submit,
+.node-object-form .form-actions .form-submit,
+.node-reference-form .form-actions .form-submit {
+  margin-right: 5px;
+}
+/* line 2262, ../sass/storyscope.scss */
+.node-event-form .vertical-tabs,
+.node-object-form .vertical-tabs,
+.node-reference-form .vertical-tabs {
+  float: left;
+  width: 76%;
+}
+/* line 2266, ../sass/storyscope.scss */
+.node-event-form #edit-actions,
+.node-object-form #edit-actions,
+.node-reference-form #edit-actions {
+  width: 100%;
+}
+
+/* line 2270, ../sass/storyscope.scss */
+.node-object-form .form-field-type-partial-date .form-wrapper {
+  width: 100%;
+}
+
+/* line 2273, ../sass/storyscope.scss */
+.node-object-form .form-field-type-partial-date .form-field-name-field-event-end-time .form-wrapper {
+  float: left;
+}
+
+/* video player */
+/* line 2278, ../sass/storyscope.scss */
+.view-object-media-slideshow .media-youtube-video {
+  position: relative;
+  padding-bottom: 56.25%;
+  height: 100%;
+}
+/* line 2282, ../sass/storyscope.scss */
+.view-object-media-slideshow .media-youtube-video iframe {
+  position: absolute !important;
+  width: 100%;
+  height: 100%;
+  left: 0;
+  top: 0;
+}
+/* line 2290, ../sass/storyscope.scss */
+.view-object-media-slideshow .media-vimeo-outer-wrapper {
+  position: relative;
+  height: 100%;
+}
+/* line 2293, ../sass/storyscope.scss */
+.view-object-media-slideshow .media-vimeo-outer-wrapper .media-vimeo-preview-wrapper {
+  position: relative;
+  padding-bottom: 56.25%;
+  height: 0;
+}
+/* line 2297, ../sass/storyscope.scss */
+.view-object-media-slideshow .media-vimeo-outer-wrapper .media-vimeo-preview-wrapper iframe {
+  position: absolute !important;
+  width: 100%;
+  height: 100%;
+  left: 0;
+  top: 0;
+}
+/* line 2307, ../sass/storyscope.scss */
+.view-object-media-slideshow .media-vimeo-video,
+.view-object-media-slideshow .media-youtube-outer-wrapper {
+  position: inherit;
+}
+/* line 2311, ../sass/storyscope.scss */
+.view-object-media-slideshow .media-youtube-preview-wrapper {
+  position: relative;
+  padding-bottom: 56.25%;
+  height: 0;
+}
+
+/* story section form */
+/* line 2319, ../sass/storyscope.scss */
+.node-section-form .form-wrapper {
+  margin-bottom: 1em;
+}
+/* line 2324, ../sass/storyscope.scss */
+.node-section-form .fieldset-wrapper .form-wrapper {
+  border-bottom: solid 1px #eeeeee;
+  margin-bottom: 1em;
+}
+/* line 2327, ../sass/storyscope.scss */
+.node-section-form .fieldset-wrapper .form-wrapper .fieldset-description {
+  color: #a0a0a0;
+  font-size: 0.95em !important;
+}
+/* line 2333, ../sass/storyscope.scss */
+.node-section-form .form-item {
+  margin: 0.5em 0 !important;
+}
+/* line 2336, ../sass/storyscope.scss */
+.node-section-form .form-item .description {
+  color: #a0a0a0;
+  font-size: 0.95em !important;
+}
+/* line 2343, ../sass/storyscope.scss */
+.node-section-form .text-format-wrapper .description {
+  color: #a0a0a0;
+  font-size: 0.95em !important;
+}
+
+/* help text*/
+/* line 2351, ../sass/storyscope.scss */
+.toggle-help {
+  font-size: 0.85em;
+  width: 250px;
+  float: right;
+  display: inline-block;
+  position: absolute;
+  right: 10px;
+  top: 25px;
+  background-color: white;
+  border: 1px solid #cdcccb;
+  z-index: 5000;
+  padding: 15px 15px 20px 25px;
+  box-shadow: 0px 2px 15px rgba(25, 25, 25, 0.5);
+}
+
+/* line 2365, ../sass/storyscope.scss */
+.toggle-help-button {
+  float: right;
+  cursor: pointer;
+  position: absolute;
+  display: block;
+  font-size: 11px;
+  text-indent: 0;
+  text-transform: uppercase;
+  color: #4e4e4e;
+  text-decoration: none !important;
+  top: 0px;
+  right: 10px;
+}
+
+/*down arrow beside the help text*/
+/* line 2382, ../sass/storyscope.scss */
+.off {
+  border-left: 5px solid transparent;
+  border-right: 5px solid transparent;
+  border-top: 5px solid #a0a0a0;
+  margin: 0 0 0 8px;
+  top: 7px;
+  right: 41px;
+  position: absolute;
+}
+
+/*change in colour for when help is extended*/
+/* line 2395, ../sass/storyscope.scss */
+.help-on {
+  color: #edae6f;
+}
+
+/* line 2399, ../sass/storyscope.scss */
+.story-section-pager,
+.narrative-set-pager {
+  list-style-type: none;
+  padding-left: 0;
+}
+/* line 5, ../../../../../../../../../../Library/Ruby/Gems/1.8/gems/compass-0.12.2/frameworks/compass/stylesheets/compass/typography/lists/_inline-list.scss */
+.story-section-pager, .story-section-pager li,
+.narrative-set-pager,
+.narrative-set-pager li {
+  margin: 0px;
+  padding: 0px;
+  display: inline;
+}
+/* line 2403, ../sass/storyscope.scss */
+.story-section-pager li a,
+.narrative-set-pager li a {
+  background: #cdcccb;
+  padding: 0.25em 0.5em;
+  margin-right: 5px;
+  color: #4e4e4e;
+}
+/* line 24, ../../../../../../../../../../Library/Ruby/Gems/1.8/gems/compass-0.12.2/frameworks/compass/stylesheets/compass/typography/links/_link-colors.scss */
+.story-section-pager li a:hover,
+.narrative-set-pager li a:hover {
+  color: #e5e5e5;
+}
+/* line 2409, ../sass/storyscope.scss */
+.story-section-pager li a.active, .story-section-pager li a:hover,
+.narrative-set-pager li a.active,
+.narrative-set-pager li a:hover {
+  background: #79b2ac;
+}
+/* line 2412, ../sass/storyscope.scss */
+.story-section-pager li a.active,
+.narrative-set-pager li a.active {
+  color: #e5e5e5;
+}
+
+/* Add existing events page styling tweaks */
+/* line 2423, ../sass/storyscope.scss */
+.view-dossier-events-add-existing-search-api .view-header .button,
+.view-object-story-objects-add-existing-search-api .view-header .button,
+.view-object-story-events-add-existing-search-api .view-header .button {
+  padding-bottom: 15px;
+}
+
+/* line 2440, ../sass/storyscope.scss */
+#views-exposed-form-object-story-events-add-existing-search-api-page-add-event-dossier-context-internal,
+#views-exposed-form-dossier-events-add-existing-search-api-page-add-event-search-internal,
+#views-exposed-form-dossier-object-stories-add-existing-search-api-page-add-object-story-internal,
+#views-exposed-form-object-story-objects-add-existing-search-api-page-add-object-dossier-context-internal,
+#views-exposed-form-dossier-events-search-api-dossier-events-page,
+#views-exposed-form-ca-search-external-ca,
+#views-exposed-form-dossier-objects-add-existing-search-api-page-add-object-internal,
+#views-exposed-form-dossier-events-search-api-dossier-events-pane,
+#views-exposed-form-dossier-objects-search-api-page,
+#views-exposed-form-dossier-events-search-api-dossier-events-pane-timeline,
+#views-exposed-form-dossier-events-search-api-map-page,
+#views-exposed-form-dossier-object-stories-add-existing-search-api-object-stories-add-to-section,
+#views-exposed-form-ca-search-page-1 {
+  margin-left: 15px;
+  margin-top: 12px;
+  margin-bottom: 14px;
+}
+
+/* line 2445, ../sass/storyscope.scss */
+.ajax-progress {
+  float: left;
+  position: absolute;
+  padding-top: 3px;
+}
+
+/* line 2450, ../sass/storyscope.scss */
+.region-sidebar-second h1 {
+  border-bottom: 2px solid #cccccc;
+  padding-bottom: 10px;
+  margin-top: 25px;
+  margin-bottom: 0px;
+}
+
+/* facet list styling */
+/* line 2458, ../sass/storyscope.scss */
+.item-list .facetapi-facetapi-links {
+  margin: 10px 0 5px 0;
+  padding-left: 15px;
+}
+/* line 2461, ../sass/storyscope.scss */
+.item-list .facetapi-facetapi-links .leaf a {
+  color: #4e4e4e;
+}
+/* line 2464, ../sass/storyscope.scss */
+.item-list .facetapi-facetapi-links a.facetapi-limit-link {
+  color: #a1a3a6;
+}
+
+/* line 2468, ../sass/storyscope.scss */
+.facetapi-limit-link {
+  margin-left: 15px;
+}
+
+/* line 2471, ../sass/storyscope.scss */
+.underline {
+  width: 100%;
+  border-bottom: solid 2px #cdcccb;
+  position: absolute;
+  bottom: 0;
+}
+
+/* line 2477, ../sass/storyscope.scss */
+.pane-title {
+  margin-bottom: 0.5em;
+}
+/* line 2479, ../sass/storyscope.scss */
+.pane-title .underline {
+  position: relative;
+  margin-top: 10px;
+}
+
+/* line 2487, ../sass/storyscope.scss */
+.region-sidebar-second .pane-content ul li,
+.pane-facetapi .pane-content ul li {
+  list-style: none;
+}
+/* line 2493, ../sass/storyscope.scss */
+.region-sidebar-second h2.block-title, .region-sidebar-second .node-story-visualisation .exhibit-collectionView-body ol li > div > div.block-title:first-child, .node-story-visualisation .exhibit-collectionView-body ol .region-sidebar-second li > div > div.block-title:first-child,
+.region-sidebar-second h2.pane-title,
+.region-sidebar-second .node-story-visualisation .exhibit-collectionView-body ol li > div > div.pane-title:first-child,
+.node-story-visualisation .exhibit-collectionView-body ol .region-sidebar-second li > div > div.pane-title:first-child,
+.region-sidebar-second h2.pane-facetapi,
+.region-sidebar-second .node-story-visualisation .exhibit-collectionView-body ol li > div > div.pane-facetapi:first-child,
+.node-story-visualisation .exhibit-collectionView-body ol .region-sidebar-second li > div > div.pane-facetapi:first-child,
+.region-sidebar-second .views-widget-filter-field_object_collection label:first-child,
+.pane-facetapi h2.block-title,
+.pane-facetapi .node-story-visualisation .exhibit-collectionView-body ol li > div > div.block-title:first-child,
+.node-story-visualisation .exhibit-collectionView-body ol .pane-facetapi li > div > div.block-title:first-child,
+.pane-facetapi h2.pane-title,
+.pane-facetapi .node-story-visualisation .exhibit-collectionView-body ol li > div > div.pane-title:first-child,
+.node-story-visualisation .exhibit-collectionView-body ol .pane-facetapi li > div > div.pane-title:first-child,
+.pane-facetapi h2.pane-facetapi,
+.pane-facetapi .node-story-visualisation .exhibit-collectionView-body ol li > div > div.pane-facetapi:first-child,
+.node-story-visualisation .exhibit-collectionView-body ol .pane-facetapi li > div > div.pane-facetapi:first-child,
+.pane-facetapi .views-widget-filter-field_object_collection label:first-child {
+  /* Block title */
+  text-transform: uppercase;
+  font-size: 0.92308em;
+  line-height: 1.5em;
+  padding-left: 30px;
+  padding: 5px 5px 5px 15px;
+  border-bottom: solid 1px #eeeeee;
+  border-top: solid 1px #c4c4c4;
+  margin-bottom: 8px;
+}
+/* line 2503, ../sass/storyscope.scss */
+.region-sidebar-second h2, .region-sidebar-second .node-story-visualisation .exhibit-collectionView-body ol li > div > div:first-child, .node-story-visualisation .exhibit-collectionView-body ol .region-sidebar-second li > div > div:first-child,
+.pane-facetapi h2,
+.pane-facetapi .node-story-visualisation .exhibit-collectionView-body ol li > div > div:first-child,
+.node-story-visualisation .exhibit-collectionView-body ol .pane-facetapi li > div > div:first-child {
+  margin-top: 0;
+  margin-bottom: 10px;
+  padding-bottom: 10px;
+  border-bottom: solid 2px #cdcccb;
+}
+
+/* line 2512, ../sass/storyscope.scss */
+div.tabs h1.title {
+  margin-right: 20% !important;
+  float: left;
+  padding-left: 0 !important;
+}
+/* line 2519, ../sass/storyscope.scss */
+div.tabs .button {
+  position: relative;
+  left: -21%;
+  margin-top: 7px;
+  float: left;
+}
+/* line 2524, ../sass/storyscope.scss */
+div.tabs .button a:link {
+  color: #4e4e4e;
+  background-color: #a6cef3;
+  border: solid 1px #8cbae4;
+  padding: 0.4em 1em;
+  margin: 0.25em 0.25em 0.5em 0.25em;
+}
+/* line 2531, ../sass/storyscope.scss */
+div.tabs .button a:hover {
+  color: white;
+}
+
+/* Similarity search form */
+/* line 2542, ../sass/storyscope.scss */
+#similarity-search-type {
+  visibility: hidden;
+  display: none;
+}
+
+/* line 2547, ../sass/storyscope.scss */
+#edit-context {
+  width: 300px;
+}
+
+/* line 2551, ../sass/storyscope.scss */
+#edit-query-text {
+  width: 100%;
+}
+
+/* line 2559, ../sass/storyscope.scss */
+#similarity-query-field {
+  width: 89%;
+}
+
+/* line 2563, ../sass/storyscope.scss */
+#similarity-query-search {
+  float: right;
+  width: 9%;
+}
+
+/* line 2568, ../sass/storyscope.scss */
+.similarity-query-hidden {
+  display: none;
+  visibility: hidden;
+  height: 1px;
+  line-height: 1px;
+}
+
+/* line 2575, ../sass/storyscope.scss */
+#similarity-query-search input {
+  width: 100%;
+}
+
+/* line 2579, ../sass/storyscope.scss */
+#similarity-query-search div {
+  float: right;
+  margin: 0;
+}
+
+/* line 2584, ../sass/storyscope.scss */
+.build-query-fields div {
+  margin: 0;
+}
+
+/* line 2588, ../sass/storyscope.scss */
+.similarity-form-small-divider {
+  width: 50px;
+}
+
+/* line 2592, ../sass/storyscope.scss */
+#similarity-facets {
+  float: right;
+  width: 23%;
+  margin-left: 2%;
+  margin-top: 45px;
+}
+
+/* line 2599, ../sass/storyscope.scss */
+#similarity-context {
+  float: right;
+  margin: 5px 10px 0 0;
+}
+
+/* line 2604, ../sass/storyscope.scss */
+.similarity-total-estimate {
+  padding-top: 8px;
+}
+
+/* line 2608, ../sass/storyscope.scss */
+.similarity-wrap {
+  margin-top: 30px;
+  float: left;
+  width: 720px;
+  border-top: 1px solid #e2903d;
+  padding-top: 0.5em;
+}
+
+/* line 2616, ../sass/storyscope.scss */
+.similarity-checkbox {
+  float: left;
+  margin: 0;
+}
+
+/* line 2621, ../sass/storyscope.scss */
+.similarity-checkbox .form-item {
+  margin: 0 0 5px 0;
+}
+
+/* line 2625, ../sass/storyscope.scss */
+.similarity-block {
+  clear: both;
+}
+
+/* line 2629, ../sass/storyscope.scss */
+.similarity-block h4 {
+  font-weight: bold;
+  margin: 0.2em 0 0.2em 0;
+  font-size: 1.2em;
+}
+
+/* line 2635, ../sass/storyscope.scss */
+.similarity-image-wrap {
+  float: left;
+  margin: 0 10px 0 0;
+  width: 25%;
+}
+
+/* line 2641, ../sass/storyscope.scss */
+.similarity-image {
+  max-height: 150px;
+  overflow: hidden;
+  display: block;
+}
+
+/* line 2647, ../sass/storyscope.scss */
+.similarity-text-wrap {
+  overflow: hidden;
+}
+
+/* line 2651, ../sass/storyscope.scss */
+.similarity-text-wrap em {
+  font-style: normal;
+  font-weight: bold;
+}
+
+/* line 2656, ../sass/storyscope.scss */
+.similarity-buttons {
+  clear: both;
+  float: right;
+}
+
+/* line 2661, ../sass/storyscope.scss */
+.similarity-item-menu {
+  float: left;
+}
+
+/* line 2665, ../sass/storyscope.scss */
+.similarity-item-menu input {
+  float: left;
+}
+
+/* line 2669, ../sass/storyscope.scss */
+.similarity-item-ignore-menu, .similarity-item-add-menu {
+  margin-left: 20px !important;
+  float: left;
+}
+
+/* line 2674, ../sass/storyscope.scss */
+.similarity-item-add-menu {
+  font-weight: bold;
+}
+
+/* line 2678, ../sass/storyscope.scss */
+.similarity-item-ignore-menu .ignore-title {
+  text-decoration: underline;
+}
+
+/* line 2682, ../sass/storyscope.scss */
+.similarity-item-ignore-menu ul {
+  display: none;
+  visibility: hidden;
+  margin: 0;
+  padding: 0;
+}
+
+/* line 2689, ../sass/storyscope.scss */
+.similarity-item-ignore-menu ul li {
+  list-style-type: none;
+}
+
+/* line 2693, ../sass/storyscope.scss */
+.similarity-item-ignore-menu:hover ul {
+  display: block;
+  visibility: visible;
+  position: absolute;
+  background-color: #fff;
+  padding: 5px;
+  border: 1px #eeeeee solid;
+  border-top: 0 none;
+}
+
+/* line 2703, ../sass/storyscope.scss */
+.similarity-paging-wrap {
+  clear: both;
+  text-align: center;
+  padding-top: 40px;
+}
+
+/* line 2709, ../sass/storyscope.scss */
+.similarity-paging {
+  margin: 0 auto;
+}
+
+/* line 2713, ../sass/storyscope.scss */
+.similarity-bottom-buttons {
+  margin: 4em 0 6em 0;
+}
+
+/* line 2717, ../sass/storyscope.scss */
+.clear {
+  clear: both;
+}
+
+/* Similarity with views */
+/* line 2722, ../sass/storyscope.scss */
+.similarity-results {
+  width: 75%;
+}
+
+/* line 2726, ../sass/storyscope.scss */
+.similarity-wrap:nth-child(2n) {
+  float: left;
+  margin-left: 51%;
+  margin-right: -100%;
+  padding-right: 0;
+  width: 49%;
+}
+
+/* line 2734, ../sass/storyscope.scss */
+.similarity-wrap:nth-child(2n+1) {
+  clear: left;
+  float: left;
+  margin-left: 0;
+  margin-right: -50%;
+  padding-left: 0;
+  width: 49%;
+}
+
+/* line 2743, ../sass/storyscope.scss */
+.similarity-wrap {
+  -moz-box-sizing: border-box;
+  word-wrap: break-word;
+}
+
+/* Similarity search item detail */
+/* line 2749, ../sass/storyscope.scss */
+.similarity-search-item-header {
+  background-color: #4e4e4e;
+  overflow: auto;
+  color: white;
+  padding-top: 0;
+  border: 0;
+}
+
+/* line 2757, ../sass/storyscope.scss */
+.similarity-search-item-image {
+  float: left;
+  margin-right: 1em;
+}
+
+/* line 2762, ../sass/storyscope.scss */
+.similarity-search-item-image img {
+  max-height: 300px;
+}
+
+/* line 2766, ../sass/storyscope.scss */
+.similarity-search-item-title {
+  margin-top: 7em;
+  overflow: hidden;
+}
+
+/* line 2775, ../sass/storyscope.scss */
+.similarity-search-item-info {
+  float: left;
+  margin-left: 0;
+  margin-right: -50%;
+  width: 48%;
+  background-color: #e2903d;
+  text-align: left;
+  color: white;
+  padding-top: 10px;
+  border: none;
+  display: table;
+}
+
+/* line 2788, ../sass/storyscope.scss */
+.similarity-search-item-info a {
+  color: #fff;
+}
+
+/* line 2792, ../sass/storyscope.scss */
+.similarity-search-item-buttons {
+  margin-bottom: 1.5em;
+  padding-top: 0.5em;
+}
+
+/* line 2797, ../sass/storyscope.scss */
+.similarity-search-item-info-label {
+  color: #FFCC94;
+}
+
+/* line 2801, ../sass/storyscope.scss */
+.similarity-search-item-description {
+  float: left;
+  margin-top: 1em;
+  margin-left: 51%;
+  margin-right: -100%;
+  padding-right: 0;
+  width: 49%;
+}
+
+/* line 2810, ../sass/storyscope.scss */
+.similarity-search-item-description-no-info {
+  margin-top: 1em;
+  padding-right: 0;
+}
+
+/* line 2815, ../sass/storyscope.scss */
+.similarity-search-item-description-no-info .similarity-search-item-description-text {
+  border: 0px none;
+  padding-right: 1em;
+}
+
+/* line 2820, ../sass/storyscope.scss */
+.similarity-search-item-description-no-info .similarity-search-item-buttons {
+  padding-top: 1.5em;
+}
+
+/* line 2824, ../sass/storyscope.scss */
+.similarity-search-item-description-no-info .button a {
+  margin-left: 1em;
+}
+
+/* Similarity search child item detail */
+/* line 2833, ../sass/storyscope.scss */
+.similarity-search-item-child {
+  clear: both;
+  border-top: 1px #dddddd solid;
+  padding-top: 0.2em;
+  margin-bottom: 1em;
+}
+
+/* line 2840, ../sass/storyscope.scss */
+.similarity-search-item-child-image {
+  width: 28%;
+  float: left;
+}
+
+/* line 2845, ../sass/storyscope.scss */
+.similarity-search-item-clear {
+  clear: both;
+}
+
+/* line 2849, ../sass/storyscope.scss */
+.similarity-search-item-type {
+  float: right;
+}
+
+/* line 2853, ../sass/storyscope.scss */
+.similarity-search-item-dossier {
+  color: #F17BA9;
+  border-color: #F17BA9;
+}
+
+/* line 2858, ../sass/storyscope.scss */
+.similarity-search-item-object-story {
+  color: #F9CC67;
+  border-color: #F9CC67;
+}
+
+/* line 2863, ../sass/storyscope.scss */
+.similarity-search-item-object {
+  color: #E2903D;
+  border-color: #E2903D;
+}
+
+/* line 2868, ../sass/storyscope.scss */
+.similarity-search-item-event {
+  color: #7AC953;
+  border-color: #7AC953;
+}
+
+/* line 2873, ../sass/storyscope.scss */
+.similarity-search-item-event-reference {
+  color: #00A99D;
+  border-color: #00A99D;
+}
+
+/* line 2878, ../sass/storyscope.scss */
+.similarity-search-item-child-image img {
+  max-height: 150px;
+}
+
+/* line 2882, ../sass/storyscope.scss */
+.similarity-search-item-child-content {
+  margin-left: 30%;
+  width: 70%;
+}
+
+/* line 2887, ../sass/storyscope.scss */
+.similarity-search-item-child-content h4 {
+  margin: 0;
+  font-weight: bold;
+}
+
+/* line 2896, ../sass/storyscope.scss */
+.similarity-search-item-child-description {
+  color: #222;
+}
+
+/* Similarity search autocomplete - used in events form */
+/* line 2901, ../sass/storyscope.scss */
+.similarity-search-autocomplete-row {
+  max-height: 50px;
+}
+
+/* line 2905, ../sass/storyscope.scss */
+.similarity-search-autocomplete-left {
+  display: table-cell;
+  vertical-align: middle;
+}
+
+/* line 2910, ../sass/storyscope.scss */
+.similarity-search-autocomplete-right {
+  display: block;
+  float: right;
+  color: #4e4e4e;
+  margin-right: 0.2em;
+  max-height: 50px;
+  overflow: hidden;
+}
+
+/* line 2919, ../sass/storyscope.scss */
+.similarity-search-autocomplete-right img {
+  max-height: 50px;
+  max-width: 150px;
+}
+
+/* Special styling for the Start New Story link on the Dossier page to make it look like a button*/
+/* line 2925, ../sass/storyscope.scss */
+.pane-storyscope-content-dossier-start-new-story .pane-content ul li:first-child {
+  background-color: #a6cef3;
+  border: solid 1px #8cbae4;
+  padding: 0.5em 1em;
+  margin: 0.25em 0.25em 0.5em;
+}
+/* line 2930, ../sass/storyscope.scss */
+.pane-storyscope-content-dossier-start-new-story .pane-content ul li:first-child a {
+  color: #4e4e4e;
+}
+
+/* line 2935, ../sass/storyscope.scss */
+.o2k7SkinSilver .mceIframeContainer {
+  padding: 0 0 0 10px;
+}
+
+/* flexslider */
+/* line 2940, ../sass/storyscope.scss */
+.field-slideshow .field-slideshow-slide img .field-slideshow-img {
+  max-width: 100%;
+  height: 100% !important;
+  width: auto !important;
+}
+
+/* line 2946, ../sass/storyscope.scss */
+.field-slideshow-wrapper,
+.view-object-media-slideshow {
+  text-align: center;
+}
+/* line 2951, ../sass/storyscope.scss */
+.field-slideshow-wrapper .field-slideshow-pager a,
+.field-slideshow-wrapper .field-slideshow-pager .views-slideshow-pager-field-item,
+.field-slideshow-wrapper .views-slideshow-pager-fields a,
+.field-slideshow-wrapper .views-slideshow-pager-fields .views-slideshow-pager-field-item,
+.view-object-media-slideshow .field-slideshow-pager a,
+.view-object-media-slideshow .field-slideshow-pager .views-slideshow-pager-field-item,
+.view-object-media-slideshow .views-slideshow-pager-fields a,
+.view-object-media-slideshow .views-slideshow-pager-fields .views-slideshow-pager-field-item {
+  text-align: center;
+  float: left;
+  border: 3px solid white;
+  border-radius: 25px;
+  font-size: 0pt;
+  margin: 10px;
+  width: 0;
+  height: 0;
+}
+/* line 2961, ../sass/storyscope.scss */
+.field-slideshow-wrapper .field-slideshow-pager a img,
+.field-slideshow-wrapper .field-slideshow-pager a iframe,
+.field-slideshow-wrapper .field-slideshow-pager .views-slideshow-pager-field-item img,
+.field-slideshow-wrapper .field-slideshow-pager .views-slideshow-pager-field-item iframe,
+.field-slideshow-wrapper .views-slideshow-pager-fields a img,
+.field-slideshow-wrapper .views-slideshow-pager-fields a iframe,
+.field-slideshow-wrapper .views-slideshow-pager-fields .views-slideshow-pager-field-item img,
+.field-slideshow-wrapper .views-slideshow-pager-fields .views-slideshow-pager-field-item iframe,
+.view-object-media-slideshow .field-slideshow-pager a img,
+.view-object-media-slideshow .field-slideshow-pager a iframe,
+.view-object-media-slideshow .field-slideshow-pager .views-slideshow-pager-field-item img,
+.view-object-media-slideshow .field-slideshow-pager .views-slideshow-pager-field-item iframe,
+.view-object-media-slideshow .views-slideshow-pager-fields a img,
+.view-object-media-slideshow .views-slideshow-pager-fields a iframe,
+.view-object-media-slideshow .views-slideshow-pager-fields .views-slideshow-pager-field-item img,
+.view-object-media-slideshow .views-slideshow-pager-fields .views-slideshow-pager-field-item iframe {
+  display: none;
+}
+/* line 2966, ../sass/storyscope.scss */
+.field-slideshow-wrapper .field-slideshow-pager a.activeSlide,
+.field-slideshow-wrapper .field-slideshow-pager .views-slideshow-pager-field-item.active,
+.field-slideshow-wrapper .views-slideshow-pager-fields a.activeSlide,
+.field-slideshow-wrapper .views-slideshow-pager-fields .views-slideshow-pager-field-item.active,
+.view-object-media-slideshow .field-slideshow-pager a.activeSlide,
+.view-object-media-slideshow .field-slideshow-pager .views-slideshow-pager-field-item.active,
+.view-object-media-slideshow .views-slideshow-pager-fields a.activeSlide,
+.view-object-media-slideshow .views-slideshow-pager-fields .views-slideshow-pager-field-item.active {
+  text-align: center;
+  float: left;
+  border: 3px solid black;
+  border-radius: 25px;
+  font-size: 0pt;
+  width: 0;
+  height: 0;
+  margin: 10px;
+}
+/* line 2976, ../sass/storyscope.scss */
+.field-slideshow-wrapper .field-slideshow-pager a.activeSlide img,
+.field-slideshow-wrapper .field-slideshow-pager a.activeSlide iframe,
+.field-slideshow-wrapper .field-slideshow-pager .views-slideshow-pager-field-item.active img,
+.field-slideshow-wrapper .field-slideshow-pager .views-slideshow-pager-field-item.active iframe,
+.field-slideshow-wrapper .views-slideshow-pager-fields a.activeSlide img,
+.field-slideshow-wrapper .views-slideshow-pager-fields a.activeSlide iframe,
+.field-slideshow-wrapper .views-slideshow-pager-fields .views-slideshow-pager-field-item.active img,
+.field-slideshow-wrapper .views-slideshow-pager-fields .views-slideshow-pager-field-item.active iframe,
+.view-object-media-slideshow .field-slideshow-pager a.activeSlide img,
+.view-object-media-slideshow .field-slideshow-pager a.activeSlide iframe,
+.view-object-media-slideshow .field-slideshow-pager .views-slideshow-pager-field-item.active img,
+.view-object-media-slideshow .field-slideshow-pager .views-slideshow-pager-field-item.active iframe,
+.view-object-media-slideshow .views-slideshow-pager-fields a.activeSlide img,
+.view-object-media-slideshow .views-slideshow-pager-fields a.activeSlide iframe,
+.view-object-media-slideshow .views-slideshow-pager-fields .views-slideshow-pager-field-item.active img,
+.view-object-media-slideshow .views-slideshow-pager-fields .views-slideshow-pager-field-item.active iframe {
+  display: none;
+}
+
+/* line 2982, ../sass/storyscope.scss */
+.flex-nav-container {
+  margin-bottom: 0 !important;
+}
+/* line 2984, ../sass/storyscope.scss */
+.flex-nav-container .flexslider {
+  border: none;
+}
+
+/* CA Add Object styling */
+/* line 2990, ../sass/storyscope.scss */
+.view-ca-search .node-object {
+  margin-bottom: 1.5em;
+}
+
+/* line 2994, ../sass/storyscope.scss */
+.view-ca-search li.article figure {
+  width: 100%;
+  max-height: 105px;
+  overflow: hidden;
+  margin-bottom: 0.5em;
+}
+
+/* line 3000, ../sass/storyscope.scss */
+.view-ca-search li.article .content {
+  overflow: visible;
+}
+
+/* line 3004, ../sass/storyscope.scss */
+#edit-field-object-collection-wrapper {
+  position: absolute;
+  top: 35px;
+  left: 25px;
+}
+
+/* line 3010, ../sass/storyscope.scss */
+#block-views-exp-ca-search-external-ca .views-exposed-widgets {
+  position: relative;
+}
+
+/* line 3014, ../sass/storyscope.scss */
+.views-widget-filter-field_object_collection label:first-child {
+  margin-left: -40px;
+  min-width: 200px;
+  margin-top: 7px;
+  font-weight: normal;
+}
+
+/* story styling */
+/* line 3021, ../sass/storyscope.scss */
+.group-object-tombstone {
+  margin: 10px 0;
+}
+
+/* line 3024, ../sass/storyscope.scss */
+.pane-objects-pane-object-details {
+  padding: 1em 0.25em !important;
+}
+
+/* line 3030, ../sass/storyscope.scss */
+.pane-dossier-events-search-api-dossier-events-pane {
+  margin: 0 0 25px 0;
+  padding: 0;
+}
+/* line 3033, ../sass/storyscope.scss */
+.pane-dossier-events-search-api-dossier-events-pane h2.pane-title, .pane-dossier-events-search-api-dossier-events-pane .node-story-visualisation .exhibit-collectionView-body ol li > div > div.pane-title:first-child, .node-story-visualisation .exhibit-collectionView-body ol .pane-dossier-events-search-api-dossier-events-pane li > div > div.pane-title:first-child {
+  font-size: 1.5em;
+}
+
+/* responsive story styling */
+@media all and (min-width: 760px) {
+  /* line 3041, ../sass/storyscope.scss */
+  .node-section-form .middle-2-1 {
+    width: 30% !important;
+  }
+  /* line 3044, ../sass/storyscope.scss */
+  .node-section-form .middle-2-2 {
+    width: 70% !important;
+  }
+
+  /* line 3048, ../sass/storyscope.scss */
+  .block-facetapi {
+    padding-bottom: 10px;
+  }
+
+  /* line 3051, ../sass/storyscope.scss */
+  .pane-facetapi {
+    padding-bottom: 10px;
+    width: 25%;
+    float: right;
+  }
+
+  /* line 3056, ../sass/storyscope.scss */
+  .pane-dossier-events-search-api-dossier-events-pane {
+    width: 70%;
+    float: left;
+  }
+}
+/* line 3062, ../sass/storyscope.scss */
+#field-story-set-values {
+  width: 100%;
+}
+/* line 3064, ../sass/storyscope.scss */
+#field-story-set-values td {
+  width: auto;
+}
+/* line 3066, ../sass/storyscope.scss */
+#field-story-set-values td img {
+  float: left;
+}
+/* line 3069, ../sass/storyscope.scss */
+#field-story-set-values td .field-name-field-story-set-snapshot-os {
+  float: right;
+  width: 50%;
+}
+/* line 3072, ../sass/storyscope.scss */
+#field-story-set-values td .field-name-field-story-set-snapshot-os #field-story-set-snapshot-os-values {
+  width: 100%;
+}
+
+/* line 3079, ../sass/storyscope.scss */
+#field-story-set-values td.field-multiple-drag {
+  width: 30px;
+}
+
+/* line 3083, ../sass/storyscope.scss */
+.pane-storyscope-content-dossier-start-new-story {
+  margin-top: 25px;
+}
+
+/* line 3087, ../sass/storyscope.scss */
+.player iframe {
+  width: 100%;
+}
+
+/* line 3091, ../sass/storyscope.scss */
+#block-feedback-form .feedback-link {
+  color: #cdcccb !important;
+}
+
+/* line 3097, ../sass/storyscope.scss */
+.section-getting-started #highlighted,
+.section-getting-started .tabs {
+  display: none;
+}
+/* line 3101, ../sass/storyscope.scss */
+.section-getting-started .field-name-field-dossier-stories .field-item {
+  float: left;
+  width: 50%;
+}
+/* line 3105, ../sass/storyscope.scss */
+.section-getting-started .field-name-field-dossier-stories .field-item .node-story,
+.section-getting-started .field-name-field-dossier-stories .field-item .field-name-body .field-item {
+  width: 100% !important;
+}
+
+/* line 3116, ../sass/storyscope.scss */
+.slider-container .container h3 {
+  font-size: 15px;
+}
+
+/* line 3121, ../sass/storyscope.scss */
+.vco-storyjs h2.start, .vco-storyjs .node-story-visualisation .exhibit-collectionView-body ol li > div > div.start:first-child, .node-story-visualisation .exhibit-collectionView-body ol .vco-storyjs li > div > div.start:first-child {
+  display: block;
+  font-size: 1.5em !important;
+  line-height: 1.3em !important;
+  margin-bottom: 5px !important;
+  color: #7ac953;
+  font-weight: normal !important;
+  font-family: Arial, Helvetica, "Nimbus Sans L", sans-serif !important;
+}
+
+/* line 3132, ../sass/storyscope.scss */
+.page-getting-started .panel-middle-1 {
+  padding-top: 10px;
+}
+/* line 3135, ../sass/storyscope.scss */
+.page-getting-started .pane-1 {
+  float: right;
+  padding-left: 10px;
+}
+
+/* line 3144, ../sass/storyscope.scss */
+.node-section-form .panel-middle-3 .description {
+  display: none;
+}
+/* line 3147, ../sass/storyscope.scss */
+.node-section-form .panel-middle-3 td {
+  position: relative;
+}
+/* line 3150, ../sass/storyscope.scss */
+.node-section-form .panel-middle-3 .draggable .form-submit {
+  position: absolute;
+  bottom: 15px;
+  left: 400px;
+  background: transparent url(../images/trash.png) 0 0 no-repeat;
+  opacity: 0.50;
+  text-indent: -99em;
+}
+/* line 3156, ../sass/storyscope.scss */
+.node-section-form .panel-middle-3 .draggable .form-submit:hover {
+  opacity: 0.75;
+  border: none;
+}
+/* line 3161, ../sass/storyscope.scss */
+.view-footer .node-section-form .panel-middle-3 .draggable .form-submit, .view-header .node-section-form .panel-middle-3 .draggable .form-submit {
+  float: right;
+  display: block;
+}
+/* line 3167, ../sass/storyscope.scss */
+.node-section-form .panel-middle-3 .field-name-field-image {
+  float: left;
+  width: 100%;
+}
+/* line 3171, ../sass/storyscope.scss */
+.node-section-form .panel-middle-3 .node-title {
+  float: left;
+  width: 100%;
+}
+/* line 3181, ../sass/storyscope.scss */
+.node-section-form .panel-middle-3 .form-field-type-field-collection .node-object {
+  border: none;
+  display: table;
+  background-color: #e2903d;
+  text-align: left;
+  color: white;
+  padding-top: 10px;
+}
+/* line 3188, ../sass/storyscope.scss */
+.node-section-form .panel-middle-3 .form-field-type-field-collection .node-object .article-inner {
+  padding: 1em;
+  margin-bottom: 0.5em;
+}
+/* line 3192, ../sass/storyscope.scss */
+.node-section-form .panel-middle-3 .form-field-type-field-collection .node-object .field-collection-container {
+  border-bottom: none !important;
+}
+/* line 3195, ../sass/storyscope.scss */
+.node-section-form .panel-middle-3 .form-field-type-field-collection .node-object a {
+  color: white;
+}
+/* line 3198, ../sass/storyscope.scss */
+.node-section-form .panel-middle-3 .form-field-type-field-collection .node-object .field-label {
+  color: white;
+  font-size: 0.9em;
+  margin: 0;
+}
+/* line 3206, ../sass/storyscope.scss */
+.node-section-form .panel-middle-3 .form-field-type-field-collection .node-object .field-items,
+.node-section-form .panel-middle-3 .form-field-type-field-collection .node-object .agent,
+.node-section-form .panel-middle-3 .form-field-type-field-collection .node-object .freebase-link,
+.node-section-form .panel-middle-3 .form-field-type-field-collection .node-object .entity-field-collection-item {
+  position: relative;
+  top: -18px;
+  right: -32%;
+  width: 68%;
+}
+/* line 3213, ../sass/storyscope.scss */
+.node-section-form .panel-middle-3 .form-field-type-field-collection .node-object .field-name-field-image .field-items,
+.node-section-form .panel-middle-3 .form-field-type-field-collection .node-object .field-name-field-media .field-items {
+  top: 0;
+  right: 0;
+  width: 100% !important;
+  height: 100% !important;
+}
+/* line 3219, ../sass/storyscope.scss */
+.node-section-form .panel-middle-3 .form-field-type-field-collection .node-object .field-name-field-object-creator .field-items {
+  top: 0;
+  right: 0;
+}
+/* line 3223, ../sass/storyscope.scss */
+.node-section-form .panel-middle-3 .form-field-type-field-collection .node-object .pane-object-image-slideshow-panel-pane-1 {
+  padding-top: 10px;
+}
+
+/* line 3230, ../sass/storyscope.scss */
+#block-storyscope-story-story-section-pager {
+  padding-bottom: 10px;
+}
+
+/* line 3233, ../sass/storyscope.scss */
+.pane-section-objects-panel-pane-section-objects-write-page {
+  padding-bottom: 10px;
+}
+
+/* line 3236, ../sass/storyscope.scss */
+.panel-separator {
+  display: none;
+}
+
+/* line 3239, ../sass/storyscope.scss */
+.node-teaser {
+  position: relative;
+}
+
+/* line 3243, ../sass/storyscope.scss */
+.node-object-story img {
+  float: left;
+  padding-right: 10px;
+}
+
+/* line 3248, ../sass/storyscope.scss */
+.media-item {
+  background: none;
+  border: none;
+  position: inherit;
+  float: left;
+}
+/* line 3254, ../sass/storyscope.scss */
+.media-item .media-filename {
+  display: none;
+}
+
+/* line 3260, ../sass/storyscope.scss */
+.node-type-object-story .middle-wrapper .container-inner.middle-2-1 .pane-object-stories-panel-pane-1 {
+  padding-bottom: 0;
+}
+/* line 3262, ../sass/storyscope.scss */
+.node-type-object-story .middle-wrapper .container-inner.middle-2-1 .pane-object-stories-panel-pane-1 .pane-title {
+  font-size: 1.5em;
+}
+/* line 3265, ../sass/storyscope.scss */
+.node-type-object-story .middle-wrapper .container-inner.middle-2-1 .pane-object-stories-panel-pane-1 .view-object-stories .view-content .node-object-story .article-inner {
+  border: none;
+}

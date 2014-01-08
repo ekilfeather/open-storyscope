@@ -1,0 +1,15 @@
+<?php
+
+/* dec_rec.install
+ *
+ * Set the dec_semrecommender_address variable
+ * 
+ */
+
+function dec_rec_install() {
+   variable_set('dec_semrecommender_address', 'http://knot09.fit.vutbr.cz:8080/SemRecommender');
+}
+
+function dec_rec_uninstall() {
+  variable_del('dec_semrecommender_address');
+}

@@ -1,0 +1,10 @@
+name = Views pick object story example
+description = View for picking up example object stories
+core = 7.x
+package = Features
+php = 5.2.4
+dependencies[] = ctools
+dependencies[] = views
+features[ctools][] = views:views_default:3.0
+features[features_api][] = api:1
+features[views_view][] = pick_object_story_example_view

@@ -1,0 +1,14 @@
+<?php
+
+/**
+ * Implements hook_js_alter().
+ */
+function storyscope_freebase_js_alter(&$javascript) {
+  // Replace the default freebase javascript
+  $jquery_freebase_js = drupal_get_path('module', 'jquery_freebase') . '/jquery_freebase.js';
+  $storyscope_freebase_js = drupal_get_path('module', 'storyscope_freebase') . '/js/storyscope_freebase.js';
+  $javascript[$jquery_freebase_js] = drupal_js_defaults($storyscope_freebase_js);
+  // Load the external libraries instead of using a local library.
+  drupal_add_css('https://www.gstatic.com/freebase/suggest/4_1/suggest.min.css', 'external');
+  drupal_add_js('https://www.gstatic.com/freebase/suggest/4_1/suggest.min.js', 'external');  
+}

@@ -1,0 +1,131 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<<<<<<< HEAD
+<head>
+	<title>Type Colors Dialog</title>
+
+  <script type="text/javascript">
+    
+      AEd = window.parent.AEd;
+      document.write('<script type="text/javascript" src="css.js"><\/script>');
+=======
+	<head>
+		<title>Type Colors Dialog</title>
+
+		<script type="text/javascript">
+    
+			AEd = window.parent.AEd;
+			document.write('<script type="text/javascript" src="css.js"><\/script>');
+
+		</script>
+	</head>
+	<body>
+
+		<form class="aed-form" onsubmit="return false;" action="" name="aedFormTypeColors">
+			<fieldset>
+				<legend>
+					<script type="text/javascript">
+						document.write(AEd.I18n.t("Dlg_typeColors_type_color_selection"));
+					</script>
+				</legend>
+>>>>>>> master
+
+            <table>							  				  
+					<tr>
+						<td class="aed-ui-table-column1"><label for="aedTypeColorsType">
+                        <script type="text/javascript">
+									document.write(AEd.I18n.t("Dlg_typeColors_label_type"));
+                        </script>:</label>
+						</td>                     
+						<td>              
+							<input id="aedTypeColorsType" name="aedTypeColorsType" type="text" value="" autocomplete="off"/>
+
+							<button type="button" class="aed-ui-btn aed-ui-btn-noicon" id="aedTypeColorsBtnBrowse">
+                        <span class="aed-ui-btn-text">
+									<script type="text/javascript">
+										document.write(AEd.I18n.t("Dlg_typeColors_button_browse"));
+									</script></span>
+							</button>              
+
+							<div id="aedTypeColorsSuggestions">
+							</div>                             
+						</td>                                                  
+					</tr>
+					<tr>
+						<td class="aed-ui-table-column1"><label for="aedTypeColorsColor">
+                        <script type="text/javascript">
+									document.write(AEd.I18n.t("Dlg_typeColors_label_color"));
+                        </script>:</label>
+						</td>                     
+						<td>              
+							<input id="aedTypeColorsColor" class="color" name="aedTypeColorsColor" type="text" value="000000" autocomplete="off"/>                                 
+						</td>                                                  
+					</tr>
+					<tr>
+						<td class="aed-ui-table-column1"><label for="aedTypeColorsAlpha">
+                        <script type="text/javascript">
+									document.write(AEd.I18n.t("Dlg_typeColors_label_alpha"));
+                        </script>:</label>
+						</td>                     
+						<td>              
+							<input id="aedTypeColorsAlpha" name="aedTypeColorsAlpha" type="text" value="" autocomplete="off"/>                             
+						</td>                                                  
+					</tr>
+					<tr>
+						<td class="aed-ui-table-column1"><label for="aedTypeColorsFontColor">
+                        <script type="text/javascript">
+									document.write(AEd.I18n.t("Dlg_typeColors_label_fontColor"));
+                        </script>:</label>
+						</td>                     
+						<td>              
+							<input id="aedTypeColorsFontColor"  name="aedTypeColorsFontColor" type="text" value="000000" autocomplete="off"/>                                 
+						</td>                                                  
+					</tr>				
+					<tr style="display:none;">
+						<td class="aed-ui-table-column1" ><label for="aedTypeColorsFont">
+                        <script type="text/javascript">
+									document.write(AEd.I18n.t("Dlg_typeColors_label_font"));
+                        </script>:</label>
+						</td>                     
+						<td>              
+							<input id="aedTypeColorsFont"  name="aedTypeColorsFont" type="text" value="" autocomplete="off"/>                                 
+						</td>                                                  
+					</tr>
+					<tr>
+						<td class="aed-ui-table-column1"><label for="aedTypeColorsBold">
+                        <script type="text/javascript">
+									document.write(AEd.I18n.t("Dlg_typeColors_label_bold"));
+                        </script>:</label>
+						</td>                     
+						<td>              
+							<input id="aedTypeColorsBold"  name="aedTypeColorsBold" type="checkbox" value="0"/>                                                                                        
+						</td>
+					</tr>
+					<tr>                   
+						<td class="aed-ui-table-column1"><label for="aedTypeColorsItalic">
+                        <script type="text/javascript">
+									document.write(AEd.I18n.t("Dlg_typeColors_label_italic"));
+                        </script>:</label>
+						</td>
+						<td>
+							<input id="aedTypeColorsItalic"  name="aedTypeColorsItalic" type="checkbox" value="0"/>                                 
+						</td>
+					</tr>
+					<tr>
+						<td class="aed-ui-table-column1"><label for="aedTypeColorsUnderlined">
+                        <script type="text/javascript">
+									document.write(AEd.I18n.t("Dlg_typeColors_label_underlined"));
+                        </script>:</label>
+                  </td>
+						<td>
+							<input id="aedTypeColorsUnderlined"  name="aedTypeColorsUnderlined" type="checkbox" value="0"/>                                 
+						</td>                                                  
+					</tr>
+
+
+            </table>               						
+			</fieldset>
+		</form>
+
+	</body>
+</html>

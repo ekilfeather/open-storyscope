@@ -1,0 +1,12 @@
+name = Search - object story add ca objects
+description = Puts exposed block form in 2nd navbar
+core = 7.x
+package = Features
+php = 5.2.4
+dependencies[] = context
+dependencies[] = ctools
+dependencies[] = facetapi
+dependencies[] = views
+features[context][] = search_object_story_add_ca_objects
+features[ctools][] = context:context:3
+features[features_api][] = api:1

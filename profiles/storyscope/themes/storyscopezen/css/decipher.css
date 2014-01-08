@@ -1,0 +1,1055 @@
+/*
+ * jQuery FlexSlider v2.0
+ * http://www.woothemes.com/flexslider/
+ *
+ * Copyright 2012 WooThemes
+ * Free to use under the GPLv2 license.
+ * http://www.gnu.org/licenses/gpl-2.0.html
+ *
+ * Contributing author: Tyler Smith (@mbmufffin)
+ */
+/* Browser Resets */
+/* line 17, ../sass/_flexslider.scss */
+.flex-container a:active,
+.flexslider a:active,
+.flex-container a:focus,
+.flexslider a:focus {
+  outline: none;
+}
+
+/* line 20, ../sass/_flexslider.scss */
+.slides,
+.flex-control-nav,
+.flex-direction-nav {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* FlexSlider Necessary Styles
+*********************************/
+/* line 24, ../sass/_flexslider.scss */
+.flexslider {
+  margin: 0;
+  padding: 0;
+}
+
+/* line 25, ../sass/_flexslider.scss */
+.flexslider .slides > li {
+  display: none;
+  -webkit-backface-visibility: hidden;
+}
+
+/* Hide the slides before the JS is loaded. Avoids image jumping */
+/* line 26, ../sass/_flexslider.scss */
+.flex-pauseplay span {
+  text-transform: capitalize;
+}
+
+/* Clearfix for the .slides element */
+/* line 29, ../sass/_flexslider.scss */
+.slides:after {
+  content: ".";
+  display: block;
+  clear: both;
+  visibility: hidden;
+  line-height: 0;
+  height: 0;
+}
+
+/* line 30, ../sass/_flexslider.scss */
+html[xmlns] .slides {
+  display: block;
+}
+
+/* line 31, ../sass/_flexslider.scss */
+* html .slides {
+  height: 1%;
+}
+
+/* No JavaScript Fallback */
+/* If you are not using another script, such as Modernizr, make sure you
+ * include js that eliminates this class on page load */
+/* line 36, ../sass/_flexslider.scss */
+.no-js .slides > li:first-child {
+  display: block;
+}
+
+/* FlexSlider Default Theme
+*********************************/
+/* line 41, ../sass/_flexslider.scss */
+.flexslider {
+  margin: 0 0 60px;
+  background: #fff;
+  border: 4px solid white;
+  position: relative;
+  -webkit-border-radius: 4px;
+  -moz-border-radius: 4px;
+  -o-border-radius: 4px;
+  border-radius: 4px;
+  -webkit-box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
+  zoom: 1;
+}
+
+/* line 42, ../sass/_flexslider.scss */
+.flex-viewport {
+  max-height: 2000px;
+  -webkit-transition: all 1s ease;
+  -moz-transition: all 1s ease;
+  transition: all 1s ease;
+}
+
+/* line 43, ../sass/_flexslider.scss */
+.loading .flex-viewport {
+  max-height: 300px;
+}
+
+/* line 44, ../sass/_flexslider.scss */
+.flexslider .slides {
+  zoom: 1;
+}
+
+/* line 46, ../sass/_flexslider.scss */
+.carousel li {
+  margin-right: 5px;
+}
+
+/* Direction Nav */
+/* line 50, ../sass/_flexslider.scss */
+.flex-direction-nav a {
+  width: 30px;
+  height: 30px;
+  margin: -20px 0 0;
+  display: block;
+  background: url(images/bg_direction_nav.png) no-repeat 0 0;
+  position: absolute;
+  top: 50%;
+  cursor: pointer;
+  text-indent: -9999px;
+  opacity: 0;
+  -webkit-transition: all 0.3s ease;
+}
+
+/* line 51, ../sass/_flexslider.scss */
+.flex-direction-nav .flex-next {
+  background-position: 100% 0;
+  right: -36px;
+}
+
+/* line 52, ../sass/_flexslider.scss */
+.flex-direction-nav .flex-prev {
+  left: -36px;
+}
+
+/* line 53, ../sass/_flexslider.scss */
+.flexslider:hover .flex-next {
+  opacity: 0.8;
+  right: 5px;
+}
+
+/* line 54, ../sass/_flexslider.scss */
+.flexslider:hover .flex-prev {
+  opacity: 0.8;
+  left: 5px;
+}
+
+/* line 55, ../sass/_flexslider.scss */
+.flexslider:hover .flex-next:hover, .flexslider:hover .flex-prev:hover {
+  opacity: 1;
+}
+
+/* line 56, ../sass/_flexslider.scss */
+.flex-direction-nav .disabled {
+  opacity: .3!important;
+  filter: alpha(opacity=30);
+  cursor: default;
+}
+
+/* Control Nav */
+/* line 59, ../sass/_flexslider.scss */
+.flex-control-nav {
+  width: 100%;
+  position: absolute;
+  top: 40px;
+  right: 40px;
+  text-align: center;
+}
+
+/* line 60, ../sass/_flexslider.scss */
+.flex-control-nav li {
+  margin: 0 6px;
+  display: inline-block;
+  zoom: 1;
+  *display: inline;
+}
+
+/* line 61, ../sass/_flexslider.scss */
+.flex-control-paging li a {
+  width: 11px;
+  height: 11px;
+  display: block;
+  background: #666;
+  background: rgba(0, 0, 0, 0.5);
+  cursor: pointer;
+  text-indent: -9999px;
+  box-shadow: inset 0 0 3px rgba(0, 0, 0, 0.3);
+}
+
+/* line 62, ../sass/_flexslider.scss */
+.flex-control-paging li a:hover {
+  background: #333;
+  background: rgba(0, 0, 0, 0.7);
+}
+
+/* line 63, ../sass/_flexslider.scss */
+.flex-control-paging li a.flex-active {
+  background: #000;
+  background: rgba(0, 0, 0, 0.9);
+  cursor: default;
+}
+
+/* line 65, ../sass/_flexslider.scss */
+.flex-control-thumbs {
+  margin: 5px 0 0;
+  position: static;
+  overflow: hidden;
+}
+
+/* line 66, ../sass/_flexslider.scss */
+.flex-control-thumbs li {
+  float: left;
+  margin: 0;
+}
+
+/* line 67, ../sass/_flexslider.scss */
+.flex-control-thumbs img {
+  width: 100%;
+  display: block;
+  opacity: .7;
+  cursor: pointer;
+}
+
+/* line 68, ../sass/_flexslider.scss */
+.flex-control-thumbs img:hover {
+  opacity: 1;
+}
+
+/* line 69, ../sass/_flexslider.scss */
+.flex-control-thumbs .active {
+  opacity: 1;
+  cursor: default;
+}
+
+@media screen and (max-width: 860px) {
+  /* line 72, ../sass/_flexslider.scss */
+  .flex-direction-nav .flex-prev {
+    opacity: 1;
+    left: 0;
+  }
+
+  /* line 73, ../sass/_flexslider.scss */
+  .flex-direction-nav .flex-next {
+    opacity: 1;
+    right: 0;
+  }
+}
+/* line 76, ../sass/_flexslider.scss */
+.media-resources {
+  position: relative;
+}
+
+/* line 79, ../sass/_flexslider.scss */
+.flex-control-nav {
+  position: absolute;
+  top: 10px;
+  right: 40px;
+  text-align: left;
+  width: auto;
+  padding: 0.5em;
+  -webkit-border-radius: 2px;
+  -moz-border-radius: 2px;
+  -ms-border-radius: 2px;
+  -o-border-radius: 2px;
+  border-radius: 2px;
+}
+
+/* line 91, ../sass/_flexslider.scss */
+.flex-control-paging li a {
+  display: block;
+  font-size: 0;
+  color: transparent;
+  background-color: #dabec6;
+  -webkit-transition: background-color 0.5s;
+  -moz-transition: background-color 0.5s;
+  -o-transition: background-color 0.5s;
+  transition: background-color 0.5s;
+}
+/* line 98, ../sass/_flexslider.scss */
+.flex-control-paging li a:hover {
+  background-color: #f9f9f9;
+}
+/* line 101, ../sass/_flexslider.scss */
+.flex-control-paging li a.flex-active {
+  background-color: #2582f4;
+}
+
+/* line 5, ../sass/decipher.scss */
+body {
+  color: #4e4e4e;
+}
+
+/* =============================================================================
+   Links
+   ========================================================================== */
+/*
+ * The order of link states are based on Eric Meyer's article:
+ * http://meyerweb.com/eric/thoughts/2007/06/11/who-ordered-the-link-states
+ */
+/* line 20, ../sass/decipher.scss */
+a:link {
+  color: #a1a3a6;
+  text-decoration: none;
+  border-bottom: solid 1px transparent;
+}
+/* line 24, ../sass/decipher.scss */
+a:link.has-image {
+  border-bottom: none;
+}
+
+/* line 29, ../sass/decipher.scss */
+a:visited {
+  color: #628e8b;
+  border-bottom: solid 1px #cdcccb;
+}
+
+/* line 36, ../sass/decipher.scss */
+a:hover,
+a:focus,
+a:active {
+  color: #545658;
+  border-bottom: solid 1px #cdcccb;
+}
+
+/* Headings */
+/* line 48, ../sass/decipher.scss */
+h1,
+h2,
+.node-story-visualisation .exhibit-collectionView-body ol li > div > div:first-child,
+h3,
+h4,
+h5,
+h6 {
+  line-height: 1.3em;
+  font-weight: normal;
+}
+/* line 52, ../sass/decipher.scss */
+h1 a:link,
+h1 a:visited,
+h2 a:link,
+.node-story-visualisation .exhibit-collectionView-body ol li > div > div:first-child a:link,
+h2 a:visited,
+.node-story-visualisation .exhibit-collectionView-body ol li > div > div:first-child a:visited,
+h3 a:link,
+h3 a:visited,
+h4 a:link,
+h4 a:visited,
+h5 a:link,
+h5 a:visited,
+h6 a:link,
+h6 a:visited {
+  color: inherit;
+}
+
+/* line 56, ../sass/decipher.scss */
+h2.title, .node-story-visualisation .exhibit-collectionView-body ol li > div > div:first-child {
+  font-size: 1.2em;
+}
+
+/* line 59, ../sass/decipher.scss */
+h3 {
+  color: #a0a0a0;
+}
+
+/* line 62, ../sass/decipher.scss */
+p {
+  margin: 0 0 1.2em 0;
+}
+/* line 64, ../sass/decipher.scss */
+p:first-child {
+  margin-top: 1em;
+}
+
+/* Navigation */
+/* line 70, ../sass/decipher.scss */
+#navigation a {
+  color: #4e4e4e;
+  border-bottom: none;
+  font-weight: bold;
+}
+/* line 24, ../../../../../../../../../../Library/Ruby/Gems/1.8/gems/compass-0.12.2/frameworks/compass/stylesheets/compass/typography/links/_link-colors.scss */
+#navigation a:hover {
+  color: #a0a0a0;
+}
+
+/* Admin Section */
+/* line 77, ../sass/decipher.scss */
+.section-admin a {
+  /**
+  @include link-colors($dark-gray);
+  border-bottom: none;
+  */
+}
+
+/* Blocks on dossier pages */
+/* line 86, ../sass/decipher.scss */
+.node-form .block,
+article .block {
+  padding: 0 10px;
+}
+/* line 89, ../sass/decipher.scss */
+.node-form .block.add-resource .item-list ul,
+article .block.add-resource .item-list ul {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  overflow: hidden;
+  *zoom: 1;
+}
+/* line 60, ../../../../../../../../../../Library/Ruby/Gems/1.8/gems/compass-0.12.2/frameworks/compass/stylesheets/compass/typography/lists/_horizontal-list.scss */
+.node-form .block.add-resource .item-list ul li,
+article .block.add-resource .item-list ul li {
+  list-style-image: none;
+  list-style-type: none;
+  margin-left: 0;
+  white-space: nowrap;
+  display: inline;
+  float: left;
+  padding-left: 4px;
+  padding-right: 4px;
+}
+/* line 48, ../../../../../../../../../../Library/Ruby/Gems/1.8/gems/compass-0.12.2/frameworks/compass/stylesheets/compass/typography/lists/_horizontal-list.scss */
+.node-form .block.add-resource .item-list ul li:first-child, .node-form .block.add-resource .item-list ul li.first,
+article .block.add-resource .item-list ul li:first-child,
+article .block.add-resource .item-list ul li.first {
+  padding-left: 0;
+}
+/* line 49, ../../../../../../../../../../Library/Ruby/Gems/1.8/gems/compass-0.12.2/frameworks/compass/stylesheets/compass/typography/lists/_horizontal-list.scss */
+.node-form .block.add-resource .item-list ul li:last-child,
+article .block.add-resource .item-list ul li:last-child {
+  padding-right: 0;
+}
+/* line 50, ../../../../../../../../../../Library/Ruby/Gems/1.8/gems/compass-0.12.2/frameworks/compass/stylesheets/compass/typography/lists/_horizontal-list.scss */
+.node-form .block.add-resource .item-list ul li.last,
+article .block.add-resource .item-list ul li.last {
+  padding-right: 0;
+}
+/* line 91, ../sass/decipher.scss */
+.node-form .block.add-resource .item-list ul li,
+article .block.add-resource .item-list ul li {
+  border-right: solid 2px #cdcccb;
+  padding-right: 1em;
+  margin-right: 1em;
+}
+/* line 95, ../sass/decipher.scss */
+.node-form .block.add-resource .item-list ul li:last-child,
+article .block.add-resource .item-list ul li:last-child {
+  border-right: none;
+}
+/* line 102, ../sass/decipher.scss */
+.node-form .block.list-properties .item-list ul,
+article .block.list-properties .item-list ul {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  overflow: hidden;
+  *zoom: 1;
+}
+/* line 49, ../../../../../../../../../../Library/Ruby/Gems/1.8/gems/compass-0.12.2/frameworks/compass/stylesheets/compass/typography/lists/_inline-block-list.scss */
+.node-form .block.list-properties .item-list ul li,
+article .block.list-properties .item-list ul li {
+  list-style-image: none;
+  list-style-type: none;
+  margin-left: 0;
+  display: -moz-inline-stack;
+  display: inline-block;
+  vertical-align: middle;
+  *vertical-align: auto;
+  zoom: 1;
+  *display: inline;
+  white-space: nowrap;
+}
+/* line 104, ../sass/decipher.scss */
+.node-form .block.list-properties .item-list ul li,
+article .block.list-properties .item-list ul li {
+  background-color: #e5e5e5;
+  padding: 0.5em 1em;
+  margin: 0.25em;
+}
+/* line 113, ../sass/decipher.scss */
+.node-form .block.generate-resources .item-list ul, .node-form .block.view-resources .item-list ul,
+article .block.generate-resources .item-list ul,
+article .block.view-resources .item-list ul {
+  list-style: none;
+  padding-left: 0;
+}
+/* line 11, ../../../../../../../../../../Library/Ruby/Gems/1.8/gems/compass-0.12.2/frameworks/compass/stylesheets/compass/typography/lists/_bullets.scss */
+.node-form .block.generate-resources .item-list ul li, .node-form .block.view-resources .item-list ul li,
+article .block.generate-resources .item-list ul li,
+article .block.view-resources .item-list ul li {
+  list-style-image: none;
+  list-style-type: none;
+  margin-left: 0;
+}
+/* line 117, ../sass/decipher.scss */
+.node-form .block.generate-resources .item-list ul li a, .node-form .block.view-resources .item-list ul li a,
+article .block.generate-resources .item-list ul li a,
+article .block.view-resources .item-list ul li a {
+  background-color: #cdcccb;
+  padding: 0.75em;
+  margin: 0.25em;
+  display: block;
+  border-bottom: none;
+  color: #000;
+}
+/* line 125, ../sass/decipher.scss */
+.node-form .block.generate-resources .item-list ul li a.dec-story:hover, .node-form .block.view-resources .item-list ul li a.dec-story:hover,
+article .block.generate-resources .item-list ul li a.dec-story:hover,
+article .block.view-resources .item-list ul li a.dec-story:hover {
+  background-color: #f9cc67;
+}
+/* line 126, ../sass/decipher.scss */
+.node-form .block.generate-resources .item-list ul li a.dec-object:hover, .node-form .block.view-resources .item-list ul li a.dec-object:hover,
+article .block.generate-resources .item-list ul li a.dec-object:hover,
+article .block.view-resources .item-list ul li a.dec-object:hover {
+  background-color: #e2903d;
+}
+/* line 127, ../sass/decipher.scss */
+.node-form .block.generate-resources .item-list ul li a.dec-tagged-event:hover, .node-form .block.view-resources .item-list ul li a.dec-tagged-event:hover,
+article .block.generate-resources .item-list ul li a.dec-tagged-event:hover,
+article .block.view-resources .item-list ul li a.dec-tagged-event:hover {
+  background-color: #47667b;
+}
+/* line 128, ../sass/decipher.scss */
+.node-form .block.generate-resources .item-list ul li a.dec-plot:hover, .node-form .block.view-resources .item-list ul li a.dec-plot:hover,
+article .block.generate-resources .item-list ul li a.dec-plot:hover,
+article .block.view-resources .item-list ul li a.dec-plot:hover {
+  background-color: #3fa9f5;
+}
+/* line 129, ../sass/decipher.scss */
+.node-form .block.generate-resources .item-list ul li a.dec-narrative:hover, .node-form .block.view-resources .item-list ul li a.dec-narrative:hover,
+article .block.generate-resources .item-list ul li a.dec-narrative:hover,
+article .block.view-resources .item-list ul li a.dec-narrative:hover {
+  background-color: #ee3524;
+}
+/* line 130, ../sass/decipher.scss */
+.node-form .block.generate-resources .item-list ul li a.dec-visualisation:hover, .node-form .block.view-resources .item-list ul li a.dec-visualisation:hover,
+article .block.generate-resources .item-list ul li a.dec-visualisation:hover,
+article .block.view-resources .item-list ul li a.dec-visualisation:hover {
+  background-color: #fcb816;
+}
+/* line 131, ../sass/decipher.scss */
+.node-form .block.generate-resources .item-list ul li a.dec-reference:hover, .node-form .block.view-resources .item-list ul li a.dec-reference:hover,
+article .block.generate-resources .item-list ul li a.dec-reference:hover,
+article .block.view-resources .item-list ul li a.dec-reference:hover {
+  background-color: #00a99d;
+}
+/* line 136, ../sass/decipher.scss */
+.node-form .block.view-resources .item-list ul li,
+article .block.view-resources .item-list ul li {
+  display: inline-block;
+  width: 49%;
+}
+/* line 142, ../sass/decipher.scss */
+.node-form .block p.manage-facets,
+article .block p.manage-facets {
+  overflow: hidden;
+  *zoom: 1;
+  margin-top: 1em;
+}
+/* line 145, ../sass/decipher.scss */
+.node-form .block p.manage-facets a,
+article .block p.manage-facets a {
+  float: right;
+}
+
+/* line 152, ../sass/decipher.scss */
+.resource-container > .container-inner:first-child {
+  border-right: solid 1px #cdcccb;
+  padding-right: 1em;
+  margin: 0.5em 0;
+}
+/* line 157, ../sass/decipher.scss */
+.resource-container > .container-inner:nth-child(2) {
+  padding-left: 1em;
+  margin: 0.5em 0;
+}
+
+/* line 163, ../sass/decipher.scss */
+.resource-container.media-container {
+  background-color: gray;
+}
+
+/* line 166, ../sass/decipher.scss */
+.resource-container.container_full.container_inner.media-container {
+  background-color: orange;
+}
+
+/* line 169, ../sass/decipher.scss */
+.resource-container article .article-inner {
+  border-top: solid 1px #4e4e4e;
+  margin: 0 0 0.5em;
+  padding-top: 0.5em;
+}
+
+/* line 174, ../sass/decipher.scss */
+.resource-container article.highlight-image .article-inner {
+  border-top: none;
+  padding-top: 0;
+}
+
+/* line 179, ../sass/decipher.scss */
+article.node-object-story > .article-inner {
+  border-color: #f9cc67;
+}
+/* line 181, ../sass/decipher.scss */
+article.node-object-story > .article-inner p.type-identifier {
+  color: #f9cc67;
+}
+
+/* line 185, ../sass/decipher.scss */
+article.node-dossier > .article-inner {
+  border-color: #f17ba9;
+}
+/* line 187, ../sass/decipher.scss */
+article.node-dossier > .article-inner p.type-identifier {
+  color: #f17ba9;
+}
+
+/* line 191, ../sass/decipher.scss */
+article.node-object > .article-inner {
+  border-color: #e2903d;
+}
+/* line 193, ../sass/decipher.scss */
+article.node-object > .article-inner p.type-identifier {
+  color: #e2903d;
+}
+
+/* line 197, ../sass/decipher.scss */
+article.node-event > .article-inner {
+  border-color: #47667b;
+}
+/* line 199, ../sass/decipher.scss */
+article.node-event > .article-inner p.type-identifier {
+  color: #47667b;
+}
+
+/* line 203, ../sass/decipher.scss */
+article.node-source-event > .article-inner {
+  border-color: #47667b;
+}
+/* line 205, ../sass/decipher.scss */
+article.node-source-event > .article-inner p.type-identifier {
+  color: #47667b;
+}
+
+/* line 209, ../sass/decipher.scss */
+article.node-plot > .article-inner {
+  border-color: #3fa9f5;
+}
+/* line 211, ../sass/decipher.scss */
+article.node-plot > .article-inner p.type-identifier {
+  color: #3fa9f5;
+}
+
+/* line 215, ../sass/decipher.scss */
+article.node-plot-description > .article-inner {
+  border-color: #3fa9f5;
+}
+/* line 217, ../sass/decipher.scss */
+article.node-plot-description > .article-inner p.type-identifier {
+  color: #3fa9f5;
+}
+
+/* line 221, ../sass/decipher.scss */
+article.node-narrative > .article-inner {
+  border-color: #ee3524;
+}
+/* line 223, ../sass/decipher.scss */
+article.node-narrative > .article-inner p.type-identifier {
+  color: #ee3524;
+}
+
+/* line 227, ../sass/decipher.scss */
+article.node-story-visualisation > .article-inner {
+  border-color: #fcb816;
+}
+/* line 229, ../sass/decipher.scss */
+article.node-story-visualisation > .article-inner p.type-identifier {
+  color: #a1a3a6;
+}
+
+/* line 234, ../sass/decipher.scss */
+article.node-reference > .article-inner {
+  border-color: #00a99d;
+}
+/* line 237, ../sass/decipher.scss */
+article.node-reference > .article-inner span.label,
+article.node-reference > .article-inner p.type-identifier {
+  color: #00a99d;
+}
+
+/* line 245, ../sass/decipher.scss */
+article p.type-identifier {
+  text-transform: uppercase;
+  font: normal 10px Arial, sans-serif;
+  margin: 0 0 0.25em 0;
+}
+/* line 250, ../sass/decipher.scss */
+article p.suggest {
+  float: right;
+  margin-top: 0;
+}
+
+/* line 257, ../sass/decipher.scss */
+.view .view-content {
+  overflow: hidden;
+  *zoom: 1;
+}
+
+/* line 261, ../sass/decipher.scss */
+p.button {
+  margin: 0 0 0.5em;
+}
+/* line 263, ../sass/decipher.scss */
+p.button a {
+  background-color: #e5e5e5;
+  padding: 0.5em 1em;
+  margin: 0.25em 0.25em 0.5em;
+}
+/* line 267, ../sass/decipher.scss */
+p.button a:visited {
+  color: inherit;
+}
+/* line 270, ../sass/decipher.scss */
+p.button a:hover {
+  background-color: #628e8b;
+  color: #fff;
+  border: none;
+}
+/* line 276, ../sass/decipher.scss */
+.view-footer p.button a, .view-header p.button a {
+  float: right;
+  display: block;
+}
+
+/* line 282, ../sass/decipher.scss */
+.breadcrumb {
+  border-top: solid 1px #cdcccb;
+  padding-top: 1em;
+  text-transform: uppercase;
+  font-size: 0.92308em;
+  line-height: 1.5em;
+}
+
+/* Search */
+/* line 290, ../sass/decipher.scss */
+.reset-search, #block-search-form .form-text {
+  background-color: #f7f7f7;
+  -webkit-box-shadow: none;
+  -moz-box-shadow: none;
+  box-shadow: none;
+  -webkit-appearance: none;
+  border: none;
+  margin: 0;
+}
+
+/* line 298, ../sass/decipher.scss */
+#block-search-form .form-text {
+  display: block;
+  float: left;
+  padding: 0.5em 0 0.45em 0;
+  font-size: 0.92308em;
+  line-height: 1.5em;
+  height: 14px;
+  width: 14em;
+  border: 1px solid #cdcccb;
+}
+/* line 307, ../sass/decipher.scss */
+#block-search-form .form-text:focus {
+  outline: none;
+  border-color: #dadada;
+}
+/* line 311, ../sass/decipher.scss */
+#block-search-form .form-text.ac_input {
+  background-position: 100% 6px;
+}
+/* line 314, ../sass/decipher.scss */
+#block-search-form .form-text.ac_loading {
+  background-position: 100% -12px;
+}
+/* line 318, ../sass/decipher.scss */
+#block-search-form .form-submit {
+  border: 1px solid #cdcccb;
+  display: block;
+  float: left;
+  background: transparent url('../images/search.png?1359457104') 50% 50% no-repeat;
+  width: 28px;
+  min-height: 27px;
+  text-indent: -99em;
+  background-color: transparent;
+  cursor: pointer;
+}
+/* line 326, ../sass/decipher.scss */
+.lt-ie8 #block-search-form .form-submit {
+  font-size: 0;
+  line-height: 0;
+}
+
+/* Object Specific styling */
+/* line 337, ../sass/decipher.scss */
+.node-object.view-mode-full .content-container {
+  border-top: solid 1px #cdcccb;
+  margin-top: 1em;
+}
+/* line 341, ../sass/decipher.scss */
+.node-object.view-mode-full .container-inner:first-child {
+  border: none;
+}
+/* line 344, ../sass/decipher.scss */
+.node-object.view-mode-full .media-container {
+  background-color: #4e4e4e;
+  color: #fff;
+}
+/* line 347, ../sass/decipher.scss */
+.node-object.view-mode-full .media-container figure {
+  float: left;
+  margin-right: 10px;
+}
+/* line 351, ../sass/decipher.scss */
+.node-object.view-mode-full .media-container .meta-content {
+  overflow: hidden;
+  *zoom: 1;
+  margin-top: 10em;
+}
+/* line 356, ../sass/decipher.scss */
+.node-object.view-mode-full .content {
+  margin: 1em 0;
+  padding: 0.5em 1em 1em;
+  background-color: #e2903d;
+  color: #fff;
+}
+
+/* line 365, ../sass/decipher.scss */
+.node-type-object .panel .panel-top {
+  width: 100%;
+  clear: both;
+  content: "";
+  display: table;
+  background-color: #4e4e4e;
+  color: white;
+}
+/* line 372, ../sass/decipher.scss */
+.node-type-object .panel .panel-top .pane-node-field-image {
+  float: left;
+  margin-right: 14px;
+}
+/* line 376, ../sass/decipher.scss */
+.node-type-object .panel .panel-top .pane-node-title {
+  margin-top: 14em;
+  overflow: hidden;
+}
+/* line 381, ../sass/decipher.scss */
+.node-type-object .panel .middle-wrapper {
+  border-top: 1px solid #cdcccb;
+  margin-top: 1em;
+}
+/* line 384, ../sass/decipher.scss */
+.node-type-object .panel .middle-wrapper .middle-2-1 {
+  display: table;
+  background-color: #e2903d;
+  border-top: 1px solid #cdcccb;
+  margin-top: 1em;
+  padding-left: 10px;
+  padding-bottom: 20px;
+  color: white;
+  text-align: left;
+}
+/* line 396, ../sass/decipher.scss */
+.node-type-object .panel .middle-wrapper .entity-field-collection-item .content div {
+  display: inline-block;
+  margin-right: 2px;
+}
+
+/* Object Story */
+/* line 408, ../sass/decipher.scss */
+.node-story.view-mode-full .media-resources {
+  overflow: hidden;
+  *zoom: 1;
+}
+/* line 410, ../sass/decipher.scss */
+.node-story.view-mode-full .media-resources ul {
+  list-style: none;
+}
+/* line 11, ../../../../../../../../../../Library/Ruby/Gems/1.8/gems/compass-0.12.2/frameworks/compass/stylesheets/compass/typography/lists/_bullets.scss */
+.node-story.view-mode-full .media-resources ul li {
+  list-style-image: none;
+  list-style-type: none;
+  margin-left: 0;
+}
+/* line 413, ../sass/decipher.scss */
+.node-story.view-mode-full .media-resources li {
+  width: 100%;
+}
+
+/* References */
+/* line 421, ../sass/decipher.scss */
+.node-reference.view-mode-full .resource-container > .container-inner:first-child {
+  border-right: 0;
+}
+/* line 424, ../sass/decipher.scss */
+.node-reference.view-mode-full p.pdf {
+  background: transparent url(../images/pdf.png) 0 50% no-repeat;
+  padding: 5em 0 3em 10em;
+  border-top: solid 1px #cdcccb;
+}
+/* line 428, ../sass/decipher.scss */
+.node-reference.view-mode-full p.pdf a.button {
+  border: solid 1px #cdcccb;
+  border-radius: 10px;
+  box-shadow: 1px 1px #cdcccb;
+  padding: 0.25em 1em;
+  margin-left: 2em;
+}
+
+/* Tagged events */
+/* line 440, ../sass/decipher.scss */
+.node-tagged-event.view-mode-full .facets {
+  margin: 1em 0;
+  padding: 0.5em 1em 1em;
+  background-color: #47667b;
+  color: #fff;
+}
+/* line 445, ../sass/decipher.scss */
+.node-tagged-event.view-mode-full .facets a {
+  color: #fff;
+}
+/* line 448, ../sass/decipher.scss */
+.node-tagged-event.view-mode-full .facets dt {
+  text-transform: uppercase;
+  font-weight: bold;
+}
+/* line 452, ../sass/decipher.scss */
+.node-tagged-event.view-mode-full .facets dd {
+  margin: 0 0 20px 0;
+}
+
+/* line 461, ../sass/decipher.scss */
+.facet-management table caption {
+  font-size: 1.2em;
+  color: #a0a0a0;
+  text-align: left;
+}
+/* line 467, ../sass/decipher.scss */
+.facet-management table.facets-unused tr {
+  background-color: transparent;
+}
+/* line 469, ../sass/decipher.scss */
+.facet-management table.facets-unused tr td {
+  border-bottom: solid 1px #cdcccb;
+}
+/* line 471, ../sass/decipher.scss */
+.facet-management table.facets-unused tr td:last-child {
+  text-align: right;
+}
+/* line 480, ../sass/decipher.scss */
+.facet-management table.facets-used tr td:last-child {
+  text-align: right;
+}
+
+/* Visualisations */
+/* line 492, ../sass/decipher.scss */
+.plot-container fieldset.facet-container,
+.plot-container fieldset.plot_description_vis_fieldset {
+  margin: 0 0 1em;
+  padding: 0 0 1em;
+  border-width: 0 0 1px;
+}
+/* line 496, ../sass/decipher.scss */
+.plot-container fieldset.facet-container legend,
+.plot-container fieldset.plot_description_vis_fieldset legend {
+  position: absolute !important;
+  height: 1px;
+  width: 1px;
+  overflow: hidden;
+  clip: rect(1px 1px 1px 1px);
+  clip: rect(1px, 1px, 1px, 1px);
+}
+/* line 499, ../sass/decipher.scss */
+.plot-container fieldset.facet-container .exhibit-facet-header,
+.plot-container fieldset.plot_description_vis_fieldset .exhibit-facet-header {
+  margin-bottom: 1em;
+}
+
+/* line 505, ../sass/decipher.scss */
+.node-story-visualisation.view-mode-full > .article-inner {
+  border-top: 0;
+}
+/* line 512, ../sass/decipher.scss */
+.node-story-visualisation .exhibit-collectionView-body ol {
+  list-style: none;
+  padding: 0;
+}
+/* line 11, ../../../../../../../../../../Library/Ruby/Gems/1.8/gems/compass-0.12.2/frameworks/compass/stylesheets/compass/typography/lists/_bullets.scss */
+.node-story-visualisation .exhibit-collectionView-body ol li {
+  list-style-image: none;
+  list-style-type: none;
+  margin-left: 0;
+}
+/* line 515, ../sass/decipher.scss */
+.node-story-visualisation .exhibit-collectionView-body ol li > div {
+  border-top: solid 1px #47667b;
+  margin: 0 0 0.5em;
+  padding-top: 0.5em;
+}
+/* line 519, ../sass/decipher.scss */
+.node-story-visualisation .exhibit-collectionView-body ol li > div > div:first-child {
+  margin-bottom: 0.5em;
+  font-weight: normal!important;
+}
+/* line 525, ../sass/decipher.scss */
+.node-story-visualisation .exhibit-collectionView-body ol li > div a {
+  text-align: right;
+  display: block;
+  margin-right: 1em;
+}
+/* line 534, ../sass/decipher.scss */
+.node-story-visualisation .elements-container h2, .node-story-visualisation .elements-container .exhibit-collectionView-body ol li > div > div:first-child, .node-story-visualisation .exhibit-collectionView-body ol .elements-container li > div > div:first-child {
+  color: #4e4e4e;
+  font-size: 1.07692em;
+  line-height: 1.28571em;
+}
+/* line 538, ../sass/decipher.scss */
+.node-story-visualisation .elements-container article {
+  margin: 0 0 1em;
+  padding: 0.5em;
+}
+/* line 541, ../sass/decipher.scss */
+.node-story-visualisation .elements-container article h3 {
+  margin: 0;
+  color: #4e4e4e;
+  font-size: 0.92308em;
+  line-height: 1.5em;
+}
+/* line 546, ../sass/decipher.scss */
+.node-story-visualisation .elements-container article p {
+  text-align: right;
+}
+/* line 550, ../sass/decipher.scss */
+.node-story-visualisation .elements-container .events:nth-child(2n + 1) article {
+  background-color: #e5e5e5;
+  border-top: solid 2px transparent;
+}
+/* line 554, ../sass/decipher.scss */
+.node-story-visualisation .elements-container .events:nth-child(2n + 2) article {
+  border-top: solid 2px #e5e5e5;
+}

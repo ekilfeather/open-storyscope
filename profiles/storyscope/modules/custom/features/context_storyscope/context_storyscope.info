@@ -1,0 +1,11 @@
+name = Context Storyscope
+core = 7.x
+package = Context
+php = 5.2.4
+dependencies[] = context
+dependencies[] = ctools
+dependencies[] = search
+features[context][] = global_context
+features[context][] = non_facet_search
+features[ctools][] = context:context:3
+features[features_api][] = api:1

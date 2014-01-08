@@ -1,0 +1,214 @@
+diff --git includes/SolrSearchAPIFieldCollapseExtender.inc includes/SolrSearchAPIFieldCollapseExtender.inc
+new file mode 100644
+index 0000000..f7fd33c
+--- /dev/null
++++ includes/SolrSearchAPIFieldCollapseExtender.inc
+@@ -0,0 +1,101 @@
++<?php
++
++class SolrSearchAPIFieldCollapseExtender extends SearchApiAbstractQueryExtender {
++
++  public function supportsIndex(SearchApiIndex $index) {
++    return $index->server()->supportsFeature('search_api_solr_collapse');
++  }
++
++  public function preprocessSearchQuery(SearchApiQuery $query) {
++    // We move the options from our options array into where the Solr Service is expecting them.
++    $options = array(
++      'collapse' => TRUE,
++      'fields' => isset($this->options['fields']) ? array_keys($this->options['fields']) : array(),
++      'group_sort' => isset($this->options['group_sort']) ? $this->options['group_sort'] : '',
++      'group_sort_direction' => isset($this->options['group_sort_direction']) ? $this->options['group_sort_direction'] : 'asc',
++      'group_limit' => isset($this->options['group_limit']) ? $this->options['group_limit'] : 1,
++      'truncate' => isset($this->options['truncate']) ? $this->options['truncate'] : TRUE,
++    );
++    $query->setOption('search_api_solr_field_collapse', $options);
++  }
++
++  public function configurationForm() {
++    $form['#attached']['css'][] = drupal_get_path('module', 'search_api') . '/search_api.admin.css';
++
++    $fields = $this->index->getFields();
++    $field_options = array();
++    $field_sorts = array('' => t('None'), 'score' => t('Score/Relevance'));
++    $default_fields = array();
++    if (isset($this->options['fields'])) {
++      $default_fields = drupal_map_assoc(array_keys($this->options['fields']));
++    }
++
++    foreach ($fields as $name => $field) {
++      // Currently Solr is only compatible with single valued, indexed, string fields.
++      // TODO: Factor this out into a call through to the server.
++      if (!search_api_is_list_type($field['type'])) {
++        if ($field['type'] == 'string') {
++          if ($field['indexed']) {
++            $field_options[$name] = $field['name'];
++            if (!empty($default_fields[$name]) || (!isset($this->options['fields']) && $this->testField($name, $field))) {
++              $default_fields[$name] = $name;
++            }
++          }
++        }
++        // We can only sort according to single-valued fields.
++        if ($field['type'] == search_api_extract_inner_type($field['type'])) {
++          $field_sorts[$name] = $field['name'];
++        }
++      }
++    }
++
++    $form['fields'] = array(
++      '#type' => 'checkboxes',
++      '#title' => t('Fields to collapse on'),
++      '#options' => $field_options,
++      '#default_value' => $default_fields,
++      '#attributes' => array('class' => array('search-api-checkboxes-list')),
++      '#description' => t('Choose the fields upon which to collapse the results into groups. Note that while selecting multiple fields is technicially supported, it may result in unexpected behaviour.')
++    );
++
++    $default_sort = isset($this->options['group_sort']) ? $this->options['group_sort'] : '';
++
++    $form['group_sort'] = array(
++      '#type' => 'select',
++      '#title' => t('Group sort'),
++      '#options' => $field_sorts,
++      '#default_value' => $default_sort,
++      '#description' => t('Choose the field by to sort within each group, the groups themselves will be sorted by the main query sorts.')
++    );
++
++    $default_sort_direction = isset($this->options['group_sort_direction']) ? $this->options['group_sort_direction'] : '';
++
++    $form['group_sort_direction'] = array(
++      '#type' => 'select',
++      '#title' => t('Group sort direction'),
++      '#options' => array('asc' => t('Ascending'), 'desc' => t('Descending')),
++      '#default_value' => $default_sort_direction,
++    );
++
++    $default_limit = isset($this->options['group_limit']) ? $this->options['group_limit'] : 1;
++
++    $form['group_limit'] = array(
++      '#type' => 'select',
++      '#title' => t('Group limit'),
++      '#options' => range(0, 1000),
++      '#default_value' => $default_limit,
++      '#description' => t('Choose how many items within each group to return.')
++    );
++
++    $default_truncate = isset($this->options['truncate']) ? $this->options['truncate'] : TRUE;
++
++    $form['truncate'] = array(
++      '#type' => 'checkbox',
++      '#title' => t('Truncate results before facets'),
++      '#description' => t('If checked, facet counts are based on the most relevant document of each group matching the query, otherwise they are calculated for all documents before grouping.'),
++      '#default_value' => $default_truncate,
++    );
++
++    return $form;
++  }
++}
+diff --git search_api_solr.info search_api_solr.info
+index ffb7d4b..89e73be 100644
+--- search_api_solr.info
++++ search_api_solr.info
+@@ -9,3 +9,4 @@ files[] = solr_connection.inc
+ files[] = solr_field.inc
+ files[] = includes/solr_httptransport.inc
+ files[] = includes/spellcheck.inc
++files[] = includes/SolrSearchAPIFieldCollapseExtender.inc
+diff --git search_api_solr.module search_api_solr.module
+index 7037d12..f5fbf26 100644
+--- search_api_solr.module
++++ search_api_solr.module
+@@ -138,3 +138,16 @@ function search_api_solr_cron() {
+     }
+   }
+ }
++
++/**
++ * Implements hook_search_api_query_extender_info().
++ */
++function search_api_solr_search_api_query_extender_info() {
++  $extenders['search_api_solr_collapse'] = array(
++    'name' => t('Field Collapse/Result Grouping'),
++    'description' => t('This extender will allow result grouping/field collapsing on a specified field or fields.'),
++    'class' => 'SolrSearchAPIFieldCollapseExtender',
++  );
++
++  return $extenders;
++}
+diff --git service.inc service.inc
+index a014d76..4ef5df5 100644
+--- service.inc
++++ service.inc
+@@ -191,6 +191,7 @@ class SearchApiSolrService extends SearchApiAbstractService {
+       'search_api_mlt',
+       'search_api_multi',
+       'search_api_spellcheck',
++      'search_api_solr_collapse',
+     ));
+     return isset($supported[$feature]);
+   }
+@@ -560,6 +561,26 @@ class SearchApiSolrService extends SearchApiAbstractService {
+     if (!empty($this->options['retrieve_data'])) {
+       $params['fl'] = '*,score';
+     }
++    $field_collapse = $query->getOption('search_api_solr_field_collapse');
++    if (!empty($field_collapse) && !empty($field_collapse['collapse'])) {
++      $params['group'] = 'true';
++      // We always want the number of groups returned so that we get pagers done
++      // right.
++      $params['group.ngroups'] = 'true';
++      if (!empty($field_collapse['truncate'])) {
++        $params['group.truncate'] = 'true';
++      }
++      foreach ($field_collapse['fields'] as $collapse_field) {
++        $params['group.field'][] = $fields[$collapse_field];
++      }
++      if (!empty($field_collapse['group_sort']) && isset($fields[$field_collapse['group_sort']])) {
++        $group_sort_direction = isset($field_collapse['group_sort_direction']) ? $field_collapse['group_sort_direction'] : 'asc';
++        $params['group.sort'] = $fields[$field_collapse['group_sort']] . ' ' . $group_sort_direction;
++      }
++      if (!empty($field_collapse['group_limit']) && ($field_collapse['group_limit'] != 1)) {
++        $params['group.limit'] = $field_collapse['group_limit'];
++      }
++    }
+     $call_args = array(
+       'query'  => &$keys,
+       'offset' => &$offset,
+@@ -634,14 +655,34 @@ class SearchApiSolrService extends SearchApiAbstractService {
+     $results['results'] = array();
+     // In some rare cases (e.g., MLT query with nonexistent ID) the response
+     // will be NULL.
+-    if (!isset($response->response)) {
++    if (!isset($response->response) && !isset($response->grouped)) {
+       $results['result count'] = 0;
+       return $results;
+     }
+-    $results['result count'] = $response->response->numFound;
++
++    $docs = array();
++
++    // If field collapsing has been enabled for this query, we need to process
++    // the results differently.
++    $field_collapse = $query->getOption('search_api_solr_field_collapse');
++    if (!empty($field_collapse) && !empty($field_collapse['collapse'])) {
++      $results['result count'] = 0;
++      foreach ($field_collapse['fields'] as $field) {
++        $results['result count'] += $response->grouped->{$fields[$field]}->ngroups;
++        foreach ($response->grouped->{$fields[$field]}->groups as $group) {
++          foreach ($group->doclist->docs as $doc) {
++            $docs[] = $doc;
++          }
++        }
++      }
++    }
++    else {
++      $results['result count'] = $response->response->numFound;
++      $docs = $response->response->docs;
++    }
+ 
+     // Add each search result to the results array.
+-    foreach ($response->response->docs as $doc) {
++    foreach ($docs as $doc) {
+       // Blank result array.
+       $result = array(
+         'id' => NULL,

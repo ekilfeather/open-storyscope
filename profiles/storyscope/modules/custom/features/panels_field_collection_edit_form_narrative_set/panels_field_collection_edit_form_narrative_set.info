@@ -1,0 +1,10 @@
+name = Panels Field Collection edit form narrative set
+description = Panels Field Collection edit form narrative set
+core = 7.x
+package = Panels
+php = 5.2.4
+dependencies[] = ctools
+dependencies[] = page_manager
+features[ctools][] = page_manager:pages_default:1
+features[features_api][] = api:1
+features[page_manager_handlers][] = field_collection_item_edit_panel_context

@@ -1,0 +1,51 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<title>Persons Dialog</title>
+
+  <script type="text/javascript">
+    
+      AEd = window.parent.AEd;
+      document.write('<script type="text/javascript" src="css.js"><\/script>');
+
+  </script>
+</head>
+<body>
+	
+	<form class="aed-form" onsubmit="return false;" action="" name="aedFormPersons">
+				<fieldset>
+					<legend>
+          <script type="text/javascript">
+              document.write(AEd.I18n.t("Dlg_persons_label_persons_list"));
+          </script>
+          </legend>
+          
+          
+          <table>   						  
+							  <tr>                   
+                  <td>              
+                      <input id="aedPersonsSearch" name="aedPersonsSearch" type="text" value="" />      
+                      <button class="aed-ui-btn aed-ui-btn-noicon" id="aedPersonsBtnFilter">
+                            <span class="aed-ui-btn-text">
+                            <script type="text/javascript">
+                            document.write(AEd.I18n.t("Dlg_persons_button_filter"));
+                            </script></span>
+                      </button>               
+             
+                  </td>                                    
+                </tr>  		  
+					</table>					
+          
+          <div id="aedPersonsContainer" class="aed-ui-container">            
+          </div> 
+          					
+				</fieldset>
+
+
+	</form>
+
+	
+	
+	
+</body>
+</html>

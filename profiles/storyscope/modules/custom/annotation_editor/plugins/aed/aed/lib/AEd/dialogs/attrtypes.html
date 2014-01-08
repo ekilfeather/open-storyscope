@@ -1,0 +1,148 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<title>Attribute Types Dialog</title>
+
+  <script type="text/javascript">
+    
+      AEd = window.parent.AEd;
+      document.write('<script type="text/javascript" src="css.js"><\/script>');
+
+  </script>
+</head>
+<body>
+
+
+	<form class="aed-form" onsubmit="return false;" action="" name="aedFormAttrTypes">
+
+				<fieldset>
+					<legend>
+          <script type="text/javascript">
+              document.write(AEd.I18n.t("Dlg_attrTypes_label_attribute_name"));
+          </script>
+          </legend>
+					  
+                          <table>   
+                							  <tr>
+                								  <td class="aed-ui-table-column1"><label for="aedAttrTypeName">
+                                      <script type="text/javascript">
+                                          document.write(AEd.I18n.t("Dlg_attrTypes_label_name"));
+                                      </script>:</label>
+                                  </td>
+                                  <td><input id="aedAttrTypeName" name="aedAttrTypeName" type="text" value=""/></td>
+                                  <td>
+                <button type="button" class="aed-ui-btn aed-ui-btn-noicon" id="aedAnnotateBtnAddAttributesFromOntology">
+                       <span class="aed-ui-btn-text">
+                                      <script type="text/javascript">
+                                      document.write(AEd.I18n.t("Dlg_annotate_button_add_attributes_from_ontology"));
+                                      </script>
+                       </span>
+                </button>  
+
+                </td>
+                							  </tr>        							  
+                  			                  
+                				  </table>      
+          
+				</fieldset>
+
+				<fieldset>
+					<legend>
+          <script type="text/javascript">
+              document.write(AEd.I18n.t("Dlg_attrTypes_label_type_selection"));
+          </script>
+          </legend>
+					  
+          <div class="aedAttrTypesTreeWrapper" id="aedAttrTypesTreeWrapper"></div>
+          
+          <button class="aed-ui-btn aed-ui-btn-noicon" id="aedAttrTypesBtnRemoveType">
+                 <span class="aed-ui-btn-text">
+                 <script type="text/javascript">
+                     document.write(AEd.I18n.t("Dlg_attrTypes_button_remove_type"));
+                 </script>
+                 </span>
+          </button> 
+            
+            <div id="aedEmptyDiv"></div>
+			<table>
+            <tr>
+                    <td class="aed-ui-table-column1"><label for="aedAttrTypesType">
+                        <script type="text/javascript">
+                            document.write(AEd.I18n.t("Dlg_attrTypes_label_type"));
+                        </script>:</label>
+                    </td>                     
+                    <td>              
+                        <input id="aedAttrTypesType" name="aedAttrTypesType" type="text" value="" autocomplete="off"/>
+                        
+                        <div id="aedAttrTypesSuggestions">
+                        </div>                         
+                    </td>                                               
+                </tr>           
+            </table>		 
+          
+				</fieldset>
+				
+        <fieldset>
+					<legend>
+          <script type="text/javascript">
+              document.write(AEd.I18n.t("Dlg_attrTypes_label_add_new_type_as_subtype"));
+          </script>               
+          </legend>
+          
+                <table>
+    
+    							  <tr>
+                      <td>
+
+                      <input id="aedAddType" name="aedAddType" type="text" value=""/>
+  
+                      <button class="aed-ui-btn aed-ui-btn-noicon" id="aedAttrTypesBtnAddType">
+                            <span class="aed-ui-btn-text">
+                            <script type="text/javascript">
+                            document.write(AEd.I18n.t("Dlg_attrTypes_button_add_type"));
+                            </script></span>
+                      </button> 
+                      
+                      </td>
+    							  </tr>
+    
+    						</table>
+
+				</fieldset>
+				
+        <fieldset>
+          
+                <table>
+    
+    							  <tr>
+                      <td>
+                      <div id="aedAddToTypeAttributesWrapper">
+                          <input id="aedAddToTypeAttributes" name="aedAddToTypeAttributes" type="checkbox" value=""/>
+                          <span>
+                          <script type="text/javascript">
+                          document.write(AEd.I18n.t("Dlg_attrTypes_checkbox_add_to_type_attributes"));
+                          </script>
+                          </span>
+                      </div>
+                      <div id="aedRequiredWrapper">
+                          <input id="aedRequired" name="aedRequired" type="checkbox" value=""/>
+                          <span>
+                          <script type="text/javascript">
+                          document.write(AEd.I18n.t("Dlg_attrTypes_checkbox_required"));  
+                          </script>
+                          </span> 
+                      </div>                   
+                      </td>
+    							  </tr>
+    
+    						</table>
+
+				</fieldset>				
+		
+
+	</form>
+
+	
+	
+</body>
+</html>

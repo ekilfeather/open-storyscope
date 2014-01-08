@@ -1,0 +1,718 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<title>Annotation Dialog</title>
+
+  <script charset=utf-8 src="swfobject.js" type="text/javascript"></script>
+  <script charset=utf-8 src="downloadify.min.js" type="text/javascript"></script>
+  <script type="text/javascript">
+    
+  AEd = window.parent.AEd;
+  document.write('<script type="text/javascript" src="css.js"><\/script>');
+
+  var binaryElement = 'button';
+  var missingFileAPI = AEd.isIE || typeof(File) == "undefined" || typeof(FileReader) == "undefined" || typeof(FileReader.prototype.readAsArrayBuffer) == "undefined";
+  var flashBrowseButton = AEd.isAppleSafari;
+
+  if (missingFileAPI) {
+
+    var wModeStr = "transparent";
+    var wModeBool = true;
+
+    var dialog = null;
+
+    binaryElement = 'a';
+
+    /* Helper function to get the width of the regular SimpleButtonBinaryBrowse */
+    function getButtonWidth(dlg) {
+      var hiddenDlg = dlg.isHidden;
+      var hiddenFieldset = dlg.elementSimpleFieldset.getCssValue('display') == 'none'; // Fieldset misses isHidden attribute
+      var hiddenButton = dlg.btnSimpleBinaryBrowse;
+      dlg.show();
+      dlg.elementSimpleFieldset.show();
+      dlg.btnSimpleBinaryBrowse.show();
+      var btnWidth = dlg.domElementSimpleBtnBinaryBrowse.offsetWidth;
+      if (hiddenButton)
+        dlg.btnSimpleBinaryBrowse.hide();
+      if (hiddenFieldset)
+        dlg.elementSimpleFieldset.hide();
+      if (hiddenDlg)
+        dlg.hide();
+
+      return btnWidth;
+    }
+
+    function AfterLoad(dlg) {
+      dialog = dlg;
+
+      var swfVersionStr = "10.0.0";
+      var xiSwfUrlStr = "";
+      var flashvars = {browseButtonDisplay: flashBrowseButton}
+      if (flashBrowseButton) {
+        flashvars.browseButtonLabel = AEd.I18n.t("Dlg_annotate_button_browse");
+        flashvars.browseButtonWidth = getButtonWidth(dlg)+10; // Add required padding
+      }
+      var params = {};
+      params.quality = "best";
+      params.bgcolor = "#ffffff";
+      params.play = "true";
+      params.loop = "true";
+      params.wmode = (flashBrowseButton) ? "window": "transparent";
+      params.scale = "noscale";
+      params.menu = "true";
+      params.devicefont = "false";
+      params.salign = "lt";
+      params.allowscriptaccess = "sameDomain";
+      params.allowFullScreen = "true";
+      var attributes = {};
+      attributes.id = "FileContent";
+      attributes.name = "FileContent";
+      attributes.align = "middle";
+      swfobject.createCSS("html", "height:100%");
+        swfobject.embedSWF(
+          "media/FileLoader.swf", "fileContent",
+          (flashBrowseButton) ? flashvars.browseButtonWidth: "46",
+          (flashBrowseButton) ? "20" : "15",
+          swfVersionStr, xiSwfUrlStr,
+          flashvars, params, attributes);
+
+      if (!AEd.isAppleSafari){
+
+        Downloadify.create('fileDownload', {
+          filename: "base64.bin",
+          data: function(){
+            var elem = document.getElementById('aedSimpleValue');
+            if (elem && elem.value != '') {
+              // Not empty value
+              return document.getElementById('aedSimpleValue').value;
+            }
+            else {
+              // Empty value
+              dialog.base64.dlgNoFileForDownload.render(dialog.base64.domElementTarget);
+              AEd.Dialogs.add(dialog.base64.dlgNoFileForDownload, "modal");
+            }
+          },
+          dataType: "base64",
+          onComplete: function(){
+            dialog.base64.dlgFlashFileSaveOK.render(dialog.base64.domElementTarget);
+            AEd.Dialogs.add(dialog.base64.dlgFlashFileSaveOK, "modal");
+          },
+          onError: function(){
+            dialog.base64.dlgFlashFileSaveError.render(dialog.base64.domElementTarget);
+            AEd.Dialogs.add(dialog.base64.dlgFlashFileSaveError, "modal");
+          },
+          swf: 'media/downloadify.swf',
+          downloadImage: "media/transparent.png",
+          width: 60,
+          height: 15,
+          transparent: wModeBool,
+          append: false
+        });
+      }
+
+      // Clear original handlers for the Browse button (replaced by flash object)
+      for (var i = 0; i < dialog.btnSimpleBinaryBrowse.onClick.handlers.length; i++)
+        dialog.btnSimpleBinaryBrowse.onClick.removeHandler(dialog.btnSimpleBinaryBrowse.onClick.handlers[i].handler);
+
+      if (!AEd.isAppleSafari){
+
+        // Clear original handlers for the Download button (replaced by flash object)
+        for (var i = 0; i < dialog.btnSimpleDownloadBinary.onClick.handlers.length; i++)
+          dialog.btnSimpleDownloadBinary.onClick.removeHandler(dialog.btnSimpleDownloadBinary.onClick.handlers[i].handler);
+      }
+    }
+
+    /* Create custom File object */
+    function CustomFile(name, size, encodedData) {
+      this.name = name;
+      this.size = size;
+      this.encodedData = encodedData;
+
+      this.customFile = true;
+    }
+
+    /* Function called from Flash object */
+    function MakeFile(name, size, encodedData) {
+      var file = new CustomFile(name, size, encodedData);
+
+      dialog.base64.setInput(dialog.domElementSimpleInputValue);
+      dialog.base64.encode(file);
+    }
+
+    function FileSizeOK(size) {
+      return size <= dialog.base64.maxFileSizeBytes;
+    }
+
+    function FileTooLong() {
+      dialog.base64.fileTooLong();
+    }
+
+    function FileLoadingProgress() {
+      dialog.base64.fileLoadingProgress();
+    }
+
+    function FileLoadingFailed() {
+      dialog.base64.fileLoadingError();
+      dialog.base64.fileLoadingAbort();
+    }
+  }
+  </script>
+</head>
+<body>
+
+
+	<form class="aed-form" onsubmit="return false;" action="" name="aedFormAnnotate">
+				
+        <div id="aedAnnotateLeft">
+            <fieldset>
+                <legend>
+                    <script type="text/javascript">
+                    document.write(AEd.I18n.t("Dlg_annotate_label_attributes"));
+                    </script>            
+                </legend>
+                
+                <div class="aedAnnotateTreeWrapper" id="aedAnnotateTreeWrapper">           
+                </div>
+                <button type="button" class="aed-ui-btn aed-ui-btn-noicon" id="aedAnnotateBtnAddAttribute">
+                       <span class="aed-ui-btn-text">
+                                      <script type="text/javascript">
+                                      document.write(AEd.I18n.t("Dlg_annotate_button_add_attribute"));
+                                      </script>
+                       </span>
+                </button>  
+                
+                <button type="button" class="aed-ui-btn aed-ui-btn-noicon" id="aedAnnotateBtnDeleteAttribute">
+                       <span class="aed-ui-btn-text">
+                                      <script type="text/javascript">
+                                      document.write(AEd.I18n.t("Dlg_annotate_button_delete_attribute"));
+                                      </script>
+                       </span>
+                </button> 
+
+                <button type="button" class="aed-ui-btn aed-ui-btn-noicon" id="aedAnnotateBtnClearAttribute">
+                       <span class="aed-ui-btn-text">
+                                      <script type="text/javascript">
+                                      document.write(AEd.I18n.t("Dlg_annotate_button_clear_attribute"));
+                                      </script>
+                       </span>
+                </button>
+
+                <button type="button" class="aed-ui-btn aed-ui-btn-noicon" id="aedAnnotateBtnEntity">
+                       <span class="aed-ui-btn-text">
+                                      <script type="text/javascript">
+                                      document.write(AEd.I18n.t("Dlg_annotate_button_entity"));
+                                      </script>
+                       </span>
+                </button> 
+                                  
+            </fieldset>
+        </div>         
+        
+        
+        <div id="aedAnnotateRight">
+            
+            
+            <div id="aedAnnotateFieldsetAnnotation">
+                      <fieldset>                          					  
+                          <table>   
+                							  <tr>
+                								  <td class="aed-ui-table-column1"><label for="aedSelection">
+                                      <script type="text/javascript">
+                                          document.write(AEd.I18n.t("Dlg_annotate_label_selection"));
+                                      </script>:</label>
+                                  </td>
+                                  <td><textarea id="aedSelection" name="aedSelection" disabled="disabled" class="aed-disabled"></textarea></td>
+                							  </tr>      
+                                
+                                  							  
+                							  <tr>
+                								  <td class="aed-ui-table-column1">
+                								    &nbsp;
+                                  </td>
+                                  <td>
+                                     <button type="button" class="aed-ui-btn aed-ui-btn-noicon" id="aedBtnWholeDoc">
+                                            <span class="aed-ui-btn-text">
+                                            <script type="text/javascript">
+                                            document.write(AEd.I18n.t("Dlg_annotate_button_annotate_whole_document"));
+                                            </script></span>
+                                     </button>                                                                     
+                                  </td>
+                							  </tr>    
+                							  
+                  							  
+                							  
+                							  
+                                <tr>
+                                  <td class="aed-ui-table-column1"><label for="aedType">
+                                      <script type="text/javascript">
+                                          document.write(AEd.I18n.t("Dlg_annotate_label_type"));
+                                      </script>:</label>
+                                  </td>                     
+                                  <td>              
+                                      <input id="aedType" name="aedType" type="text" value="" autocomplete="off"/>
+                  
+                                      <button type="button" class="aed-ui-btn aed-ui-btn-noicon" id="aedAnnotateBtnBrowse">
+                                            <span class="aed-ui-btn-text">
+                                            <script type="text/javascript">
+                                            document.write(AEd.I18n.t("Dlg_annotate_button_browse"));
+                                            </script></span>
+                                      </button>              
+                                                                  
+                                      <div id="aedSuggestions">
+                                      </div>                      
+                                  
+                                  </td>                                                  
+                                </tr>                     
+                          
+                							  <tr>
+                                  <td class="aed-ui-table-column1"><label for="aedContent">
+                                      <script type="text/javascript">
+                                              document.write(AEd.I18n.t("Dlg_annotate_label_content"));
+                                      </script>:</label>
+                                  </td> 
+                							    <td><textarea id="aedContent" name="aedContent" ></textarea></td>
+                							  </tr>				  
+                
+                							</table>               						
+                       </fieldset>
+      			</div>		
+
+
+            <div id="aedAnnotateFieldsetSimple">
+                      <fieldset>        					  
+                          <table>
+                                <tr>
+                                  <td class="aed-ui-table-column1"><label for="aedSimpleType">
+                                      <script type="text/javascript">
+                                          document.write(AEd.I18n.t("Dlg_annotate_label_type"));
+                                      </script>:</label>
+                                  </td>                     
+                                  <td>              
+                                      <input id="aedSimpleType" name="aedSimpleType" type="text" value="" autocomplete="off"/>
+                  
+                                      <button type="button" class="aed-ui-btn aed-ui-btn-noicon" id="aedSimpleBtnBrowse">
+                                            <span class="aed-ui-btn-text">
+                                            <script type="text/javascript">
+                                            document.write(AEd.I18n.t("Dlg_annotate_button_browse"));
+                                            </script></span>
+                                      </button>              
+                                                                  
+                                      <div id="aedSimpleSuggestions">
+                                      </div>                      
+                                  
+                                  </td>                                                  
+                                </tr>  
+                							  
+                                <tr>
+                                  <td class="aed-ui-table-column1"><label id="aedSimpleValueLabel" for="aedSimpleValue">
+                                      <script type="text/javascript">
+                                          document.write(AEd.I18n.t("Dlg_annotate_label_value"));
+                                      </script>:</label>
+                                                <label id="aedSimpleTextValueLabel" for="aedSimpleTextValue">
+                                      <script type="text/javascript">
+                                          document.write(AEd.I18n.t("Dlg_annotate_label_value"));
+                                      </script>:</label>
+                                                <label id="aedSimpleBinaryValueLabel" for="aedSimpleBinaryValue">
+                                      <script type="text/javascript">
+                                          document.write(AEd.I18n.t("Dlg_annotate_label_value"));
+                                      </script>:</label>
+                                  </td>                     
+                                  <td>              
+                                      <input id="aedSimpleValue" name="aedSimpleValue" type="text" value=""/> 
+                                      <textarea id="aedSimpleTextValue" name="aedSimpleTextValue" rows="8"></textarea>
+                                      <input id="aedSimpleBinaryValue" name="aedSimpleBinaryValue" type="file"/>
+
+                                      <button type="button" class="aed-ui-btn aed-ui-btn-noicon" id="aedSimpleBtnPicker">
+                                            <span class="aed-ui-btn-text">
+                                            <script type="text/javascript">
+                                            document.write(AEd.I18n.t("Dlg_annotate_button_browse"));
+                                            </script></span>
+                                      </button>  
+ 
+                                      <button type="button" class="aed-ui-btn aed-ui-btn-noicon" id="aedSimpleBtnDurationPicker">
+                                            <span class="aed-ui-btn-text">
+                                            <script type="text/javascript">
+                                            document.write(AEd.I18n.t("Dlg_annotate_button_browse"));
+                                            </script></span>
+                                      </button>
+
+                                      <script type="text/javascript">
+                                          document.write('<' + binaryElement + ' type="button" class="aed-ui-btn aed-ui-btn-noicon" id="aedSimpleBtnBinaryBrowse">');
+                                      </script>
+                                            <span id="fileContent"></span>
+                                            <span class="aed-ui-btn-text">
+                                            <script type="text/javascript">
+                                            document.write(AEd.I18n.t("Dlg_annotate_button_browse"));
+                                            </script></span>
+                                      <script type="text/javascript">
+                                          document.write('</' + binaryElement + '>');
+                                      </script>
+
+                                      <script type="text/javascript">
+                                          document.write('<' + binaryElement + ' type="button" class="aed-ui-btn aed-ui-btn-notext" id="aedSimpleBtnDownloadBinary">');
+                                      </script>
+                                            <span id="fileDownload"></span>
+                                            <span class="aed-ui-btn-text">
+                                            <script type="text/javascript">
+                                            document.write(AEd.I18n.t("Dlg_annotate_button_download"));
+                                            </script></span>
+                                     <script type="text/javascript">
+                                          document.write('</' + binaryElement + '>');
+                                      </script>
+
+                                  </td>                                                 
+                                </tr>                     			                  
+                			</table>
+                            <table>
+    						  <tr>
+                                <td>
+                                    <div id="aedAddToTypeAttributesWrapperSimple">
+                                        <input id="aedAddToTypeAttributesSimple" name="aedAddToTypeAttributesSimple" type="checkbox" value=""/>
+                                        <span id="edAddToTypeAttributesSimpleSpan">
+                                        </span>
+                                    </div>
+                                    <div id="aedRequiredWrapperSimple">
+                                        <input id="aedRequiredSimple" name="aedRequiredSimple" type="checkbox" value=""/>
+                                        <span>
+                                        <script type="text/javascript">
+                                        document.write(AEd.I18n.t("Dlg_annotate_checkbox_required"));  
+                                        </script>
+                                        </span> 
+                                    </div>                   
+                                </td>
+    						</tr>
+    					</table>
+                            
+				    </fieldset>
+      			</div>	
+      			
+            <div id="aedAnnotateFieldsetEntity">
+                      <fieldset>                                                 
+                          <table>   
+
+                                <tr>
+                                  <td class="aed-ui-table-column1"><label for="aedEntityType">
+                                      <script type="text/javascript">
+                                          document.write(AEd.I18n.t("Dlg_annotate_label_type"));
+                                      </script>:</label>
+                                  </td>                     
+                                  <td>              
+                                      <input id="aedEntityType" name="aedEntityType" type="text" value="" autocomplete="off"/>
+                  
+                                      <button type="button" class="aed-ui-btn aed-ui-btn-noicon" id="aedEntityBrowse">
+                                            <span class="aed-ui-btn-text">
+                                            <script type="text/javascript">
+                                            document.write(AEd.I18n.t("Dlg_annotate_button_browse"));
+                                            </script></span>
+                                      </button>              
+                                                                  
+                                      <div id="aedEntitySuggestions">
+                                      </div>                      
+                                  
+                                  </td>                                                  
+                                </tr>
+                                
+<!--NOTE: This code is commented out because at the time server didn't support searching entities by a type very well. This code is a part of a feature that manages an inputfield for specifying the entity type when editing an attribute of type Entity. Also NOTE that after uncommenting this code you would also need to add an autocompleter to the inputfield.-->
+<!--                                <tr>
+                                  <td class="aed-ui-table-column1"><label for="aedEntityValueType">
+                                      <script type="text/javascript">
+                                          document.write(AEd.I18n.t("Dlg_annotate_label_entity_type"));
+                                      </script>:</label>
+                                  </td>                     
+                                  <td>              
+                                      <input id="aedEntityValueType" name="aedEntityValueType" type="text" value="" autocomplete="off"/>
+                  
+                                      <button type="button" class="aed-ui-btn aed-ui-btn-noicon" id="aedEntityValueBrowse">
+                                            <span class="aed-ui-btn-text">
+                                            <script type="text/javascript">
+                                            document.write(AEd.I18n.t("Dlg_annotate_button_browse"));
+                                            </script></span>
+                                      </button>              
+                                      <div id="aedEntityValueSuggestions">
+                                      </div>
+                                  </td> 
+                                </tr>-->
+                                                                         
+                                <tr>
+                                  <td class="aed-ui-table-column1"><label for="aedEntityName">
+                                      <script type="text/javascript">
+                                          document.write(AEd.I18n.t("Dlg_annotate_label_entity_name"));
+                                      </script>:</label>
+                                  </td>                     
+                                  <td>              
+                                      <input id="aedEntityName" name="aedEntityName" type="text" value="" autocomplete="off"/>    
+                                      
+                                      <div id="aedEntityNameSuggestions">
+                                      </div>                      
+                                  </td>                                                  
+                                </tr>
+                                
+                                <tr>
+                                  <td class="aed-ui-table-column1">
+                                      <script type="text/javascript">
+                                          document.write(AEd.I18n.t("Dlg_annotate_label_entity_description"));
+                                      </script>:
+                                  </td>                     
+                                  <td>              
+                                      <div id="aedEntityDescription" name="aedEntityDescription" type="text" value="" disable="true">                 
+                                      </div>
+                                  </td>                                                  
+                                </tr>
+                                
+                                <tr>
+                                  <td class="aed-ui-table-column1">
+                                      <script type="text/javascript">
+                                          document.write(AEd.I18n.t("Dlg_annotate_label_entity_image"));
+                                      </script>:
+                                  </td>                     
+                                  <td>              
+                                      <div id="aedEntityImage" name="aedEntityImage">
+                                      </div>
+                                  </td>                                                  
+                                </tr> 
+                                                            
+                            </table>
+                            <table>
+                                                 <tr>
+                                <td>
+                                    <div id="aedAddToTypeAttributesWrapperEntity">
+                                        <input id="aedAddToTypeAttributesEntity" name="aedAddToTypeAttributesEntity" type="checkbox" value=""/>
+                                        <span id="edAddToTypeAttributesEntitySpan">
+                                        </span>
+                                    </div>
+                                    <div id="aedRequiredWrapperEntity">
+                                        <input id="aedRequiredEntity" name="aedRequiredEntity" type="checkbox" value=""/>
+                                        <span>
+                                        <script type="text/javascript">
+                                        document.write(AEd.I18n.t("Dlg_annotate_checkbox_required"));  
+                                        </script>
+                                        </span> 
+                                    </div>                   
+                                </td>
+                                               </tr>
+                                       </table>                                                        
+                       </fieldset>
+                       </div>
+
+
+            <div id="aedAnnotateFieldsetGeoPoint">
+                      <fieldset>        					  
+                          <table>   
+
+                                <tr>
+                                  <td class="aed-ui-table-column1"><label for="aedGeoPointType">
+                                      <script type="text/javascript">
+                                          document.write(AEd.I18n.t("Dlg_annotate_label_type"));
+                                      </script>:</label>
+                                  </td>                     
+                                  <td>              
+                                      <input id="aedGeoPointType" name="aedGeoPointType" type="text" value="" autocomplete="off"/>
+                  
+                                      <button type="button" class="aed-ui-btn aed-ui-btn-noicon" id="aedGeoPointBrowse">
+                                            <span class="aed-ui-btn-text">
+                                            <script type="text/javascript">
+                                            document.write(AEd.I18n.t("Dlg_annotate_button_browse"));
+                                            </script></span>
+                                      </button>              
+                                                                  
+                                      <div id="aedGeoPointSuggestions">
+                                      </div>                      
+                                  
+                                  </td>                                                  
+                                </tr>  
+                							  
+                							  
+                                <tr>
+                                  <td class="aed-ui-table-column1"><label for="aedGeoPointLat">
+                                      <script type="text/javascript">
+                                          document.write(AEd.I18n.t("Dlg_annotate_label_lat"));
+                                      </script>:</label>
+                                  </td>                     
+                                  <td>              
+                                      <input id="aedGeoPointLat" name="aedGeoPointLat" type="text" value=""/>                 
+                                  
+                                  </td>                                                  
+                                </tr> 
+                                
+                                <tr>
+                                  <td class="aed-ui-table-column1"><label for="aedGeoPointLong">
+                                      <script type="text/javascript">
+                                          document.write(AEd.I18n.t("Dlg_annotate_label_long"));
+                                      </script>:</label>
+                                  </td>                     
+                                  <td>              
+                                      <input id="aedGeoPointLong" name="aedGeoPointLong" type="text" value=""/>                 
+                                  
+                                  </td>                                                  
+                                </tr>                                 
+                            </table>
+                            <table>
+    						  <tr>
+                                <td>
+                                    <div id="aedAddToTypeAttributesWrapperGeoPoint">
+                                        <input id="aedAddToTypeAttributesGeoPoint" name="aedAddToTypeAttributesGeoPoint" type="checkbox" value=""/>
+                                        <span id="edAddToTypeAttributesGeoPointSpan">
+                                        </span>
+                                    </div>
+                                    <div id="aedRequiredWrapperGeoPoint">
+                                        <input id="aedRequiredGeoPoint" name="aedRequiredGeoPoint" type="checkbox" value=""/>
+                                        <span>
+                                        <script type="text/javascript">
+                                        document.write(AEd.I18n.t("Dlg_annotate_checkbox_required"));  
+                                        </script>
+                                        </span> 
+                                    </div>                   
+                                </td>
+    						</tr>
+    					</table>               						
+                       </fieldset>
+      			</div>
+      			
+            
+            <div id="aedAnnotateFieldsetNestedAnnotation">
+                      <fieldset>                          					  
+                          <table>  
+                                                           
+                							  <tr>
+                								  <td class="aed-ui-table-column1"><label for="aedNestedAnnotationSelection">
+                                      <script type="text/javascript">
+                                          document.write(AEd.I18n.t("Dlg_annotate_label_selection"));
+                                      </script>:</label>
+                                  </td>
+                                  <td>
+                                  <textarea id="aedNestedAnnotationSelection" name="aedNestedAnnotationSelection" disabled="disabled" class="aed-disabled" ></textarea>                              
+                                  </td>
+                							  </tr>        							                    
+                          
+                							  <tr>
+                								  <td class="aed-ui-table-column1">
+                								    &nbsp;
+                                  </td>
+                                  <td>
+                                     <button type="button" class="aed-ui-btn aed-ui-btn-noicon" id="aedNestedAnnotationBtnSelect">
+                                            <span class="aed-ui-btn-text">
+                                            <script type="text/javascript">
+                                            document.write(AEd.I18n.t("Dlg_annotate_button_select"));
+                                            </script></span>
+                                     </button>    
+                                                                       
+                                     <button type="button" class="aed-ui-btn aed-ui-btn-noicon" id="aedNestedAnnotationBtnWholeDoc">
+                                            <span class="aed-ui-btn-text">
+                                            <script type="text/javascript">
+                                            document.write(AEd.I18n.t("Dlg_annotate_button_annotate_whole_document"));
+                                            </script></span>
+                                     </button>                                    
+                                  
+                                  </td>
+                							  </tr>
+                                              
+                                              <tr>
+                                                <td class="aed-ui-table-column1">
+                								    &nbsp;
+                                                </td>
+                                                <td>
+                                                    <span id="aedNestedAnnotationList" class="aed-ui-text"> 
+                                                    </span>
+                                                
+                                                    <button type="button" class="aed-ui-btn aed-ui-btn-noicon" id="aedNestedAnnotationBtnPrevious">
+                                                        <span class="aed-ui-btn-text">
+                                                        <script type="text/javascript">
+                                                            document.write(AEd.I18n.t("Dlg_annotate_button_previous"));
+                                                        </script></span>
+                                                    </button>
+                                                    
+                                                    <button type="button" class="aed-ui-btn aed-ui-btn-noicon" id="aedNestedAnnotationBtnNext">
+                                                        <span class="aed-ui-btn-text">
+                                                        <script type="text/javascript">
+                                                            document.write(AEd.I18n.t("Dlg_annotate_button_next"));
+                                                        </script></span>
+                                                    </button>
+                                                    
+                                                    <button type="button" class="aed-ui-btn aed-ui-btn-noicon" id="aedNestedAnnotationBtnAdd">
+                                                        <span class="aed-ui-btn-text">
+                                                        <script type="text/javascript">
+                                                            document.write(AEd.I18n.t("Dlg_annotate_button_add"));
+                                                        </script></span>
+                                                    </button>
+                                                    
+                                                    <button type="button" class="aed-ui-btn aed-ui-btn-noicon" id="aedNestedAnnotationBtnDelete">
+                                                        <span class="aed-ui-btn-text">
+                                                        <script type="text/javascript">
+                                                            document.write(AEd.I18n.t("Dlg_annotate_button_delete"));
+                                                        </script></span>
+                                                    </button>    
+                                                </td> 
+                                              </tr>    
+                							  	  
+                                <tr>
+                                  <td class="aed-ui-table-column1"><label for="aedNestedAnnotationType">
+                                      <script type="text/javascript">
+                                          document.write(AEd.I18n.t("Dlg_annotate_label_type"));
+                                      </script>:</label>
+                                  </td>                     
+                                  <td>              
+                                      <input id="aedNestedAnnotationType" name="aedNestedAnnotationType" type="text" value="" autocomplete="off"/>
+                  
+                                      <button type="button" class="aed-ui-btn aed-ui-btn-noicon" id="aedNestedAnnotationBrowse">
+                                            <span class="aed-ui-btn-text">
+                                            <script type="text/javascript">
+                                            document.write(AEd.I18n.t("Dlg_annotate_button_browse"));
+                                            </script></span>
+                                      </button>              
+                                                                  
+                                      <div id="aedNestedAnnotationSuggestions">
+                                      </div>                      
+                                  
+                                  </td>                                                  
+                                </tr>                            
+                          
+                          
+                          
+                				<tr id="aedNestedAnnotationContentWrapper">  
+                                  <td class="aed-ui-table-column1">
+                                        <label for="aedNestedAnnotationContent">
+                                            <script type="text/javascript">
+                                              document.write(AEd.I18n.t("Dlg_annotate_label_content"));
+                                            </script>:
+                                        </label>
+                                  </td> 
+                				  <td>
+                                        <textarea id="aedNestedAnnotationContent" name="aedNestedAnnotationContent" ></textarea>
+                                  </td>
+                							  </tr>				  
+                
+                							</table>
+                             <table>
+    						  <tr>
+                                <td>
+                                    <div id="aedAddToTypeAttributesWrapperNested">
+                                        <input id="aedAddToTypeAttributesNested" name="aedAddToTypeAttributesNested" type="checkbox" value=""/>
+                                        <span id="edAddToTypeAttributesNestedSpan">
+                                        </span>
+                                    </div>
+                                    <div id="aedRequiredWrapperNested">
+                                        <input id="aedRequiredNested" name="aedRequiredNested" type="checkbox" value=""/>
+                                        <span>
+                                        <script type="text/javascript">
+                                        document.write(AEd.I18n.t("Dlg_annotate_checkbox_required"));  
+                                        </script>
+                                        </span> 
+                                    </div>                   
+                                </td>
+    						</tr>
+    					</table>               						
+                       </fieldset>
+      			</div>            
+            
+                			
+      			
+      			
+        </div>				
+              
+
+	</form>
+
+	
+	
+</body>
+</html>

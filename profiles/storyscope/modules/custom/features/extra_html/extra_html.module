@@ -1,0 +1,7 @@
+<?php
+/**
+ * @file
+ * Code for the Extra HTML feature.
+ */
+
+include_once('extra_html.features.inc');

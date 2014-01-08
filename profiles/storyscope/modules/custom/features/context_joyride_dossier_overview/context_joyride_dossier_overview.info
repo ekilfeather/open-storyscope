@@ -1,0 +1,11 @@
+name = Context Joyride - Dossier Overview
+core = 7.x
+package = Features
+php = 5.2.4
+dependencies[] = context
+dependencies[] = ctools
+dependencies[] = joyride
+features[context][] = joyride_dossier_overview
+features[context][] = joyride_start_link
+features[ctools][] = context:context:3
+features[features_api][] = api:1

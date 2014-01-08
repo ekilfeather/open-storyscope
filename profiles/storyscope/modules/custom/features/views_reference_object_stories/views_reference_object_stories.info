@@ -1,0 +1,10 @@
+name = views reference object stories
+description = A listing of object stories containing a reference
+core = 7.x
+package = Views
+php = 5.2.4
+dependencies[] = ctools
+dependencies[] = views
+features[ctools][] = views:views_default:3.0
+features[features_api][] = api:1
+features[views_view][] = reference_object_stories

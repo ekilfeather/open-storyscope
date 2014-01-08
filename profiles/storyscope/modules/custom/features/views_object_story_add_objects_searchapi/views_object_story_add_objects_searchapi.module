@@ -1,0 +1,7 @@
+<?php
+/**
+ * @file
+ * Code for the views story objects add searchapi feature.
+ */
+
+include_once 'views_object_story_add_objects_searchapi.features.inc';

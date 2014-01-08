@@ -1,0 +1,298 @@
+<?php
+
+/**
+ * Implements hook_install().
+ *
+ * Perform actions to set up the site for this profile.
+ */
+function storyscope_install() {
+  // Add text formats.
+  $filtered_html_format = array(
+    'format' => 'filtered_html',
+    'name' => 'Filtered HTML',
+    'weight' => 0,
+    'filters' => array(
+      // URL filter.
+      'filter_url' => array(
+        'weight' => 0,
+        'status' => 1,
+      ),
+      // HTML filter.
+      'filter_html' => array(
+        'weight' => 1,
+        'status' => 1,
+      ),
+      // Line break filter.
+      'filter_autop' => array(
+        'weight' => 2,
+        'status' => 1,
+      ),
+      // HTML corrector filter.
+      'filter_htmlcorrector' => array(
+        'weight' => 10,
+        'status' => 1,
+      ),
+    ),
+  );
+  $filtered_html_format = (object) $filtered_html_format;
+  filter_format_save($filtered_html_format);
+
+  $full_html_format = array(
+    'format' => 'full_html',
+    'name' => 'Full HTML',
+    'weight' => 1,
+    'filters' => array(
+      // URL filter.
+      'filter_url' => array(
+        'weight' => 0,
+        'status' => 1,
+      ),
+      // Line break filter.
+      'filter_autop' => array(
+        'weight' => 1,
+        'status' => 1,
+      ),
+      // HTML corrector filter.
+      'filter_htmlcorrector' => array(
+        'weight' => 10,
+        'status' => 1,
+      ),
+    ),
+  );
+  $full_html_format = (object) $full_html_format;
+  filter_format_save($full_html_format);
+
+
+  //  Set the custom theme
+  variable_set('theme_default', 'storyscopezen');
+  theme_enable(array('storyscopezen'));
+  theme_enable(array('story_output'));
+
+  // Enable some standard blocks.
+  $default_theme = variable_get('theme_default', 'storyscopezen');
+  $admin_theme = 'seven';
+  $values = array(
+    array(
+      'module' => 'node',
+      'delta' => 'recent',
+      'theme' => $admin_theme,
+      'status' => 1,
+      'weight' => 10,
+      'region' => 'dashboard_main',
+      'pages' => '',
+      'cache' => -1,
+    ),
+    array(
+      'module' => 'system',
+      'delta' => 'help',
+      'theme' => $default_theme,
+      'status' => 1,
+      'weight' => 0,
+      'region' => 'help',
+      'pages' => '',
+      'cache' => -1,
+    ),
+    array(
+      'module' => 'system',
+      'delta' => 'main',
+      'theme' => $admin_theme,
+      'status' => 1,
+      'weight' => 0,
+      'region' => 'content',
+      'pages' => '',
+      'cache' => -1,
+    ),
+    array(
+      'module' => 'system',
+      'delta' => 'help',
+      'theme' => $admin_theme,
+      'status' => 1,
+      'weight' => 0,
+      'region' => 'help',
+      'pages' => '',
+      'cache' => -1,
+    ),
+    array(
+      'module' => 'user',
+      'delta' => 'login',
+      'theme' => $admin_theme,
+      'status' => 1,
+      'weight' => 10,
+      'region' => 'content',
+      'pages' => '',
+      'cache' => -1,
+    ),
+    array(
+      'module' => 'user',
+      'delta' => 'new',
+      'theme' => $admin_theme,
+      'status' => 1,
+      'weight' => 0,
+      'region' => 'dashboard_sidebar',
+      'pages' => '',
+      'cache' => -1,
+    ),
+    array(
+      'module' => 'search',
+      'delta' => 'form',
+      'theme' => $admin_theme,
+      'status' => 1,
+      'weight' => -10,
+      'region' => 'dashboard_sidebar',
+      'pages' => '',
+      'cache' => -1,
+    ),
+  );
+  $query = db_insert('block')->fields(array('module', 'delta', 'theme', 'status', 'weight', 'region', 'pages', 'cache'));
+  foreach ($values as $record) {
+    $query->values($record);
+  }
+  $query->execute();
+
+  // Enable user picture support and set the default to a square thumbnail option.
+  variable_set('user_pictures', '1');
+  variable_set('user_picture_dimensions', '1024x1024');
+  variable_set('user_picture_file_size', '800');
+  variable_set('user_picture_style', 'thumbnail');
+
+  // Enable default permissions for system roles.
+  $filtered_html_permission = filter_permission_name($filtered_html_format);
+  user_role_grant_permissions(DRUPAL_ANONYMOUS_RID, array('access content', 'access comments', $filtered_html_permission));
+  user_role_grant_permissions(DRUPAL_AUTHENTICATED_RID, array('access content', 'access comments', 'post comments', 'skip comment approval', $filtered_html_permission));
+
+  // Create a default role for site administrators, with all available permissions assigned.
+  $admin_role = new stdClass();
+  $admin_role->name = 'administrator';
+  $admin_role->weight = 2;
+  user_role_save($admin_role);
+  user_role_grant_permissions($admin_role->rid, array_keys(module_invoke_all('permission')));
+  // Set this as the administrator role.
+  variable_set('user_admin_role', $admin_role->rid);
+
+  // Assign user 1 the "administrator" role.
+  db_insert('users_roles')
+    ->fields(array('uid' => 1, 'rid' => $admin_role->rid))
+    ->execute();
+
+  // Update the menu router information.
+  menu_rebuild();
+
+  // Enable the admin theme.
+  db_update('system')
+    ->fields(array('status' => 1))
+    ->condition('type', 'theme')
+    ->condition('name', 'seven')
+    ->execute();
+  variable_set('admin_theme', 'seven');
+  variable_set('node_admin_theme', '0');
+
+  // Set Date Values
+  variable_set('date_format_long', 'l, j F, Y - H:i');
+  variable_set('date_format_medium', 'j F, Y - H:i');
+  variable_set('date_format_short', 'j M Y');
+  variable_set('site_default_country', 'IE');
+  variable_set('date_default_timezone', 'Europe/Dublin');
+  variable_set('date_first_day', '1');
+  variable_set('configurable_timezones', '0');
+
+  // Disable user reg
+  variable_set('user_register', '0');
+
+  // Always show Views master display.
+  variable_set('views_ui_show_master_display', '1');
+
+  // Always show Views advanced column expanded.
+  variable_set('views_ui_show_advanced_column', '1');
+
+  // Don't show Views advanced help warning.
+  variable_set('views_ui_show_advanced_help_warning', '0');
+
+  // Always show Views sql query in preview.
+  variable_set('views_ui_show_sql_query', '1');
+
+  // Show Views sql query below the preview.
+  variable_set('views_ui_show_sql_query_where', 'below');
+
+  // Disable overlay for user 1.
+  $account = user_load(1);
+  $account->data['overlay'] = 0;
+  user_save($account);
+
+  // Set Pathauto patterns
+  variable_set('pathauto_node_pattern', '[node:menu-link:parents:join-path]/[node:title]');
+  variable_set('pathauto_node_news_item_pattern', 'news/[node:title]');
+  variable_set('pathauto_node_object_item_pattern', 'objects/[node:nid]');
+  variable_set('pathauto_update_action', '0');
+
+  // Disable auto redirects of all url aliases for a node to one alias.
+  variable_set('redirect_auto_redirect', 0);
+  // Enable node view panel.
+  variable_set('page_manager_node_view_disabled', 0);
+  // Enable node edit panel.
+  variable_set('page_manager_node_edit_disabled', 0);
+  // Enable field collection edit panel.
+  variable_set('field_collection_field_collection_item_edit_disabled', 0);
+
+  // Set /user as homepage
+  variable_set('site_frontpage', 'dossiers');
+
+  // Set a date format for Timeline
+  variable_set('date_format_timeline_date', 'Y,m,d');
+
+  // Rebuild node permissions.
+  node_access_rebuild();
+}
+
+/**
+ * Enable dossier objects search api features.
+ */
+function storyscope_update_7001() {
+  $modules = array('context_dossier_object_facets', 'views_dossier_objects_searchapi');
+  $msg = t('Enabled view and context for dossier objects search api view.');
+  module_enable($modules);
+  return $msg;
+}
+
+/**
+ * Enable CA context feature.
+ */
+function storyscope_update_7002() {
+  $modules = array('context_ca_dossier_object_facets');
+  module_enable($modules);
+   $msg = t('Enabled context for dossier CA objects search view.');
+  return $msg;
+}
+
+
+/**
+ * Enable narrative section story set view.
+ */
+function storyscope_update_7003() {
+  $modules = array('views_section_story_sets');
+  module_enable($modules);
+   $msg = t('Enabled narrative section story sets view.');
+  return $msg;
+}
+
+/**
+ * Remove edit path permissions from trial users.
+ */
+function storyscope_update_7004() {
+  $roles = user_roles();
+  $rid = array_search('Trial user', $roles);
+  $perm = array(
+    'create url aliases' => FALSE,
+  );
+  user_role_change_permissions($rid, $perm);
+  return $msg;
+}
+
+/**
+ * Enable narrative output panel.
+ */
+function storyscope_update_7005() {
+  $modules = array('panels_story_output');
+  module_enable($modules);
+   $msg = t('Enabled narrative output panel.');
+  return $msg;
+}

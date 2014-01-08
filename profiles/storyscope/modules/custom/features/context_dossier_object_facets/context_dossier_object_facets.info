@@ -1,0 +1,11 @@
+name = Context dossier object facets
+description = Places facet blocks on dossier object page.
+core = 7.x
+package = Context
+dependencies[] = context
+dependencies[] = ctools
+dependencies[] = facetapi
+dependencies[] = views
+features[context][] = facet_search_dossier_objects
+features[ctools][] = context:context:3
+features[features_api][] = api:1

@@ -1,0 +1,11 @@
+.panel-region {
+  margin-bottom: 1.5em;
+}
+
+.middle-wrapper .panel-region {
+  float: left;
+  width: 48%;
+}
+.middle-wrapper .panel-region:last-child {
+  float: right;
+}

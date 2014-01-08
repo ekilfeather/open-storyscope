@@ -1,0 +1,13 @@
+diff --git a/geofield.widgets.openlayers.inc b/geofield.widgets.openlayers.inc
+index 6aa045f..793e95a 100644
+--- a/geofield.widgets.openlayers.inc
++++ b/geofield.widgets.openlayers.inc
+@@ -415,7 +415,7 @@ function openlayers_geofield_widget_element_validate($element, &$form_state) {
+         openlayers_geofield_override_element_delta($element, 0, $delta);
+ 
+         // Assign the value in the form_state
+-        form_set_value($element, $geom->out('wkt'), $form_state);
++        form_set_value($element['geom'], $geom->out('wkt'), $form_state);
+       }
+     }
+   }

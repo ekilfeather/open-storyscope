@@ -1,0 +1,586 @@
+/**
+ * @file
+ * Page Styling
+ *
+ * Style the markup found in page.tpl.php. Also includes some styling of
+ * miscellaneous Drupal elements that appear in the $content variable, such as
+ * ul.links, .pager, .more-link, etc.
+ */
+/* Structure */
+/* line 3, ../sass/_main.scss */
+body {
+  font: 12px/1.35 Arial, Helvetica, "Liberation Sans", FreeSans, sans-serif;
+  color: #1B2627;
+  line-height: 20px;
+  margin: 0;
+  background-color: #D9D9D9;
+  *font-size: small;
+  *font: x-small;
+}
+
+/* line 14, ../sass/_main.scss */
+a {
+  text-decoration: none;
+  color: #0071CD;
+}
+
+/* line 19, ../sass/_main.scss */
+a:hover {
+  text-decoration: underline;
+  color: #003A7E;
+}
+
+/* line 24, ../sass/_main.scss */
+#wrapper {
+  width: 96%;
+  max-width: 990px;
+  margin: 0 auto;
+  padding: 0;
+  background: url(../images/WCA_WrapBack.png) repeat-y white;
+}
+
+/* line 32, ../sass/_main.scss */
+header {
+  clear: both;
+  width: 100%;
+}
+
+/* line 37, ../sass/_main.scss */
+footer {
+  max-height: 423px;
+}
+
+/* line 41, ../sass/_main.scss */
+section {
+  width: 65%;
+  float: left;
+  clear: left;
+  padding: 0 25px 0 40px;
+  margin-bottom: 15px;
+}
+
+/* line 49, ../sass/_main.scss */
+article {
+  width: 60%;
+  float: left;
+}
+
+/* line 54, ../sass/_main.scss */
+aside {
+  width: 35%;
+  float: right;
+}
+
+/* line 59, ../sass/_main.scss */
+aside img {
+  margin-top: 15px;
+  max-width: 200px;
+  width: 100%;
+  height: auto;
+}
+
+/* Logo H1 */
+/* line 67, ../sass/_main.scss */
+header h1.title {
+  float: left;
+  display: block;
+  clear: both;
+  padding-left: 40px;
+  padding-top: 40px;
+  width: 65%;
+  font-size: 1.7em;
+  margin: 0 150px 15px 0;
+}
+
+/* Nav */
+/* line 79, ../sass/_main.scss */
+.microsite_dossier_link {
+  width: 27%;
+  font-size: 14px;
+  margin-left: 73.5%;
+}
+/* line 85, ../sass/_main.scss */
+.microsite_dossier_link a {
+  float: left;
+  padding: 5px;
+  margin-bottom: 10px;
+  color: #fff;
+  background: rgba(0, 0, 0, 0.5);
+}
+/* line 93, ../sass/_main.scss */
+.microsite_dossier_link a:hover {
+  text-decoration: none;
+  color: #eee;
+  background: rgba(0, 0, 0, 0.4);
+}
+
+/* line 101, ../sass/_main.scss */
+#narrow {
+  display: none;
+}
+
+/* line 105, ../sass/_main.scss */
+#story {
+  float: right;
+  width: 27%;
+  font-size: 12px;
+  padding: 0 0 10px 0px;
+  margin: 0;
+}
+
+/* line 113, ../sass/_main.scss */
+#story ul {
+  margin-left: 0;
+  padding-left: 5px;
+  margin-bottom: 40px;
+  margin-top: 7px;
+}
+
+/* line 120, ../sass/_main.scss */
+#story li {
+  margin: 0;
+  list-style-type: none;
+  padding: 6px 0;
+  display: block;
+  line-height: 16px;
+  /* Extra Styles */
+  float: left;
+  width: 48%;
+  margin-right: 2%;
+  margin-bottom: 2%;
+  height: 100px;
+  overflow: hidden;
+  position: relative;
+  /* Styles on the image */
+  /* Style on the link */
+}
+/* line 137, ../sass/_main.scss */
+#story li img {
+  min-width: 100%;
+  min-height: 100%;
+}
+/* line 142, ../sass/_main.scss */
+#story li p {
+  position: absolute;
+  top: 0;
+  width: 90%;
+  margin: 0;
+  padding: 0.5em 0.5em;
+  background: rgba(0, 0, 0, 0.5);
+}
+/* line 149, ../sass/_main.scss */
+#story li p a {
+  color: #fff;
+  font-weight: bold;
+}
+
+/* Pseudo Random arrangement of nav items */
+/* line 157, ../sass/_main.scss */
+#story li:nth-child(3n) p {
+  background: rgba(104, 207, 130, 0.75);
+}
+/* line 160, ../sass/_main.scss */
+#story li:nth-child(3n +1) p {
+  background: rgba(36, 135, 219, 0.75);
+}
+/* line 163, ../sass/_main.scss */
+#story .view-style-1 li:nth-child(3n) {
+  width: 100%;
+  height: 200px;
+}
+/* line 167, ../sass/_main.scss */
+#story .view-style-2 li:nth-child(3n+1) {
+  width: 100%;
+  height: 200px;
+}
+
+/* Banner */
+/* line 174, ../sass/_main.scss */
+#banner {
+  float: left;
+  margin-bottom: 15px;
+  width: 100%;
+}
+
+/* line 180, ../sass/_main.scss */
+#banner img {
+  width: 100%;
+  height: auto;
+}
+
+/* line 185, ../sass/_main.scss */
+#interpretation h1, nav h1, section h2, section h3 {
+  font-weight: bold;
+  font-size: 1.2em;
+  margin: 0;
+}
+
+/* line 191, ../sass/_main.scss */
+nav h1 {
+  padding-left: 25px;
+  width: 93%;
+  color: #232221;
+  font-size: 1.2em;
+  margin: 0;
+}
+
+/* line 199, ../sass/_main.scss */
+#joyride-tips-content {
+  display: none;
+}
+
+/* line 203, ../sass/_main.scss */
+.field-collection-container {
+  border-bottom: none;
+  margin-bottom: 0;
+}
+
+/* Media Queries */
+@media screen and (max-width: 480px) {
+  /* line 210, ../sass/_main.scss */
+  #narrow {
+    display: block;
+  }
+
+  /* line 214, ../sass/_main.scss */
+  #story {
+    display: none;
+  }
+
+  /* line 218, ../sass/_main.scss */
+  footer nav, #main {
+    float: left;
+    clear: left;
+    width: 100%;
+    margin: 0;
+  }
+
+  /* line 225, ../sass/_main.scss */
+  section, #interpretation, aside, article {
+    float: left;
+    clear: left;
+    width: 95%;
+    margin: 0 15px 0 10px;
+  }
+
+  /* line 232, ../sass/_main.scss */
+  aside img {
+    max-width: 400px;
+    height: auto;
+    margin: 7px auto 0 auto;
+    float: none;
+  }
+
+  /* line 239, ../sass/_main.scss */
+  footer nav li {
+    margin: 0;
+    background: #efefef;
+    display: block;
+    margin-bottom: 3px;
+  }
+
+  /* line 246, ../sass/_main.scss */
+  footer nav a {
+    display: block;
+    padding: 10px;
+    text-align: center;
+  }
+}
+/* Overrides and styling for an overview page of a narrative. */
+/* line 3, ../sass/modules/_narratives.scss */
+.view-story-sections {
+  margin-left: 40px;
+}
+/* line 5, ../sass/modules/_narratives.scss */
+.view-story-sections .views-row-odd article {
+  clear: left;
+}
+/* line 8, ../sass/modules/_narratives.scss */
+.view-story-sections article {
+  width: 46%;
+  margin: 1%;
+  float: left;
+}
+/* line 12, ../sass/modules/_narratives.scss */
+.view-story-sections article:first-child {
+  margin-left: 0;
+}
+/* line 15, ../sass/modules/_narratives.scss */
+.view-story-sections article img {
+  float: left;
+  margin-right: 10px;
+}
+/* line 20, ../sass/modules/_narratives.scss */
+.view-story-sections .view-footer {
+  clear: both;
+}
+/* line 24, ../sass/modules/_narratives.scss */
+.view-story-sections.view-display-id-block_1 section {
+  display: none;
+}
+
+/* line 30, ../sass/modules/_narratives.scss */
+.page-dossiers-stories-output .pane-node-body {
+  clear: both;
+  padding-left: 40px;
+}
+
+/*
+ * Body
+ */
+/* line 18, ../sass/pages.scss */
+body {
+  margin: 0;
+  padding: 0;
+}
+
+/*
+ * The skip-link link will be completely hidden until a user tabs to the link.
+ * See the element-focusable rule in system.base.css.
+ */
+/* line 31, ../sass/pages.scss */
+#skip-link {
+  margin: 0;
+}
+/* line 35, ../sass/pages.scss */
+#skip-link a,
+#skip-link a:visited {
+  display: block;
+  width: 100%;
+  padding: 2px 0 3px 0;
+  text-align: center;
+  background-color: #666;
+  color: #fff;
+}
+
+/*
+ * Header
+ */
+/* line 52, ../sass/pages.scss */
+#logo {
+  /* Wrapping link for logo */
+  float: left;
+  /* LTR */
+  margin: 0;
+  padding: 0;
+}
+/* line 57, ../sass/pages.scss */
+#logo img {
+  vertical-align: bottom;
+}
+
+/* line 62, ../sass/pages.scss */
+#name-and-slogan {
+  /* Wrapper for website name and slogan */
+  float: left;
+}
+
+/* line 66, ../sass/pages.scss */
+#site-name {
+  /* The name of the website */
+  margin: 0;
+  font-size: 2em;
+  line-height: 1.5em;
+}
+/* line 72, ../sass/pages.scss */
+#site-name a:link,
+#site-name a:visited {
+  color: #000;
+  text-decoration: none;
+}
+/* line 78, ../sass/pages.scss */
+#site-name a:hover,
+#site-name a:focus {
+  text-decoration: underline;
+}
+
+/* line 83, ../sass/pages.scss */
+#site-slogan {
+  /* The slogan (or tagline) of a website */
+  margin: 0;
+  font-size: 1em;
+}
+
+/* line 88, ../sass/pages.scss */
+.region-header {
+  /* Wrapper for any blocks placed in the header region */
+  clear: both;
+  /* Clear the logo */
+}
+
+/*
+ * Main (container for everything else)
+ */
+/*
+ * Content
+ */
+/* line 109, ../sass/pages.scss */
+.breadcrumb {
+  /* The path to the current page in the form of a list of links */
+}
+/* line 110, ../sass/pages.scss */
+.breadcrumb ol {
+  margin: 0;
+  padding: 0;
+}
+/* line 114, ../sass/pages.scss */
+.breadcrumb li {
+  display: inline;
+  list-style-type: none;
+  margin: 0;
+  padding: 0;
+}
+
+/* line 127, ../sass/pages.scss */
+h1.title,
+h2.node-title,
+h2.block-title,
+h2.title,
+h2.comment-form,
+h3.title {
+  /* Comment title */
+  margin: 0;
+}
+
+/* line 131, ../sass/pages.scss */
+tr.even {
+  /* Some tables have rows marked even or odd. */
+  /* background-color: #eee; */
+  /* Drupal core uses a #eee background */
+}
+
+/* line 135, ../sass/pages.scss */
+tr.odd {
+  /* background-color: #eee; */
+  /* Drupal core uses a #eee background */
+}
+
+/* line 139, ../sass/pages.scss */
+div.messages {
+  /* Important messages (status, warning, and error) for the user. See also the declarations in messages.css. */
+  margin: 1.5em 0;
+  /* Drupal core uses "6px 0" margin */
+}
+/* line 142, ../sass/pages.scss */
+div.messages ul {
+  margin-top: 0;
+  margin-bottom: 0;
+}
+
+/* line 148, ../sass/pages.scss */
+div.status {
+  /* Normal priority messages */
+}
+
+/* line 152, ../sass/pages.scss */
+div.warning,
+tr.warning {
+  /* Medium priority messages */
+  /* border: 1px solid #f0c020; */
+  /* Drupal core uses: 1px solid #f0c020 */
+}
+
+/* line 157, ../sass/pages.scss */
+div.error,
+tr.error {
+  /* High priority messages. See also the .error declaration below. */
+}
+
+/* line 160, ../sass/pages.scss */
+.error {
+  /* Errors that are separate from div.messages status messages. */
+  /* color: #e55; */
+  /* Drupal core uses a #e55 background */
+}
+
+/* line 164, ../sass/pages.scss */
+.warning {
+  /* Warnings that are separate from div.messages status messages. */
+  /* color: #e09010; */
+  /* Drupal core uses a #e09010 background */
+}
+
+/* line 168, ../sass/pages.scss */
+.tabs {
+  /* See also the tabs.css file. */
+}
+
+/* line 171, ../sass/pages.scss */
+.region-help {
+  /* Help text on a page */
+}
+
+/* line 174, ../sass/pages.scss */
+.more-help-link {
+  /* Link to more help */
+}
+
+/* line 177, ../sass/pages.scss */
+.region-content {
+  /* Wrapper for the actual page content */
+}
+
+/* line 180, ../sass/pages.scss */
+ul.inline {
+  /* List of links generated by theme_links() */
+  display: inline;
+  padding: 0;
+}
+/* line 184, ../sass/pages.scss */
+ul.inline li {
+  display: inline;
+  list-style-type: none;
+  padding: 0 1em 0 0;
+  /* LTR */
+}
+
+/* line 190, ../sass/pages.scss */
+span.field-label {
+  /* The inline field label used by the Fences module */
+  padding: 0 1em 0 0;
+  /* LTR */
+}
+
+/* line 194, ../sass/pages.scss */
+.item-list .pager {
+  /* A list of page numbers when more than 1 page of content is available */
+  padding: 0;
+}
+/* line 197, ../sass/pages.scss */
+.item-list .pager li {
+  /* Each page number in the pager list */
+  padding: 0 0.5em;
+}
+
+/* line 202, ../sass/pages.scss */
+.feed-icon {
+  /* The link to the RSS or Atom feed for the current list of content */
+}
+
+/* line 205, ../sass/pages.scss */
+.more-link {
+  /* Aggregator, blog, and forum more link */
+}
+
+/*
+ * First sidebar (on left in LTR languages, on right in RTL)
+ *
+ * Remember to NOT add padding or margin to your .region-sidebar-first
+ * (see the layout.css file.)
+ */
+/*
+ * Second sidebar (on right in LTR languages, on left in RTL)
+ *
+ * Remember to NOT add padding or margin to your .region-sidebar-second
+ * (see the layout.css file.)
+ */
+/*
+ * Footer
+ */
+/*
+ * Page bottom
+ */
+/* line 239, ../sass/pages.scss */
+.region-bottom {
+  /* Wrapper for any blocks placed in the page bottom region */
+}

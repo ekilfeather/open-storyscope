@@ -1,0 +1,38 @@
+<?php
+/**
+ * @file
+ * Install, update, and uninstall functions for the Selectivizr module.
+ */
+
+require_once 'selectivizr.lib.inc';
+
+/**
+ * Implements hook_requirements().
+ */
+function selectivizr_requirements($phase) {
+  $requirements = array();
+  $t = get_t();
+  $installed = _selectivizr_script_path();
+  switch ($phase) {
+    case 'runtime':
+      $requirements['selectivizr_library'] = array(
+        'title' => $t('Selectivizr library'),
+        'value' => $installed ? $t('Installed') : $t('Missing'),
+        'severity' => $installed ? REQUIREMENT_OK : REQUIREMENT_ERROR,
+        'description' => $installed ? $t('Selectivizr is installed and ready to use.') : $t('Selectivizr Javascript Library. Download it from !selectivizr-site and copy into the selectivizr module directory or into the libraries directory if your are using the libraries module. For more information please read the README.txt', array('!selectivizr-site' => l($t('here'), 'http://selectivizr.com'))),
+      );
+      break;
+
+    default:
+      $requirements['selectivizr_library'] = array(
+        'title' => $t('Selectivizr Library'),
+        'value' => $installed ? $t('Installed') : $t('Missing'),
+        'severity' => $installed ? REQUIREMENT_OK : REQUIREMENT_ERROR,
+        'description' =>  $t('Download it from !selectivizr-site and copy into the selectivizr module directory or into the libraries directory if your are using the libraries module. For more information please read the README.txt', array(
+        '!selectivizr-site' => 'http://selectivizr.com', 'http://selectivizr.com')),
+      );
+      break;
+
+  }
+  return $requirements;
+}

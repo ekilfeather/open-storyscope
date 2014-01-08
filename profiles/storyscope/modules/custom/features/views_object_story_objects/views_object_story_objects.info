@@ -1,0 +1,10 @@
+name = views object story objects
+description = Takes an object sotry NID as argument and lists all the objects in it.
+core = 7.x
+package = Views
+php = 5.2.4
+dependencies[] = ctools
+dependencies[] = views
+features[ctools][] = views:views_default:3.0
+features[features_api][] = api:1
+features[views_view][] = object_story_objects

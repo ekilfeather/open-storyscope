@@ -1,0 +1,17 @@
+name = pulp
+description = A theme for people who (think!) they know what they are doing
+core = 7.x
+engine = phptemplate 
+
+regions[sidebar_first] = Sidebar first
+regions[sidebar_second] = Sidebar second
+regions[content] = Content
+regions[header] = Header
+regions[help] = Help
+regions[footer] = Footer
+
+; Information added by drush on 2012-12-07
+version = "unknown"
+project = "pulp"
+datestamp = "1354881096"
+

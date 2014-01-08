@@ -1,0 +1,4086 @@
+<?php
+
+/**
+ * @file
+ * Manages the links between a dossier (or object story) and its contents.
+ * Provides menu callbacks for adding content to a dossier or object story.
+ */
+
+/**
+ * Implements hook_menu().
+ */
+function storyscope_content_menu() {
+  $items = array();
+
+  // Add brand new child content to a dossier, object story or plot.
+  // ----------------------------------------------------------------
+  // To a dossier.
+  $items['dossiers/%node/%/add'] = array(
+    'title callback' => 'storyscope_content_get_add_child_content_form_title',
+    'title arguments' => array('dossier', 2, 1),
+    'page callback' => 'storyscope_content_add_child_content_form',
+    'page arguments' => array('dossier', 1, 2),
+    'access callback' => 'user_is_logged_in',
+    'type' => MENU_LOCAL_TASK,
+  );
+
+  // To a story in a dossier context.
+  $items['dossiers/%node/objectstories/%node/%/add'] = array(
+    'title callback' => 'storyscope_content_get_add_child_content_form_title',
+    'title arguments' => array('object_story', 4, 1, 3),
+    'page callback' => 'storyscope_content_add_child_content_form',
+    'page arguments' => array('object_story', 3, 4),
+    'access callback' => 'user_is_logged_in',
+    'type' => MENU_LOCAL_TASK,
+  );
+
+  // To a story.
+  $items['objectstories/%node/%/add'] = array(
+    'title callback' => 'storyscope_content_get_add_child_content_form_title',
+    'title arguments' => array('object_story', 2, NULL, 1),
+    'page callback' => 'storyscope_content_add_child_content_form',
+    'page arguments' => array('object_story', 1, 2),
+    'access callback' => 'user_is_logged_in',
+    'type' => MENU_LOCAL_TASK,
+  );
+
+  // To a plot in a dossier context.
+/*  $items['dossiers/%node/plots/%node/%/add'] = array(
+    'title callback' => 'storyscope_content_get_add_child_content_form_title',
+    'title arguments' => array('plot', 4, 1, 3),
+    'page callback' => 'storyscope_content_add_child_content_form',
+    'page arguments' => array('plot', 3, 4),
+    'access callback' => 'user_is_logged_in',
+    'type' => MENU_LOCAL_TASK,
+  );
+  */
+
+  // To silently create a plot element in a plot in a dossier context.
+  $items['dossiers/%node/plots/%node/%/add'] = array(
+    'page callback' => 'storyscope_content_add_child_plot_element',
+    'page arguments' => array(1, 3),
+    'access callback' => 'user_is_logged_in',
+    'type' => MENU_LOCAL_TASK,
+  );
+
+  // To a plot.
+  $items['plots/%node/%/add'] = array(
+    'title callback' => 'storyscope_content_get_add_child_content_form_title',
+    'title arguments' => array('plot', 2, NULL, 1),
+    'page callback' => 'storyscope_content_add_child_content_form',
+    'page arguments' => array('plot', 1, 2),
+    'access callback' => 'user_is_logged_in',
+    'type' => MENU_LOCAL_TASK,
+  );
+
+  // To create a story in a dossier context pre-seeded with an object.
+  $items['dossiers/%node/objects/%node/objectstories/add'] = array(
+    'page callback' => 'storyscope_content_object_add_parent_os',
+    'page arguments' => array(3, 1),
+    'access callback' => 'user_is_logged_in',
+    'type' => MENU_CALLBACK,
+  );
+
+  // Add existing content to a dossier or  story.
+  // ---------------------------------------------------
+  // To a dossier.
+  $items['dossiers/%node/%/%node/add'] = array(
+    'title callback' => 'storyscope_content_get_addexisting_child_content_title',
+    'title arguments' => array('dossier', 2, 3, 1),
+    'page callback' => 'storyscope_content_addexisting_child_content',
+    'page arguments' => array('dossier', 1, 2, 3),
+    'access callback' => 'user_is_logged_in',
+    'type' => MENU_CALLBACK,
+  );
+
+  // To a story in a dossier context.
+  $items['dossiers/%node/objectstories/%node/%/%node/add'] = array(
+    'title callback' => 'storyscope_content_get_addexisting_child_content_title',
+    'title arguments' => array('object_story', 4, 5, 1, 3),
+    'page callback' => 'storyscope_content_addexisting_child_content',
+    'page arguments' => array('object_story', 3, 4, 5, 1),
+    'access callback' => 'user_is_logged_in',
+    'type' => MENU_CALLBACK,
+  );
+
+  // To a story.
+  $items['objectstories/%node/%/%node/add'] = array(
+    'title callback' => 'storyscope_content_get_addexisting_child_content_title',
+    'title arguments' => array('object_story', 2, 3, NULL, 1),
+    'page callback' => 'storyscope_content_addexisting_child_content',
+    'page arguments' => array('object_story', 1, 2, 3),
+    'access callback' => 'user_is_logged_in',
+    'type' => MENU_CALLBACK,
+  );
+
+  // To a plot in a dossier context.
+  $items['dossiers/%node/plots/%node/%/%node/add'] = array(
+    'title callback' => 'storyscope_content_get_addexisting_child_content_title',
+    'title arguments' => array('plot', 4, 5, 1, 3),
+    'page callback' => 'storyscope_content_addexisting_child_content',
+    'page arguments' => array('plot', 3, 4, 5, 1),
+    'access callback' => 'user_is_logged_in',
+    'type' => MENU_CALLBACK,
+  );
+
+  // To a plot.
+  $items['plots/%node/%/%node/add'] = array(
+    'title callback' => 'storyscope_content_get_addexisting_child_content_title',
+    'title arguments' => array('plot', 2, 3, NULL, 1),
+    'page callback' => 'storyscope_content_addexisting_child_content',
+    'page arguments' => array('plot', 1, 2, 3),
+    'access callback' => 'user_is_logged_in',
+    'type' => MENU_CALLBACK,
+  );
+
+  // To a plot element in a dossier context.
+  // $parent_type, $story_node, $sub_type, $child_node, $dossier_context = NULL)
+  $items['dossiers/%node/plots/%node/elements/%node/%/%node/add'] = array(
+    'title callback' => 'storyscope_content_get_addexisting_child_content_title',
+    'title arguments' => array('plot_element', 6, 7, NULL, 5),
+    'page callback' => 'storyscope_content_addexisting_child_content',
+    'page arguments' => array('plot_element', 5, 6, 7),
+    'access callback' => 'user_is_logged_in',
+    'type' => MENU_CALLBACK,
+  );
+
+  // Remove content from a dossier, object story or plot.
+  // -----------------------------------------------------
+  // From a dossier.
+  $items['dossiers/%node/%/%node/remove'] = array(
+    'title callback' => 'storyscope_content_get_remove_child_content_title',
+    'title arguments' => array('dossier', 2, 3, 1),
+    'page callback' => 'storyscope_content_remove_child_content',
+    'page arguments' => array('dossier', 1, 2, 3),
+    'access callback' => 'user_is_logged_in',
+    'type' => MENU_CALLBACK,
+  );
+
+  // From a story in a dossier context.
+  $items['dossiers/%node/objectstories/%node/%/%node/remove'] = array(
+    'title callback' => 'storyscope_content_get_remove_child_content_title',
+    'title arguments' => array('object_story', 4, 5, 1, 3),
+    'page callback' => 'storyscope_content_remove_child_content',
+    'page arguments' => array('object_story', 3, 4, 5, 1),
+    'access callback' => 'user_is_logged_in',
+    'type' => MENU_CALLBACK,
+  );
+
+  // From a story.
+  $items['objectstories/%node/%/%node/remove'] = array(
+    'title callback' => 'storyscope_content_get_remove_child_content_title',
+    'title arguments' => array('object_story', 2, 3, NULL, 1),
+    'page callback' => 'storyscope_content_remove_child_content',
+    'page arguments' => array('object_story', 1, 2, 3),
+    'access callback' => 'user_is_logged_in',
+    'type' => MENU_CALLBACK,
+  );
+
+
+  // Narratives.
+  // From a narrative in a dossier context.
+  $items['dossiers/%node/stories/%node/%/%node/remove'] = array(
+    'title callback' => 'storyscope_content_get_remove_child_content_title',
+    'title arguments' => array('story', 4, 5, 1, 3),
+    'page callback' => 'storyscope_content_remove_child_content',
+    'page arguments' => array('story', 3, 4, 5, 1),
+    'access callback' => 'user_is_logged_in',
+    'type' => MENU_CALLBACK,
+  );
+
+  // From a narrative.
+  $items['stories/%node/%/%node/remove'] = array(
+    'title callback' => 'storyscope_content_get_remove_child_content_title',
+    'title arguments' => array('story', 2, 3, NULL, 1),
+    'page callback' => 'storyscope_content_remove_child_content',
+    'page arguments' => array('story', 1, 2, 3),
+    'access callback' => 'user_is_logged_in',
+    'type' => MENU_CALLBACK,
+  );
+
+  // Sections.
+  // From a section in a dossier context.
+  // $parent_type, $story_node, $sub_type, $child_node, $dossier_context = NULL)
+  $items['dossiers/%node/stories/%node/sections/%node/%/%node/remove'] = array(
+    'title callback' => 'storyscope_content_get_remove_child_content_title',
+    'title arguments' => array('section', 6, 7, NULL, 5),
+    'page callback' => 'storyscope_content_remove_child_content',
+    'page arguments' => array('section', 5, 6, 7),
+    'access callback' => 'user_is_logged_in',
+    'type' => MENU_CALLBACK,
+  );
+
+
+  // Plots.
+  // From a plot in a dossier context.
+  $items['dossiers/%node/plots/%node/%/%node/remove'] = array(
+    'title callback' => 'storyscope_content_get_remove_child_content_title',
+    'title arguments' => array('plot', 4, 5, 1, 3),
+    'page callback' => 'storyscope_content_remove_child_content',
+    'page arguments' => array('plot', 3, 4, 5, 1),
+    'access callback' => 'user_is_logged_in',
+    'type' => MENU_CALLBACK,
+  );
+
+  // From a plot.
+  $items['plots/%node/%/%node/remove'] = array(
+    'title callback' => 'storyscope_content_get_remove_child_content_title',
+    'title arguments' => array('plot', 2, 3, NULL, 1),
+    'page callback' => 'storyscope_content_remove_child_content',
+    'page arguments' => array('plot', 1, 2, 3),
+    'access callback' => 'user_is_logged_in',
+    'type' => MENU_CALLBACK,
+  );
+
+  // Plot elements.
+  // From a plot element in a dossier context.
+  // $parent_type, $story_node, $sub_type, $child_node, $dossier_context = NULL)
+  $items['dossiers/%node/plots/%node/elements/%node/%/%node/remove'] = array(
+    'title callback' => 'storyscope_content_get_remove_child_content_title',
+    'title arguments' => array('plot_element', 6, 7, NULL, 5),
+    'page callback' => 'storyscope_content_remove_child_content',
+    'page arguments' => array('plot_element', 5, 6, 7),
+    'access callback' => 'user_is_logged_in',
+    'type' => MENU_CALLBACK,
+  );
+
+  // Move an event from one plot set to another.
+  // -----------------------------------------------------
+  $items['dossiers/%node/plots/%node/elements/%node/events/%node/move'] = array(
+    'title' => 'Move this event',
+    'page callback' => 'storyscope_content_move_event',
+    'page arguments' => array(5, 7),
+    'access callback' => 'user_is_logged_in',
+    'type' => MENU_CALLBACK,
+  );
+
+  return $items;
+}
+
+/**
+ * Helper function to return the allowed child content types for a given node
+ * type.
+ *
+ * @param $parent_type
+ *   The machine name of the parent content type.
+ *
+ * @return
+ *   An array of allowed child content types, where the index matches what would
+ *   appear in a URL path. FALSE if there no matches.
+ */
+function storyscope_content_get_allowed_child_node_types($parent_type) {
+  // Get the allowed sub types.
+  switch ($parent_type) {
+    case 'dossier':
+      $allowed_types = array(
+        'objectstories' => 'object_story',
+        'events' => 'event',
+        'references' => 'reference',
+        'plots' => 'plot',
+        'narratives' => 'narrative_microsite',
+        'stories' => 'story',
+      );
+      break;
+
+    case 'object_story':
+      $allowed_types = array(
+        'events' => 'event',
+        'references' => 'reference',
+        'objects' => 'object',
+      );
+      break;
+
+    case 'story':
+      $allowed_types = array(
+        'sections' => 'section',
+      );
+      break;
+
+    case 'section':
+      $allowed_types = array(
+        'events' => 'event',
+      );
+      break;
+
+    case 'plot':
+      $allowed_types = array(
+        'elements' => 'plot_element',
+      );
+      break;
+
+    case 'plot_element':
+      $allowed_types = array(
+        'events' => 'event',
+      );
+      break;
+
+    default:
+      // No other parent types allowed.
+      return FALSE;
+  }
+
+  return $allowed_types;
+}
+
+/**
+ * Helper function to return the path to node type mapping.
+ *
+ * @param $node_type
+ *   The content type, e.g. 'event', 'object_story', etc.
+ * @param $path
+ *   The subpath from the url, e.g. 'events', 'objectstories', etc.
+ *
+ * @return
+ *   The corresponding subpath or node type. Returns NULL if no match.
+ */
+function storyscope_content_get_node_type_path_mapping($node_type = NULL, $path = NULL) {
+  if (!$path && !$node_type) {
+    return NULL;
+  }
+  $mappings = array(
+    'dossier' => 'dossiers',
+    'object_story' => 'objectstories',
+    'event' => 'events',
+    'dossier' => 'dossiers',
+    'reference' => 'references',
+    'object' => 'objects',
+    'plot' => 'plots',
+    'plot_element' => 'elements',
+    'narrative_microsite' => 'narratives',
+    'story' => 'stories',
+    'section' => 'sections',
+  );
+
+  if ($node_type) {
+    if (!empty($mappings[$node_type])) {
+      return $mappings[$node_type];
+    }
+    elseif ($node_type == 'source_event') {
+      return 'events';
+    }
+  }
+
+  $mappings_flipped = array_flip($mappings);
+  if ($path && !empty($mappings_flipped[$path])) {
+    return $mappings_flipped[$path];
+  }
+
+  return NULL;
+}
+
+/**
+ * Set the menu title of the dossiers/NID/XX/add and similar paths appropriately.
+ *
+ * @param $parent_type
+ *   The type of content we're adding the child content to, i.e. the context.
+ *   Allowed values are 'dossier', 'object_story' and 'plot'.
+ * @param $sub_type
+ *   The type of node form to return, e.g. 'references'. Note, this is plural as
+ *   it comes from the URL and needs to be mapped to the machine name in this
+ *   function.
+ * @param $dossier_node
+ *   The node object for the dossier.
+ * @param $object_story_node
+ *   The node object for the story. It may also be the plot node in the
+ *   case of dossiers/NID/plots/NID/elements/add
+ *
+ * @return
+ *   Return the translated menu title string.
+ */
+function storyscope_content_get_add_child_content_form_title($parent_type, $sub_type, $dossier_node = NULL, $object_story_node = NULL) {
+  // Note, we're not doing anything with the nodes passed in for now, but
+  // retaining that information in case we need them in the future.
+
+  // The story node object is actually a plot node object in the case of
+  // dossiers/NID/plots/NID/elements/add
+  if ($parent_type == 'plot') {
+    $plot_node = $object_story_node;
+  }
+
+  $node_types = array(
+    'objectstories' => 'object_story',
+    'events' => 'event',
+    'references' => 'reference',
+    'plots' => 'plot',
+    'narratives' => 'narrative_microsite',
+    'objects' => 'object',
+    'elements' => 'plot_element',
+    'stories' => 'story',
+  );
+
+  return t('Add @type', array('@type' => $node_types[$sub_type]));
+}
+
+/**
+ * Set the menu title of the dossiers/NID/XX/NID/add and similar paths appropriately.
+ *
+ * @param $parent_type
+ *   The type of content we're adding the child content to, i.e. the context.
+ *   Allowed values are 'dossier', 'object_story' and 'plot'.
+ * @param $sub_type
+ *   The type of node form to return, e.g. 'references'. Note, this is plural as
+ *   it comes from the URL and needs to be mapped to the machine name in this
+ *   function.
+ * @param $child_node
+ *   The node object for the content being added to the dossier or story.
+ * @param $dossier_node
+ *   The node object for the dossier.
+ * @param $object_story_node
+ *   The node object for the story.
+ *
+ * @return
+ *   Return the translated menu title string.
+ */
+function storyscope_content_get_addexisting_child_content_title($parent_type, $sub_type, $child_node, $dossier_node = NULL, $object_story_node = NULL) {
+  // Note, we're not doing anything with the nodes passed in for now, but
+  // retaining that information in case we need them in the future.
+
+  $node_types = array(
+    'objectstories' => 'object_story',
+    'events' => 'event',
+    'references' => 'reference',
+    'plots' => 'plot',
+    'narratives' => 'narrative_microsite',
+    'objects' => 'object',
+    'elements' => 'plot_element',
+  );
+
+  if ($parent_type == 'dossier') {
+    $title = t('Add @child to the @dossier dossier', array('@child' => $child_node->title, '@dossier' => $dossier_node->title));
+  }
+  else {
+    $title = t('Add @child to the @objectstory story', array('@child' => $child_node->title, '@objectstory' => $object_story_node->title));
+  }
+
+  return $title;
+}
+
+/**
+ * Set the menu title of the dossiers/NID/XX/NID/remove and similar paths appropriately.
+ *
+ * @param $parent_type
+ *   The type of content we're removing the child content from, i.e. the context.
+ *   Allowed values are 'dossier', 'object_story', 'plot' and 'story'.
+ * @param $sub_type
+ *   The type of node form to return, e.g. 'references'. Note, this is plural as
+ *   it comes from the URL and needs to be mapped to the machine name in this
+ *   function.
+ * @param $child_node
+ *   The node object for the content being removed from the dossier or story.
+ * @param $dossier_node
+ *   The node object for the dossier.
+ * @param $second_layer_node
+ *   The node object for the story, story or plot (ie. 2nd tier).
+ *
+ * @return
+ *   Return the translated menu title string.
+ */
+function storyscope_content_get_remove_child_content_title($parent_type, $sub_type, $child_node, $dossier_node = NULL, $second_layer_node = NULL) {
+  // Note, we're not doing anything with the nodes passed in for now, but
+  // retaining that information in case we need them in the future.
+
+  $title = $child_node->title;
+  if ($parent_type == 'dossier') {
+    $title = t('Remove @child from the @dossier dossier', array('@child' => $child_node->title, '@dossier' => $dossier_node->title));
+  }
+  elseif ($parent_type == 'object_story') {
+    $title = t('Remove @child from the @objectstory story', array('@child' => $child_node->title, '@objectstory' => $second_layer_node->title));
+  }
+  elseif ($parent_type == 'plot') {
+    $title = t('Remove @child from the @plot plot', array('@child' => $child_node->title, '@plot' => $second_layer_node->title));
+  }
+  elseif ($parent_type == 'plot_element') {
+    $title = t('Remove @child from the @plot_element plot element', array('@child' => $child_node->title, '@plot_element' => $second_layer_node->title));
+  }
+  elseif ($parent_type == 'story') {
+    $title = t('Remove @child from the @story narrative', array('@child' => $child_node->title, '@story' => $second_layer_node->title));
+  }
+  elseif ($parent_type == 'section') {
+    $title = t('Remove @child from the @section section', array('@child' => $child_node->title, '@section' => $second_layer_node->title));
+  }
+
+  return $title;
+}
+
+/**
+ * Silently create a plot element entity as a child of a plot in a dossier
+ * context.
+ */
+function storyscope_content_add_child_plot_element($dossier, $plot) {
+  global $user;
+
+  // Set up an entity wrapper for the plot
+  $plot_wrapper = entity_metadata_wrapper('node', $plot->nid);
+  $delta = $plot_wrapper->field_plot_plot_elements->count();
+
+  // Create the new node.
+  $node = (object) array(
+    'uid' => $user->uid,
+    'name' => (isset($user->name) ? $user->name : ''),
+    'type' => 'plot_element',
+    'language' => LANGUAGE_NONE,
+    'status' => 1,
+    'title' => t('Untitled @delta', array('@delta' => $delta)),
+  );
+  // Initially save the node so we get a NID.
+  node_save($node);
+  // Set the alias
+  $alias = 'dossiers/' . $dossier->nid . '/plots/' . $plot->nid . '/elements/' . $node->nid;
+  $path = base_path() . $alias;
+  $node->path['alias'] = $alias;
+  // TODO: Saving the node here, but need to get the alias into the
+  // entity metadata stuff below.
+  node_save($node);
+  // Set initial field values;
+  $node_wrapper = entity_metadata_wrapper('node', $node->nid);
+  $node_wrapper->field_plot_element_plot_set_1 = NULL;
+  $node_wrapper->field_plot_element_plot_set_2 = NULL;
+  $node_wrapper->save();
+
+  // Update the plot with the link to the new child content.
+  $plot_wrapper->field_plot_plot_elements[$delta]->set($node->nid);
+  $success_message = t('Untitled section successfully added to narrative outline %plot', array('%plot' => $plot->title));
+  $plot_wrapper->save();
+  drupal_set_message($success_message);
+  node_access_acquire_grants($node);
+
+  // Redirect the user to the new node and inform them of its untitled status.
+  $edit_path = base_path() . 'node/' . $node->nid . '/edit?destination=' . $alias;
+  $msg = t('You can now add events to this untitled section. When ready, you can name <a href="' . $edit_path . '" >this plot element</a> and give it a description.');
+  drupal_set_message($msg);
+  drupal_goto($path);
+}
+
+/**
+ * Present the add X node form to the user for our custom callback but also
+ * allow for the dossier, story or plot be updated with the link to a
+ * new piece of child content when created.
+ *
+ * For example, when someone visits dossiers/1/references/add it will show the
+ * add node form for a reference but link it to dossier with nid 1 when saved.
+ *
+ * @param $parent_type
+ *   The type of content to add the link to, i.e. the context.  Allowed values
+ *   are 'dossier', 'object_story' and 'plot'.
+ * @param $story_node
+ *   The node object for the dossier or story.
+ * @param $sub_type
+ *   The type of node form to return, e.g. 'references'. Note, this is plural as
+ *   it comes from the URL and needs to be mapped to the machine name in this
+ *   function.
+ *
+ * @return
+ *   The built $form array as returned from drupal_get_form().
+ */
+function storyscope_content_add_child_content_form($parent_type, $story_node, $sub_type) {
+  global $user;
+  // Ensure we only allow appropriate content to be added to the parent.
+  $allowed_types = storyscope_content_get_allowed_child_node_types($parent_type);
+  // Add in one-time exception for objects in dossiers - allowed for this
+  // function, but not for the vast majority of cases where
+  // storyscope_content_get_allowed_child_node_types() is called from.
+  if ($parent_type == 'dossier' && $sub_type == 'objects') {
+    $allowed_types['objects'] = 'object';
+  }
+  if (empty($allowed_types)) {
+    drupal_not_found();
+    return '';
+  }
+  // Ensure we have a valid sub type for the parent.
+  if (empty($allowed_types[$sub_type])) {
+    drupal_not_found();
+    return '';
+  }
+
+  // Set the machine name.
+  $type = $allowed_types[$sub_type];
+
+  // Load in include file containing node_type_get_types() function.
+  module_load_include('inc', 'node', 'node.pages');
+
+  // Retrieve appropriate node form.
+  $types = node_type_get_types();
+  $node = (object) array(
+    'uid' => $user->uid,
+    'name' => (isset($user->name) ? $user->name : ''),
+    'type' => $type,
+    'language' => LANGUAGE_NONE,
+    $parent_type => $story_node->nid,
+  );
+  drupal_set_title(t('Create @name', array('@name' => $types[$type]->name)), PASS_THROUGH);
+  $form = drupal_get_form($type . '_node_form', $node);
+
+  return $form;
+}
+
+/**
+ * Implements hook_field_attach_form().
+ *
+ * Add temporary 'dossier', 'object_story' or 'plot' settings to the node form for later
+ * access in hook_node_insert().
+ */
+function storyscope_content_field_attach_form($entity_type, $entity, &$form, &$form_state, $langcode) {
+  if (!empty($entity->dossier)) {
+    $form['dossier'] = array(
+      '#type' => 'hidden',
+      '#value' => $entity->dossier,
+    );
+  }
+  if (!empty($entity->object_story)) {
+    $form['object_story'] = array(
+      '#type' => 'hidden',
+      '#value' => $entity->object_story,
+    );
+  }
+  if (!empty($entity->plot)) {
+    $form['plot'] = array(
+      '#type' => 'hidden',
+      '#value' => $entity->plot,
+    );
+  }
+  if (!empty($entity->story)) {
+    $form['story'] = array(
+      '#type' => 'hidden',
+      '#value' => $entity->story,
+    );
+  }
+}
+
+/**
+ * Implements hook_node_insert().
+ *
+ * Update the parent dossier, story or plot with the link to the newly created
+ * content.
+ */
+function storyscope_content_node_insert($node) {
+
+
+  // Dossier context.
+  // -----------------
+  if (!empty($node->dossier)) {
+    $dossier = node_load($node->dossier);
+    $dossier_wrapper = entity_metadata_wrapper('node', $dossier);
+
+    // Update the dossier with the link to the new content.
+    switch ($node->type) {
+      case 'object_story':
+        $delta = $dossier_wrapper->field_dossier_object_stories->count();
+        $dossier_wrapper->field_dossier_object_stories[$delta]->set($node->nid);
+        storyscope_content_create_path_aliases($node, $dossier);
+        break;
+      case 'object':
+        // Spawn wrapper story and add the object to it.
+        $object_story = storyscope_content_spawn_object_object_story($dossier, $node);
+        // Add story to dossier.
+        $delta = $dossier_wrapper->field_dossier_object_stories->count();
+        $dossier_wrapper->field_dossier_object_stories[$delta]->set($object_story->nid);
+        storyscope_content_create_path_aliases($object_story, $dossier);
+        break;
+      case 'event':
+        $delta = $dossier_wrapper->field_dossier_events->count();
+        $dossier_wrapper->field_dossier_events[$delta]->set($node->nid);
+        storyscope_content_create_path_aliases($node, $dossier);
+        break;
+      case 'reference':
+        $delta = $dossier_wrapper->field_dossier_references->count();
+        $dossier_wrapper->field_dossier_references[$delta]->set($node->nid);
+        storyscope_content_create_path_aliases($node, $dossier);
+        break;
+      case 'plot':
+        $delta = $dossier_wrapper->field_dossier_plots->count();
+        $dossier_wrapper->field_dossier_plots[$delta]->set($node->nid);
+        storyscope_content_create_path_aliases($node, $dossier);
+        break;
+      case 'story':
+        $delta = $dossier_wrapper->field_dossier_stories->count();
+        $dossier_wrapper->field_dossier_stories[$delta]->set($node->nid);
+        storyscope_content_create_path_aliases($node, $dossier);
+        break;
+      case 'narrative_microsite':
+        $delta = $dossier_wrapper->field_dossier_narratives->count();
+        $dossier_wrapper->field_dossier_narratives[$delta]->set($node->nid);
+        storyscope_content_create_path_aliases($node, $dossier);
+        break;
+    }
+
+    // Save the dossier.
+    $dossier_wrapper->save();
+  }
+
+  // Object story context.
+  // ---------------------
+  if (!empty($node->object_story)) {
+    $object_story = node_load($node->object_story);
+    $object_story_wrapper = entity_metadata_wrapper('node', $object_story);
+
+    // Update the story with the link to the new content.
+    switch ($node->type) {
+      case 'event':
+        $delta = $object_story_wrapper->field_object_story_events->count();
+        $object_story_wrapper->field_object_story_events[$delta]->set($node->nid);
+        storyscope_content_create_path_aliases($node, $object_story);
+
+        // Clone into dossier context where possible.
+        // Temporarily unset $node->object_story to avoid recursion.
+        $object_story = $node->object_story;
+        unset($node->object_story);
+        $clone = storyscope_content_clone_content($node);
+        $node->object_story = $object_story;
+        $query = new EntityFieldQuery();
+        $query->entityCondition('entity_type', 'node')
+              ->entityCondition('bundle', 'dossier')
+              ->fieldCondition('field_dossier_object_stories', 'target_id', $node->object_story);
+        $result = $query->execute();
+
+        // For each parent dossier, add the event to it if necessary.
+        if (isset($result['node'])) {
+          foreach ($result['node'] as $record) {
+            $dossier = node_load($record->nid);
+            $dossier_wrapper = entity_metadata_wrapper('node', $dossier);
+            $dossier_event_count = $dossier_wrapper->field_dossier_events->count();
+            $dossier_wrapper->field_dossier_events[$dossier_event_count]->set($clone->nid);
+            $dossier_wrapper->save();
+            storyscope_content_create_path_aliases($clone, $dossier);
+          }
+        }
+        break;
+      case 'reference':
+        $delta = $object_story_wrapper->field_object_story_references->count();
+        $object_story_wrapper->field_object_story_references[$delta]->set($node->nid);
+        storyscope_content_create_path_aliases($node, $object_story);
+        break;
+      case 'object':
+        $delta = $object_story_wrapper->field_object_story_objects->count();
+        $object_story_wrapper->field_object_story_objects[$delta]->set($node->nid);
+        storyscope_content_create_path_aliases($node, $object_story);
+        break;
+    }
+
+    // Save the story.
+    $object_story_wrapper->save();
+  }
+
+  // Plot context.
+  // -------------
+  if (!empty($node->plot)) {
+    $plot = node_load($node->plot);
+    $plot_wrapper = entity_metadata_wrapper('node', $plot);
+
+    // Update the plot with the link to the new content.
+    switch ($node->type) {
+      case 'plot_element':
+        $delta = $plot_wrapper->field_plot_plot_elements->count();
+        $plot_wrapper->field_plot_plot_elements[$delta]->set($node->nid);
+        storyscope_content_create_path_aliases($node, $plot);
+        break;
+    }
+
+    // Save the plot.
+    $plot_wrapper->save();
+  }
+
+  // Narrative context.
+  // --------------
+  if (!empty($node->story)) {
+    $story = node_load($node->story);
+    $story_wrapper = entity_metadata_wrapper('node', $story);
+
+    // Update the narrative with the link to the new content.
+    switch ($node->type) {
+      case 'section':
+        $delta = $story_wrapper->field_story_sections->count();
+        $story_wrapper->field_story_sections[$delta]->set($node->nid);
+        storyscope_content_create_path_aliases($node, $story);
+        break;
+    }
+
+    // Save the narrative.
+    $story_wrapper->save();
+  }
+
+
+
+  // New dossier node.
+  // -----------------
+  if ($node->type == 'dossier') {
+    // Set up path aliases for all of its new children.
+    $node_wrapper = entity_metadata_wrapper('node', $node);
+    // Handle stories and their children.
+    foreach ($node_wrapper->field_dossier_object_stories->value() as $object_story) {
+      $object_story->dossiers[] = $node->nid;
+      $object_story_wrapper = entity_metadata_wrapper('node', $object_story);
+      storyscope_content_create_path_aliases($object_story, $node);
+
+      // Story -> events.
+      foreach ($object_story_wrapper->field_object_story_events->value() as $event) {
+        storyscope_content_create_path_aliases($event, $object_story);
+      }
+      // Story -> references.
+      foreach ($object_story_wrapper->field_object_story_references->value() as $reference) {
+        storyscope_content_create_path_aliases($reference, $object_story);
+      }
+      // Story -> objects.
+      foreach ($object_story_wrapper->field_object_story_objects->value() as $object) {
+        storyscope_content_create_path_aliases($object, $object_story);
+      }
+    }
+    // Events.
+    foreach ($node_wrapper->field_dossier_events->value() as $event) {
+      storyscope_content_create_path_aliases($event, $node);
+    }
+    // References.
+    foreach ($node_wrapper->field_dossier_references->value() as $reference) {
+      storyscope_content_create_path_aliases($reference, $node);
+    }
+    // Plots and their children.
+    foreach ($node_wrapper->field_dossier_plots->value() as $plot) {
+      $plot->dossiers[] = $node->nid;
+      storyscope_content_create_path_aliases($plot, $node);
+
+      // Plots -> plot elements.
+      $plot_wrapper = entity_metadata_wrapper('node', $plot);
+      foreach ($plot_wrapper->field_plot_plot_elements->value() as $plot_element) {
+        storyscope_content_create_path_aliases($plot_element, $plot);
+      }
+    }
+    // Narratives and their children.
+    foreach ($node_wrapper->field_dossier_stories->value() as $story) {
+      $story->dossiers[] = $node->nid;
+      storyscope_content_create_path_aliases($story, $node);
+
+      // Narratives -> sections.
+      $story_wrapper = entity_metadata_wrapper('node', $story);
+      foreach ($story_wrapper->field_story_sections->value() as $section) {
+        storyscope_content_create_path_aliases($section, $story);
+      }
+    }
+    // Old Style Narratives. [deprecated]
+    foreach ($node_wrapper->field_dossier_narratives->value() as $narrative) {
+      storyscope_content_create_path_aliases($reference, $node);
+    }
+  }
+
+  // New story node.
+  // ----------------------
+  elseif ($node->type == 'object_story') {
+    if (empty($node->dossiers) && isset($node->dossier)) {
+      $node->dossiers[] = $node->dossier;
+    }
+    // Set up path aliases for all of its new children.
+    $node_wrapper = entity_metadata_wrapper('node', $node);
+    // Events.
+    foreach ($node_wrapper->field_object_story_events->value() as $event) {
+      storyscope_content_create_path_aliases($event, $node);
+    }
+    // References.
+    foreach ($node_wrapper->field_object_story_references->value() as $reference) {
+      storyscope_content_create_path_aliases($reference, $node);
+    }
+    // Objects.
+    foreach ($node_wrapper->field_object_story_objects->value() as $object) {
+      storyscope_content_create_path_aliases($object, $node);
+    }
+  }
+
+  // New plot node.
+  // ---------------
+  elseif ($node->type == 'plot') {
+    // Set up path aliases for all of its new children.
+    // Plot elements.
+    $node_wrapper = entity_metadata_wrapper('node', $node);
+    foreach ($node_wrapper->field_plot_plot_elements->value() as $plot_element) {
+      storyscope_content_create_path_aliases($plot_element, $node);
+    }
+  }
+
+  // New narrative node.
+  // ---------------
+  elseif ($node->type == 'story') {
+    // Set up path aliases for all of its new children.
+    // Plot elements.
+    $node_wrapper = entity_metadata_wrapper('node', $node);
+    foreach ($node_wrapper->field_story_sections->value() as $section) {
+      storyscope_content_create_path_aliases($section, $node);
+    }
+  }
+  // If it is a plot, plot element or narrative, stop pathauto generating its own alias.
+  $no_pathauto_aliases = array('plot', 'plot_element', 'narrative_microsite', 'story', 'section');
+  if (in_array($node->type, $no_pathauto_aliases)) {
+    $node->path['pathauto'] = 0;
+  }
+}
+
+/**
+ * Implements hook_node_presave().
+ *
+ * Create a source event for a new 'event' if necessary and update the event
+ * node before saving to the database.
+ */
+function storyscope_content_node_presave($node) {
+  // Events.
+  // --------
+  if ($node->type == 'event') {
+    // For new 'events' added via the UI, automatically spin out a 'source
+    // event' node for it in the background. We can distinguish these from ones
+    // created via code by the lack of a reference to a source event, i.e. those
+    // created via the UI won't have a source event filled out.
+    $event_wrapper = entity_metadata_wrapper('node', $node);
+    $source_event_node = $event_wrapper->field_event_source_event->value();
+
+    if (empty($source_event_node)) {
+      // Create our source event node.
+      $source_event_node = new stdClass;
+      $source_event_node->type = 'source_event';
+      $source_event_node->is_new = TRUE;
+      $source_event_node->status = TRUE;
+      $source_event_node->title = $node->title;
+      $source_event_node->language = $node->language;
+      $source_event_node->uid = $node->uid;
+      node_save($source_event_node);
+
+      // Update this event node with the source event.
+      $node->field_event_source_event[$node->language][]['target_id'] = $source_event_node->nid;
+    }
+
+    // Convert the partial date elements into an ISO timestamp for storage.
+    // Event start date.
+    $lang = $node->language;
+    if (!empty($node->field_event_start_time[$lang][0])) {
+      $partial_start_date = $node->field_event_start_time[$lang][0];
+      $node->field_event_start_timestamp[$lang][0]['value'] = storyscope_content_convert_partial_date($partial_start_date);
+      $node->field_event_start_timestamp[$lang][0]['value2'] = $node->field_event_start_timestamp[$lang][0]['value'];
+    }
+    // Event end date.
+    if (!empty($node->field_event_end_time[$lang][0])) {
+      $partial_end_date = $node->field_event_end_time[$lang][0];
+      $node->field_event_end_timestamp[$lang][0]['value'] = storyscope_content_convert_partial_date($partial_end_date);
+      $node->field_event_end_timestamp[$lang][0]['value2'] = $node->field_event_end_timestamp[$lang][0]['value'];
+    }
+  }
+
+  // Objects
+  // --------
+  // Convert the partial date elements into an ISO timestamp for storage.
+  if ($node->type == 'object') {
+    $lang = $node->language;
+    // Object creation date.
+    if (!empty($node->field_object_creation_date[$lang][0])) {
+      $partial_creation_date = $node->field_object_creation_date[$lang][0];
+      $node->field_object_creation_timestamp[$lang][0]['value'] = storyscope_content_convert_partial_date($partial_creation_date);
+      $node->field_object_creation_timestamp[$lang][0]['value2'] = $node->field_object_creation_timestamp[$lang][0]['value'];
+    }
+
+    return $node;
+  }
+
+  // If it is a narrative, section, plot, plot element or narrative, stop pathauto generating its own alias.
+  $no_pathauto_aliases = array('plot', 'plot_element', 'narrative_microsite', 'story', 'section');
+  if (in_array($node->type, $no_pathauto_aliases)) {
+    $node->path['pathauto'] = 0;
+    return $node;
+  }
+}
+
+/**
+ * Implements hook_field_collection_item_presave().
+ *
+ * Update hidden field_creator_birth_timestamp and field_creator_death_timestamp
+ * fields with calculated timestamps from the partial date fields.
+ */
+function storyscope_content_field_collection_item_presave($collection) {
+  $entity = entity_load_single('field_collection_item', intval($collection->item_id));
+  if (!empty($entity)) {
+    $host_entity = $entity->hostEntity();
+    if (isset($host_entity->language)) {
+    	$lang = isset($host_entity->language) ? $host_entity->language : $host_entity->langcode();
+    	if ($collection->field_name == 'field_object_creator') {
+      	// Object creator birth date.
+      	if (!empty($collection->field_creator_birth_date[$lang][0])) {
+        $partial_creator_birth_date = $collection->field_creator_birth_date[$lang][0];
+        $collection->field_creator_birth_timestamp[$lang][0]['value'] = storyscope_content_convert_partial_date($partial_creator_birth_date);
+     	 }
+     	 // Object creator death date.
+     	if (!empty($collection->field_creator_death_date[$lang][0])) {
+        $partial_creator_death_date = $collection->field_creator_death_date[$lang][0];
+        $collection->field_creator_death_timestamp[$lang][0]['value'] = storyscope_content_convert_partial_date($partial_creator_death_date);
+      }
+    }
+    
+    
+    }
+  }
+}
+
+/**
+ * Implements hook_node_load().
+ *
+ * Load in extra data that isn't stored on the node object by default.
+ */
+function storyscope_content_node_load($nodes, $types) {
+
+  // Split $nodes up by node type.
+  $node_types = array();
+  foreach ($nodes as $nid => $node) {
+    $node_types[$node->type][$nid] = $node;
+  }
+
+  // Source events.
+  if (!empty($node_types['source_event'])) {
+    // Store count of associated events on the source event node.
+    $result = db_query('SELECT field_event_source_event_target_id, COUNT(*) as count FROM {field_data_field_event_source_event} WHERE field_event_source_event_target_id IN (:nids) GROUP BY field_event_source_event_target_id', array(':nids' => array_keys($node_types['source_event'])));
+    foreach ($result as $record) {
+      $nodes[$record->field_event_source_event_target_id]->events_count = $record->count;
+      // Also store the date (of the most recent event node).
+      $sql = 'SELECT node.nid, node.changed, field_data_field_event_start_time.field_event_start_time_year FROM {node}, {field_data_field_event_start_time} 
+  WHERE node.nid IN (SELECT entity_id FROM {field_data_field_event_source_event} WHERE field_event_source_event_target_id = :nid) 
+  AND node.nid = field_data_field_event_start_time.entity_id
+  ORDER BY node.changed DESC LIMIT 1';
+       $event_result = db_query($sql, array(':nid' => $record->field_event_source_event_target_id));
+       foreach ($event_result as $item) {
+         $nodes[$record->field_event_source_event_target_id]->event_display_date = $item->field_event_start_time_year;
+       }
+    }
+  }
+  // Events.
+  if (!empty($node_types['event'])) {
+    $events = array_keys($node_types['event']);
+    foreach ($events as $event_nid) {
+      // Add list of referencing dossiers to the event node.
+      $query = new EntityFieldQuery();
+      $query->entityCondition('entity_type', 'node')
+            ->entityCondition('bundle', 'dossier')
+            ->fieldCondition('field_dossier_events', 'target_id', $event_nid);
+      $result = $query->execute();
+      if (isset($result['node'])) {
+        foreach ($result['node'] as $dossier) {
+          $nodes[$event_nid]->dossiers[] = $dossier->nid;
+        }
+      }
+
+      // Add list of referencing object stories to the event node.
+      $query = new EntityFieldQuery();
+      $query->entityCondition('entity_type', 'node')
+            ->entityCondition('bundle', 'object_story')
+            ->fieldCondition('field_object_story_events', 'target_id', $event_nid);
+      $result = $query->execute();
+      if (isset($result['node'])) {
+        foreach ($result['node'] as $object_story) {
+          $nodes[$event_nid]->object_stories[] = $object_story->nid;
+        }
+      }
+    }
+  }
+
+  // Stories.
+  if (!empty($node_types['object_story'])) {
+    $object_stories = array_keys($node_types['object_story']);
+    foreach ($object_stories as $object_story_nid) {
+      // Add list of referencing dossiers to the story node.
+      $query = new EntityFieldQuery();
+      $query->entityCondition('entity_type', 'node')
+            ->entityCondition('bundle', 'dossier')
+            ->fieldCondition('field_dossier_object_stories', 'target_id', $object_story_nid);
+      $result = $query->execute();
+      if (isset($result['node'])) {
+        foreach ($result['node'] as $dossier) {
+          $nodes[$object_story_nid]->dossiers[] = $dossier->nid;
+        }
+      }
+    }
+
+    // Store associated object node ids on the story.
+    // TODO - not sure this does what I intended, surely I should be looking at
+    // dossiers?
+    foreach ($node_types['object_story'] as $nid => $node) {
+      $node_wrapper = entity_metadata_wrapper('node', $node);
+      foreach ($node_wrapper->field_object_story_objects->value() as $object) {
+        $nodes[$nid]->object_nodes[$object->nid] = $object->nid;
+      }
+    }
+  }
+
+  // Objects.
+  if (!empty($node_types['object'])) {
+    // Add list of referencing object stories to the object node.
+    $objects = array_keys($node_types['object']);
+    foreach ($objects as $object_nid) {
+      $query = new EntityFieldQuery();
+      $query->entityCondition('entity_type', 'node')
+            ->entityCondition('bundle', 'object_story')
+            ->fieldCondition('field_object_story_objects', 'target_id', $object_nid);
+      $result = $query->execute();
+      if (isset($result['node'])) {
+        foreach ($result['node'] as $object_story) {
+          $nodes[$object_nid]->object_stories[] = $object_story->nid;
+        }
+      }
+    }
+  }
+
+  // References.
+  if (!empty($node_types['reference'])) {
+    $references = array_keys($node_types['reference']);
+    foreach ($references as $reference_nid) {
+      // Add list of referencing dossiers to the reference node.
+      $query = new EntityFieldQuery();
+      $query->entityCondition('entity_type', 'node')
+            ->entityCondition('bundle', 'dossier')
+            ->fieldCondition('field_dossier_references', 'target_id', $reference_nid);
+      $result = $query->execute();
+      if (isset($result['node'])) {
+        foreach ($result['node'] as $dossier) {
+          $nodes[$reference_nid]->dossiers[] = $dossier->nid;
+        }
+      }
+
+      // Add list of referencing object stories to the reference node.
+      $query = new EntityFieldQuery();
+      $query->entityCondition('entity_type', 'node')
+            ->entityCondition('bundle', 'object_story')
+            ->fieldCondition('field_object_story_references', 'target_id', $reference_nid);
+      $result = $query->execute();
+      if (isset($result['node'])) {
+        foreach ($result['node'] as $object_story) {
+          $nodes[$reference_nid]->object_stories[] = $object_story->nid;
+        }
+      }
+    }
+  }
+
+  // Narratives.
+  if (!empty($node_types['story'])) {
+    $stories = array_keys($node_types['story']);
+    foreach ($stories as $story_nid) {
+      // Add list of referencing dossiers to the narrative node.
+      $query = new EntityFieldQuery();
+      $query->entityCondition('entity_type', 'node')
+            ->entityCondition('bundle', 'dossier')
+            ->fieldCondition('field_dossier_stories', 'target_id', $story_nid);
+      $result = $query->execute();
+      if (isset($result['node'])) {
+        foreach ($result['node'] as $dossier) {
+          $nodes[$story_nid]->dossiers[] = $dossier->nid;
+        }
+      }
+    }
+  }
+
+  // Sections.
+  if (!empty($node_types['section'])) {
+    $sections = array_keys($node_types['section']);
+    foreach ($sections as $section_nid) {
+      // Add list of referencing stories to the section node.
+      $query = new EntityFieldQuery();
+      $query->entityCondition('entity_type', 'node')
+            ->entityCondition('bundle', 'story')
+            ->fieldCondition('field_story_sections', 'target_id', $section_nid);
+      $result = $query->execute();
+      if (isset($result['node'])) {
+        foreach ($result['node'] as $story) {
+          $nodes[$section_nid]->stories[] = $story->nid;
+        }
+      }
+    }
+  }
+
+
+  // Plots.
+  if (!empty($node_types['plot'])) {
+    $plots = array_keys($node_types['plot']);
+    foreach ($plots as $plot_nid) {
+      // Add list of referencing dossiers to the plot node.
+      $query = new EntityFieldQuery();
+      $query->entityCondition('entity_type', 'node')
+            ->entityCondition('bundle', 'dossier')
+            ->fieldCondition('field_dossier_plots', 'target_id', $plot_nid);
+      $result = $query->execute();
+      if (isset($result['node'])) {
+        foreach ($result['node'] as $dossier) {
+          $nodes[$plot_nid]->dossiers[] = $dossier->nid;
+        }
+      }
+    }
+  }
+
+  // Plot elements.
+  if (!empty($node_types['plot_element'])) {
+    $plot_elements = array_keys($node_types['plot_element']);
+    foreach ($plot_elements as $plot_element_nid) {
+      // Add list of referencing dossiers to the plotelement node.
+      $query = new EntityFieldQuery();
+      $query->entityCondition('entity_type', 'node')
+            ->entityCondition('bundle', 'plot')
+            ->fieldCondition('field_plot_plot_elements', 'target_id', $plot_element_nid);
+      $result = $query->execute();
+      if (isset($result['node'])) {
+        foreach ($result['node'] as $plot) {
+          $nodes[$plot_element_nid]->plots[] = $plot->nid;
+        }
+      }
+    }
+  }
+
+  // Old Style Narratives. [deprecated]
+  if (!empty($node_types['narrative_microsite'])) {
+    $narratives = array_keys($node_types['narrative_microsite']);
+    foreach ($narratives as $narrative_nid) {
+      // Add list of referencing dossiers to the narrative node.
+      $query = new EntityFieldQuery();
+      $query->entityCondition('entity_type', 'node')
+            ->entityCondition('bundle', 'dossier')
+            ->fieldCondition('field_dossier_narratives', 'target_id', $narrative_nid);
+      $result = $query->execute();
+      if (isset($result['node'])) {
+        foreach ($result['node'] as $dossier) {
+          $nodes[$narrative_nid]->dossiers[] = $dossier->nid;
+        }
+      }
+    }
+  }
+}
+
+/**
+ * Implements hook_node_delete().
+ *
+ * Delete certain child/referenced nodes when deleting nodes.
+ */
+function storyscope_content_node_delete($node) {
+  switch ($node->type) {
+
+    // Dossier.
+    case 'dossier':
+      // Delete child events, narratives, plots, narratives and stories.
+      $node_wrapper = entity_metadata_wrapper('node', $node);
+      foreach ($node_wrapper->field_dossier_events->value() as $delta => $child_event) {
+        node_delete($child_event->nid);
+      }
+      foreach ($node_wrapper->field_dossier_object_stories->value() as $delta => $child_object_story) {
+        node_delete($child_object_story->nid);
+      }
+      foreach ($node_wrapper->field_dossier_plots->value() as $delta => $child_plot) {
+        node_delete($child_plot->nid);
+      }
+      foreach ($node_wrapper->field_dossier_stories->value() as $delta => $child_story) {
+        node_delete($child_story->nid);
+      }
+      foreach ($node_wrapper->field_dossier_narratives->value() as $delta => $child_narrative) {
+        node_delete($child_narrative->nid);
+      }
+
+      // Remove child paths.
+      foreach ($node_wrapper->field_dossier_references->value() as $delta => $child_reference) {
+        path_delete(array('alias' => 'dossiers/' . $node->nid . '/references/' .  $child_reference->nid));
+      }
+
+      break;
+
+
+    // Story.
+    case 'object_story':
+      // Delete child events.
+      $node_wrapper = entity_metadata_wrapper('node', $node);
+      foreach ($node_wrapper->field_object_story_events->value() as $delta => $child_event) {
+        node_delete($child_event->nid);
+      }
+
+      // Remove child paths.
+      foreach ($node_wrapper->field_object_story_references->value() as $delta => $child_reference) {
+        path_delete(array('alias' => 'objectstories/' . $node->nid . '/references/' .  $child_reference->nid));
+        if (!empty($node->dossiers)) {
+          foreach ($node->dossiers as $dossier_nid) {
+            path_delete(array('alias' => 'dossiers/' . $dossier_nid . '/objectstories/' . $node->nid . '/references/' .  $child_reference->nid));
+          }
+        }
+      }
+      foreach ($node_wrapper->field_object_story_objects->value() as $delta => $child_object) {
+        path_delete(array('alias' => 'objectstories/' . $node->nid . '/objects/' .  $child_object->nid));
+        if (!empty($node->dossiers)) {
+          foreach ($node->dossiers as $dossier_nid) {
+            path_delete(array('alias' => 'dossiers/' . $dossier_nid . '/objectstories/' . $node->nid . '/objects/' .  $child_object->nid));
+          }
+        }
+      }
+      break;
+
+
+    // Plot.
+    case 'plot':
+      // Delete child plot elements.
+      $node_wrapper = entity_metadata_wrapper('node', $node);
+      foreach ($node_wrapper->field_plot_plot_elements->value() as $delta => $child_plot_element) {
+        node_delete($child_plot_element->nid);
+      }
+
+      // Remove child paths.
+      foreach ($node_wrapper->field_plot_plot_elements->value() as $delta => $child_plot_element) {
+        path_delete(array('alias' => 'plots/' . $node->nid . '/elements/' .  $child_plot_element->nid));
+        if (!empty($node->dossiers)) {
+          foreach ($node->dossiers as $dossier_nid) {
+            path_delete(array('alias' => 'dossiers/' . $dossier_nid . '/plots/' . $node->nid . '/elements/' .  $child_plot_element->nid));
+          }
+        }
+      }
+      break;
+
+
+    // Narratives.
+    case 'story':
+      // Delete child sections.
+      $node_wrapper = entity_metadata_wrapper('node', $node);
+      foreach ($node_wrapper->field_story_sections->value() as $delta => $child_section) {
+        node_delete($child_section->nid);
+      }
+
+      // Remove child paths.
+      foreach ($node_wrapper->field_story_sections->value() as $delta => $child_section) {
+        path_delete(array('alias' => 'stories/' . $node->nid . '/sections/' .  $child_section->nid));
+        if (!empty($node->dossiers)) {
+          foreach ($node->dossiers as $dossier_nid) {
+            path_delete(array('alias' => 'dossiers/' . $dossier_nid . '/stories/' . $node->nid . '/sections/' .  $child_section->nid));
+          }
+        }
+      }
+      break;
+
+  }
+}
+
+/**
+ * Update a dossier or story with the link to an existing piece of child
+ * content.
+ *
+ * For example, when someone visits dossiers/1/references/2/add it adds the
+ * reference with nid 2 to the dossier with nid 1.
+ *
+ * @param $parent_type
+ *   The type of content to add the link to, i.e. the context.  Allowed values
+ *   are 'dossier', 'object_story', 'story' and 'plot'.
+ * @param $story_node
+ *   The node object for the dossier, story, story or plot.
+ * @param $sub_type
+ *   The type of node being added, e.g. 'references'. Note, this is plural as
+ *   it comes from the URL and needs to be mapped to the machine name in this
+ *   function.
+ * @param $child_node
+ *   The node object for the child content being added to the dossier or object
+ *   story.
+ * @param $dossier_context
+ *   The node object for the dossier if in a story context within a
+ *   dossier context.
+ *
+ * @return
+ *   The built $form array as returned from drupal_get_form().
+ */
+function storyscope_content_addexisting_child_content($parent_type, $story_node, $sub_type, $child_node, $dossier_context = NULL) {
+  $is_ajax = FALSE;
+  if (isset($_GET['ajax'])) {
+    $is_ajax = TRUE;
+  }
+  $exists = FALSE;
+
+  // Ensure we only allow appropriate content to be added to the parent.
+  $allowed_types = storyscope_content_get_allowed_child_node_types($parent_type);
+  // Add in one-time exception for objects in dossiers - allowed for this
+  // function, but not for the vast majority of cases where
+  // storyscope_content_get_allowed_child_node_types() is called from.
+  if ($parent_type == 'dossier') {
+    $allowed_types['objects'] = 'object';
+  }
+  if (empty($allowed_types) || empty($allowed_types[$sub_type]) || in_array($sub_type, array('stories', 'plots', 'narratives'))) {
+    drupal_not_found();
+    return '';
+  }
+  elseif ($child_node->type != $allowed_types[$sub_type]) {
+    if ($sub_type != 'events' || ($sub_type == 'events' && $child_node->type != 'source_event')) {
+      drupal_not_found();
+      return '';
+    }
+  }
+
+  // Dossier context.
+  // -----------------
+  if ($parent_type == 'dossier') {
+    $dossier = $story_node;
+    $dossier_wrapper = entity_metadata_wrapper('node', $dossier);
+
+    // Update the dossier with the link to the new child content.
+    switch ($child_node->type) {
+
+      case 'object_story':
+        foreach ($dossier_wrapper->field_dossier_object_stories->value() as $object_story) {
+          if ($object_story->nid == $child_node->nid) {
+            drupal_set_message(t('Story %child already exists within the dossier %dossier', array('%child' => $child_node->title, '%dossier' => $dossier->title)));
+            $exists = TRUE;
+            break;
+          }
+        }
+
+        if (!$exists) {
+          // Get value of 'editable' field on OS.
+          $is_editable = FALSE;
+          if (!empty($child_node->field_object_story_editable)) {
+            $is_editable = TRUE;
+          }
+          // If editable, then add to dossier.
+          // Otherwise, clone it & add that to dossier.
+          if (!$is_editable) {
+            // Clone the OS.
+            $new_os = storyscope_content_clone_content($child_node);
+            $success_message = t('Copy of story %child successfully added to dossier %dossier', array('%child' => $child_node->title, '%dossier' => $dossier->title));
+          }
+          else {
+            $new_os = $child_node;
+            $success_message = t('Story %child successfully added to dossier %dossier', array('%child' => $child_node->title, '%dossier' => $dossier->title));
+          }
+          $delta = $dossier_wrapper->field_dossier_object_stories->count();
+          $dossier_wrapper->field_dossier_object_stories[$delta]->set($new_os->nid);
+
+          // Create clones of child events in dossier.
+          // Get source events in the dossier.
+          $dossier_source_events = array();
+          foreach ($dossier_wrapper->field_dossier_events->value() as $event) {
+            $event_wrapper = entity_metadata_wrapper('node', $event);
+            try {
+              $source_event = $event_wrapper->field_event_source_event->value();
+              $dossier_source_events[$source_event->nid] = $source_event->nid;
+            }
+            catch (Exception $e) {
+              // If the system finds source events thinking they are events it will throw
+              // an exception, so we handle them a bit gracefully with try-catch.
+            }
+          }
+          // Iterate through story events and add to dossier.
+          $child_node_wrapper = entity_metadata_wrapper('node', $child_node);
+          $dossier_event_count = $dossier_wrapper->field_dossier_events->count();
+          foreach ($child_node_wrapper->field_object_story_events->value() as $child_event) {
+
+            // Check if source event exists.
+            $event_wrapper = entity_metadata_wrapper('node', $child_event);
+            try {
+                $source_event = $event_wrapper->field_event_source_event->value();
+            }
+            catch (Exception $e) {
+              // If the system finds source events thinking they are events it will throw
+              // an exception, so we handle them a bit gracefully with try-catch.
+            }
+
+            // If not, clone the event and add it to the dossier.
+            if (!in_array($source_event->nid, $dossier_source_events)) {
+              $clone = storyscope_content_clone_content($child_event);
+              $dossier_wrapper->field_dossier_events[$dossier_event_count]->set($clone->nid);
+              storyscope_content_create_path_aliases($clone, $dossier);
+              $dossier_event_count++;
+            }
+            // Otherwise display a message about the inconsistency.
+            else {
+              drupal_set_message(t('Event %title, referenced in the story, was not copied to the dossier as an existing similar event already exists.', array('%title' => $child_event->title)));
+            }
+          }
+        }
+        break;
+
+
+      case 'object':
+        $child_node_wrapper = entity_metadata_wrapper('node', $child_node);
+
+        // Spawn wrapper story and add the object to it.
+        $object_story = storyscope_content_spawn_object_object_story($dossier, $child_node);
+
+        // Add story to dossier.
+        $delta = $dossier_wrapper->field_dossier_object_stories->count();
+        $dossier_wrapper->field_dossier_object_stories[$delta]->set($object_story->nid);
+        $success_message = t('Object %child successfully added to dossier %dossier', array('%child' => $child_node->title, '%dossier' => $dossier->title));
+        // Reset $child_node to the story for later use.
+        $child_node = $object_story;
+        break;
+
+      case 'event':
+        $child_node_wrapper = entity_metadata_wrapper('node', $child_node);
+        $child_node_source_event = $child_node_wrapper->field_event_source_event->value();
+        foreach ($dossier_wrapper->field_dossier_events->value() as $event) {
+          // Ensure event, or referenced source event, doesn't already exist in the dossier.
+          if (_storyscope_content_compare_events($child_node, $child_node_source_event, $event)) {
+            drupal_set_message(t('A similar event (%similar) to %child already exists within the dossier %dossier and so this event can not be added to the dossier', array('%child' => $child_node->title, '%dossier' => $dossier->title, '%similar' => $event->title)));
+            $exists = TRUE;
+            break;
+          }
+        }
+        // Otherwise add clone of event to the dossier.
+        $delta = $dossier_wrapper->field_dossier_events->count();
+        $clone = storyscope_content_clone_content($child_node);
+        $dossier_wrapper->field_dossier_events[$delta]->set($clone->nid);
+        storyscope_content_create_path_aliases($clone, $dossier);
+        $success_message = t('Event %child successfully copied to dossier %dossier', array('%child' => $clone->title, '%dossier' => $dossier->title));
+        break;
+
+
+      case 'source_event':
+        // Loop through existing 'events' and check if any of them have a
+        // matching 'source event'. If not, continue to clone it and add to
+        // the dossier.
+        // We'll check for the most recent event instance and clone that in preference.
+        foreach ($dossier_wrapper->field_dossier_events->value() as $event) {
+          if ($event->type == 'event') {
+            $event_wrapper = entity_metadata_wrapper('node', $event);
+            $source_event = $event_wrapper->field_event_source_event->value();
+          }
+          else {
+            $source_event = $event;
+          }
+          if ($source_event->nid == $child_node->nid) {
+            drupal_set_message(t('An interpretation of the event %child already exists within the dossier %dossier', array('%child' => $child_node->title, '%dossier' => $dossier->title)));
+            $exists = TRUE;
+            break;
+          }
+        }
+        // Look for the most recent event instance.
+        $most_recent_event_instance = views_get_view_result('source_event_instances', 'get_views_result_block_instances', $child_node->nid);
+        if (!empty($most_recent_event_instance)) {
+          $most_recent_event_instance_nid = $most_recent_event_instance[0]->nid;
+          $child_node = node_load($most_recent_event_instance_nid);
+          $event_copy = storyscope_content_clone_content($child_node);
+        }
+        else {
+          // Clone the source event
+          $event_copy = storyscope_content_clone_source_event($child_node);
+        }
+        // Add the resulting 'event' node to the dossier.
+        $delta = $dossier_wrapper->field_dossier_events->count();
+        $dossier_wrapper->field_dossier_events[$delta]->set($event_copy->nid);
+        storyscope_content_create_path_aliases($event_copy, $dossier);
+        $success_message = t('Event %child successfully added to dossier %dossier', array('%child' => $event_copy->title, '%dossier' => $dossier->title));
+        break;
+
+
+      case 'reference':
+        foreach ($dossier_wrapper->field_dossier_references->value() as $reference) {
+          if ($reference->nid == $child_node->nid) {
+            drupal_set_message(t('Reference %child already exists within the dossier %dossier', array('%child' => $child_node->title, '%dossier' => $dossier->title)));
+            $exists = TRUE;
+            break;
+          }
+        }
+        $delta = $dossier_wrapper->field_dossier_references->count();
+        $dossier_wrapper->field_dossier_references[$delta]->set($child_node->nid);
+        $success_message = t('Reference %child successfully added to dossier %dossier', array('%child' => $child_node->title, '%dossier' => $dossier->title));
+        break;
+    }
+
+    // Save the dossier.
+    if (!$exists) {
+      $dossier_wrapper->save();
+      drupal_set_message($success_message);
+      node_access_acquire_grants($child_node);
+      // We call node_save here to update the updated timestamp for the child node.
+      // This is so that the activity stream works properly.
+      node_save($child_node);
+      // Add in a new path.
+      storyscope_content_create_path_aliases($child_node, $dossier);
+    }
+    if ($child_node->type == 'object_story') {
+      $path = 'dossiers/' . $dossier->nid . '/objects/search';
+      if (isset($_GET['destination'])) {
+        unset($_GET['destination']);
+      }
+      $_GET['destination'] = $path;
+      drupal_goto($path);
+    }
+    else {
+      drupal_goto('dossiers/' . $dossier->nid . '/' . $sub_type);
+    }
+  }
+
+
+  // Story context.
+  // ---------------------
+  elseif ($parent_type == 'object_story') {
+    $object_story = $story_node;
+    $object_story_wrapper = entity_metadata_wrapper('node', $object_story);
+
+    // Update the story with the link to the new child content.
+    switch ($child_node->type) {
+      case 'event':
+        $child_node_wrapper = entity_metadata_wrapper('node', $child_node);
+        $child_node_source_event = $child_node_wrapper->field_event_source_event->value();
+
+        foreach ($object_story_wrapper->field_object_story_events->value() as $event) {
+          // Ensure event, or referenced source event, doesn't already exist in
+          // the story.
+          if (_storyscope_content_compare_events($child_node, $child_node_source_event, $event)) {
+            drupal_set_message(t('A similar event (%similar) to %child already exists within the story %objectstory and so this event can not be added to the story', array('%child' => $child_node->title, '%objectstory' => $object_story->title, '%similar' => $event->title)));
+            $exists = TRUE;
+            break;
+          }
+        }
+
+        // Otherwise add clone of event to the story.
+        if (!$exists) {
+          $delta = $object_story_wrapper->field_object_story_events->count();
+          $clone = storyscope_content_clone_content($child_node);
+          storyscope_content_create_path_aliases($clone, $object_story);
+          $object_story_wrapper->field_object_story_events[$delta]->set($clone->nid);
+          $success_message = t('Event %child successfully added to story %objectstory', array('%child' => $child_node->title, '%objectstory' => $object_story->title));
+
+          // Add clone of the event to dossier too.
+          $exists_in_dossier = FALSE;
+          $query = new EntityFieldQuery();
+          $query->entityCondition('entity_type', 'node')
+                ->entityCondition('bundle', 'dossier')
+                ->fieldCondition('field_dossier_object_stories', 'target_id', $object_story->nid);
+          $result = $query->execute();
+
+          // For each parent dossier, add the event to it if necessary.
+          if (isset($result['node'])) {
+            foreach ($result['node'] as $record) {
+              $dossier = node_load($record->nid);
+              $dossier_wrapper = entity_metadata_wrapper('node', $dossier);
+
+              // Check if event, or referenced source event, exists in the dossier already.
+              foreach ($dossier_wrapper->field_dossier_events->value() as $event) {
+                if (_storyscope_content_compare_events($child_node, $child_node_source_event, $event)) {
+                  $exists_in_dossier = TRUE;
+                  break;
+                }
+              }
+              // If not, add it.
+              if (!$exists_in_dossier) {
+                $delta = $dossier_wrapper->field_dossier_events->count();
+                $clone = storyscope_content_clone_content($child_node);
+                storyscope_content_create_path_aliases($clone, $dossier);
+                $dossier_wrapper->field_dossier_events[$delta]->set($clone->nid);
+                $dossier_wrapper->save();
+              }
+            }
+          }
+        }
+        break;
+
+
+      case 'source_event':
+        // Loop through existing 'events' and check if any of them have a
+        // matching 'source event'. If not, continue to clone it and add to
+        // the story.
+        foreach ($object_story_wrapper->field_object_story_events->value() as $event) {
+          $event_wrapper = entity_metadata_wrapper('node', $event);
+          $source_event = $event_wrapper->field_event_source_event->value();
+          if ($source_event->nid == $child_node->nid) {
+            drupal_set_message(t('An interpretation of the event %child already exists within the story %objectstory', array('%child' => $child_node->title, '%objectstory' => $object_story->title)));
+            $exists = TRUE;
+            break;
+          }
+        }
+        // Once the source event is not currently represented, find the most recent
+        // event for it and clone that.
+        // Get the latest event.
+        $sql = 'SELECT nid, created FROM {node} WHERE nid IN (SELECT entity_id from field_data_field_event_source_event WHERE field_event_source_event_target_id = :nid) ORDER BY created DESC LIMIT 1';
+        $result = db_query($sql, array(':nid' => $child_node->nid));
+        foreach ($result as $record) {
+          $actual_event_child_node = node_load($record->nid);
+        }
+        if (!empty($actual_event_child_node)) {
+          $event_copy = storyscope_content_clone_content($actual_event_child_node);
+        }
+        // Clone the source event and add the resulting 'event' node to the
+        // story.
+        else {
+          $event_copy = storyscope_content_clone_source_event($child_node);
+        }
+        $delta = $object_story_wrapper->field_object_story_events->count();
+        $object_story_wrapper->field_object_story_events[$delta]->set($event_copy->nid);
+        storyscope_content_create_path_aliases($event_copy, $object_story);
+        $success_message = t('Event %child successfully added to story %objectstory', array('%child' => $event_copy->title, '%objectstory' => $object_story->title));
+        // Add clone of the event to dossier too.
+        $exists_in_dossier = FALSE;
+        $query = new EntityFieldQuery();
+        $query->entityCondition('entity_type', 'node')
+              ->entityCondition('bundle', 'dossier')
+              ->fieldCondition('field_dossier_object_stories', 'target_id', $object_story->nid);
+        $result = $query->execute();
+
+        // For each parent dossier, add the event to it if necessary.
+        if (isset($result['node'])) {
+          foreach ($result['node'] as $record) {
+            $dossier = node_load($record->nid);
+            $dossier_wrapper = entity_metadata_wrapper('node', $dossier);
+            $sql = 'select field_dossier_events_target_id from  field_data_field_dossier_events where entity_id = :nid';
+            $dossier_events = db_query($sql, array(':nid' => $dossier->nid));
+            foreach ($dossier_events as $item) {
+              $check_nid = $item->field_dossier_events_target_id;
+              if ($child_node->nid == $check_nid || $actual_event_child_node == $check_nid) {
+                $exists_in_dossier = TRUE;
+              }
+            }
+            // If not, add it.
+            if (!$exists_in_dossier) {
+              $delta = $dossier_wrapper->field_dossier_events->count();
+              if (!empty($actual_event_child_node)) {
+                $clone = storyscope_content_clone_content($actual_event_child_node);
+              }
+              // Clone the source event and add the resulting 'event' node to the
+              // story.
+              else {
+                $clone = storyscope_content_clone_source_event($child_node);
+              }
+              storyscope_content_create_path_aliases($clone, $dossier);
+              $dossier_wrapper->field_dossier_events[$delta]->set($clone->nid);
+              $dossier_wrapper->save();
+            }
+          }
+        }
+        break;
+
+      case 'reference':
+        foreach ($object_story_wrapper->field_object_story_references->value() as $reference) {
+          if ($reference->nid == $child_node->nid) {
+            drupal_set_message(t('Reference %child already exists within the story %objectstory', array('%child' => $child_node->title, '%objectstory' => $object_story->title)));
+            $exists = TRUE;
+            break;
+          }
+        }
+        $delta = $object_story_wrapper->field_object_story_references->count();
+        $object_story_wrapper->field_object_story_references[$delta]->set($child_node->nid);
+        $success_message = t('Reference %child successfully added to story %objectstory', array('%child' => $child_node->title, '%objectstory' => $object_story->title));
+        break;
+
+      case 'object':
+        foreach ($object_story_wrapper->field_object_story_objects->value() as $object) {
+          if ($object->nid == $child_node->nid) {
+            drupal_set_message(t('Object %child already exists within the story %objectstory', array('%child' => $child_node->title, '%objectstory' => $object_story->title)));
+            $exists = TRUE;
+            break;
+          }
+        }
+        $delta = $object_story_wrapper->field_object_story_objects->count();
+        $object_story_wrapper->field_object_story_objects[$delta]->set($child_node->nid);
+        $success_message = t('Object %child successfully added to story %objectstory', array('%child' => $child_node->title, '%objectstory' => $object_story->title));
+        break;
+    }
+
+    // Save the story.
+    if (!$exists) {
+      $object_story_wrapper->save();
+      drupal_set_message($success_message);
+      node_access_acquire_grants($child_node);
+      // We call node_save here to update the updated timestamp for the child node.
+      // This is so that the activity stream works properly.
+      node_save($child_node);
+
+      // Add in new paths.
+      storyscope_content_create_path_aliases($child_node, $object_story);
+    }
+    if (!empty($dossier_context)) {
+      drupal_goto('dossiers/' . $dossier_context->nid . '/objectstories/' . $object_story->nid . '/' . $sub_type);
+    }
+    else {
+      drupal_goto('objectstories/' . $object_story->nid . '/' . $sub_type);
+    }
+  }
+
+
+  // Plot context.
+  // -------------
+  elseif ($parent_type == 'plot') {
+    $plot = $story_node;
+    $plot_wrapper = entity_metadata_wrapper('node', $plot);
+
+    // Update the plot with the link to the new child content.
+    switch ($child_node->type) {
+      case 'plot_element':
+        foreach ($plot_wrapper->field_plot_plot_elements->value() as $plot_element) {
+          if ($plot_element->nid == $child_node->nid) {
+            drupal_set_message(t('Plot element %child already exists within the plot %plot', array('%child' => $child_node->title, '%plot' => $plot->title)));
+            $exists = TRUE;
+            break;
+          }
+        }
+        $delta = $plot_wrapper->field_plot_plot_elements->count();
+        $plot_wrapper->field_plot_plot_elements[$delta]->set($child_node->nid);
+        $success_message = t('Plot element %child successfully added to plot %plot', array('%child' => $child_node->title, '%plot' => $plot->title));
+        break;
+    }
+
+    // Save the plot.
+    if (!$exists) {
+      $plot_wrapper->save();
+      drupal_set_message($success_message);
+      node_access_acquire_grants($child_node);
+      // We call node_save here to update the updated timestamp for the child node.
+      // This is so that the activity stream works properly.
+      node_save($child_node);
+
+      // Add in new paths.
+      storyscope_content_create_path_aliases($child_node, $plot);
+    }
+    if (!empty($dossier_context)) {
+      drupal_goto('dossiers/' . $dossier_context->nid . '/plots/' . $plot->nid . '/' . $sub_type);
+    }
+    else {
+      drupal_goto('plots/' . $plot->nid . '/' . $sub_type);
+    }
+  }
+
+  // Plot Element context.
+  // ----------------------
+  elseif ($parent_type == 'plot_element') {
+    $plot_element = $story_node;
+    $plot_element_wrapper = entity_metadata_wrapper('node', $plot_element);
+    // Update the plot with the link to the new child content.
+    switch ($child_node->type) {
+      case 'event':
+        foreach ($plot_element_wrapper->field_plot_element_plot_set_1->value() as $event) {
+          if ($event->nid == $child_node->nid) {
+            drupal_set_message(t('Event %child already exists within the plot element %plot', array('%child' => $child_node->title, '%plot' => $plot_element->title)));
+            $exists = TRUE;
+            break;
+          }
+        }
+        $delta = $plot_element_wrapper->field_plot_element_plot_set_1->count();
+        $plot_element_wrapper->field_plot_element_plot_set_1[$delta]->set($child_node->nid);
+        $success_message = t('Event %child successfully added to plot element %plot', array('%child' => $child_node->title, '%plot' => $plot_element->title));
+        break;
+    }
+    // Save the plot element.
+    if (!$exists) {
+      $plot_element_wrapper->save();
+      if (!$is_ajax) {
+        drupal_set_message($success_message);
+      }
+      node_access_acquire_grants($child_node);
+      // We call node_save here to update the updated timestamp for the child node.
+      // This is so that the activity stream works properly.
+      node_save($child_node);
+      // Add in new paths.
+      $dossier_nid = arg(1);
+      $plot_nid = arg(3);
+      storyscope_content_create_path_aliases($child_node, $plot_element, $dossier_nid, $plot_nid);
+    }
+    if ($is_ajax) {
+      return drupal_json_output($plot_element->nid);
+    }
+    else {
+      drupal_goto(drupal_get_destination());
+    }
+  }
+  // Should never get this far.
+  return '';
+}
+
+/**
+ * Silently create an story entity as a parent of an object in a dossier
+ * context.
+ */
+function storyscope_content_object_add_parent_os($object, $dossier) {
+  global $user;
+
+  // Create new Story as child of a dossier.
+  // Store reference to the object.
+  // Save Story, save dossier.
+
+  // Set up an entity wrapper for the dossier
+  $dossier_wrapper = entity_metadata_wrapper('node', $dossier->nid);
+  $delta = $dossier_wrapper->field_dossier_object_stories->count();
+  // Create the new node.
+  $node = (object) array(
+    'uid' => $user->uid,
+    'name' => (isset($user->name) ? $user->name : ''),
+    'type' => 'object_story',
+    'language' => LANGUAGE_NONE,
+    'status' => 1,
+    'title' => t('Untitled @delta', array('@delta' => $delta + 1)),
+  );
+  // Initially save the node so we get a NID.
+  node_save($node);
+
+  // Set the alias
+  $alias = 'dossiers/' . $dossier->nid . '/objectstories/' . $node->nid;
+  $node->path['alias'] = $alias;
+  node_save($node);
+
+  // Set initial field values;
+  // Update the story with its child object.
+  $node_wrapper = entity_metadata_wrapper('node', $node->nid);
+  // Examples here from plot elements
+  // $node_wrapper->field_story_element_story_set_1 = NULL;
+  // $node_wrapper->field_story_element_story_set_2 = NULL;
+  $object_count = $node_wrapper->field_object_story_objects->count();
+  $node_wrapper->field_object_story_objects[$object_count]->set($object->nid);
+  $node_wrapper->save();
+  // Update the dossier with the new child OS.
+  $dossier_wrapper->field_dossier_object_stories[$delta]->set($node->nid);
+  $success_message = t('Untitled story successfully added to dossier %dossier', array('%dossier' => $dossier->title));
+  $dossier_wrapper->save();
+  drupal_set_message($success_message);
+  node_access_acquire_grants($node);
+  drupal_set_message(t('You can now edit and/or add resources to this untitled story.'));
+  // Update the object with a new path alias so that you can click on it.
+  storyscope_content_create_path_aliases($object, $node, $dossier->nid);
+  // Go visit the new node.
+  drupal_goto($alias);
+}
+
+/**
+ * Update a dossier or story and remove a link to a piece of child
+ * content.
+ *
+ * For example, when someone visits dossiers/1/references/2/remove it removes
+ * the reference with nid 2 from the dossier with nid 1.
+ *
+ * @param $parent_type
+ *   The type of content to remove the link from, i.e. the context.  Allowed values
+ *   are 'dossier', 'object_story', 'story' and 'plot'.
+ * @param $story_node
+ *   The node object for the dossier, story, story or plot.
+ * @param $sub_type
+ *   The type of node form to return, e.g. 'references'. Note, this is plural as
+ *   it comes from the URL and needs to be mapped to the machine name in this
+ *   function.
+ * @param $child_node
+ *   The node object for the child content being removed from the dossier, object
+ *   story, story or plot.
+ * @param $dossier_context
+ *   The node object for the dossier if in an story, story or plot context within a
+ *   dossier context.
+ *
+ * @return
+ *   The built $form array as returned from drupal_get_form().
+ */
+function storyscope_content_remove_child_content($parent_type, $story_node, $sub_type, $child_node, $dossier_context = NULL) {
+  $is_ajax = FALSE;
+  if (isset($_GET['ajax'])) {
+    $is_ajax = TRUE;
+  }
+  $removed = FALSE;
+  $deleted = FALSE;
+  $success_message = '';
+  // Get the allowed sub types for this parent type.
+  $allowed_types = storyscope_content_get_allowed_child_node_types($parent_type);
+  if (empty($allowed_types) || empty($allowed_types[$sub_type]) || $child_node->type != $allowed_types[$sub_type]) {
+    drupal_not_found();
+    return '';
+  }
+
+  // Dossier context.
+  // -----------------
+  if ($parent_type == 'dossier') {
+    $dossier = $story_node;
+    $dossier_wrapper = entity_metadata_wrapper('node', $dossier);
+
+    // Update the dossier and remove the link to the child content.
+    switch ($child_node->type) {
+
+      case 'object_story':
+        // Delete the story, and its child events (in hook_node_delete).
+        foreach ($dossier_wrapper->field_dossier_object_stories->value() as $delta => $object_story) {
+          if ($object_story->nid == $child_node->nid) {
+            $dossier_wrapper->field_dossier_object_stories[$delta]->set(NULL);
+            $success_message = t('Object story %child successfully removed from dossier %dossier', array('%child' => $child_node->title, '%dossier' => $dossier->title));
+            $removed = TRUE;
+            $deleted = TRUE;
+            break;
+          }
+        }
+        if (!$removed) {
+          drupal_set_message(t('Object story %child does not exist within the dossier %dossier', array('%child' => $child_node->title, '%dossier' => $dossier->title)));
+        }
+        break;
+
+
+      case 'event':
+        // Delete the event.
+        foreach ($dossier_wrapper->field_dossier_events->value() as $delta => $event) {
+          if ($event->nid == $child_node->nid) {
+            $dossier_wrapper->field_dossier_events[$delta]->set(NULL);
+            $success_message = t('Event %child successfully removed from dossier %dossier', array('%child' => $child_node->title, '%dossier' => $dossier->title));
+            $removed = TRUE;
+            $deleted = TRUE;
+            break;
+          }
+        }
+        if (!$removed) {
+          drupal_set_message(t('Event %child does not exist within the dossier %dossier', array('%child' => $child_node->title, '%dossier' => $dossier->title)));
+        }
+        break;
+
+
+      case 'reference':
+        // Remove the reference from the dossier, but don't delete.
+        foreach ($dossier_wrapper->field_dossier_references->value() as $delta => $reference) {
+          if ($reference->nid == $child_node->nid) {
+            $dossier_wrapper->field_dossier_references[$delta]->set(NULL);
+            $success_message = t('Reference %child successfully removed from dossier %dossier', array('%child' => $child_node->title, '%dossier' => $dossier->title));
+            $removed = TRUE;
+            break;
+          }
+        }
+        if (!$removed) {
+          drupal_set_message(t('Reference %child does not exist within the dossier %dossier', array('%child' => $child_node->title, '%dossier' => $dossier->title)));
+        }
+        break;
+
+
+      case 'story':
+        // Delete the story, and its child sections (in hook_node_delete).
+        foreach ($dossier_wrapper->field_dossier_stories->value() as $delta => $story) {
+          if ($story->nid == $child_node->nid) {
+            $dossier_wrapper->field_dossier_stories[$delta]->set(NULL);
+            $success_message = t('Story %child successfully removed from dossier %dossier', array('%child' => $child_node->title, '%dossier' => $dossier->title));
+            $removed = TRUE;
+            $deleted = TRUE;
+            break;
+          }
+        }
+        if (!$removed) {
+          drupal_set_message(t('Story %child does not exist within the dossier %dossier', array('%child' => $child_node->title, '%dossier' => $dossier->title)));
+        }
+        break;
+
+
+      case 'plot':
+        // Delete the plot, and its child plot elements (in hook_node_delete).
+        foreach ($dossier_wrapper->field_dossier_plots->value() as $delta => $plot) {
+          if ($plot->nid == $child_node->nid) {
+            $dossier_wrapper->field_dossier_plots[$delta]->set(NULL);
+            $success_message = t('Plot %child successfully removed from dossier %dossier', array('%child' => $child_node->title, '%dossier' => $dossier->title));
+            $removed = TRUE;
+            $deleted = TRUE;
+            break;
+          }
+        }
+        if (!$removed) {
+          drupal_set_message(t('Plot %child does not exist within the dossier %dossier', array('%child' => $child_node->title, '%dossier' => $dossier->title)));
+        }
+        break;
+
+
+      case 'narrative_microsite':
+        // Delete the narrative.
+        foreach ($dossier_wrapper->field_dossier_narratives->value() as $delta => $narrative) {
+          if ($narrative->nid == $child_node->nid) {
+            $dossier_wrapper->field_dossier_narratives[$delta]->set(NULL);
+            $success_message = t('Narrative %child successfully removed from dossier %dossier', array('%child' => $child_node->title, '%dossier' => $dossier->title));
+            $removed = TRUE;
+            $deleted = TRUE;
+            break;
+          }
+        }
+        if (!$removed) {
+          drupal_set_message(t('Narrative %child does not exist within the dossier %dossier', array('%child' => $child_node->title, '%dossier' => $dossier->title)));
+        }
+        break;
+    }
+
+    // Save the dossier.
+    if ($removed) {
+      $dossier_wrapper->save();
+      drupal_set_message($success_message);
+      node_access_acquire_grants($child_node);
+      
+      // inform SEC Store API about removed child element from parent element
+      if( module_exists('similarity_search') )  
+      	  similarity_search_remove_from_context($child_node, $dossier);
+      
+      // Remove the contextual path alias.
+      path_delete(array('alias' => 'dossiers/' . $dossier->nid . '/' . $sub_type . '/' . $child_node->nid));
+    }
+    // Delete node if necessary.
+    if ($deleted) {
+      node_delete($child_node->nid);
+    }
+    drupal_goto('dossiers/' . $dossier->nid . '/' . $sub_type);
+  }
+
+
+  // Story context.
+  // ----------------------
+  elseif ($parent_type == 'object_story') {
+    $object_story = $story_node;
+    $object_story_wrapper = entity_metadata_wrapper('node', $object_story);
+    // Update the story and remove the link to the child content.
+    switch ($child_node->type) {
+
+      case 'event':
+        // Delete the event.
+        foreach ($object_story_wrapper->field_object_story_events->value() as $delta => $event) {
+          if ($event->nid == $child_node->nid) {
+            $object_story_wrapper->field_object_story_events[$delta]->set(NULL);
+            $success_message = t('Event %child successfully removed from story %objectstory', array('%child' => $child_node->title, '%objectstory' => $object_story->title));
+            $removed = TRUE;
+            $deleted = TRUE;
+            break;
+          }
+        }
+        if (!$removed) {
+          drupal_set_message(t('Event %child does not exist within the story %objectstory', array('%child' => $child_node->title, '%objectstory' => $object_story->title)));
+        }
+        break;
+
+
+      case 'reference':
+        // Remove the reference from the story, but don't delete.
+        foreach ($object_story_wrapper->field_object_story_references->value() as $delta => $reference) {
+          if ($reference->nid == $child_node->nid) {
+            $object_story_wrapper->field_object_story_references[$delta]->set(NULL);
+            $success_message = t('Reference %child successfully removed from story %objectstory', array('%child' => $child_node->title, '%objectstory' => $object_story->title));
+            $removed = TRUE;
+            break;
+          }
+        }
+        if (!$removed) {
+          drupal_set_message(t('Reference %child does not exist within the story %objectstory', array('%child' => $child_node->title, '%objectstory' => $object_story->title)));
+        }
+        break;
+
+
+      case 'object':
+        // Remove the object from the story, but don't delete.
+        foreach ($object_story_wrapper->field_object_story_objects->value() as $delta => $object) {
+          if ($object->nid == $child_node->nid) {
+            $object_story_wrapper->field_object_story_objects[$delta]->set(NULL);
+            $success_message = t('Object %child successfully removed from story %objectstory', array('%child' => $child_node->title, '%objectstory' => $object_story->title));
+            $removed = TRUE;
+            break;
+          }
+        }
+        if (!$removed) {
+          drupal_set_message(t('Object %child does not exist within the story %objectstory', array('%child' => $child_node->title, '%objectstory' => $object_story->title)));
+        }
+        break;
+    }
+
+
+    // Save the story.
+    if ($removed) {
+      $object_story_wrapper->save();
+      drupal_set_message($success_message);
+      node_access_acquire_grants($child_node);
+      
+      // inform SEC Store API about removed child element from parent element
+      similarity_search_remove_from_context($child_node, $object_story);
+      
+      // Remove the contextual path alias.
+      path_delete(array('alias' => 'objectstories/' . $object_story->nid . '/' . $sub_type . '/' . $child_node->nid));
+      // Not using $dossier_context as it may not always be available.
+      if (!empty($object_story->dossiers)) {
+        foreach ($object_story->dossiers as $dossier_nid) {
+          path_delete(array('alias' => 'dossiers/' . $dossier_nid . '/objectstories/' . $object_story->nid . '/' . $sub_type . '/' . $child_node->nid));
+        }
+      }
+    }
+    // Delete node if necessary.
+    if ($deleted) {
+      node_delete($child_node->nid);
+    }
+    if (!empty($dossier_context)) {
+      drupal_goto('dossiers/' . $dossier_context->nid . '/objectstories/' . $object_story->nid . '/' . $sub_type);
+    }
+    else {
+      drupal_goto('objectstories/' . $object_story->nid . '/' . $sub_type);
+    }
+  }
+
+
+  // Plot context.
+  // -------------
+  elseif ($parent_type == 'plot') {
+    $plot = $story_node;
+    $plot_wrapper = entity_metadata_wrapper('node', $plot);
+
+    // Update the plot with the link to the new content.
+    switch ($child_node->type) {
+
+      case 'plot_element':
+        // Delete the plot element, but not the child events.
+        foreach ($plot_wrapper->field_plot_plot_elements->value() as $delta => $plot_element) {
+          if ($plot_element->nid == $child_node->nid) {
+            $plot_wrapper->field_plot_plot_elements[$delta]->set(NULL);
+            $success_message = t('Plot element %child successfully removed from plot %plot', array('%child' => $child_node->title, '%plot' => $plot->title));
+            $removed = TRUE;
+            $deleted = TRUE;
+            break;
+          }
+        }
+        if (!$removed) {
+          drupal_set_message(t('Plot element %child does not exist within the plot %plot', array('%child' => $child_node->title, '%plot' => $plot->title)));
+        }
+        break;
+    }
+
+    // Save the plot.
+    if ($removed) {
+      $plot_wrapper->save();
+      drupal_set_message($success_message);
+      node_access_acquire_grants($child_node);
+
+      // Remove the contextual path alias.
+      path_delete(array('alias' => 'plots/' . $plot->nid . '/' . $sub_type . '/' . $child_node->nid));
+      // Not using $dossier_context as it may not always be available.
+      if (!empty($plot->dossiers)) {
+        foreach ($plot->dossiers as $dossier_nid) {
+          path_delete(array('alias' => 'dossiers/' . $dossier_nid . '/plots/' . $plot->nid . '/' . $sub_type . '/' . $child_node->nid));
+        }
+      }
+    }
+    // Delete node if necessary.
+    if ($deleted) {
+      node_delete($child_node->nid);
+    }
+    if (!empty($dossier_context)) {
+      drupal_goto('dossiers/' . $dossier_context->nid . '/plots/' . $plot->nid . '/' . $sub_type);
+    }
+    else {
+      drupal_goto('plots/' . $plot->nid . '/' . $sub_type);
+    }
+  }
+
+  // Plot element context.
+  // ----------------------
+  elseif ($parent_type == 'plot_element') {
+    $plot_element = $story_node;
+    $plot_element_wrapper = entity_metadata_wrapper('node', $plot_element);
+
+    // Update the plot with the link to the new content.
+    switch ($child_node->type) {
+
+      case 'event':
+        // Just remove the reference to the event from our plot element.
+        foreach ($plot_element_wrapper->field_plot_element_plot_set_1->value() as $delta => $event) {
+          if ($event->nid == $child_node->nid) {
+            $plot_element_wrapper->field_plot_element_plot_set_1[$delta]->set(NULL);
+            $success_message = t('Event %child successfully removed from plot element %plot_element', array('%child' => $child_node->title, '%plot_element' => $plot_element->title));
+            $removed = TRUE;
+            break;
+          }
+        }
+        if (!$removed) {
+          foreach ($plot_element_wrapper->field_plot_element_plot_set_2->value() as $delta => $event) {
+            if ($event->nid == $child_node->nid) {
+              $plot_element_wrapper->field_plot_element_plot_set_2[$delta]->set(NULL);
+              $success_message = t('Event %child successfully removed from plot element %plot_element', array('%child' => $child_node->title, '%plot_element' => $plot_element->title));
+              $removed = TRUE;
+              break;
+            }
+          }
+          if (!$removed) {
+            drupal_set_message(t('Plot element %child does not exist within the plot %plot', array('%child' => $child_node->title, '%plot' => $plot->title)));
+          }
+        }
+        break;
+    }
+
+    // Save the plot element.
+    if ($removed) {
+      $plot_element_wrapper->save();
+      if (!$is_ajax) {
+        drupal_set_message($success_message);
+      }
+      node_access_acquire_grants($child_node);
+
+      // Remove the contextual path alias.
+      $dossier_nid = arg(1);
+      $plot_nid = arg(3);
+      path_delete(array('alias' => 'dossiers/' . $dossier_nid . '/plots/' . $plot_nid .  '/elements/' . $plot_element->nid . '/' . $sub_type . '/' . $child_node->nid));
+    }
+    if ($is_ajax) {
+      return drupal_json_output($plot_element->nid);
+    }
+    else {
+      drupal_goto(drupal_get_destination());
+    }
+  }
+
+
+  // Narrative context.
+  // -------------
+  elseif ($parent_type == 'story') {
+    $story = $story_node;
+    $story_wrapper = entity_metadata_wrapper('node', $story);
+
+    // Update the narrative with the link to the new content.
+    switch ($child_node->type) {
+
+      case 'section':
+        // Delete the section, but not the child events.
+        foreach ($story_wrapper->field_story_sections->value() as $delta => $section) {
+          if ($section->nid == $child_node->nid) {
+            $story_wrapper->field_story_sections[$delta]->set(NULL);
+            $success_message = t('Section %child successfully removed from story %story', array('%child' => $child_node->title, '%story' => $story->title));
+            $removed = TRUE;
+            $deleted = TRUE;
+            break;
+          }
+        }
+        if (!$removed) {
+          drupal_set_message(t('Section %child does not exist within the narrative %story', array('%child' => $child_node->title, '%story' => $story->title)));
+        }
+        break;
+    }
+
+    // Save the narrative.
+    if ($removed) {
+      $story_wrapper->save();
+      drupal_set_message($success_message);
+      node_access_acquire_grants($child_node);
+
+      // Remove the contextual path alias.
+      path_delete(array('alias' => 'stories/' . $story->nid . '/' . $sub_type . '/' . $child_node->nid));
+      if (!empty($story->dossiers)) {
+        foreach ($story->dossiers as $dossier_nid) {
+          path_delete(array('alias' => 'dossiers/' . $dossier_nid . '/stories/' . $story->nid . '/' . $sub_type . '/' . $child_node->nid));
+        }
+      }
+    }
+    // Delete node if necessary.
+    if ($deleted) {
+      node_delete($child_node->nid);
+    }
+    if (!empty($dossier_context)) {
+      drupal_goto('dossiers/' . $dossier_context->nid . '/stories/' . $story->nid . '/' . $sub_type);
+    }
+    else {
+      drupal_goto('stories/' . $story->nid . '/' . $sub_type);
+    }
+  }
+
+  // Section context.
+  // -------------
+  elseif ($parent_type == 'section') {
+    $section = $story_node;
+    $section_wrapper = entity_metadata_wrapper('node', $section);
+
+    // Update the section with the link to the new content.
+    switch ($child_node->type) {
+
+      case 'event':
+        // Just remove the reference to the event from our section.
+        foreach ($section_wrapper->field_story_events->value() as $delta => $event) {
+          if ($event->nid == $child_node->nid) {
+            $section_wrapper->field_story_events[$delta]->set(NULL);
+            $success_message = t('Event %child successfully removed from section %section', array('%child' => $child_node->title, '%section' => $section->title));
+            $removed = TRUE;
+            break;
+          }
+        }
+        if (!$removed) {
+          drupal_set_message(t('Section %child does not exist within the narrative %story', array('%child' => $child_node->title, '%story' => $story->title)));
+        }
+        break;
+    }
+
+    // Save the section.
+    if ($removed) {
+      $section_wrapper->save();
+      if (!$is_ajax) {
+        drupal_set_message($success_message);
+      }
+      node_access_acquire_grants($child_node);
+
+      // Remove the contextual path alias.
+      $dossier_nid = arg(1);
+      $story_nid = arg(3);
+      path_delete(array('alias' => 'dossiers/' . $dossier_nid . '/stories/' . $story_nid .  '/sections/' . $section->nid . '/' . $sub_type . '/' . $child_node->nid));
+    }
+    if ($is_ajax) {
+      return drupal_json_output($section->nid);
+    }
+    else {
+      drupal_goto(drupal_get_destination());
+    }
+
+  }
+
+
+  // Should never get this far.
+  return '';
+}
+
+/**
+ * This is copy of function storyscope_content_remove_child_content()
+ * This function was created for BUT
+ * This function has no drupal_goto() because this function is called in search form
+ * and we want to stay in search form.
+ * $sub_type is converted from node->type to correct $sub_type with function similarity_search_convert_node_type_to_uri_type.
+ * 
+ * @todo needs to be checked by Stella
+ */
+function storyscope_content_remove_child_content_no_redirect($parent_type, $story_node, $sub_type, $child_node, $dossier_context = NULL) {
+  $is_ajax = FALSE;
+  if (isset($_GET['ajax'])) {
+    $is_ajax = TRUE;
+  }
+  $removed = FALSE;
+  $deleted = FALSE;
+  $success_message = '';
+  // Get the allowed sub types for this parent type.
+  $allowed_types = storyscope_content_get_allowed_child_node_types($parent_type);
+  if (empty($allowed_types) || empty($allowed_types[$sub_type]) || $child_node->type != $allowed_types[$sub_type]) {
+    drupal_not_found();
+    return '';
+  }
+
+  // Dossier context.
+  // -----------------
+  if ($parent_type == 'dossier') {
+    $dossier = $story_node;
+    $dossier_wrapper = entity_metadata_wrapper('node', $dossier);
+
+    // Update the dossier and remove the link to the child content.
+    switch ($child_node->type) {
+
+      case 'object_story':
+        // Delete the story, and its child events (in hook_node_delete).
+        foreach ($dossier_wrapper->field_dossier_object_stories->value() as $delta => $object_story) {
+          if ($object_story->nid == $child_node->nid) {
+            $dossier_wrapper->field_dossier_object_stories[$delta]->set(NULL);
+            $success_message = t('Story %child successfully removed from dossier %dossier', array('%child' => $child_node->title, '%dossier' => $dossier->title));
+            $removed = TRUE;
+            $deleted = TRUE;
+            break;
+          }
+        }
+        if (!$removed) {
+          drupal_set_message(t('Story %child does not exist within the dossier %dossier', array('%child' => $child_node->title, '%dossier' => $dossier->title)));
+        }
+        break;
+
+
+      case 'event':
+        // Delete the event.
+        foreach ($dossier_wrapper->field_dossier_events->value() as $delta => $event) {
+          if ($event->nid == $child_node->nid) {
+            $dossier_wrapper->field_dossier_events[$delta]->set(NULL);
+            $success_message = t('Event %child successfully removed from dossier %dossier', array('%child' => $child_node->title, '%dossier' => $dossier->title));
+            $removed = TRUE;
+            $deleted = TRUE;
+            break;
+          }
+        }
+        if (!$removed) {
+          drupal_set_message(t('Event %child does not exist within the dossier %dossier', array('%child' => $child_node->title, '%dossier' => $dossier->title)));
+        }
+        break;
+
+
+      case 'reference':
+        // Remove the reference from the dossier, but don't delete.
+        foreach ($dossier_wrapper->field_dossier_references->value() as $delta => $reference) {
+          if ($reference->nid == $child_node->nid) {
+            $dossier_wrapper->field_dossier_references[$delta]->set(NULL);
+            $success_message = t('Reference %child successfully removed from dossier %dossier', array('%child' => $child_node->title, '%dossier' => $dossier->title));
+            $removed = TRUE;
+            break;
+          }
+        }
+        if (!$removed) {
+          drupal_set_message(t('Reference %child does not exist within the dossier %dossier', array('%child' => $child_node->title, '%dossier' => $dossier->title)));
+        }
+        break;
+
+
+      case 'plot':
+        // Delete the plot, and its child plot elements (in hook_node_delete).
+        foreach ($dossier_wrapper->field_dossier_plots->value() as $delta => $plot) {
+          if ($plot->nid == $child_node->nid) {
+            $dossier_wrapper->field_dossier_plots[$delta]->set(NULL);
+            $success_message = t('Plot %child successfully removed from dossier %dossier', array('%child' => $child_node->title, '%dossier' => $dossier->title));
+            $removed = TRUE;
+            $deleted = TRUE;
+            break;
+          }
+        }
+        if (!$removed) {
+          drupal_set_message(t('Plot %child does not exist within the dossier %dossier', array('%child' => $child_node->title, '%dossier' => $dossier->title)));
+        }
+        break;
+
+
+      case 'narrative_microsite':
+        // Delete the (old style) narrative.
+        foreach ($dossier_wrapper->field_dossier_narratives->value() as $delta => $narrative) {
+          if ($narrative->nid == $child_node->nid) {
+            $dossier_wrapper->field_dossier_narratives[$delta]->set(NULL);
+            $success_message = t('Narrative %child successfully removed from dossier %dossier', array('%child' => $child_node->title, '%dossier' => $dossier->title));
+            $removed = TRUE;
+            $deleted = TRUE;
+            break;
+          }
+        }
+        if (!$removed) {
+          drupal_set_message(t('Narrative %child does not exist within the dossier %dossier', array('%child' => $child_node->title, '%dossier' => $dossier->title)));
+        }
+        break;
+    }
+
+    // Save the dossier.
+    if ($removed) {
+      $dossier_wrapper->save();
+      drupal_set_message($success_message);
+      node_access_acquire_grants($child_node);
+      
+      // inform SEC Store API about removed child element from parent element
+      similarity_search_remove_from_context($child_node, $dossier);
+            
+      // Remove the contextual path alias.
+      path_delete(array('alias' => 'dossiers/' . $dossier->nid . '/' . $sub_type . '/' . $child_node->nid));
+    }
+    // Delete node if necessary.
+    if ($deleted) {
+      node_delete($child_node->nid);
+    }
+  }
+
+
+  // Story context.
+  // ----------------------
+  elseif ($parent_type == 'object_story') {
+    $object_story = $story_node;
+    $object_story_wrapper = entity_metadata_wrapper('node', $object_story);
+
+    // Update the story and remove the link to the child content.
+    switch ($child_node->type) {
+
+      case 'event':
+        // Delete the event.
+        foreach ($object_story_wrapper->field_object_story_events->value() as $delta => $event) {
+          if ($event->nid == $child_node->nid) {
+            $object_story_wrapper->field_object_story_events[$delta]->set(NULL);
+            $success_message = t('Event %child successfully removed from story %objectstory', array('%child' => $child_node->title, '%objectstory' => $object_story->title));
+            $removed = TRUE;
+            $deleted = TRUE;
+            break;
+          }
+        }
+        if (!$removed) {
+          drupal_set_message(t('Event %child does not exist within the story %objectstory', array('%child' => $child_node->title, '%objectstory' => $object_story->title)));
+        }
+        break;
+
+
+      case 'reference':
+        // Remove the reference from the story, but don't delete.
+        foreach ($object_story_wrapper->field_object_story_references->value() as $delta => $reference) {
+          if ($reference->nid == $child_node->nid) {
+            $object_story_wrapper->field_object_story_references[$delta]->set(NULL);
+            $success_message = t('Reference %child successfully removed from story %objectstory', array('%child' => $child_node->title, '%objectstory' => $object_story->title));
+            $removed = TRUE;
+            break;
+          }
+        }
+        if (!$removed) {
+          drupal_set_message(t('Reference %child does not exist within the story %objectstory', array('%child' => $child_node->title, '%objectstory' => $object_story->title)));
+        }
+        break;
+
+
+      case 'object':
+        // Remove the object from the story, but don't delete.
+        foreach ($object_story_wrapper->field_object_story_objects->value() as $delta => $object) {
+          if ($object->nid == $child_node->nid) {
+            $object_story_wrapper->field_object_story_objects[$delta]->set(NULL);
+            $success_message = t('Object %child successfully removed from story %objectstory', array('%child' => $child_node->title, '%objectstory' => $object_story->title));
+            $removed = TRUE;
+            break;
+          }
+        }
+        if (!$removed) {
+          drupal_set_message(t('Object %child does not exist within the story %objectstory', array('%child' => $child_node->title, '%objectstory' => $object_story->title)));
+        }
+        break;
+    }
+
+
+    // Save the story.
+    if ($removed) {
+      $object_story_wrapper->save();
+      drupal_set_message($success_message);
+      node_access_acquire_grants($child_node);
+
+      // inform SEC Store API about removed child element from parent element
+      similarity_search_remove_from_context($child_node, $object_story);
+      
+      // Remove the contextual path alias.
+      path_delete(array('alias' => 'objectstories/' . $object_story->nid . '/' . $sub_type . '/' . $child_node->nid));
+      // Not using $dossier_context as it may not always be available.
+      if (!empty($object_story->dossiers)) {
+        foreach ($object_story->dossiers as $dossier_nid) {
+          path_delete(array('alias' => 'dossiers/' . $dossier_nid . '/objectstories/' . $object_story->nid . '/' . $sub_type . '/' . $child_node->nid));
+        }
+      }
+    }
+    // Delete node if necessary.
+    if ($deleted) {
+      node_delete($child_node->nid);
+    }
+  }
+
+
+  // Plot context.
+  // -------------
+  elseif ($parent_type == 'plot') {
+    $plot = $story_node;
+    $plot_wrapper = entity_metadata_wrapper('node', $plot);
+
+    // Update the plot with the link to the new content.
+    switch ($child_node->type) {
+
+      case 'plot_element':
+        // Delete the plot element, but not the child events.
+        foreach ($plot_wrapper->field_plot_plot_elements->value() as $delta => $plot_element) {
+          if ($plot_element->nid == $child_node->nid) {
+            $plot_wrapper->field_plot_plot_elements[$delta]->set(NULL);
+            $success_message = t('Plot element %child successfully removed from plot %plot', array('%child' => $child_node->title, '%plot' => $plot->title));
+            $removed = TRUE;
+            $deleted = TRUE;
+            break;
+          }
+        }
+        if (!$removed) {
+          drupal_set_message(t('Plot element %child does not exist within the plot %plot', array('%child' => $child_node->title, '%plot' => $plot->title)));
+        }
+        break;
+    }
+
+    // Save the plot.
+    if ($removed) {
+      $plot_wrapper->save();
+      drupal_set_message($success_message);
+      node_access_acquire_grants($child_node);
+
+      // Remove the contextual path alias.
+      path_delete(array('alias' => 'plots/' . $plot->nid . '/' . $sub_type . '/' . $child_node->nid));
+      // Not using $dossier_context as it may not always be available.
+      if (!empty($plot->dossiers)) {
+        foreach ($plot->dossiers as $dossier_nid) {
+          path_delete(array('alias' => 'dossiers/' . $dossier_nid . '/plots/' . $plot->nid . '/' . $sub_type . '/' . $child_node->nid));
+        }
+      }
+    }
+    // Delete node if necessary.
+    if ($deleted) {
+      node_delete($child_node->nid);
+    }
+  }
+
+  // Plot element context.
+  // -------------
+  elseif ($parent_type == 'plot_element') {
+    $plot_element = $story_node;
+    $plot_element_wrapper = entity_metadata_wrapper('node', $plot_element);
+
+    // Update the plot with the link to the new content.
+    switch ($child_node->type) {
+
+      case 'event':
+        // Just remove the reference to the event from our plot element.
+        foreach ($plot_element_wrapper->field_plot_element_plot_set_1->value() as $delta => $event) {
+          if ($event->nid == $child_node->nid) {
+            $plot_element_wrapper->field_plot_element_plot_set_1[$delta]->set(NULL);
+            $success_message = t('Event %child successfully removed from plot element %plot_element', array('%child' => $child_node->title, '%plot_element' => $plot_element->title));
+            $removed = TRUE;
+            break;
+          }
+        }
+        if (!$removed) {
+          foreach ($plot_element_wrapper->field_plot_element_plot_set_2->value() as $delta => $event) {
+            if ($event->nid == $child_node->nid) {
+              $plot_element_wrapper->field_plot_element_plot_set_2[$delta]->set(NULL);
+              $success_message = t('Event %child successfully removed from plot element %plot_element', array('%child' => $child_node->title, '%plot_element' => $plot_element->title));
+              $removed = TRUE;
+              break;
+            }
+          }
+          if (!$removed) {
+            drupal_set_message(t('Plot element %child does not exist within the plot %plot', array('%child' => $child_node->title, '%plot' => $plot->title)));
+          }
+        }
+        break;
+    }
+
+    // Save the plot.
+    if ($removed) {
+      $plot_element_wrapper->save();
+      if(!$is_ajax) {
+        drupal_set_message($success_message);
+      }
+      node_access_acquire_grants($child_node);
+
+      // Remove the contextual path alias.
+      $dossier_nid = arg(1);
+      $plot_nid = arg(3);
+      path_delete(array('alias' => 'dossiers/' . $dossier_nid . '/plots/' . $plot_nid .  '/elements/' . $plot_element->nid . '/' . $sub_type . '/' . $child_node->nid));
+    }
+    if ($is_ajax) {
+      return drupal_json_output($plot_element->nid);
+    }
+  }
+  // Should never get this far.
+  return '';
+}
+
+/**
+ * Move an event from one plot set to another within a plot element.
+ *
+ * @param $plot_element
+ *   The container.
+ * @param $event
+ *   The event to be moved.
+ */
+function storyscope_content_move_event($plot_element_nid, $target_event) {
+  $is_ajax = FALSE;
+  if (isset($_GET['ajax'])) {
+    $is_ajax = TRUE;
+  }
+  $plot_element_wrapper = entity_metadata_wrapper('node', $plot_element_nid);
+  $plot_set_1 = $plot_element_wrapper->field_plot_element_plot_set_1->value();
+  $plot_set_2 = $plot_element_wrapper->field_plot_element_plot_set_2->value();
+  $moved = FALSE;
+  // First, have a look & see if the event is in plot set 1.
+  foreach ($plot_set_1 as $delta => $event) {
+    if (!empty($event)) {
+      if ($event->nid == $target_event->nid) {
+        $plot_element_wrapper->field_plot_element_plot_set_1[$delta]->set(NULL);
+        $plot_set_2_delta = count($plot_set_2);
+        $plot_element_wrapper->field_plot_element_plot_set_2[$plot_set_2_delta] = $target_event;
+        $moved = TRUE;
+      }
+    }
+  }
+  // If not found yet, look in plot set 2.
+  if (!$moved) {
+    foreach ($plot_set_2 as $delta => $event) {
+      if ($event->nid == $target_event->nid) {
+        $plot_element_wrapper->field_plot_element_plot_set_2[$delta]->set(NULL);
+        $plot_set_1_delta = count($plot_set_1);
+        $plot_element_wrapper->field_plot_element_plot_set_1[$plot_set_1_delta] = $target_event;
+        $moved = TRUE;
+      }
+    }
+  }
+  if ($moved) {
+    $plot_element_wrapper->save();
+  }
+  if ($is_ajax) {
+    drupal_json_output($plot_element_nid->nid);
+  }
+  else {
+    drupal_goto(drupal_get_destination());
+  }
+}
+
+/**
+ * Implements hook_form_FORMID_alter().
+ *
+ * Hide the entity reference fields, used for storing links to child content,
+ * from the dossier node form. We also hide the CA/SEC ID and Private fields.
+ */
+function storyscope_content_form_dossier_node_form_alter(&$form, $form_state) {
+  // Only hid the Private field if editing an existing node and it's not checked.
+  if (!empty($form['#node']->nid)) {
+    $dossier_wrapper = entity_metadata_wrapper('node', $form['#node']);
+    $private = $dossier_wrapper->field_dossier_private->value();
+    if (!$private) {
+      $form['field_dossier_private']['#access'] = FALSE;
+    }
+  }
+
+  // Hide the other fields.
+  $form['field_ca_sec_id']['#access'] = FALSE;
+  $form['field_dossier_events']['#access'] = FALSE;
+  $form['field_dossier_object_stories']['#access'] = FALSE;
+  $form['field_dossier_plots']['#access'] = FALSE;
+  $form['field_dossier_references']['#access'] = FALSE;
+  $form['field_dossier_stories']['#access'] = TRUE;
+  $form['field_dossier_narratives']['#access'] = FALSE;
+
+}
+
+/**
+ * Implements hook_form_FORMID_alter().
+ *
+ * Hide the navigation fields, used for storing story trails and navigation information.
+ *
+ */
+function storyscope_content_form_section_node_form_alter(&$form, $form_state) {
+
+  // Hide the nav fields.
+  $form['field_ca_sec_id']['#access'] = FALSE;
+  $form['field_dossier_events']['#access'] = FALSE;
+  $form['field_dossier_object_stories']['#access'] = FALSE;
+  $form['field_dossier_plots']['#access'] = FALSE;
+  $form['field_dossier_references']['#access'] = FALSE;
+  $form['field_dossier_stories']['#access'] = FALSE;
+  $form['field_dossier_narratives']['#access'] = FALSE;
+
+}
+
+/**
+ * Implements hook_form_FORMID_alter().
+ *
+ * Hide the entity reference fields, used for storing links to child content,
+ * from the story node form. We also hide the CA/SEC ID and Private fields.
+ */
+function storyscope_content_form_object_story_node_form_alter(&$form, $form_state) {
+  $author = $form['uid']['#value'];
+  global $user;
+  // Only show the Editable field if the nodes author is editing.
+  if ($user->uid != $author) {
+    $form['field_object_story_editable']['#access'] = FALSE;
+  }
+  // Is it an existing node?
+  if (!empty($form['#node']->nid)) {
+    $object_story_wrapper = entity_metadata_wrapper('node', $form['#node']);
+    // Only hide the Private field if editing an existing node and it's not checked.
+    $private = $object_story_wrapper->field_object_story_private->value();
+    if (!$private) {
+      $form['field_object_story_private']['#access'] = FALSE;
+    }
+    // Fetch images from the Objects referenced by this Story.
+    $objects = $object_story_wrapper->field_object_story_objects->value();
+    if (!empty($objects)) {
+      foreach ($objects as $object) {
+        $object_wrapper = entity_metadata_wrapper('node', $object);
+        $object_media = $object_wrapper->field_media->value();
+        if (!empty($object_media)) {
+          $image_choices = array();
+          foreach ($object_media as $media_item) {
+            $media_fid = $media_item['fid'];
+            $media_choices[$media_fid] = $media_item['alt'];
+          }
+        }
+      }
+      if (!empty($media_choices)) {
+        $media_choice = $object_story_wrapper->field_object_story_chosen_media->value();
+        if (empty($media_choice) && !empty($media_choices)) {
+          $media_choice = key($media_choices);
+        }
+        // Display them as radio buttons
+        $form['media_select_widget'] = array(
+          '#type' => 'radios',
+          '#theme' => 'storyscope_content_media_widget',
+          '#title' => t('Choose a representative media item for your story'),
+          '#default_value' => $media_choice,
+          '#options' => $media_choices,
+          '#description' => t('Choose a representative media item for your story.'),
+          '#weight' => 2,
+        );
+      }
+    }
+  }
+
+  // Hide the other fields.
+  $form['field_object_story_chosen_media']['#access'] = FALSE;
+  $form['field_ca_sec_id']['#access'] = FALSE;
+  $form['field_object_story_events']['#access'] = FALSE;
+  $form['field_object_story_objects']['#access'] = FALSE;
+  $form['field_object_story_references']['#access'] = FALSE;
+  if (empty($form['nid']['#value'])) {
+    $form['actions']['submit']['#submit'][] = 'storyscope_content_form_object_story_node_form_submit';
+  }
+  $form['actions']['submit']['#submit'][] = 'storyscope_content_form_object_story_store_media_submit';
+  // Add in a Javascript helper to show the selected state of the team image.
+  $form['#attached']['js'] = array(
+    drupal_get_path('module', 'storyscope_content') . '/js/representative-media-widget.js',
+  );
+
+}
+
+function storyscope_content_form_object_story_node_form_submit($form, &$form_state) {
+  unset($_GET['destination']);
+  unset($form_state['rebuild']);
+  $nid = $form_state['nid'];
+  $form_state['redirect'] = 'dossiers/' . $form['dossier']['#value'] . '/objectstories/' . $nid;
+}
+
+function storyscope_content_form_object_story_store_media_submit($form, &$form_state) {
+  // Store the chosen media item on the node.
+  // Just setting the form state did not appear to work here so we'll
+  // resort to entity_metadata_wrappers. It does result in an extra save operation,
+  // so TODO: figure out why setting form_state didn't work.
+  $chosen_media_item = $form_state['values']['media_select_widget'];
+  $node_wrapper = entity_metadata_wrapper('node', $form_state['values']['nid']);
+  $node_wrapper->field_object_story_chosen_media->set($chosen_media_item);
+  $node_wrapper->save();
+}
+
+/**
+ * Implements hook_form_FORMID_alter().
+ *
+ * Hide the entity reference field to the source event node along with the
+ * CA/SEC ID field from the event node form.
+ */
+function storyscope_content_form_event_node_form_alter(&$form, $form_state) {
+  $form['field_ca_sec_id']['#access'] = FALSE;
+  $form['field_event_source_event']['#access'] = FALSE;
+  $form['field_event_start_timestamp']['#access'] = FALSE;
+  $form['field_event_end_timestamp']['#access'] = FALSE;
+  $form['field_event_annotation_uri']['#access'] = FALSE;
+  $form['#after_build'][] = 'storyscope_content_form_event_node_form_after_build';
+}
+
+/**
+ * Implements hook_inline_entity_form_entity_form_alter().
+ *
+ * Hide the non-user-facing fields on inline entity forms.
+ */
+function storyscope_content_inline_entity_form_entity_form_alter(&$entity_form, &$form_state) {
+  if ($entity_form['#entity']->type == 'object') {
+    $entity_form['field_ca_sec_id']['#access'] = FALSE;
+    $entity_form['field_object_creation_timestamp']['#access'] = FALSE;
+    $lang = $entity_form['field_object_creator']['#language'];
+    $creator_field_collection = $entity_form['field_object_creator'][$lang];
+    include_once DRUPAL_ROOT . '/includes/iso.inc';
+    $countries_none_option = $entity_form['field_object_country_of_origin'][$lang]['#options'];
+    $countries = _country_get_predefined_list();
+    $entity_form['field_object_country_of_origin'][$lang]['#options'] = array_merge($countries_none_option, $countries);
+    foreach($creator_field_collection as $key => $item) {
+      if (is_int($key)) {
+        $entity_form['field_object_creator'][$lang][$key]['field_creator_birth_timestamp']['#access'] = FALSE;
+        $entity_form['field_object_creator'][$lang][$key]['field_creator_death_timestamp']['#access'] = FALSE;
+      }
+    }
+  }
+}
+
+/**
+ * Implements hook_form_FORMID_alter().
+ *
+ * Hide the CA/SEC ID field from the source event node form.
+ */
+function storyscope_content_form_source_event_node_form_alter(&$form, $form_state) {
+  $form['field_ca_sec_id']['#access'] = FALSE;
+}
+
+/**
+ * Implements hook_form_FORMID_alter().
+ *
+ * Hide the Location field from the content page node form.
+ */
+function form_content_page_node_form_alter(&$form, $form_state) {
+  $form['field_location']['#access'] = FALSE;
+}
+
+
+/**
+ * Implements hook_form_FORMID_alter().
+ *
+ * Hide the CA/SEC ID field from the reference node form.
+ */
+function storyscope_content_form_reference_node_form_alter(&$form, $form_state) {
+  $form['field_ca_sec_id']['#access'] = FALSE;
+}
+
+/**
+ * Implements hook_form_FORMID_alter().
+ *
+ * Hide the CA/SEC ID field from the object node form.
+ */
+function storyscope_content_form_object_node_form_alter(&$form, $form_state) {
+  $form['field_ca_sec_id']['#access'] = FALSE;
+  $form['field_object_creation_timestamp']['#access'] = FALSE;
+  $lang = $form['language']['#value'];
+  include_once DRUPAL_ROOT . '/includes/iso.inc';
+  $countries = _country_get_predefined_list();
+      /* depricated facets 
+  $creator_field_collection = $form['field_object_creator'][$lang];
+  $countries_none_option = $form['field_object_country_of_origin'][$lang]['#options'];
+  $form['field_object_country_of_origin'][$lang]['#options'] = array_merge($countries_none_option, $countries);
+  foreach($creator_field_collection as $key => $item) {
+    if (is_int($key)) {
+      $form['field_object_creator'][$lang][$key]['field_creator_birth_timestamp']['#access'] = FALSE;
+      $form['field_object_creator'][$lang][$key]['field_creator_death_timestamp']['#access'] = FALSE;
+    }
+  }
+  */
+  $form['#after_build'][] = 'storyscope_content_form_object_node_form_after_build';
+}
+
+
+/**
+ * Implements hook_form_FORMID_alter().
+ *
+ * Hide the entity reference fields, used for storing links to child content,
+ * from the plot node form. We also hide the CA/SEC ID field.
+ */
+function storyscope_content_form_plot_node_form_alter(&$form, $form_state) {
+  $form['field_ca_sec_id']['#access'] = FALSE;
+  $form['field_plot_plot_elements']['#access'] = FALSE;
+}
+
+/**
+ * Implements hook_form_FORMID_alter().
+ *
+ * Hide the entity reference fields, used for storing links to child content,
+ * from the plot node form..
+ */
+function storyscope_content_form_story_node_form_alter(&$form, $form_state) {
+  $form['field_story_sections']['#access'] = FALSE;
+}
+
+/**
+ * Implements hook_form_FORMID_alter().
+ *
+ * Hide the CA/SEC ID field from the plot_element node form.
+ */
+function storyscope_content_form_plot_element_node_form_alter(&$form, $form_state) {
+  $form['field_ca_sec_id']['#access'] = FALSE;
+  $form['field_plot_element_plot_set_1'] = FALSE;
+  $form['field_plot_element_plot_set_2'] = FALSE;
+  $form['field_plot_element_relationship'] = FALSE;
+}
+
+/**
+ * Implements hook_form_FORMID_alter().
+ *
+ * Hide the CA/SEC ID field from the narrative_microsite node form.
+ */
+function storyscope_content_form_narrative_microsite_node_form_alter(&$form, $form_state) {
+  $form['field_ca_sec_id']['#access'] = FALSE;
+}
+
+/**
+ * Implements hook_form_FORMID_alter().
+ *
+ * Hide the Narrative Plot Element from the narrative_microsite section field collection form.
+ */
+function storyscope_content_form_field_collection_item_form_alter(&$form, $form_state) {
+  if ($form['field_name']['#value'] == 'field_narrative_set') {
+    $form['field_narrative_set_plot_element']['#access'] = FALSE;
+  }
+}
+
+/**
+ * Implements hook_form_FORMID_alter().
+ *
+ * Hide the 'machine' parts of the Freebase fields from the Event / Object form.
+ */
+
+function storyscope_content_form_event_node_form_after_build(&$form, $form_state) {
+  $language = $form['field_fb_agent']['#language'];  
+  $max_delta = $form['field_fb_agent'][$language]['#max_delta'];
+  $form['field_fb_agent'][$language]['#title'] = t('Agents');
+  for ($i = 0; $i <= $max_delta; $i++) {
+        $form['field_fb_agent'][$language][$i]['field_fb_agent_topic']['und']['0']['value']['#title_display'] = 'invisible';
+	$form['field_fb_agent'][$language][$i]['field_fb_agent_topic']['und']['0']['value']['#title'] = t('Agent');
+	$form['field_fb_agent'][$language][$i]['field_fb_agent_mid']['#attributes']['class'][] = 'hidden-input';
+	$form['field_fb_agent'][$language][$i]['field_fb_agent_birth_date']['#attributes']['class'][] = 'hidden-input';
+	$form['field_fb_agent'][$language][$i]['field_fb_agent_death_date']['#attributes']['class'][] = 'hidden-input';
+  }
+  $language = $form['field_fb_location']['#language'];  
+  $max_delta = $form['field_fb_location'][$language]['#max_delta'];
+  $form['field_fb_location'][$language]['#title'] = t('Locations');
+  for ($i = 0; $i <= $max_delta; $i++) {
+        $form['field_fb_location'][$language][$i]['field_fb_location_topic']['und']['0']['value']['#title_display'] = 'invisible';
+	$form['field_fb_location'][$language][$i]['field_fb_location_topic']['und']['0']['value']['#title'] = t('Location');
+	$form['field_fb_location'][$language][$i]['field_fb_location_mid']['#attributes']['class'][] = 'hidden-input';
+	$form['field_fb_location'][$language][$i]['field_fb_geolocation']['#attributes']['class'][] = 'hidden-input';
+  }
+  $language = $form['field_fb_genre']['#language'];  
+  $max_delta = $form['field_fb_genre'][$language]['#max_delta'];
+  $form['field_fb_genre'][$language]['#title'] = t('Genres');
+  for ($i = 0; $i <= $max_delta; $i++) {
+	$form['field_fb_genre'][$language][$i]['field_fb_genre_topic']['und']['0']['value']['#title'] = t('Genre');
+        $form['field_fb_genre'][$language][$i]['field_fb_genre_topic']['und']['0']['value']['#title_display'] = 'invisible';
+        $form['field_fb_genre'][$language][$i]['field_fb_genre_mid']['#attributes']['class'][] = 'hidden-input';
+  }
+  $language = $form['field_fb_style_movement']['#language'];  
+  $max_delta = $form['field_fb_style_movement'][$language]['#max_delta'];
+  $form['field_fb_style_movement'][$language]['#title'] = t('Styles & Movements');
+  for ($i = 0; $i <= $max_delta; $i++) {
+        $form['field_fb_style_movement'][$language][$i]['field_fb_style_movement_topic']['und']['0']['value']['#title_display'] = 'invisible';
+	$form['field_fb_style_movement'][$language][$i]['field_fb_style_movement_topic']['und']['0']['value']['#title'] = t('Genre');
+        $form['field_fb_style_movement'][$language][$i]['field_fb_style_movement_mid']['#attributes']['class'][] = 'hidden-input';
+  }
+  $language = $form['field_fb_value']['#language'];  
+  $max_delta = $form['field_fb_value'][$language]['#max_delta'];
+  $form['field_fb_value'][$language][0]['#title'] = t('Value');
+  for ($i = 0; $i <= $max_delta; $i++) {
+	$form['field_fb_value'][$language][$i]['field_fb_currency_topic']['und']['0']['value']['#title'] = t('Currency');
+        $form['field_fb_value'][$language][$i]['field_fb_currency_mid']['#attributes']['class'][] = 'hidden-input';
+  }
+  $language = $form['field_fb_tags']['#language'];  
+  $max_delta = $form['field_fb_tags'][$language]['#max_delta'];
+  $form['field_fb_tags'][$language]['#title'] = t('Tags');
+  for ($i = 0; $i <= $max_delta; $i++) {
+	$form['field_fb_tags'][$language][$i]['field_fb_tags_topic']['und']['0']['value']['#title'] = t('Tags');
+        $form['field_fb_tags'][$language][$i]['field_fb_tags_topic']['und']['0']['value']['#title_display'] = 'invisible';
+        $form['field_fb_tags'][$language][$i]['field_fb_tags_mid']['#attributes']['class'][] = 'hidden-input';
+  }
+  return $form;
+}
+
+/**
+ * Implements hook_form_FORMID_alter().
+ *
+ * Hide the 'machine' parts of the Freebase fields from the Object form.
+ */
+
+function storyscope_content_form_object_node_form_after_build(&$form, $form_state) {
+  $language = $form['field_fb_agent']['#language'];  
+  $max_delta = $form['field_fb_agent'][$language]['#max_delta'];
+  $form['field_fb_agent'][$language]['#title'] = t('Creator');
+  for ($i = 0; $i <= $max_delta; $i++) {
+        $form['field_fb_agent'][$language][$i]['field_fb_agent_topic']['und']['0']['value']['#title_display'] = 'invisible';
+	$form['field_fb_agent'][$language][$i]['field_fb_agent_topic']['und']['0']['value']['#title'] = t('Creator');
+	$form['field_fb_agent'][$language][$i]['field_fb_agent_mid']['#attributes']['class'][] = 'hidden-input';
+	$form['field_fb_agent'][$language][$i]['field_fb_agent_birth_date']['#attributes']['class'][] = 'hidden-input';
+	$form['field_fb_agent'][$language][$i]['field_fb_agent_death_date']['#attributes']['class'][] = 'hidden-input';
+  }
+  $language = $form['field_fb_location']['#language'];  
+  $max_delta = $form['field_fb_location'][$language]['#max_delta'];
+  $form['field_fb_location'][$language]['#title'] = t('Current Location');
+  for ($i = 0; $i <= $max_delta; $i++) {
+        $form['field_fb_location'][$language][$i]['field_fb_location_topic']['und']['0']['value']['#title_display'] = 'invisible';
+	$form['field_fb_location'][$language][$i]['field_fb_location_topic']['und']['0']['value']['#title'] = t('Current Location');
+	$form['field_fb_location'][$language][$i]['field_fb_location_mid']['#attributes']['class'][] = 'hidden-input';
+	$form['field_fb_location'][$language][$i]['field_fb_geolocation']['#attributes']['class'][] = 'hidden-input';
+  }
+  $language = $form['field_fb_classification']['#language'];  
+  $max_delta = $form['field_fb_classification'][$language]['#max_delta'];
+  $form['field_fb_classification'][$language]['#title'] = t('Classification');
+  for ($i = 0; $i <= $max_delta; $i++) {
+        $form['field_fb_classification'][$language][$i]['field_fb_classification_topic']['und']['0']['value']['#title_display'] = 'invisible';
+	$form['field_fb_classification'][$language][$i]['field_fb_classification_topic']['und']['0']['value']['#title'] = t('Classification');
+	$form['field_fb_classification'][$language][$i]['field_fb_classification_mid']['#attributes']['class'][] = 'hidden-input';
+  }
+  $language = $form['field_fb_materials']['#language'];  
+  $max_delta = $form['field_fb_materials'][$language]['#max_delta'];
+  $form['field_fb_materials'][$language]['#title'] = t('Materials');
+  for ($i = 0; $i <= $max_delta; $i++) {
+        $form['field_fb_materials'][$language][$i]['field_fb_materials_topic']['und']['0']['value']['#title_display'] = 'invisible';
+	$form['field_fb_materials'][$language][$i]['field_fb_materials_topic']['und']['0']['value']['#title'] = t('Materials');
+	$form['field_fb_materials'][$language][$i]['field_fb_materials_mid']['#attributes']['class'][] = 'hidden-input';
+  }
+  $language = $form['field_fb_country']['#language'];  
+  $max_delta = $form['field_fb_country'][$language]['#max_delta'];
+  $form['field_fb_country'][$language]['#title'] = t('Country of Origin');
+  for ($i = 0; $i <= $max_delta; $i++) {
+        $form['field_fb_country'][$language][$i]['field_fb_country_topic']['und']['0']['value']['#title_display'] = 'invisible';
+	$form['field_fb_country'][$language][$i]['field_fb_country_topic']['und']['0']['value']['#title'] = t('Country of Origin');
+	$form['field_fb_country'][$language][$i]['field_fb_country_mid']['#attributes']['class'][] = 'hidden-input';
+  }
+  $language = $form['field_fb_tags']['#language'];  
+  $max_delta = $form['field_fb_tags'][$language]['#max_delta'];
+  $form['field_fb_tags'][$language]['#title'] = t('Tags');
+  for ($i = 0; $i <= $max_delta; $i++) {
+	$form['field_fb_tags'][$language][$i]['field_fb_tags_topic']['und']['0']['value']['#title'] = t('Tags');
+        $form['field_fb_tags'][$language][$i]['field_fb_tags_topic']['und']['0']['value']['#title_display'] = 'invisible';
+        $form['field_fb_tags'][$language][$i]['field_fb_tags_mid']['#attributes']['class'][] = 'hidden-input';
+  }
+  $language = $form['field_fb_object_identifier']['#language'];  
+  $max_delta = $form['field_fb_object_identifier'][$language]['#max_delta'];
+  $form['field_fb_fb_object_identifier'][$language]['#title'] = t('Object Identifier');
+  for ($i = 0; $i <= $max_delta; $i++) {
+	$form['field_fb_object_identifier'][$language][$i]['field_fb_object_identifier_topic']['und']['0']['value']['#title'] = t('Object Identifier');
+        $form['field_fb_object_identifier'][$language][$i]['field_fb_object_identifier_topic']['und']['0']['value']['#title_display'] = 'invisible';
+        $form['field_fb_object_identifier'][$language][$i]['field_fb_object_identifier_mid']['#attributes']['class'][] = 'hidden-input';
+  }
+  return $form;
+}
+
+/**
+ * Implements hook_init().
+ */
+function storyscope_content_init() {
+  // To stop ajax errors we need to make sure that node.pages.inc is loaded on ajax callbacks.
+  if ($_GET['q'] == 'system/ajax' && preg_match('/^[a-z_]+_node_form/', $_POST['form_id'])) {
+    module_load_include('inc', 'node', 'node.pages');
+  }
+}
+
+/**
+ * Implement hook_clone_node_alter().
+ */
+function storyscope_content_clone_node_alter(&$node, $context) {
+  $original_node = $context['original_node'];
+  $node->title = $original_node->title;
+}
+
+/**
+ * Take a source event node and create an 'event' node from it.
+ */
+function storyscope_content_clone_source_event($source_event) {
+  $event_node = new stdClass;
+  $event_node->type = 'event';
+  $event_node->is_new = TRUE;
+  $event_node->status = TRUE;
+  $event_node->title = $source_event->title;
+  $event_node->language = $source_event->language;
+  $event_node->field_event_source_event[$event_node->language][]['target_id'] = $source_event->nid;
+  node_save($event_node);
+
+  return $event_node;
+}
+
+/**
+ * Take a node object and create a clone of it.
+ *
+ * @param $node
+ *   Node object to be cloned.
+ *
+ * @return
+ *   New cloned node object.
+ */
+function storyscope_content_clone_content($node) {
+  module_load_include('inc', 'clone', 'clone.pages');
+  $clone_nid = clone_node_save($node->nid);
+  $clone = node_load($clone_nid);
+  return $clone;
+}
+
+/**
+ * Wrapper function around path_save() to check for existing paths before
+ * creating new ones, so as to avoid duplicates.
+ *
+ * @param $path
+ *   Array of path arguments as accepted by path_save().
+ */
+function storyscope_content_path_save($path) {
+  if (!path_load(array('alias' => $path['alias']))) {
+    path_save($path);
+  }
+}
+
+/**
+ * Helper function to create a path alias for a node for all contexts it may
+ * exist in.
+ *
+ * @param $node
+ *   The node to create the aliases for.
+ * @param $parent_node
+ *   The direct parent context, another node object.
+ */
+function storyscope_content_create_path_aliases($node, $parent_node, $parent_dossier_nid = NULL, $parent_plot_nid = NULL) {
+  // Returns allowed sub types for the parent node, keyed by url path.
+  $allowed_types = storyscope_content_get_allowed_child_node_types($parent_node->type);
+  if (empty($allowed_types)) {
+    return;
+  }
+
+  // Get the allowed types keyed by content type machine name.
+  $allowed_types_flipped = array_flip($allowed_types);
+  if (empty($allowed_types_flipped[$node->type])) {
+    return;
+  }
+
+  // Set up common parts to the $path array.
+  $langcode = entity_language('node', $node);
+  $path = array();
+  $path['source'] = 'node/' . $node->nid;
+  $path['language'] = isset($langcode) ? $langcode : LANGUAGE_NONE;
+
+  // Determine path for parent.
+  switch ($parent_node->type) {
+    case 'dossier':
+      $parent_path = 'dossiers';
+      break;
+    case 'object_story':
+      $parent_path = 'objectstories';
+      break;
+    case 'story':
+      $parent_path = 'stories';
+      break;
+    case 'section':
+      $parent_path = 'sections';
+      break;
+    case 'plot':
+      $parent_path = 'plots';
+      break;
+    case 'plot_element':
+      $parent_path = 'elements';
+      break;
+  }
+  $node_path = $allowed_types_flipped[$node->type];
+  // Set up the 2-tier path, e.g. dossiers/X/events/Y or objectstories/X/objects/Y
+  if ($parent_path == 'dossiers' || $parent_path == 'objectstories') {
+    $path['alias'] = $parent_path . '/' . $parent_node->nid . '/' . $node_path . '/' . $node->nid;
+    storyscope_content_path_save($path);
+  }
+
+  // Set up the 3-tier paths, e.g. dossiers/X/objectstories/Y/references/Z
+  // This currently always has dossiers as the extra layer.
+  if (!empty($parent_node->dossiers)) {
+    foreach ($parent_node->dossiers as $dossier_nid) {
+      unset($path['pid']);
+      $path['alias'] = 'dossiers/' . $dossier_nid . '/' . $parent_path . '/' . $parent_node->nid . '/' . $node_path . '/' . $node->nid;
+      storyscope_content_path_save($path);
+    }
+  }
+  elseif (!empty($parent_dossier_nid)) {
+    $path['alias'] = 'dossiers/' . $parent_dossier_nid . '/' . $parent_path . '/' . $parent_node->nid . '/' . $node_path . '/' . $node->nid;
+    storyscope_content_path_save($path);
+  }
+
+  // Set up the 4-tier paths for events in a plot element.
+  if ($parent_node->type == 'plot_element' && !empty($parent_dossier_nid)) {
+    unset($path['pid']);
+    $path['alias'] = 'dossiers/' . $parent_dossier_nid . '/plots/' . $parent_plot_nid . '/' . $parent_path . '/' . $parent_node->nid . '/' . $node_path . '/' . $node->nid;
+    storyscope_content_path_save($path);
+  }
+}
+
+/**
+ * Implements hook_entity_info_alter().
+ */
+function storyscope_content_entity_info_alter(&$entity_info) {
+  $entity_info['node']['uri callback'] = 'storyscope_content_node_uri';
+}
+
+/**
+ * Entity uri callback function.
+ */
+function storyscope_content_node_uri($node) {
+
+  // Only proceed if we have a View context.
+  if (empty($node->view) || empty($node->view->name)) {
+    return node_uri($node);
+  }
+  $view_name = $node->view->name;
+  // Get the subpath for the displayed node type, e.g. 'reference' returns 'references'.
+  $subpath = storyscope_content_get_node_type_path_mapping($node->type);
+
+  $top_level_views = array(
+    'events',
+    'events_search_api_',
+    'objects',
+    'objects_search_api',
+    'object_stories',
+    'object_stories_search_api',
+    'references',
+    'object_story_dossiers',
+    'reference_dossiers',
+  );
+  $descendant_views = array(
+    'dossier_events_add_existing',
+    'dossier_events_add_existing_search_api',
+    'dossier_objects_add_existing',
+    'dossier_objects_add_existing_search_api',
+    'dossier_object_stories_add_existing',
+    'dossier_object_stories_add_existing_search_api',
+    'dossier_references_add_existing_search_api',
+    'dossier_references_add_existing',
+    'object_story_events_add_existing_search_api',
+    'object_story_events_add_existing',
+    'object_story_objects_add_existing_search_api',
+    'object_story_objects_add_existing',
+    'object_story_references_add_existing_search_api',
+    'object_story_references_add_existing',
+    'dossier_object_stories',
+    'dossier_plots',
+    'object_story_objects',
+    'plot_elements',
+    'story_references',
+    'object_story_events',
+    //'source_event_instances',
+    'dossier_stories',
+  );
+  $potential_contextless_views = array(
+    'object_events',
+    'views_object_object_stories',
+    'events_objects',
+    'event_stories',
+    'reference_object_stories',
+  );
+  // This array isn't used, as all node views not listed above will reach this
+  // conditional. Listing (current) views here for completeness. If this starts
+  // failing, we may need to a check on this array.
+  $dossier_context_views = array(
+    'dossier_events_search_api',
+    'dossier_objects', // Except the story_section_objects_panel_pane display.
+    'dossier_references',
+    'dossier_activity',
+    'dossier_events',
+    'plot_objects',
+    'plot_events',
+    'plot_object_stories',
+    'plot_element_objects',
+    'plot_element_events',
+    'plot_element_references',
+    'plot_element_object_stories',
+    'narrative_objects',
+    'narrative_events',
+    'narrative_object_stories',
+    'narrative_plot_elements',
+  );
+
+
+  // Top level views: Always link to the /references/X, /events/X type urls.
+  if (in_array($view_name, $top_level_views)) {
+    return array(
+      'path' => $subpath . '/' . $node->nid,
+    );
+  }
+
+
+  // Descendant views: Take the view path and append the node id.
+  elseif (in_array($view_name, $descendant_views)) {
+    // Make an exception for the view of events attached to an story
+    // on the Narrative Gather page.
+    if (!($view_name == 'object_story_events' && $node->view->current_display == 'entity_view_1')) {
+       $this_page = request_path();
+      $current_display = $node->view->current_display;
+      $display_type = $node->view->display[$current_display]->display_plugin;
+      if ($display_type == 'page') {
+        return array(
+          'path' => $this_page . '/' . $node->nid,
+        );
+      }
+      else {
+        return array(
+          'path' => $this_page . '/' . $subpath . '/' . $node->nid,
+        );
+      }
+    }
+  }
+
+
+  // Potential context-less views: these views may not always have a dossier
+  // context. Need to determine context (if any) and set path manually.
+  elseif (in_array($view_name, $potential_contextless_views)) {
+    switch ($view_name) {
+
+      case 'events_objects':
+      case 'event_stories':
+      case 'object_events':
+      case 'views_object_object_stories':
+      case 'reference_object_stories':
+        $view_arg_nid = $node->view->args[0];
+        $first_path_nid = arg(1, request_path());
+        // Check for context-less view, e.g. objects/[nid]
+        // i.e. 1-tier path
+        if ($first_path_nid == $view_arg_nid) {
+          return array(
+            'path' => $subpath . '/' . $node->nid,
+          );
+        }
+        // We have a dossier or story context.
+        else {
+          $second_path_nid = arg(3, request_path());
+
+          // We have a 2-tier path.
+          if ($second_path_nid == $view_arg_nid) {
+            // Dossier context.
+            if (isset($node->dossiers) && in_array($first_path_nid, $node->dossiers)) {
+              return array(
+                'path' => 'dossiers/' . $first_path_nid . '/' . $subpath . '/' .  $node->nid,
+              );
+            }
+            // Object story context.
+            elseif (isset($node->object_stories) && in_array($first_path_nid, $node->object_stories)) {
+              return array(
+                'path' => 'objectstories/' . $first_path_nid . '/' . $subpath . '/' .  $node->nid,
+              );
+            }
+            // Unknown context.
+            else {
+              return array(
+                'path' => $subpath . '/' . $node->nid,
+              );
+            }
+          }
+
+          // 3-tier context, but need to output 2-tier link, e.g. listing object
+          // stories associated with an object on
+          // dossiers/%/objectstories/%/objects/%
+          if (isset($node->dossiers) && in_array($first_path_nid, $node->dossiers)) {
+            return array(
+              'path' => 'dossiers/' . $first_path_nid . '/' . $subpath . '/' . $node->nid,
+            );
+          }
+
+          // We have a 3-tier path.
+          // Assuming first path nid has to be the dossier.
+          if (!empty($node->object_stories) && in_array($second_path_nid, $node->object_stories)) {
+            foreach ($node->object_stories as $object_story_nid) {
+              $object_story = node_load($object_story_nid);
+              if (isset($object_story->dossiers) && in_array($first_path_nid, $object_story->dossiers)) {
+                return array(
+                  'path' => 'dossiers/' . $first_path_nid . '/objectstories/' . $second_path_nid . '/' . $subpath . '/' . $node->nid,
+                );
+              }
+            }
+          }
+
+
+          // Not sure what we have, default to context-less link.
+          else {
+            return array(
+              'path' => $subpath . '/' . $node->nid,
+            );
+          }
+        }
+        break;
+
+    }
+  }
+
+  // Exception to general rule: Dossier Objects panel pane on a Story Section.
+  elseif ($view_name == 'dossier_objects' && $node->view->current_display == 'story_section_objects_panel_pane') {
+    // dossiers/%/stories/%/sections/%/[object nid]
+    // Not using request_path() as this view is also hit when already on the
+    // path with the object nid in it.
+    $args = arg(NULL, request_path());
+    $args[6] = $node->nid;
+    return array(
+      'path' => implode('/', $args),
+    );
+  }
+
+  // Dossier context views: We always have a dossier context, and determine
+  // path using available 'dossiers', 'object_stories' and 'plots' properties
+  // of viewed node.
+  else {
+    $dossier_nid = arg(1, request_path());
+    if (in_array($node->type, array('object_story', 'plot', 'narrative_microsite', 'story'))) {
+      return array(
+        'path' => 'dossiers/' . $dossier_nid . '/' . $subpath . '/' . $node->nid,
+      );
+    }
+    elseif (isset($node->dossiers) && in_array($dossier_nid, $node->dossiers)) {
+      return array(
+        'path' => 'dossiers/' . $dossier_nid . '/' . $subpath . '/' . $node->nid,
+      );
+    }
+    elseif (isset($node->object_stories)) {
+      foreach ($node->object_stories as $object_story_nid) {
+        $object_story = node_load($object_story_nid);
+        if (isset($object_story->dossiers) && in_array($dossier_nid, $object_story->dossiers)) {
+          return array(
+            'path' => 'dossiers/' . $dossier_nid . '/objectstories/' . $object_story_nid . '/' . $subpath . '/' . $node->nid,
+          );
+        }
+      }
+    }
+    elseif (isset($node->plots)) {
+      $plot_nid = $node->plots[0];
+      return array(
+        'path' => 'dossiers/' . $dossier_nid . '/plots/' . $plot_nid . '/' . $subpath . '/' . $node->nid,
+      );
+    }
+    elseif (isset($node->stories)) {
+      $story_nid = $node->stories[0];
+      return array(
+        'path' => 'dossiers/' . $dossier_nid . '/stories/' . $story_nid . '/' . $subpath . '/' . $node->nid,
+      );
+    }
+  }
+
+  // If we get this far, return normal node uri.
+  return node_uri($node);
+}
+
+
+/**
+ * Check if an event, or its source event, matches another event.
+ *
+ * Note, we don't call entity_metadata_wrapper() on $event here to avoid a
+ * performance overhead as this function will typically be called within a
+ * foreach loop over $compare events.
+ *
+ * @param $event
+ *   The event we're checking against.
+ * @param $source_event
+ *   The source event for $event.
+ * @param $compare
+ *   The event being compared.
+ *
+ * @return
+ *   True if exists, false otherwise.
+ */
+function _storyscope_content_compare_events($event, $source_event, $compare) {
+  // Check if the two events are identical.
+  if ($event->nid == $compare->nid) {
+    return TRUE;
+  }
+  if ($compare->type == 'source_event') {
+    if ($source_event->nid == $compare->nid) {
+      return TRUE;
+    }
+  }
+  elseif ($compare->type == 'event') { // if it is not a source event, it must be a real event.
+    // Check if referenced source events match.
+    $compare_wrapper = entity_metadata_wrapper('node', $compare);
+    $compare_source_event = $compare_wrapper->field_event_source_event->value();
+    if ($source_event->nid == $compare_source_event->nid) {
+      return TRUE;
+    }
+  }
+  return FALSE;
+}
+
+
+/**
+ * Implements hook_block_info().
+ */
+function storyscope_content_block_info() {
+  $blocks['dossier_add_new_resource'] = array(
+    'info' => t('Add a Resource to this Dossier'),
+    'cache' => DRUPAL_NO_CACHE
+  );
+  $blocks['dossier_start_new_story'] = array(
+    'info' => t('Create a New Narrative'),
+    'cache' => DRUPAL_NO_CACHE
+  );
+  $blocks['object_story_add_new_resource'] = array(
+    'info' => t('Add a Resource to this Story'),
+    'cache' => DRUPAL_NO_CACHE
+  );
+  $blocks['object_add_new_resource'] = array(
+    'info' => t('Add a Resource to this Object'),
+    'cache' => DRUPAL_NO_CACHE
+  );
+  $blocks['dossier_suggested_resources'] = array(
+    'info' => t('Suggested Resources'),
+    'cache' => DRUPAL_NO_CACHE
+  );
+  $blocks['dossier_event_visualisation'] = array(
+    'info' => t('Dossier Event Visualisations'),
+    'cache' => DRUPAL_NO_CACHE
+  );
+
+
+  return $blocks;
+}
+
+/**
+ * Implements hook_block_view().
+ */
+function storyscope_content_block_view($delta = '') {
+  $block = array();
+  $dossier_nid = arg(1, request_path());
+  $object_story_nid = arg(3, request_path());
+
+  $block = array();
+  switch ($delta) {
+    case 'dossier_add_new_resource':
+      if (is_numeric($dossier_nid) && $node = node_load($dossier_nid)) {
+        if ($node->type == 'dossier' && user_is_logged_in()) {
+          $block['subject'] = t('Add a Resource to this Dossier');
+          $block['content'] = storyscope_content_dossier_add_new_resource_block($node);
+        }
+      }
+      break;
+
+    case 'dossier_start_new_story':
+      if (is_numeric($dossier_nid) && $node = node_load($dossier_nid)) {
+        if ($node->type == 'dossier' && user_is_logged_in()) {
+          $block['subject'] = t('Create New Story');
+          $block['content'] = storyscope_content_dossier_start_new_story_block($node);
+        }
+      }
+      break;
+
+    case 'object_story_add_new_resource':
+      // Handle paths like /dossiers/2727/objectstories/2680 (i.e.
+      // dossiers/[dossiernid]/objectstories/[ostorynid]) where we're interested in the
+      // 2nd nid.
+      $nid = $dossier_nid;
+      if (isset($object_story_nid) && is_numeric($object_story_nid)) {
+        $nid = $object_story_nid;
+      }
+      else {
+        $dossier_nid = NULL;
+      }
+      if (is_numeric($nid) && $node = node_load($nid)) {
+        if ($node->type == 'object_story' && user_is_logged_in()) {
+          $block['subject'] = t('Add a Resource to this Story');
+          $block['content'] = storyscope_content_object_story_add_new_resource_block($node, $dossier_nid);
+        }
+      }
+      break;
+
+    case 'object_add_new_resource':
+      if (is_numeric($dossier_nid) && $node = node_load($dossier_nid)) {
+        if ($node->type == 'dossier' && user_is_logged_in()) {
+          $block['subject'] = t('Add a resource to this object.');
+          $block['content'] = storyscope_content_object_add_new_os_block($node);
+        }
+      }
+      break;
+
+    case 'dossier_suggested_resources':
+      if (is_numeric($dossier_nid) && $node = node_load($dossier_nid)) {
+        if ($node->type == 'dossier' && user_is_logged_in()) {
+          $block['subject'] = t('Suggested Resources');
+          $block['content'] = storyscope_content_dossier_suggested_resources($node);
+        }
+      }
+      break;
+      
+    case 'dossier_event_visualisation':
+      if (is_numeric($dossier_nid) && $node = node_load($dossier_nid)) {
+        if ($node->type == 'dossier') {
+          $block['subject'] = t('Dossier Event Visualisation');
+          $block['content'] = storyscope_content_dossier_event_visualisation($node);
+        }
+      }
+      break;
+     
+  }
+  return $block;
+}
+
+/**
+ * "Add New Resource to this Dossier" block.
+ */
+function storyscope_content_dossier_add_new_resource_block($node) {
+  $items = array();
+  /* Disable the hover menu
+  $items[] = array(
+    "data" => t("Object Story"),
+    "children" => array(
+      l(t('Internal search'), 'dossiers/' . $node->nid . '/objectstories/search/internal', array('attributes' => array('class' => 'node-dossier node-object-story'))),
+      l(t('Search by query'), 'dossiers/' . $node->nid . '/objectstories/search/external-sec'  , array('attributes' => array('class' => 'node-dossier node-object-story'))),
+      l(t('Search by example'), 'dossiers/' . $node->nid . '/objectstories/pick_object_story_example/', array('attributes' => array('class' => 'nodec-dossier dec-object-story')))
+    ),
+    "class" => array("hover-menu")
+  );
+  */
+  $items[] = l(t('Object Story'), 'dossiers/' . $node->nid . '/objectstories/search/internal', array('attributes' => array('class' => 'node-dossier node-object-story')));
+  $items[] = l(t('Object'), 'dossiers/' . $node->nid . '/objects/search/internal', array('attributes' => array('class' => 'node-dossier node-object')));
+  $items[] = l(t('Event'), 'dossiers/' . $node->nid . '/events/search/internal', array('attributes' => array('class' => 'node-event')));
+  $items[] = l(t('Reference'), 'dossiers/' . $node->nid . '/references/search/internal', array('attributes' => array('class' => 'node-reference')));
+  //$items[] = l(t('Story'), 'dossiers/' . $node->nid . '/stories/add', array('attributes' => array('class' => 'node-plot')));
+
+
+  $variables = array();
+  $variables['items'] = $items;
+  $variables['attributes'] = array(
+    'class' => 'add-resource'
+  );
+  $output = theme('item_list', $variables);
+
+  return $output;
+}
+
+/**
+ * "Add New Resource to this Story" block.
+ */
+function storyscope_content_object_story_add_new_resource_block($node, $dossier_nid = NULL) {
+  $items = array();
+  if ($dossier_nid) {
+    $base_path = 'dossiers/' . $dossier_nid . '/objectstories/' . $node->nid;
+  }
+  else {
+    $base_path = 'objectstories/' . $node->nid;
+  }
+  // Check the ObjectStory for an object.
+  $has_object = FALSE;
+  if (count($node->field_object_story_objects) > 0) {
+    $has_object = TRUE;
+  }
+  // load type from URL
+  $type = arg(4);
+  if (empty($type)) {
+      $type = "objects";
+  }
+  // or create function to convert node type to url string (object => objects)
+  // $type = convert_function($node->type);
+  /* Disable Hover menu for now
+  $items[] = array(
+    "data" => t('Object'),
+    "children" => array(
+      l(t('Internal search'), $base_path . '/objects/search/internal', array('attributes' => array('class' => 'node-object'))),
+      l(t('Search by query'), $base_path . '/objects/search/external-sec'  , array('attributes' => array('class' => 'node-object'))),
+      l(t('Search by example'), $base_path . '/pick_object_example/' , array('attributes' => array('class' => 'node-object')))
+    ),
+    "class" => array("hover-menu")
+  );
+  */
+  if (!$has_object) {
+    $items[] = l(t('Object'), $base_path . '/objects/search/internal', array('attributes' => array('class' => 'node-object')));
+  }
+  $items[] = l(t('Event'), $base_path . '/events/search/internal', array('attributes' => array('class' => 'node-event')));
+  $items[] = l(t('Reference'), $base_path . '/references/search/internal', array('attributes' => array('class' => 'node-reference')));
+
+  $variables = array();
+  $variables['items'] = $items;
+  $variables['attributes'] = array(
+    'class' => 'add-resource'
+  );
+  $output = theme('item_list', $variables);
+
+  return $output;
+}
+
+/**
+ * "Create New Narrative" block.
+ */
+function storyscope_content_dossier_start_new_story_block($node) {
+  $items = array();
+
+  $items[] = l(t('Create New Narrative'), 'dossiers/' . $node->nid . '/stories/add', array('attributes' => array('class' => 'node-plot')));
+
+  $variables = array();
+  $variables['items'] = $items;
+  $variables['attributes'] = array(
+    'class' => 'add-resource'
+  );
+  $output = theme('item_list', $variables);
+
+  return $output;
+}
+
+/**
+ * "Add new resource to this object" block.
+ */
+function storyscope_content_object_add_new_os_block($dossier) {
+  $items = array();
+  $dossier_nid = $dossier->nid;
+  $node = menu_get_object();
+  if ($node && $node->nid) {
+    // You have a valid node to work with.
+    $items[] = l(t('Create New Story'), 'dossiers/' . $dossier_nid . '/objects/' . $node->nid . '/objectstories/add', array('attributes' => array('class' => 'node-object')));
+
+    $variables = array();
+    $variables['items'] = $items;
+    $variables['attributes'] = array(
+      'class' => 'add-resource'
+    );
+    $output = theme('item_list', $variables);
+
+    return $output;
+  }
+}
+
+/**
+ * "Suggested Resources" block.
+ */
+function storyscope_content_dossier_suggested_resources($node) {
+  $resources = array();
+  $output = '';
+  // TODO: remove!
+  // Placeholder
+  // $resources =  get_suggested_resources($node);
+  if ($node->title == 'Sir Denis Mahon') {
+    $resources = array('720','721','722','723');
+  }
+  foreach ($resources as $resource) {
+    $node = node_view(node_load($resource), 'teaser');
+    $output .= drupal_render($node);
+  }
+  return $output;
+}
+
+/**
+ * "Event Visualisations" blocks.
+ */
+function storyscope_content_dossier_event_visualisation($dossier) {
+  $visualisations = array();
+  $dossier_nid = $dossier->nid;
+  $node = menu_get_object();
+  
+  if ($node && $node->nid) {
+    // You have a valid node to work with.
+    $output = $dossier_nid;
+    return $output;
+  }
+}
+
+/**
+ * Helper function to convert a partial date to ISO date.
+ */
+function storyscope_content_convert_partial_date($partial_date) {
+  // First, check if it is called from a field collection
+  // - the passed array structure seems different if it is.
+  if (!empty($partial_date['from'])) {
+    if (!empty($partial_date['from']['year'])) {
+      $year = $partial_date['from']['year'];
+    }
+    else {
+      $year = '0';
+    }
+    if (!empty($partial_date['from']['month'])) {
+      $month = intval($partial_date['from']['month']);
+    }
+    else {
+      $month = '1';
+    }
+    if (!empty($partial_date['from']['day'])) {
+      $day = intval($partial_date['from']['day']);
+    }
+    else {
+      $day ='1';
+    }
+  }
+  else {
+    if (!empty($partial_date['year'])) {
+      $year = $partial_date['year'];
+    }
+    else {
+      $year = '0';
+    }
+    if (!empty($partial_date['month'])) {
+      $month = intval($partial_date['month']);
+    }
+    else {
+      $month = '1';
+    }
+    if (!empty($partial_date['day'])) {
+      $day = intval($partial_date['day']);
+    }
+    else {
+      $day ='1';
+    }
+  }
+  $iso_date = $year . '-' .$month . '-' . $day .'T00:00:00';
+  return $iso_date;
+}
+
+/**
+ * Implements hook_ctools_render_alter().
+ *
+ * We are checking whether a plot element has been given a name.
+ */
+function storyscope_content_ctools_render_alter($info, $page, $context) {
+  if (!empty($context['handler']->export_module) && $context['handler']->export_module == 'panels_node_plot_element') {
+    $node = node_load($context['args'][0]);
+    if ($node->type == 'plot_element' && strpos($node->title, 'Untitled') === 0 ) {
+      drupal_set_message(t('This Section is untitled. Please edit it to give it a name.'), 'error');
+    }
+  }
+}
+
+/**
+ * Spawns an story for a specified dossier from an object.
+ */
+function storyscope_content_spawn_object_object_story($dossier, $object) {
+  $object_story = (object) array(
+    'uid' => $dossier->uid,
+    'name' => (isset($dossier->name) ? $dossier->name : ''),
+    'type' => 'object_story',
+    'language' => $dossier->language,
+    'status' => 1,
+    'title' => $object->title,
+    'dossiers' => array($dossier->nid),
+  );
+
+  // Add the object to the story.
+  $object_story->field_object_story_objects[$dossier->language][]['target_id'] = $object->nid;
+
+  // Save story.
+  node_save($object_story);
+
+  return $object_story;
+}
+
+/**
+ * Implements hook_menu_local_tasks_alter(&$data, $router_item, $root_path)
+ *
+ * Adds a destination parameter to node edit forms.
+ */
+function storyscope_content_menu_local_tasks_alter(&$data, $router_item, $root_path) {
+  if ($root_path == 'node/%') {
+    $path = request_path();
+    foreach ($data['tabs'][0]['output'] as $i => $tab) {
+      // Add a destination to the edit tab.
+      $data['tabs'][0]['output'][$i]['#link']['localized_options'] = array('query' => array('destination' => $path));
+    }
+    // Change where the View tab points.
+    $data['tabs'][0]['output'][0]['#link']['href'] = $path;
+  }
+  elseif ($root_path == 'node/%/edit') {
+    // Change where the View tab points.
+    $path = drupal_get_destination(request_path());
+    $data['tabs'][0]['output'][0]['#link']['href'] = $path['destination'];
+    // Add a destination to the edit tab.
+      $data['tabs'][0]['output'][1]['#link']['localized_options'] = array('query' => array('destination' => $path['destination']));
+  }
+}
+
+/**
+ * Implements hook_theme().
+ */
+function storyscope_content_theme() {
+  return array(
+    'storyscope_content_media_widget' => array(
+      'render element' => 'element',
+    ),
+    'storyscope_content_media_radio' => array(
+      'render element' => 'element',
+    ),
+  );
+}
+
+/**
+ * Theme function for media chooser widget.
+ */
+function theme_storyscope_content_media_widget($variables) {
+  $element = $variables['element'];
+
+  $attributes = array();
+  if (isset($element['#id'])) {
+    $attributes['id'] = $element['#id'];
+  }
+  $attributes['class'] = 'form-radios';
+  if (!empty($element['#attributes']['class'])) {
+    $attributes['class'] .= ' ' . implode(' ', $element['#attributes']['class']);
+  }
+  if (isset($element['#attributes']['title'])) {
+    $attributes['title'] = $element['#attributes']['title'];
+  }
+
+  $output = '';
+    foreach ($element['#options'] as $key => $value) {
+        $output .= theme('storyscope_content_media_radio', $element[$key]);
+    }
+  return $output;
+
+}
+
+/**
+ * Media radio button theme widget.
+ */
+function theme_storyscope_content_media_radio($variables) {
+  $element = $variables['element'];
+  $element['#attributes']['type'] = 'radio';
+  element_set_attributes($element, array('id', 'name','#return_value' => 'value'));
+
+  if (isset($element['#return_value']) && $element['#value'] !== FALSE && $element['#value'] == $element['#return_value']) {
+    $element['#attributes']['checked'] = 'checked';
+  }
+  if (isset($element['#attributes']['title'])) {
+    $attributes['title'] = $element['#attributes']['title'];
+  }
+  _form_set_class($element, array('form-radio','element-invisible'));
+  $image_file = file_load($element['#return_value']);
+  if ($image_file->type == 'video' || $image_file->type == 'audio') {
+    // I do not know why media_youtube does not like using the media_get_thumbnail_preview
+    // function, but it seems to choke when making thumbnails, so we'll use its own
+    // preview render formatter instead.
+    if ($image_file->filemime == 'video/youtube') {
+      $display['settings']['image_style'] = 'tiny';
+      $image = media_youtube_file_formatter_image_view($image_file, $display, NULL);
+      $image = drupal_render($image);
+    }
+    elseif ($image_file->filemime == 'video/vimeo') {
+      $display['settings']['image_style'] = 'tiny';
+      $image = media_vimeo_file_formatter_image_view($image_file, $display, NULL);
+      $image = drupal_render($image);
+    }
+    elseif ($image_file->filemime == 'audio/soundcloud') {
+      $display['settings']['image_style'] = 'tiny';
+      $image = media_soundcloud_file_formatter_image_view($image_file, $display, NULL);
+      $image = drupal_render($image);
+    }
+    else {
+    $image = media_get_thumbnail_preview($image_file);
+      $image = drupal_render($image);
+    }
+  }
+  elseif ($image_file->type == 'image') {
+    $image = theme('image_style', array(
+      'path' => $image_file->uri,
+      'alt' => $element['#title'],
+      'style_name' => 'thumbnail',
+      )
+    );
+  }
+  $output = '<label for="'. $element['#id'] . '"';
+  if($element['#attributes']['checked'] == 'checked'){
+    $output .= ' class="selected-media"';
+  }
+  $output .=  '>' . $image;
+  $output .= '<span class="element-invisible">' . $element['#title'] . '</span></label>';
+  $output .= '<input' . drupal_attributes($element['#attributes']) . ' />';
+  return $output ;
+}
+

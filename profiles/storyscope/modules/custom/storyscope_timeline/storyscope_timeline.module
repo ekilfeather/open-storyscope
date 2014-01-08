@@ -1,0 +1,331 @@
+<?php
+
+/**
+ * Implements hook_menu().
+ */
+function storyscope_timeline_menu() {
+  $items = array();
+
+  $items['dossiers/%/events/search/timeline'] = array(
+    'title callback' => 'storyscope_timeline_dossier_timeline_title',
+    'title arguments' => array('Add an event'),
+    'page callback' => 'storyscope_timeline_dossier_timeline',
+    'page arguments' => array(1, 'dossier_events_add_existing', NULL),
+    'access callback' => TRUE,
+    'type' => MENU_LOCAL_TASK,
+  );
+  $items['dossiers/%/objectstories/%/events/search/timeline'] = array(
+    'title callback' => 'storyscope_timeline_dossier_timeline_title',
+    'title arguments' => array('Add an event'),
+    'page callback' => 'storyscope_timeline_dossier_timeline',
+    'page arguments' => array(1, 'objectstory_events_add_existing', 3),
+    'access callback' => TRUE,
+    'type' => MENU_LOCAL_TASK,
+  );
+  $items['dossiers/%/events/timeline'] = array(
+    'title callback' => 'storyscope_timeline_dossier_timeline_title',
+    'title arguments' => array('Dossier events'),
+    'page callback' => 'storyscope_timeline_dossier_timeline',
+    'page arguments' => array(1, 'dossier_events', NULL),
+    'access callback' => TRUE,
+    'type' => MENU_LOCAL_TASK,
+  );
+  //add by cormac //
+  $items['dossiers/%/objectstories/%/events/timeline'] = array(
+    'title callback' => 'storyscope_timeline_dossier_timeline_title',
+    'title arguments' => array('Story Events'),
+    'page callback' => 'storyscope_timeline_story_timeline',
+    'page arguments' => array(1, 'objectstory_events', 3),
+    'access callback' => TRUE,
+    'type' => MENU_LOCAL_TASK,
+  );
+  return $items;
+}
+
+function storyscope_timeline_timeline_page($nid) {
+  $output = storyscope_timeline_dossier_timeline($nid, 'dossier_events', NULL);
+  return $output;
+}
+
+/**
+ * Implements hook_block_info
+ */
+function storyscope_timeline_block_info() {
+  // Dossier events timeline block
+  $blocks['dossier_events_timeline'] = array(
+    'info' => t('Dossier Events Timeline'),
+  );
+  $blocks['dossier_events_addexisting'] = array(
+    'info' => t('Dossier Events Add Existing Timeline'),
+  );
+  $blocks['objectstory_events_addexisting'] = array(
+    'info' => t('Object Story Events Add Existing Timeline'),
+  );
+  //added by cormac //
+  $blocks['objectstory_events_timeline'] = array(
+    'info' => t('Object Story Events Timeline'),
+  );
+  $blocks['narrative_section_events'] = array(
+    'info' => t('Narrative Section Events Timeline'),
+  );
+  return $blocks;
+}
+
+/**
+ * Implements hook_block
+ */
+function storyscope_timeline_block_view($delta = 0) {
+  $block = array();
+  switch ($delta) {
+    case 'dossier_events_timeline':
+      $nid = arg(1, request_path());
+      $block['content'] = storyscope_timeline_dossier_timeline($nid, 'dossier_events', NULL);
+      break;
+    case 'dossier_events_addexisting':
+      $nid = arg(1, request_path());
+      $block['content'] = storyscope_timeline_dossier_timeline($nid, 'dossier_events_add_existing', NULL);
+      break;
+    case 'objectstory_events_addexisting':
+      $nid = arg(1, request_path());
+      $os_nid = arg(3, request_path());
+      $block['content'] = storyscope_timeline_dossier_timeline($nid, 'objectstory_events_add_existing', $os_nid);
+    break;
+  //added by cormac//
+      case 'objectstory_events_timeline':
+      $nid = arg(1, request_path());
+      $os_nid = arg(3, request_path());
+      $block['content'] = storyscope_timeline_dossier_timeline($nid, 'objectstory_events', $os_nid);
+      break;
+    case 'narrative_section_events':
+      // This is shown on the node/edit page so it's a system path.
+      $section_nid = arg(1);
+      $block['content'] = storyscope_timeline_dossier_timeline($section_nid, 'section_events', NULL);
+      $block['subject'] = 'Timeline of Events in this Section';
+      break;
+  }
+  return $block;
+}
+
+/**
+ * Helper function to return a title.
+ */
+function storyscope_timeline_dossier_timeline_title($title) {
+  drupal_set_title($title);
+  return 'Timeline';
+}
+
+
+/**
+ * Returns content to display a timeline.
+ */
+function storyscope_timeline_dossier_timeline($nid, $instance, $os_nid) {
+  // create a js reference to a json object.
+  // need to get view result
+  // loop through, load entity
+  // pull out date, title
+  // create json string
+  $timeline_title = '';
+  $json_data_object = '';
+  $suffix = '';
+  $source_event = FALSE;
+  $section_node_form = FALSE;
+  switch ($instance) {
+    case 'dossier_events':
+      $view_result = views_get_view_result('dossier_events_search_api', 'dossier_events_pane_timeline', $nid);
+      $timeline_title = t('Events in this Dossier');
+      $context = '/dossiers/' . $nid . '/events/';
+      $link_text = t('View Event');
+      break;
+    case 'dossier_events_add_existing':
+      $view_result = views_get_view_result('dossier_events_add_existing_search_api', 'internal_search_events_timeline_page', $nid);
+      $timeline_title = t('Available Events.');
+      $context = '/dossiers/' . $nid . '/events/';
+      $destination = drupal_get_destination();
+      $suffix = '/add?destination=' . $destination['destination'];
+      $link_text = t('add +');
+      break;
+    case 'objectstory_events_add_existing':
+      $view_result = views_get_view_result('object_story_events_add_existing_search_api', 'page_timeline', $nid);
+      $timeline_title = t('Available Events.');
+      $context = '/dossiers/' . $nid . '/objectstories/' . $os_nid . '/events/';
+      $destination = drupal_get_destination();
+      $suffix = '/add?destination=' . $destination['destination'];
+      $source_event = TRUE;
+      $link_text = t('Add Event');
+      break;
+
+    //added in by cormac
+    case 'objectstory_events':
+      $view_result = views_get_view_result('object_story_events', 'pane_timeline', $nid);
+      $timeline_title = t('Events in this Story.');
+      $context = '/dossiers/' . $nid . '/objectstories/' . $os_nid . '/events/';
+      $destination = drupal_get_destination();
+      $suffix = '/add?destination=' . $destination['destination'];
+      $source_event = TRUE;
+      $link_text = t('View Event');
+      break;
+    
+    case 'section_events':
+      $view_result = views_get_view_result('section_events', 'panel_pane_section_events', $nid);
+      $timeline_title = t('Events in this Section.');
+      $section_node_form = TRUE;
+      break;
+  }
+
+  $json_data_object = '{"timeline":{';
+  $json_data_object .= '"headline":"' . $timeline_title . '",';
+  $json_data_object .= '"type":"default",';
+  $json_data_object .= '"text":"<p>See all your events in chronological order</p>",';
+  $json_data_object .= '"date": [';
+  $i = 0;
+  foreach ($view_result as $item) {
+    $i++;
+    // Special case for events on a section.
+    if ($section_node_form) {
+      $entity_nid = $item->node_field_data_field_story_events_nid;
+    }
+    else {
+      $entity_nid = $item->entity;
+    }
+    $entity = entity_metadata_wrapper('node', $entity_nid);
+    // Wrapping this in try-catch just in case something evil is passed in,
+    // e.g. a node that does not exist.
+    try {
+      if ($source_event) {
+        $source = $entity->field_event_source_event->value();
+        $entity_nid = $source->nid;
+      }
+      
+      $title =  storyscope_timeline_sanitize($entity->title->value());
+      if (!empty($entity->description)) {
+        $text = storyscope_timeline_sanitize($entity->description->value());
+      }
+      else {
+        $text = '';
+      }
+      $date = $entity->field_event_start_timestamp->value();
+      $year = date("Y", $date);
+      $month = date("m", $date);
+      $day = date("d", $date);
+      if ($month == 1 && $day == 1) {
+        $date = date('Y', $date);
+      }
+      else {
+        $date = $year . ',' . $month . ',' . $day;
+      }
+
+      $json_data_object .= '{';
+      $json_data_object .= '"startDate":' . '"' . $date . '",';
+      $json_data_object .= '"headline":"' . $title . '",';
+      if (!$section_node_form) {
+        $json_data_object .= '"text":"<p><a href='. $GLOBALS['base_url'] . $context . $entity_nid . $suffix . '>' . $link_text . '</a></p>",';
+      }
+      else {
+        $json_data_object .= '"text":"' . $text . '",';
+      }
+      $json_data_object .= '"classname":"timeline-event-' . $entity_nid . '",';
+      $json_data_object .= '"asset":';
+      $json_data_object .= '{';
+      $json_data_object .= '"media":"",';
+      $json_data_object .= '"credit":"media credit here",';
+      $json_data_object .= '"caption":"media caption here"';
+      $json_data_object .= '}';
+      $json_data_object .= '},';
+    }
+    catch (Exception $e) {
+      // Do nothing if something bad is passed to Timeline.
+    }
+  }
+  $json_data_object = substr($json_data_object, 0, strlen($json_data_object) - 1);
+  $json_data_object .= ']}}';
+  if (arg(0) != 'admin') {
+    drupal_add_js(array('storyscope' => array('timeline_data_object' => $json_data_object)), 'setting');
+  }
+  // Add in Timeline CSS
+  drupal_add_css(drupal_get_path('module', 'storyscope_timeline') . '/css/timeline.css');
+  // Add in Timeline library. NB We are specifically excluding this file from 
+  // JS aggregation because something in it causes Timeline to break when concatenated.
+  drupal_add_js(drupal_get_path('module', 'storyscope_timeline') . '/js/storyjs-embed.js', array('preprocess' => FALSE));
+  // Add in JS setting for the path to JSON data.
+  // call URL function here (absolute= true)
+  $json_path = $GLOBALS['base_url'] . '/dossiers/' . $nid . '/events/timeline/json';
+  drupal_add_js(array('storyscope' => array('timeline_json' => $json_path)), 'setting');
+  // Add in custom script to initialize Timeline.
+  drupal_add_js(drupal_get_path('module', 'storyscope_timeline') . '/js/storyscope-timeline.js');
+  $output = '<div id="dossier-timeline"></div><pre>' . $json_data_object . '</pre>';
+  // Add this snipped into the output to see the json.
+  // Then you can see if it is valid with jsonlint.com.
+  // <pre>' . $json_data_object . '</pre>
+  // For more debugging:
+  // $output .= views_embed_view('section_events', 'panel_pane_section_events', $nid); 
+  return $output;
+}
+
+/**
+ * Implements hook_views_post_render(&$view)
+ */
+function storyscope_timeline_views_post_render(&$view) {
+  switch ($view->name) {
+    // do nothing
+  }
+}
+
+/**
+ * Implements hook_form_form_id_alter(&$form, &$form_state)
+ */
+function storyscope_timeline_form_views_exposed_form_alter(&$form, &$form_state) {
+  if ($form['#id'] == 'views-exposed-form-dossier-events-search-api-dossier-events-pane-timeline') {
+    $action_path = $form['#action'];
+    $action_path = str_replace('grid', 'timeline', $action_path);
+    $form['#action'] = $action_path;
+  }
+}
+
+/**
+ * @file
+ * Views theme to render view fields as JSON for Timeline.js.
+ *
+ * - $view: The view in use.
+ * - $rows: Array of row objects as rendered by _views_json_render_fields
+ * - $attachment: Not used currently
+ * - $options: The options for the style passed in from the UI.
+ *
+ * @see views_json.views.inc
+ */
+function storyscope_timeline_preprocess_views_views_json_style_simple(&$vars) {
+  $data = $vars['rows']['timeline'];
+  $output = '{"' . $vars['options']['root_object'] . '":{';
+  $output .= '"headline":"Events in this dossier",';
+  $output .= '"type":"default",';
+  $output .= '"text":"<p>See all your events in chronological order</p>",';  
+  $output .= '"date": [';
+  foreach ($data as $item) {
+    $output .= '{';
+    
+    foreach ($item['date'] as $key => $value) {
+      $output .= '"' . $key . '":' . '"' . $value . '",';
+    }
+    $output .= '"text":"Hello",';
+    $output .= '"asset":';
+    $output .= '{';
+    $output .= '"media":"",';
+    $output .= '"credit":"",';
+    $output .= '"caption":""';
+    $output .= '}';
+    $output .= '},';
+  }
+  $output = substr($output, 0, strlen($output) - 1);
+  $output .= ']}}';
+  drupal_add_http_header('Content-Type', 'application/json');
+  print($output);
+  exit(0);
+}
+
+function storyscope_timeline_sanitize($string) {
+  $string = check_plain($string);
+  $string = str_replace('&#039;', "'", $string);
+  $string = str_replace('&#034;', "'", $string);
+  $string = str_replace('"', "'", $string);
+  $string = str_replace('&quot;', "'", $string);
+  return $string;
+}

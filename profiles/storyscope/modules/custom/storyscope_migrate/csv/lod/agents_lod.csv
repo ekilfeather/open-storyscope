@@ -1,0 +1,281 @@
+id,parentid,topic,mid,birth_date,death_date,EOL
+agent001,event134,Academie Julian,http://freebase.com/en/academie_julian,NA,NA,EOL
+agent002,event455,Accademia di Belle Arti di Roma,https://www.freebase.com/m/0w7nht4,NA,NA,EOL
+agent003,event263|event264|event265|event66|event67,Accademia di San Luca,http://freebase.com/en/accademia_di_san_luca,NA,NA,EOL
+agent004,event241|event242,"Agucchi, Giovanni Battista",XXX,2/18/1404,4/20/1472,EOL
+agent005,event104,"Alberti, Leone Battista",http://freebase.com/en/leone_battista_alberti,2/18/1404,4/20/1472,EOL
+agent006,event188|event189|event190,Aldobrandini Family,http://freebase.com/en/aldobrandini,NA,NA,EOL
+agent007,event181,"Aldobrandini, Cardinal Pietro",http://freebase.com/en/pietro_cardinal_aldobrandini,3/31/1571,2/10/1621,EOL
+agent008,event547|event547,Alice Brady,http://freebase.com/en/alice_brady,11/2/1892,10/28/1939,EOL
+agent009,event407|event408|event411|event411|event89|object112,Amnon,http://freebase.com/en/amnon,NA,NA,EOL
+agent010,event3009,Andrea Rose,http://freebase.com/en/andrea_rose,XXX,XXX,EOL
+agent011,event401,Anne Jephson,XXX,11/3/1560,7/15/1609,EOL
+agent012,object49,Anne Madden,http://freebase.com/en/anne_madden,1932,Living,EOL
+agent013,event36|event87,Ashmolean Museum,http://freebase.com/en/ashmolean_museum,NA,NA,EOL
+agent014,event1302,"Bachardy, Don",http://freebase.com/en/don_bachardy,5/18/1934,--,EOL
+agent015,event163,"Bacon, Francis",https://www.freebase.com/m/01d7g0,10/28/1909,4/28/1992,EOL
+agent016,event106|event111|event112|event113|event202|object8,"Baldinucci, Filippo",http://freebase.com/en/filippo_baldinucci,1624,1/1/1697,EOL
+agent017,event23|event24|object61|object50|object50,"Ballagh, Robert",http://freebase.com/en/robert_ballagh,9/22/1943,--,EOL
+agent018,event3024|event3023|event3022|event3021|event3020|event3019|event3018|event3018|event3017|event3017,Barry Flanagan,http://freebase.com/en/barry_flanagan,1/11/1941,8/31/2009,EOL
+agent019,event408|event409|event88|event89|event90|event91|event96|object112|object111,"Bartolozzi, Francesco",http://freebase.com/en/francesco_bartolozzi,9/25/1725,3/7/1815,EOL
+agent020,object358,Basil Blackshaw,http://freebase.com/en/basil_blackshaw,1932,--,EOL
+agent021,event161,Bath Academy of Art,http://freebase.com/en/bath_school_of_art_and_design,NA,NA,EOL
+agent022,event168,Belfast School of Art,http://freebase.com/en/rosamund_praeger,1867,1954,EOL
+agent023,event188|event204|event245|event246|event264|event265|object141,"Bellori, Giovanni Pietro",http://freebase.com/en/gian_pietro_bellori,1613,1696,EOL
+agent024,event45|event46,"Blunt, Anthony",http://freebase.com/en/anthony_blunt,9/26/1907,3/26/1983,EOL
+agent025,event98|event99,"Bodmer, Heinrich",XXX,1885,1950,EOL
+agent026,event68,"Borghini, Raffaello",XXX,1537,1588,EOL
+agent027,event2011|object614,"Boudin, Eugene",http://freebase.com/en/eugene_boudin,7/12/1824,8/8/1898,EOL
+agent028,event1303,"Brandt, Bill",http://freebase.com/en/bill_brandt,5/3/1904,12/20/1983,EOL
+agent029,event1032|event1300|object502,"Braque, Georges",http://freebase.com/en/georges_braque,5/13/1882,8/31/1963,EOL
+agent030,object359,Brian King,https://www.freebase.com/m/0wbbkqj,1942,--,EOL
+agent031,event551,Bristol Police,http://freebase.com/en/port_of_bristol_police,NA,NA,EOL
+agent032,event215|event216,British Ambassador to Germany,http://freebase.com/en/peter_torry,8/2/1948,XXX,EOL
+agent033,event543|event166|event178,British Army,http://freebase.com/en/army_dept,NA,NA,EOL
+agent034,event541,British Cavalry,http://freebase.com/en/british_1st_cavalry_division,NA,NA,EOL
+agent035,event548|event544,British Crown Forces,http://freebase.com/en/army_dept,NA,NA,EOL
+agent036,event256|event257|event258|event259,"Browne, George Ulick",XXX,9/1/1856,2/26/1935,EOL
+agent037,event260|event261,"Browne, Henry Ulick",XXX,3/14/1831,2/24/1913,EOL
+agent038,event102|event103,"Brunelleschi, Filippo",http://freebase.com/en/filippo_brunelleschi,1377,4/15/1446,EOL
+agent039,object702|object702,"Burke, John",http://www.freebase.com/m/03c9plb,1946,2006,EOL
+agent040,event205,"Calvi, Jacopo Alessandro",https://www.freebase.com/m/0wb9nhj,2/23/1740,5/15/1815,EOL
+agent041,object362|object361,Camille Souter,http://freebase.com/en/camille_souter,1929,XXX,EOL
+agent042,event505B|event506B|event507|object708,"Campbell, George",http://www.freebase.com/m/0pl1zr6,7/29/1917,1979,EOL
+agent043,event400|event401|event402,"Casement, Roger",https://www.freebase.com/m/06f1w,9/1/1864,8/3/1916,EOL
+agent044,event47|event49,Caravaggio,http://freebase.com/en/caravaggio,9/29/1571,7/18/1610,EOL
+agent045,event181|event182|event183|event188|event262|event403|event80|event93|event94|object135,"Carracci, Annibale",http://freebase.com/en/annibale_carracci,11/3/1560,7/15/1609,EOL
+agent046,object363,Cecil King,http://freebase.com/en/cecil_king,2/22/1921,4/7/1986,EOL
+agent047,event151|event186,"Cecilia, Saint",http://freebase.com/en/saint_cecilia,XXX,XXX,EOL
+agent048,event69|object130,Cesare Ripa,http://freebase.com/en/cesare_ripa,1560,1622,EOL
+agent049,event3007,Charles Saatchi,http://freebase.com/en/charles_saatchi,6/9/1943,XXX,EOL
+agent050,event44,Christie's Fine Art Auctioneers,XXX,NA,NA,EOL
+agent051,event1005,"Churchill, Winston",http://freebase.com/en/winston_churchill,11/30/1874,1/24/1965,EOL
+agent052,event192|event219|event220|event33|event33|event34|event35|event36|event37|event38|event39|object104,"Clark, Kenneth",http://freebase.com/en/kenneth_clark,7/13/1903,5/21/1983,EOL
+agent053,event33,"Clark, Margaret Alice",XXX,XXX,XXX,EOL
+agent054,event1013|event1014,"Clarke, Harry",http://freebase.com/en/harry_clarke,3/17/1889,1/6/1931,EOL
+agent055,event47,Cleveland Museum of Art,http://freebase.com/en/cleveland_museum_of_art,NA,NA,EOL
+agent056,event194|event196,"Cloots, J.G.",https://www.freebase.com/m/0wb9n0t,XXX,XXX,EOL
+agent057,event1301,"Collier, John",http://freebase.com/en/john_collier_1901,5/3/1901,4/6/1980,EOL
+agent058,event1002|event1004|event1005,"Collins, Michael",http://freebase.com/en/michael_collins,10/16/1890,8/22/1922,EOL
+agent059,object63,"Collins, Patrick",http://freebase.com/en/patrick_a_collins,3/12/1844,9/13/1905,EOL
+agent060,event48,Conservative Government,http://freebase.com/en/conservative_party,NA,NA,EOL
+agent061,event1003,"Cosgrave, W.T.",http://freebase.com/en/w_t_cosgrave,6/6/1880,11/16/1965,EOL
+agent062,event221|event221|event41,Courtauld Institute,http://freebase.com/en/courtauld_institute_of_art,NA,NA,EOL
+agent063,object64,"Cruz-Diez, Carlos",http://freebase.com/en/carlos_cruz-diez,8/16/1923,XXX,EOL
+agent064,event465,"Cézanne, Paul",http://freebase.com/en/paul_cezanne,1/19/1839,10/22/1906,EOL
+agent065,event509,"Daguerre, Louis",http://freebase.com/en/louis_daguerre,11/18/1787,7/10/1851,EOL
+agent066,event62|event88|event89|event96,"Dalton, Richard",https://www.freebase.com/m/06yt9k,XXX,XXX,EOL
+agent067,event1304,"Dalí, Salvador",http://freebase.com/en/salvador_dali,5/11/1904,1/23/1989,EOL
+agent068,event3003,Damien Hirst,http://freebase.com/en/damien_hirst,6/7/1965,--,EOL
+agent069,event1002|event1005,"De Valera, Eamon",http://freebase.com/en/eamon_de_valera,10/14/1882,8/29/1975,EOL
+agent070,object364,Deborah Brown,XXX,XXX,XXX,EOL
+agent071,event2016|event2028,"Degas, Edgar",http://freebase.com/en/edgar_degas,7/19/1834,9/27/1917,EOL
+agent072,event23|event24|event27,"Delacroix, Eugene",http://freebase.com/en/eugne_delacroix,4/26/1798,8/13/1863,EOL
+agent073,event521,"Delaunay, Robert",http://freebase.com/en/robert_delaunay,4/12/1885,10/25/1941,EOL
+agent074,event182|event183|object108|object108|object107,Delius Giese,XXX,XXX,XXX,EOL
+agent075,event47,Detroit Institute of Arts,http://freebase.com/en/detroit_institute_of_arts,NA,NA,EOL
+agent076,object65,"Dias, Antonio",https://www.freebase.com/m/0wbbsrf,1944,--,EOL
+agent077,event1037|event1039|object508|object506,Domenichino,http://freebase.com/en/domenico_zampieri,10/21/1581,4/16/1641,EOL
+agent078,event2020,"Doncieux, Camille",http://freebase.com/en/camille_doncieux,1847,9/5/1879,EOL
+agent079,event553,Dora Montefiore,http://freebase.com/en/dora_montefiore,12/20/1851,1933,EOL
+agent080,event544,Dublin GAA football team,http://freebase.com/en/dublin_gaa,NA,NA,EOL
+agent081,event562,Dublin Housing Inquiry,http://freebase.com/en/dublin_metropolitan_police,NA,NA,EOL
+agent082,event546|event545|event542,Dublin Metropolitan Police,http://freebase.com/en/dublin_metropolitan_police,NA,NA,EOL
+agent083,event1006|event1007|event1009|event1011|event1012|event1013|event1014|event1015|event1018|event503|event525,Dublin Metropolitan School of Art,http://freebase.com/en/national_college_of_art_and_design,NA,NA,EOL
+agent084,event3016|event3015|event3014|event3014|event3012,Edward Delaney,http://freebase.com/en/edward_delaney,1930,--,EOL
+agent085,object366,Eva Rothschild,http://freebase.com/en/eva_rothschild,1972,--,EOL
+agent086,object89,F.E. McWilliam,http://freebase.com/en/f_e_mcwilliam,4/30/1909,5/13/1992,EOL
+agent087,event80|event81|event82|event83|object373,"Faccini, Pietro",http://freebase.com/en/pietro_faccini,1562,--,EOL
+agent088,event190|object105,"Falda, Giovanni Battista",http://freebase.com/en/giovanni_battista_falda,1640,1678,EOL
+agent089,object99,"Frederik Johannes ""Frits"" Lugt",https://www.freebase.com/m/0wb9m5c,5/4/1884,XXX,EOL
+agent090,event2007,French Painters,http://freebase.com/en/impressionism,NA,NA,EOL
+agent091,event437|event438|event439|event440|event441|event442|event443|event458,"Freud, Lucian",http://freebase.com/en/lucian_freud,12/6/1922,7/20/2011,EOL
+agent092,event544,Gaelic Athletic Association,http://freebase.com/en/gaelic_athletic_association,NA,NA,EOL
+agent093,event3009|event3008|event3006|event3002|event3001,Gary Hume,http://freebase.com/en/gary_hume,1962,--,EOL
+agent094,event57,"Gennari the elder, Benedetto",XXX,XXX,XXX,EOL
+agent095,event101,Gentile,https://www.freebase.com/m/01fg21,1370,8/1/1427,EOL
+agent096,event557,George Bernard Shaw,http://freebase.com/en/george_bernard_shaw,7/26/1856,11/2/1950,EOL
+agent097,event62|event88|event89|event96,"George III, King",http://freebase.com/en/george_iii_of_the_united_kingdom,6/4/1738,1/29/1820,EOL
+agent098,event37,"George V, King",http://freebase.com/en/george_v_of_the_united_kingdom,6/3/1865,1/20/1936,EOL
+agent099,object367,Gerard Dillon,http://freebase.com/en/gerald_dillon,1916,6/14/1971,EOL
+agent100,event223,German army,http://freebase.com/en/wehrmacht,NA,NA,EOL
+agent101,event66|event67|object143,"Ghezzi, Giuseppe",http://freebase.com/en/giuseppe_ghezzi,11/6/1634,1721,EOL
+agent102,event182,"Giese, Delius",https://www.freebase.com/m/0wb9lks,XXX,XXX,EOL
+agent103,event159,Gimpel Fils Gallery,XXX,NA,NA,EOL
+agent104,event1043|event1044|event1045|event1046|event1047|event1048|event1049|event1050|event1051|event1052,"Giordano, Luca",http://freebase.com/en/luca_giordano,10/18/1634,1/3/1705,EOL
+agent105,event124|event125|object125,Giorgio Vasari,http://freebase.com/en/giorgio_vasari,7/30/1511,6/27/1574,EOL
+agent106,event551,Glamorganshire Constabulary,http://freebase.com/en/glamorgan_constabulary,NA,NA,EOL
+agent107,event1033|event1034|event1053|event516|event517|event520|event521|event522|event523|object503|object303,"Gleizes, Albert",http://freebase.com/en/albert_gleizes,12/8/1881,6/23/1953,EOL
+agent108,event2026|event2029,"Gleyre, Charles",http://freebase.com/en/marc-charles-gabriel_gleyre,5/2/1806,5/5/1874,EOL
+agent109,event73|object122,"Gombrich, Ernst",http://freebase.com/en/e_h_gombrich,3/30/1909,11/3/2001,EOL
+agent110,event450|event450,Grande Chaumière,http://freebase.com/en/academie_de_la_grande_chaumiere,NA,NA,EOL
+agent111,event414|event415|event416|event417|event424|event419|event420|event421|event422|event423|event424|event425|event426|event427|event428|event429|event430,"Gray, Eileen",http://freebase.com/en/eileen_gray,8/9/1878,10/31/1976,EOL
+agent112,event58|event59|event60,"Gregory XV, Pope",http://freebase.com/en/pope_gregory_xv,1/15/1554,7/8/1623,EOL
+agent113,event1038|event1040|event1041|event121|event193|event194|event195|event196|event197|event205|event209|event210|event232|event233|event234|event32|event403|event405|event406|event407|event408|event409|event410|event53|event54|event56|event57|event58|event59|event61|event62|event63|event84|event86|event87|event88|event89|event95|event96|object510|object509|object507|object137|object136|object103|object119|object118|object114|object103,Guercino,http://freebase.com/en/giovanni_francesco_barbieri,2/8/1591,12/9/1666,EOL
+agent114,event1042|event244|event243|event244|event43|event44|object511,Guido Reni,http://freebase.com/en/guido_reni,11/4/1575,8/18/1642,EOL
+agent115,event254,Guinness Mahon Merchant Bank,XXX,NA,NA,EOL
+agent116,event1041|event413|object510,Hagar,http://freebase.com/en/hagar,XXX,XXX,EOL
+agent117,object368,Hannah Starkey,XXX,XXX,XXX,EOL
+agent118,event163,Hanover Gallery,XXX,6/13/1966,XXX,EOL
+agent119,object67,"Hennessy, Patrick",http://www.freebase.com/m/0gh81vr,8/28/1915,12/30/1980,EOL
+agent120,event3004,Henry Bond,http://freebase.com/en/henry_bond,6/13/1966,XXX,EOL
+agent121,event141|event143,"Henry, Grace Mitchell",XXX,XXX,XXX,EOL
+agent122,event132|event135|event140|event141|event142|event143|event144|event145|event146|event147|event148|event149|event150|event151B|event152,"Henry, Paul",http://www.freebase.com/m/04lf5s,4/11/1877,8/24/1958,EOL
+agent123,event52,"Hitler, Adolf",http://freebase.com/en/adolf_hitler,4/20/1889,4/30/1945,EOL
+agent124,event259,"Hodgson, Agatha Stewart",XXX,1866,1/4/1965,EOL
+agent125,event1001|event517,"Hone, Evie",http://freebase.com/en/evie_hone,1894,1955,EOL
+agent126,event179|event448|object76,IMMA,http://freebase.com/en/imma,NA,NA,EOL
+agent127,event560|event559|event558|event555|event550,ITGWU,http://freebase.com/en/irish_transport_and_general_workers_union,NA,NA,EOL
+agent128,event560|event559,ITGWU Strikers,XXX,NA,NA,EOL
+agent129,event555,ITGWU members,XXX,NA,NA,EOL
+agent130,event2009,Impressionist Group,XXX,NA,NA,EOL
+agent131,event1016|event1016|event1017,Irish Department of Education,XXX,NA,NA,EOL
+agent132,event1008|event1022|event1026|event1027|event1028|event1030|event158|event453|event500B|event502B|event507|event512,Irish Exhibition of Living Art,XXX,NA,NA,EOL
+agent133,event172|event179|event448|object703,Irish Museum of Modern Art,http://freebase.com/en/irish_museum_of_modern_art,NA,NA,EOL
+agent134,event1009|event1009|event1010,Irish artists,https://www.freebase.com/m/04l9gm,NA,NA,EOL
+agent135,event1041|event413|object510,Ishmael,http://freebase.com/en/ishmael,XXX,XXX,EOL
+agent136,object102,J.G. Cloots,XXX,8/29/1871,3/28/1957,EOL
+agent137,event533,"Jackson, Pollock",http://freebase.com/en/jackson_pollock,1/28/1912,8/11/1956,EOL
+agent138,object129,Jacopo Alessandro Calvi,XXX,XXX,"XXX<br />",EOL
+agent139,event560|event560|event558,James Byrne,http://freebase.com/en/james_byrne_1908,7/28/1908,8/2/1996,EOL
+agent140,event557|event556|event555|event554|event549,James Larkin,http://freebase.com/en/james_larkin,1/21/1876,1/30/1947,EOL
+agent141,event561|event545|event545,James Nolan,http://freebase.com/en/christopher_nolan,7/30/1970,--,EOL
+agent142,event1001|event1008|event1022|event1023|event1027|event1028|event1029|event1054|event1055|event1056|event1057|event1058|event1059|event1060|event1061|event1062|event500|event500B|event501|event502|event511|event512|event513|event515|event516|event523|event524|event525|event527|event528|event529|event530|object705|object527|object526|object525|object524|object523|object522|object303,"Jellett, Mainie",http://freebase.com/en/mainie_jellett,1897,1944,EOL
+agent143,event49,Jesuits,http://freebase.com/en/society_of_jesus,NA,NA,EOL
+agent144,event561|event546,John Byrne,http://freebase.com/en/john_byrne,7/6/1950,--,EOL
+agent145,object133,John Hinde,https://www.freebase.com/m/02vrlnc,5/17/1916,12/26/1997,EOL
+agent146,object71|object71,John Luke,XXX,XXX,XXX,EOL
+agent147,object91,"Jones, Allen",http://freebase.com/en/allen_jones,9/1/1937,XXX,EOL
+agent148,event2025,"Jongkind, Johann Barthold",http://freebase.com/en/johan_jongkind,6/3/1819,2/9/1891,EOL
+agent149,event3011|event3010,Julian Opie,http://freebase.com/en/julian_opie,1958,XXX,EOL
+agent150,event160,Kasahara Gallery,XXX,NA,NA,EOL
+agent151,event462,"Kavanagh, Patrick",http://freebase.com/en/patrick_kavanagh,10/21/1904,11/30/1967,EOL
+agent152,event1006|event1007|event1015|event1019|event449,"Keating, Sean",http://freebase.com/en/sean_keating,9/28/1889,12/21/1977,EOL
+agent153,event43,King of Poland,http://freebase.com/en/jogaila,1362,6/1/1434,EOL
+agent154,event533,"Kline, Franz",http://freebase.com/en/franz_kline,5/23/1910,5/13/1962,EOL
+agent155,object87,"Kosuth, Joseph",http://freebase.com/en/joseph_kosuth,1/31/1945,--,EOL
+agent156,event97|event98|event99,"Kurz, Otto",http://freebase.com/en/otto_kurz,5/26/1908,9/3/1975,EOL
+agent157,event217|object99|object99|object96|object96|object95|object126,Lady Alice Mahon,XXX,1877,1970,EOL
+agent158,event207|event239|event240|object9,"Lassels, Richard",http://freebase.com/en/richard_lassels,1603,1668,EOL
+agent159,event431|event432|event433|event434|event435|event436,Le Corbusier,http://freebase.com/en/le_corbusier,10/6/1887,8/27/1965,EOL
+agent160,object704,"Le Parc, Julio",http://freebase.com/en/julio_le_parc,9/23/1928,XXX,EOL
+agent161,event2023,"Leroy, Louis",XXX,XXX,XXX,EOL
+agent162,event1001|event529,"Lhote, Andre",http://freebase.com/en/andre_lhote,7/5/1885,1/24/1962,EOL
+agent163,event45|event46,Louvre,http://freebase.com/en/louvre,NA,NA,EOL
+agent164,event1043|event1044|event1045|event1046|event1047|event1048|event1049|event1050|event1051|object520|object519|object518|object517|object516|object515|object514|object513|object512|object504,Luca Giordano,http://freebase.com/en/luca_giordano,10/18/1634,1/3/1705,EOL
+agent165,event58,"Ludovisi, Cardinal Alessandro",XXX,XXX,XXX,EOL
+agent166,event77|event78|event79,"Lugt, Frederik Johannes “Frits”",https://www.freebase.com/m/0wb9m5,XXX,XXX,EOL
+agent167,event521,"Léger, Fernand",http://freebase.com/en/fernand_lger,2/4/1881,8/17/1955,EOL
+agent168,event1035|event182|event183|event184|event192|event194|event196|event197|event198|event199|event208|event209|event210|event212|event214|event215|event216|event217|event218|event219|event220|event222|event224|event225|event226|event227|event228|event232|event233|event32|event40|event406|event408|event409|event41|event44|event45|event46|event47|event48|event49|event50|event51|event63|event64|event71|event72|event73|event74|event75|event79|event85|event86|event87|event93|event94|event95|event97|event98|event99|object98|object94|object93|object142|object137|object127|object126|object123|object122|object121|object120|object117|object115|object114|object113|object110|object109|object108|object107|object104|object103|object102,"Mahon, Denis",http://freebase.com/en/denis_mahon,11/8/1910,4/24/2011,EOL
+agent169,event226|event255,"Mahon, John Fitzgerald",XXX,XXX,XXX,EOL
+agent170,event184|event212|event217|event225|event226|event255,"Mahon, Lady Alice",http://freebase.com/m/05f59q6,1877,1970,EOL
+agent171,event117|object128,"Malvasia, Carlo Cesare",http://freebase.com/en/count_carlo_cesare_malvasia,1616,1693,EOL
+agent172,event2016|object610,"Manet, Édouard",http://freebase.com/en/douard_manet,1/23/1832,4/30/1883,EOL
+agent173,event186|event187|event249|event250|object106,Marco Dente da Ravenna,http://freebase.com/en/marco_dente,1493,1527,EOL
+agent174,event260|event261,"Marquess of Sligo, 5th",http://freebase.com/en/marquess_of_sligo,XXX,XXX,EOL
+agent175,event464,"Matisse, Henri",http://freebase.com/en/henri_matisse,12/31/1869,11/3/1954,EOL
+agent176,event504,"McCormack, Count John",http://freebase.com/en/john_mccormack,6/14/1884,9/16/1945,EOL
+agent177,event1022|event1030|event501B|event502B|event503B|event504B,"McGuinness, Norah",http://freebase.com/en/norah_mcguinness,11/7/1901,11/22/1980,EOL
+agent178,event454|event455|event456|event457|event458|event459|event460|event461|object365,"McGuire, Edward",http://www.freebase.com/m/0b76nb2,1932,--,EOL
+agent179,event106|event106,Medici family,http://freebase.com/en/medici,NA,NA,EOL
+agent180,event107|event108|event109|event114,"Medici, Cosimo de'",https://www.freebase.com/m/01g8nn,6/12/1519,4/21/1574,EOL
+agent181,event110,"Medici, Giovanni di Cosimo de'",http://freebase.com/en/giovanni_di_cosimo_de_medici,6/3/1421,9/23/1463,EOL
+agent182,event110,"Medici, Lorenzo de'",https://www.freebase.com/m/04qj5,1/1/1449,4/9/1492,EOL
+agent183,event110,"Medici, Piero di Cosimo de'",http://freebase.com/en/piero_di_cosimo_de_medici,9/19/1416,12/2/1469,EOL
+agent184,event100,Metropolitan Museum of Art,http://freebase.com/en/metropolitan_museum_art,NA,NA,EOL
+agent185,event551|event546|event545|event542,Metropolitan Police,http://freebase.com/en/metropolitan_police_service,NA,NA,EOL
+agent186,event522,"Metzinger, Jean",http://freebase.com/en/jean_metzinger,6/24/1883,11/3/1956,EOL
+agent187,event550,Michael Byrne,http://freebase.com/en/michael_byrne,11/7/1943,--,EOL
+agent188,event3011,Michael Craig-Martin,http://freebase.com/en/michael_craig-martin,8/28/1941,--,EOL
+agent189,event114,Michelozzo,http://freebase.com/en/michelozzo,1396,10/7/1472,EOL
+agent190,object86,Micheál Farrell,https://www.freebase.com/m/0wbbzdx,7/3/1940,--,EOL
+agent191,event2005|event2006,"Millet, Jean-Francois",http://freebase.com/en/jean_franois_millet,10/4/1814,1/20/1875,EOL
+agent192,event2002|event2008|event2009|event2010|event2011|event2012|event2013|event2014|event2015|event2016|event2017|event2018|event2019|event2020|event2021|event2022|event2023|event2024|event2025|event2026|event2027|event2028|event2029|event466|object615|object612|object611|object608|object607|object606|object605|object604|object603|object602|object601,"Monet, Claude",http://freebase.com/en/claude_monet,11/14/1840,12/5/1926,EOL
+agent193,object60,"Morellet, François",http://freebase.com/en/francois_morellet,4/30/1926,--,EOL
+agent194,event2028,"Morisot, Berthe",http://freebase.com/en/berthe_morisot,1/14/1841,3/2/1895,EOL
+agent195,object73,"Morris, Frank",http://freebase.com/en/nadar,4/6/1820,3/21/1910,EOL
+agent196,event412,Moses,http://freebase.com/en/moses,-1390,-1270,EOL
+agent197,event72|object123|object123,"Murray, Peter",http://www.freebase.com/m/03md0fd,4/6/1944,--,EOL
+agent198,object611,Nadar (Gaspard-Félix Tournachon),http://freebase.com/en/nadar,4/6/1820,3/21/1910,EOL
+agent199,event1018|event1019|event1020|event1022|event1028|event449,National College of Art,http://freebase.com/en/national_college_of_art_and_design,NA,NA,EOL
+agent200,event227|event228|event35|event39|event75,National Gallery London,http://freebase.com/en/national_gallery,NA,NA,EOL
+agent201,event147|event147|event2002|event64|event64,National Gallery of Ireland,http://freebase.com/en/national_gallery_of_ireland,NA,NA,EOL
+agent202,event1053,"Nayral, Jacques",XXX,XXX,XXX,EOL
+agent203,event176,"Nelson, Geoffrey",http://freebase.com/en/geoffrey_nelson,XXX,XXX,EOL
+agent204,object356,Niamh McCann,https://www.freebase.com/m/0wbccnq,1971,--,EOL
+agent205,event543,Northern Ireland Civil Rights Association,http://freebase.com/en/northern_ireland_civil_rights_association,NA,NA,EOL
+agent206,event1024,"O'Brien, Dermod",http://freebase.com/en/dermod_obrien,1865,10/3/1945,EOL
+agent207,object360|object360|object355,"O'Doherty, Brian",http://freebase.com/en/brian_odoherty,1928,--,EOL
+agent208,object68,Oisín Kelly,http://freebase.com/en/oisin_kelly,5/17/1915,1981,EOL
+agent209,object48,"Oppenheim, Dennis",http://freebase.com/en/dennis_oppenheim,9/6/1938,1/21/2011,EOL
+agent210,event65|object10,"Orlandi, Pellegrino Antonio",http://freebase.com/en/pellegrino_antonio_orlandi,1660,1727,EOL
+agent211,event1012|event1013|event1021|event503|event504|event526|object301,"Orpen, William",http://freebase.com/en/william_orpen,11/27/1878,9/29/1931,EOL
+agent212,event433,"Ozenfant, Amédée",http://freebase.com/en/am_d_e_ozenfant,4/15/1886,5/4/1966,EOL
+agent213,event2003|event2004|event2015|event2015|event2024,Paris Salon,http://freebase.com/en/paris_salon,NA,NA,EOL
+agent214,event547,Patrick Traynor,http://freebase.com/en/dublin_north,XXX,XXX,EOL
+agent215,event92|event94,"Pergola, Paola della",XXX,"XXX<br />","XXX<br />",EOL
+agent216,event210|event211|event212|event220|event221|event237|event238|event41|event52,"Pevsner, Nikolaus",http://freebase.com/en/nikolaus_pevsner,1/30/1902,8/18/1983,EOL
+agent217,event412,Pharaoh's daughter,XXX,XXX,XXX,EOL
+agent218,event508,"Picasso, Pablo",http://freebase.com/en/pablo_picasso,10/25/1881,4/8/1973,EOL
+agent219,event2016|event2028,"Pissarro, Camille",http://freebase.com/en/camille_pissarro,7/10/1830,11/13/1903,EOL
+agent220,event247|event248|event45|event46|event85|object613,"Poussin, Nicolas",http://freebase.com/en/nicolas_poussin,6/15/1594,11/19/1665,EOL
+agent221,event85|event86|object115,R.E.A. Wilson,https://www.freebase.com/m/0wfpx31,1603,1668,EOL
+agent222,event151|event185|event186|event187|event251,"Raimondi, Marcantonio",http://freebase.com/en/marcantonio_raimondi,1480,1534,EOL
+agent223,event2001,"Rand, John Goffe",https://www.freebase.com/m/0n4ch51,1801,1873,EOL
+agent224,event128|event129|event130|event151|event186|event252|event253,Raphael,http://freebase.com/en/raphael,1483,4/6/1520,EOL
+agent225,event186|event187|event249|event250,"Ravenna, Marco Dente da",https://www.freebase.com/m/03d802j,1493,1527,EOL
+agent226,event1042|event244|event243|event244|event43|event44,"Reni, Guido",https://www.freebase.com/m/02vr8c,11/4/1575,8/18/1642,EOL
+agent227,event2016|event2028,"Renoir, Auguste",http://freebase.com/en/pierre-auguste_renoir,2/25/1841,12/3/1919,EOL
+agent228,object59,"Riley, Bridget",http://freebase.com/en/bridget_riley,4/24/1931,--,EOL
+agent229,event69,"Ripa, Cesare",https://www.freebase.com/m/0c7f3p,1560,1622,EOL
+agent230,event533|event534,"Rothko, Mark",http://freebase.com/en/mark_rothko,9/25/1903,2/25/1970,EOL
+agent231,event157|event157,Royal Academy Schools,http://freebase.com/en/royal_academy,NA,NA,EOL
+agent232,event3008|event3007|event232,Royal Academy of Art,http://freebase.com/en/royal_academy,NA,NA,EOL
+agent233,event173,Royal Engineers,http://freebase.com/en/royal_engineers,NA,NA,EOL
+agent234,event1024|event1025|event1061,Royal Hibernian Academy,http://freebase.com/en/royal_hibernian_academy,NA,NA,EOL
+agent235,event550|event548,Royal Irish Constabulary,http://freebase.com/en/royal_irish_constabulary,NA,NA,EOL
+agent236,event217,"Rumbold, Lady",https://www.freebase.com/m/0mv8wn6,2/6/1928,12/6/2008,EOL
+agent237,event215|event216,"Rumbold, Tony",https://www.freebase.com/m/0j_09db,3/7/1911,12/4/1983,EOL
+agent238,event1011|event511,"Russell, George",http://freebase.com/en/george_russell,6/23/1923,7/27/2009,EOL
+agent239,event47,"Salerno, Luigi",http://freebase.com/en/luigi_salerno,9/3/1924,--,EOL
+agent240,event3004|event413,Sarah,https://www.freebase.com/m/01b5wx,XXX,XXX,EOL
+agent241,event3004,Sarah Lucas,http://freebase.com/en/sarah_lucas,1962,--,EOL
+agent242,event1036|object505,"Schedoni, Bartolomeo",http://freebase.com/en/bartolomeo_schedoni,1578,1615,EOL
+agent243,event155,Scott Tallon Walker,http://freebase.com/en/scott_tallon_walker,N/A,N/A,EOL
+agent244,event174|event175|event176,"Scott, Mary Lucas",https://www.freebase.com/m/0wfnbl4,1912,1999,EOL
+agent245,event153|event154|event155|event156|event157|event158|event159|event160|event161|event163|event164|event165|event166|event167|event168|event170|event171|event172|event173|event174|event175|event176|event177|event178|event179|event531|event532|event533|event534|event535|event536|event537|event538|object139|object138|object100,"Scott, William",http://www.freebase.com/m/02622vs,2/15/1913,12/28/1989,EOL
+agent246,object75,"Sheridan, Noel",http://freebase.com/en/sheridan_morley,12/5/1941,2/16/2007,EOL
+agent247,event527,"Sickert, Walter",http://freebase.com/en/walter_sickert,5/31/1860,1/22/1942,EOL
+agent248,event75,"Silkin, Lord",http://freebase.com/en/samuel_silkin_baron_silkin_of_dulwich,3/6/1918,8/17/1988,EOL
+agent249,event2028,"Sisley, Alfred",http://freebase.com/en/alfred_sisley,10/30/1839,1/29/1899,EOL
+agent250,event426|event456,Slade School of Fine Art,http://freebase.com/en/slade_school_of_art,NA,NA,EOL
+agent251,event146,Society of Dublin Painters,http://freebase.com/en/paul_henry,4/11/1877,8/24/1958,EOL
+agent252,object76,"Soto, Jesús Rafael",http://freebase.com/en/jesus_rafael_soto,6/5/1923,1/14/2005,EOL
+agent253,event551,South Wales Miners' Federation,http://freebase.com/en/south_wales_miners_federation,NA,NA,EOL
+agent254,event2,Sugawara,http://freebase.com/en/bunta_sugawara,8/16/1933,--,EOL
+agent255,event441|event444|event445|event446|event447|event448|event449|event450|event451|event453|event457|event462|object90,"Swift, Patrick",https://www.freebase.com/m/05w0p9s,8/12/1927,7/19/1983,EOL
+agent256,event509,"Talbot, William Henry Fox",http://freebase.com/en/william_fox_talbot,2/11/1800,9/17/1877,EOL
+agent257,event234|event76,"Tasso, Torquato",http://freebase.com/en/torquato_tasso,3/11/1544,4/25/1595,EOL
+agent258,event3006,The Tate Gallery,http://freebase.com/en/tate_gallery,NA,NA,EOL
+agent259,object357,Tim Mara,https://www.freebase.com/m/0w9_7yl,9/27/1948,8/12/1997,EOL
+agent260,event544,Tipperary GAA football team,http://freebase.com/en/all_ireland_senior_football_championship_1888,NA,NA,EOL
+agent261,event32|event95,"Turner, Nicholas",http://freebase.com/en/nik_turner,8/28/1940,--,EOL
+agent262,event2002,Unknown,https://www.freebase.com/m/083vt,XXX,XXX,EOL
+agent263,object78,"Vasarely, Victor",http://freebase.com/en/victor_vasarely,4/9/1906,3/15/1997,EOL
+agent264,event123|event124|event125|event127,"Vasari, Giorgio",,,,EOL
+agent265,event463,"Velázquez, Diego",http://freebase.com/en/diego_velazquez,6/6/1599,8/6/1660,EOL
+agent266,event3022|event3009|event170|event170|event501B,Venice Biennale,http://freebase.com/en/venice_biennale,NA,NA,EOL
+agent267,event110,"Verrocchio, Andrea del",http://freebase.com/en/andrea_del_verrocchio,1435,10/10/1488,EOL
+agent268,event179,William Scott Foundation,XXX,NA,NA,EOL
+agent269,event3005,Walker Art Center,http://freebase.com/en/walker_art_center,NA,NA,EOL
+agent270,event135,"Whistler, James McNeill",http://freebase.com/en/james_mcneill_whistler,7/10/1834,7/17/1903,EOL
+agent271,event540|event539|object369,William Martin Murphy,http://freebase.com/en/william_martin_murphy,1844,1919,EOL
+agent272,event85|event86,"Wilson, R.E.A.",https://www.freebase.com/m/0wfpx31,XXX,XXX,EOL
+agent273,event74|object121|object121,"Wynne, Michael",https://www.freebase.com/m/0wb9csk,1937,2003,EOL
+agent274,event524,"Yeats, Elizabeth",http://freebase.com/en/elizabeth_yeats,3/11/1868,1940-01,EOL
+agent275,event505|event506|object709|object79|object302,"Yeats, Jack B.",http://freebase.com/en/jack_butler_yeats,8/29/1871,3/28/1957,EOL
+agent276,event1011,"Yeats, W.B.",http://freebase.com/en/william_butler_yeats,6/13/1865,1/28/1939,EOL
+agent277,event101,da Fabriano,http://freebase.com/en/gentile_da_fabriano,1370,8/1/1427,EOL
+agent278,event533,"de Kooning, Willem",http://freebase.com/en/willem_de_kooning,4/24/1904,3/19/1997,EOL
+agent279,event1022|event1025|event1031|object501,"le Brocquy, Louis",http://freebase.com/en/louis_le_brocquy,11/10/1916,4/25/2012,EOL
+agent280,event1026,"le Brocquy, Sybil",http://freebase.com/en/sybil_le_brocquy,1892,1973,EOL

@@ -1,0 +1,30 @@
+diff --git entityreference_view_widget/entityreference_view_widget.module entityreference_view_widget/entityreference_view_widget.module
+index 197da3a..45345eb 100644
+--- entityreference_view_widget/entityreference_view_widget.module
++++ entityreference_view_widget/entityreference_view_widget.module
+@@ -238,12 +238,21 @@ function entityreference_view_widget_field_widget_form(&$form, &$form_state, $fi
+       $view->set_current_page($element_values['page']);
+     }
+   }
+-  // Pass the selected entity ids as the first argument, if needed.
++  // Pass the selected entity ids as the next argument, if needed.
++  $arguments = array();
++  $context = array(
++    'field_name' => $field_name,
++    'field_language' => $field_language,
++    'entity_type' => $entity_type,
++    'widget' => $widget,
++    'element' => $element,
++  );
++  drupal_alter('entityreference_view_widget_views_arguments', $arguments, $context);
+   if (!empty($selected_entity_ids) && !empty($widget['settings']['pass_argument'])) {
+-    $arguments = array();
+-    $arguments[0] = implode(',', $selected_entity_ids);
+-    $view->set_arguments($arguments);
++    $arguments[] = implode(',', $selected_entity_ids);
+   }
++  $view->set_arguments($arguments);
++
+   // Display errors here if there is no full page build.
+   $output = $ajax ? theme('status_messages') : '';
+   $output .= $view->preview($target_view[1]);

@@ -1,0 +1,7 @@
+<?php
+/**
+ * @file
+ * Code for the Content Type Object Story feature.
+ */
+
+include_once 'content_type_object_story.features.inc';

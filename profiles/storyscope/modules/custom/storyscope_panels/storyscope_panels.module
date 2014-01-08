@@ -1,0 +1,15 @@
+<?php
+
+/**
+ * Implements hook_ctools_plugin_directory().
+ */
+function storyscope_panels_ctools_plugin_directory($module, $plugin) {
+  // Safety: go away if CTools is not at an appropriate version.
+  if (!module_invoke('ctools', 'api_version', '2')) {
+    return;
+  }
+  if ($module == 'page_manager' || $module == 'panels' || $module == 'ctools' || $module == 'stylizer') {
+    return 'plugins/' . $plugin;
+  }
+}
+

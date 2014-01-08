@@ -1,0 +1,9 @@
+name = Panels story output
+description = Panels node override for story output.
+core = 7.x
+package = Views
+dependencies[] = ctools
+dependencies[] = page_manager
+features[ctools][] = page_manager:pages_default:1
+features[features_api][] = api:1
+features[page_manager_handlers][] = node_view_panel_context_7

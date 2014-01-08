@@ -1,0 +1,119 @@
+<?php
+/**
+ * Drupal requires this file. Code goes below.
+ */
+
+/**
+ * Implements hook_page_alter().
+ */
+function storyscope_tweaks_page_alter(&$page) {
+  $path = request_path();
+  // Check to see if it is a node/edit page and load some js.
+  // Also avoids overriding the breadcrumb, which works very nicely, thank you very much.
+  if (!empty($page['content']['system_main']['#node_edit_form']) && $page['content']['system_main']['#node_edit_form'] == TRUE) {
+    drupal_add_js(drupal_get_path('module', 'storyscope_tweaks') . '/js/storyscope-tweaks-hide-help.js');
+  }
+  else {
+    // Build up the breadcrumb trail.
+    $trail = array();
+
+    if (!drupal_is_front_page() && !preg_match('/^admin/', $path)) {
+      // Strip current page from the path.
+      $uri = dirname($path);
+      $i = 0;
+
+      // Recursively trim uri and look for available path.
+      while ($uri && $uri != '.') {
+
+        // First we see if the uri directs to a valid path.
+        $path = drupal_lookup_path('source', $uri);
+        $trail[$i]['path'] = $uri;
+        $trail[$i]['title'] = $uri; // Initialise it
+
+        // Figure out the title of the current item.
+        if ($path) {
+          $item = menu_get_item($path);
+          $trail[$i]['title'] = $item['title'];
+        }
+        else {
+          // If it's not a valid path, load the menu item for the path.
+          $item = menu_get_item($uri);
+
+          // If we still didn't get a valid menu item, skip this.
+          if (!$item) {
+            $uri = dirname($uri);
+            continue;
+          }
+
+          // Original_map holds the full list of args passed in to the menu item.
+          $last_arg = array_pop($item['original_map']);
+
+          // Check to see if the end of the path is the same as the menu path, meaning there are no additional args.
+          if ($item['path'] == $last_arg && !empty($item['title'])) {
+            $trail[$i]['title'] = $item['title'];
+          }
+          // If we're dealing with a View, get the title from the Views config.
+          elseif ($item['page_callback'] == 'views_page') {
+            $view_name = $item['page_arguments'][0];
+            $display_id = $item['page_arguments'][1];
+            $view = views_get_view($view_name);
+            $view->set_display($display_id);
+            $title = $view->get_title();
+            $trail[$i]['title'] = $title;
+          }
+          else {
+            $trail[$i]['title'] = $last_arg;
+          }
+        }
+
+        // Prepare for the next iteration.
+        $uri = dirname($uri);
+        $i++;
+      }
+
+      // Reverse the trail so that it will be in the correct order when returned.
+      $trail = array_reverse($trail);
+
+      // now build the actual breadcrumb trail in the right format
+      $breadcrumb = array();
+      if (!empty($trail)) {
+        foreach ($trail as $crumb) {
+          if (!empty($crumb['title'])) {
+            $breadcrumb[] = l($crumb['title'], $crumb['path']);
+          }
+        }
+      }
+
+      drupal_set_breadcrumb($breadcrumb);
+    }
+  }
+}
+
+/**
+ *
+ * Add extra characters to Date Formatting
+ */
+function storyscope_tweaks_preprocess_entity(&$variables){
+  if ($variables['entity_type'] == 'field_collection_item') {
+    if ($variables['elements']['#bundle'] == 'field_object_creator') {
+      if (isset($variables['content']['field_object_creator_culture'])){
+        $variables['content']['field_object_creator_culture']['#suffix'] = ', ';
+      }
+      if (isset($variables['content']['field_creator_birth_date'])){
+        $variables['content']['field_object_creator_name']['#suffix'] = ' (';
+        $variables['content']['field_creator_birth_date']['#suffix'] = ' - ';
+        if (isset($variables['content']['field_creator_death_date'])){
+          $variables['content']['field_creator_death_date']['#suffix'] = ')';
+        }
+        else {
+          $variables['content']['field_creator_birth_date']['#suffix'] = '-)';
+        }
+      }
+      else {
+        // If No Birth date set at all
+        $variables['content']['field_object_creator_culture']['#prefix'] = ' (';
+        $variables['content']['field_object_creator_culture']['#suffix'] = ')';
+      }
+    }
+  }
+}

@@ -1,0 +1,34 @@
+/* Overrides and styling for an overview page of a narrative. */
+
+.view-story-sections {
+  margin-left: 40px;
+  .views-row-odd article {
+    clear: left;
+  }
+  article {
+    width: 46%;
+    margin: 1%;
+    float: left;
+    &:first-child {
+      margin-left: 0;
+    }
+    img {
+      float: left;
+      margin-right: 10px;
+    }
+  }
+  .view-footer {
+    clear: both;
+  }
+  &.view-display-id-block_1 {
+    section {
+      display: none;
+    }
+  } 
+}
+
+.page-dossiers-stories-output .pane-node-body {
+  clear: both;
+  padding-left: 40px;
+}
+

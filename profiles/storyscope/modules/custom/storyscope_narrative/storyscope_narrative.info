@@ -1,0 +1,4 @@
+name = "Storyscope Narrative"
+description = "Functionality related to narrative generation and editorial workflow"
+package = Storyscope
+core = "7.x"

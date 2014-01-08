@@ -1,0 +1,7 @@
+<?php
+/**
+ * @file
+ * Code for the views dossier events add existing feature.
+ */
+
+include_once 'views_dossier_events_add_existing.features.inc';

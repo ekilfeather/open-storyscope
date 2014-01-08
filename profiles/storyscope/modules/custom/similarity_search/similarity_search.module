@@ -1,0 +1,3743 @@
+<?php
+
+// $Id: similarity_search.module,v 1.2 2009/06/24 09:17:48 ou_pm Exp $
+
+require_once(dirname(__FILE__) . '/similarity_search.inc');
+// If you want to disable process request to SEC Store API, set this value to 1
+// useful when you want to speed up rebuild script in Storyscope.
+// Use only when you don't want to use similarity search
+define("DISABLE_PROCESS", 0);
+
+/**
+ * Define menus.
+ */
+function similarity_search_menu() {
+    $items = array();
+    // search query - object story
+    $items['dossiers/%/objectstories/search/external-sec'] = array(
+        'title' => 'Global',
+        'page callback' => 'similarity_search_list',
+        'page arguments' => array(NULL, 1),
+        'access arguments' => array('access similarity search'),
+        'type' => MENU_LOCAL_TASK,
+    );
+    // search query - object or event or ...
+    $items['dossiers/%/objectstories/%/%/search/external-sec'] = array(
+        'title' => 'Search',
+        'page callback' => 'similarity_search_list',
+        'page arguments' => array(NULL, 3),
+        'access arguments' => array('access similarity search'),
+        'type' => MENU_CALLBACK,
+    );
+    
+    // search query - special callback to display on objects page
+    $items['dossiers/%/objectstories/%/objects/search/external-sec'] = array(
+        'title' => 'Global',
+        'page callback' => 'similarity_search_list',
+        'page arguments' => array(NULL, 3),
+        'access arguments' => array('access similarity search'),
+        'type' => MENU_LOCAL_TASK,
+    );
+    
+    // search query - special callback to display on objects page
+    $items['dossiers/%/objects/search/external-sec'] = array(
+        'title' => 'Global',
+        'page callback' => 'similarity_search_list',
+        'page arguments' => array(NULL, 1),
+        'access arguments' => array('access similarity search'),
+        'type' => MENU_LOCAL_TASK,
+    );
+
+    // search query - object story detail
+    $items['dossiers/%/objectstories/search/external-sec/%'] = array(
+        'title' => 'Search',
+        'page callback' => 'similarity_item_detail',
+        'page arguments' => array(5, 1),
+        'access arguments' => array('access similarity search'),
+        'type' => MENU_CALLBACK,
+    );
+    // search query - object or event detail
+    $items['dossiers/%/objectstories/%/%/search/external-sec/%'] = array(
+        'title' => 'Search',
+        'page callback' => 'similarity_item_detail',
+        'page arguments' => array(7, 3),
+        'access arguments' => array('access similarity search'),
+        'type' => MENU_CALLBACK,
+    );
+    // search query - object or event detail
+    $items['dossiers/%/%/search/external-sec/%'] = array(
+        'title' => 'Search',
+        'page callback' => 'similarity_item_detail',
+        'page arguments' => array(5, 1),
+        'access arguments' => array('access similarity search'),
+        'type' => MENU_CALLBACK,
+    );
+    
+    // search example - object story
+    $items['dossiers/%/objectstories/%node/similar'] = array(
+        'title' => 'Search',
+        'page callback' => 'similarity_search_list',
+        'page arguments' => array(3, 1),
+        'access arguments' => array('access similarity search'),
+        'type' => MENU_CALLBACK,
+    );
+    
+    // search example - object
+    $items['dossiers/%/objectstories/%/objects/%node/similar'] = array(
+        'title' => 'Search',
+        'page callback' => 'similarity_search_list',
+        'page arguments' => array(5, 3),
+        'access arguments' => array('access similarity search'),
+        'type' => MENU_CALLBACK,
+    );
+    
+    // search example - object story detail
+    $items['dossiers/%/objectstories/%/similar/%'] = array(
+        'title' => 'Search',
+        'page callback' => 'similarity_item_detail',
+        'page arguments' => array(5, 3),
+        'access arguments' => array('access similarity search'),
+        'type' => MENU_CALLBACK,
+    );
+    // search example - object detail
+    $items['dossiers/%/objectstories/%/objects/%/similar/%'] = array(
+        'title' => 'Search',
+        'page callback' => 'similarity_item_detail',
+        'page arguments' => array(7, 5),
+        'access arguments' => array('access similarity search'),
+        'type' => MENU_CALLBACK,
+    );
+    // search only - item detail
+    $items['similarity/query/%'] = array(
+        'title' => 'Search',
+        'page callback' => 'similarity_item_detail',
+        'page arguments' => array(2, NULL),
+        'access arguments' => array('access similarity search'),
+        'type' => MENU_CALLBACK,
+    );   
+    
+    $items['similarity/%/example/%node'] = array(
+        'title' => 'Search',
+        'page callback' => 'similarity_search_list',
+        'page arguments' => array(3, 1),
+        'access arguments' => array('access similarity search'),
+        'type' => MENU_CALLBACK,
+    );
+    $items['similarity/query'] = array(
+        'title' => 'Search',
+        'page callback' => 'similarity_search_list',
+        'page arguments' => array(NULL, NULL),
+        'access arguments' => array('access similarity search'),
+        'type' => MENU_CALLBACK,
+    );
+    $items['similarity/%/query'] = array(
+        'title' => 'Search',
+        'page callback' => 'similarity_search_list',
+        'page arguments' => array(NULL, 1),
+        'access arguments' => array('access similarity search'),
+        'type' => MENU_CALLBACK,
+    );
+    $items['similarity/example/%node'] = array(
+        'title' => 'Search',
+        'page callback' => 'similarity_search_list',
+        'page arguments' => array(2, NULL),
+        'access arguments' => array('access similarity search'),
+        'type' => MENU_CALLBACK,
+    );
+    
+    $items['similarity/export'] = array(
+        'title' => 'Export data to SEC Store API',
+        'page callback' => 'similarity_search_export_data',
+        'page arguments' => array(),
+        'access arguments' => array('administer site configuration'),
+        'type' => MENU_CALLBACK,
+    );
+    $items['similarity/export-all'] = array(
+        'title' => 'Export data to SEC Store API',
+        'page callback' => 'similarity_search_export_all_data',
+        'page arguments' => array(),
+        'access arguments' => array('administer site configuration'),
+        'type' => MENU_CALLBACK,
+    );
+    $items['similarity/action/%/%/%/%/%'] = array(
+        'title' => 'Search',
+        'page callback' => 'similarity_search_proccess_item',
+        'page arguments' => array(2, 3, 4, 5, 6),
+        'access arguments' => array('access similarity search'),
+        'type' => MENU_CALLBACK,
+    );
+    $items['admin/config/search/similarity'] = array
+    (
+        'title' => 'Similarity Search',
+        'description' => 'Configure the Similarity Search settings.',
+        'page callback' => 'drupal_get_form',
+        'page arguments' => array('similarity_search_form_config'),
+        'access callback' => 'user_access',
+        'access arguments' => array('administer site configuration'),
+    );
+    $items['similarity/autocomplete/%'] = array(
+        'title' => 'Autocomplete',
+        'page callback' => 'similarity_search_autocomplete',
+        'page arguments' => array(2),
+        'access arguments' => array('access similarity search'),
+        'type' => MENU_CALLBACK
+    );
+    
+    $items['taxonomy/autocomplete/%'] = array(
+        'title' => 'Autocomplete taxonomy',
+        'page callback' => 'similarity_search_taxonomy_autocomplete',
+        'page arguments' => array(2),
+        'access arguments' => array('access similarity search'),
+        'type' => MENU_CALLBACK
+    );
+    $items['dossiers/%/similarity_add_event/%'] = array(
+        'title' => 'Search',
+        'page callback' => 'similarity_dossier_add_event',
+        'page arguments' => array(1,3),
+        'access arguments' => array('access similarity search'),
+        'type' => MENU_CALLBACK,
+    );
+
+    $items['dossiers/%/objectstories/%/similarity_add_event/%'] = array(
+        'title' => 'Search',
+        'page callback' => 'similarity_dossier_add_event',
+        'page arguments' => array(3,5),
+        'access arguments' => array('access similarity search'),
+        'type' => MENU_CALLBACK,
+    );
+    return $items;
+}
+
+/**
+ * Implementation of hook_validate().
+ */
+function similarity_search_validate($node) {
+
+}
+
+/**
+ * Implementation of hook_permission().
+ */
+function similarity_search_permission() {
+    $array = Array(
+        'access similarity search' => array(
+            'title' => t('Access Similarity Search'),
+            'description' => t('User can access to Similarity search.')
+        )
+    );
+  return $array;
+}
+
+/**
+ * Configuration form
+ */
+function similarity_search_form_config() {
+    $form['field-set-buttons'] = array(
+        '#type' => 'fieldset',
+        '#title' => t('Process content'),
+        '#weight' => 5,
+        '#collapsible' => FALSE,
+        '#description' => t("Export data to SEC Store API.<br>Button 'Prepare export for cron' will prepare export of all items to SEC Store API. But you have to run cron to finish the export.<br>"
+            ."Button 'Get missing CA/SEC ID values' will process every event, object, object_story, reference and dossier node which has not saved CA/SEC ID. May be killed by PHP max execution time.<br><br>"),
+        '#collapsed' => FALSE,
+    );
+    
+    $form['field-set-settings'] = array(
+        '#type' => 'fieldset',
+        '#title' => t('SEC Store API settings'),
+        '#weight' => 4,
+        '#collapsible' => FALSE,
+        '#collapsed' => FALSE,
+    );
+    
+    $form['field-set-buttons']['export-all-button'] = array(
+        '#type' => 'submit',
+        '#value' => t('Prepare export for cron'),
+        '#submit' => array('similarity_search_export_all_data_button')
+    );
+    
+    $form['field-set-buttons']['export-button'] = array(
+        '#type' => 'submit',
+        '#value' => t('Get missing CA/SEC ID values'),
+        '#submit' => array('similarity_search_export_data_button')
+    );
+    
+    $form['field-set-settings']['sec_store_api'] = array(
+        '#type' => 'textfield',
+        '#title' => t('SEC Store API address'),
+        '#default_value' => variable_get('sec_store_api'),
+        '#description' => t('StoryScope need this server to use similarity search.'),
+        '#required' => TRUE,
+    );
+    
+    $form['field-set-settings']['sec_store_api_timeout'] = array(
+        '#type' => 'textfield',
+        '#title' => t('SEC Store API connection timeout'),
+        '#default_value' => variable_get('sec_store_api_timeout'),
+        '#description' => t('StoryScope connection timeout to SEC Store API.'),
+        '#required' => TRUE,
+    );
+    
+    $form['field-set-settings']['sec_store_api_results_count'] = array(
+        '#type' => 'textfield',
+        '#title' => t('SEC Store API results count'),
+        '#default_value' => variable_get('sec_store_api_results_count'),
+        '#description' => t('Number of results which we want from SEC Store API.'),
+        '#required' => TRUE,
+    );
+    
+    $form['field-set-settings']['sec_store_detail_date_format'] = array(
+        '#type' => 'textfield',
+        '#title' => t('SEC Store detail page date format'),
+        '#default_value' => variable_get('sec_store_detail_date_format'),
+        '#description' => t('Date format for detail page. Use only d, m, Y letters for formating date (Y-m-d, d.m.Y, etc.).'),
+        '#required' => TRUE,
+    );
+    
+    return system_settings_form($form);
+}
+
+function similarity_search_update_7001() {
+    $features = array(
+        "views_similarity_dossier_event"
+    );
+
+    // Enable the modules by name.
+    module_enable($features);
+}
+
+function similarity_search_form_event_node_form_alter(&$form, &$form_state) {
+    // load js with override functions to get autocomplete caret position
+    drupal_add_js(drupal_get_path('module', 'similarity_search').'/similarity_search_autocomplete.js', array('group' => JS_THEME, 'weight' => -50));
+    
+    $form["field_event_agent"][LANGUAGE_NONE]["#autocomplete_path"] = "similarity/autocomplete/field_event_agent";
+    $form["field_event_location"][LANGUAGE_NONE]["#autocomplete_path"] = "similarity/autocomplete/field_event_location";
+    $form["field_event_object"][LANGUAGE_NONE]["#autocomplete_path"] = "similarity/autocomplete/field_event_object";
+    $form["field_event_materials"][LANGUAGE_NONE]["#autocomplete_path"] = "similarity/autocomplete/field_event_materials";
+    $form["field_event_style_movement"][LANGUAGE_NONE]["#autocomplete_path"] = "similarity/autocomplete/field_event_style_movement";
+    $form["field_event_genre"][LANGUAGE_NONE]["#autocomplete_path"] = "similarity/autocomplete/field_event_genre";
+    $form["field_event_activity"][LANGUAGE_NONE]["#autocomplete_path"] = "similarity/autocomplete/field_event_activity";
+}
+
+/**
+ * Function to save similarity items from NLP server.
+ *
+ * @param type $form_state
+ * @param type $objectID
+ * @return type
+ */
+function similarity_search_save_items($array, $parentNID) {
+    $message = similarity_search_sec_store_get($array);
+    $message = $message["data"];
+    $parent = node_load($parentNID);
+    
+    if (!empty($message)) {
+        foreach($message["resources"] AS $object) {
+            // if we are in dossier and looking up for object story and we receive object
+            // then we convert this object into object story
+            if ($parent->type == "dossier" && $object["type"] == "object") {
+                $object["refers_to"] = Array();
+                $object["refers_to"][] = $object;
+                $object["type"] = "object_story";
+                $object["type_specific_content"]["private"] = 0;
+                //$object["type_specific_content"]["description"] = "";
+                //$object["text"] = "";
+                $object["type_specific_content"]["visual_representation"] = "";
+//                $object["sid"] = "";
+            }
+            
+            $node = similarity_search_save_item($object, $parent);
+            storyscope_content_create_path_aliases($node, $parent);
+            
+            if (isset($node->nid) && !empty($node->nid)) {
+                watchdog("similarity_search", "%title with CA/SEC ID %id has been saved", Array("%title" => $object["type_specific_content"]["title"], "%id" => $object["sid"]));
+            }
+            else {
+                watchdog("similarity_search", "Error occurred during saving %title with CA/SEC ID: %id", Array("%title" => $object["type_specific_content"]["title"], "%id" => $object["sid"]));
+            }
+            
+            foreach($object["refers_to"] AS $refer) {
+                $child = similarity_search_save_item($refer, $node);
+                storyscope_content_create_path_aliases($child, $node);     
+                
+                if (isset($child->nid) && !empty($child->nid)) {
+                    watchdog("similarity_search", "%title with CA/SEC ID %id has been saved", Array("%title" => $refer["type_specific_content"]["title"], "%id" => $refer["sid"]));
+                }
+                else {
+                    watchdog("similarity_search", "Error occurred during saving %title with CA/SEC ID: %id", Array("%title" => $refer["type_specific_content"]["title"], "%id" => $refer["sid"]));
+                }
+            }
+        }
+    }
+}
+
+/**
+ * Function which take object data from NLP server and created node in drupal
+ * with sent data.
+ * @param array $object information about object
+ */
+function similarity_search_save_item($object, $parent) {    
+    $entity = entity_create('node', array('type' => $object["type"]));
+    node_object_prepare($entity); 
+    
+    // add the parent nid
+    if(!empty($parent)) {
+        if ($parent->type == "dossier") {
+            $entity->dossier = $parent->nid;
+        }
+        else if ($parent->type == "object_story") {
+            $entity->object_story = $parent->nid;
+        }
+        else if ($parent->type == "story") {
+            $entity->story = $parent->nid; 
+        }
+    }    
+    
+    // add type specific fields (source, image, etc, ...)
+    $entity = similarity_search_fill_node_fields($entity, $object);
+
+	return $entity;
+}
+
+function similarity_search_remove_items($array, $parentNID) {
+    $response = similarity_search_sec_store_remove($array);
+    
+    if (isset($response["data"])) {
+        $parent = node_load($parentNID);
+
+        if (!empty($parent)) {
+            /// @todo:
+            $nid = similarity_search_get_nid_from_sec($array["remove"][0], $parentNID);
+            $node = node_load($nid);
+
+            if ($node) {
+                // convert node_type to URL node type
+                $url_type = similarity_search_convert_node_type_to_uri_type($node->type);
+                storyscope_content_remove_child_content_no_redirect($parent->type, $parent, $url_type, $node);
+                /// @todo: this function is missing in storyscope
+                //storyscope_content_remove_path_aliases($node, $parent);
+            }
+        }
+    }
+    else {
+        drupal_set_message(t('SEC Server is not responding. Item can\'t be removed from context.'), 'error');
+    }
+}
+
+/**
+ * Function to display similarity form (list of potentionally related objects)
+ */
+function similarity_search_list($example, $parentNID = NULL) {
+	$output = '';
+    
+    /// @todo get type from URL addres and convert it to node type - only for example searching
+    // $type = convert_function(arg(4));
+    
+    /// @todo FIX calling this function, or change the function calling
+    /// how else to get parentNID
+    $form = drupal_get_form("similarity_search_form", $example, $parentNID);
+    $output .= drupal_render($form);
+
+	return $output;
+}
+
+
+/**
+ * AJAX processing (adding and ignoring items)
+ * 
+ * @global type $user
+ * @param type $action
+ * @param type $externalID
+ */
+function similarity_search_proccess_item($action, $parent, $example, $type, $externalID) {
+	global $user;
+    
+
+	// we need array
+	$externalID = (array)$externalID;
+
+    // prepare ignore array, this is not used when we saving new nodes
+    // object, parent and group must be empty (they are filled in each ignore type - i.e. ignore parent)
+    $ignore = Array(
+        "ignore" => Array("id" => $externalID[0]),
+        "object" => "",
+        "parent" => "",
+        "user" => "",
+        "type" => $type,
+        "group" => Array()
+    );
+    
+	switch($action) {
+		// we should add item into storyscope
+		case 'add': {
+            // save data as form_state data (for function similarity_search_prepare_get())
+            $add = Array(
+                "search_type" => $type,
+                "objects" => $externalID
+            );        
+
+            similarity_search_save_items($add, $parent);
+		} break;
+
+        // we should ignore item from SEC Store API for our object
+        case 'ignore_object': {
+            $ignore["object"] = $example;
+            similarity_search_sec_store_ignore($ignore);    
+        } break;
+
+        // we should ignore item from SEC Store API for our storycope
+        case 'ignore_storyscope': {
+            similarity_search_sec_store_ignore($ignore);    
+        } break;
+    
+        // we should ignore item from SEC Store API for our parent object
+        case 'ignore_parent': {
+            $parent_node = node_load($parent);
+            $parent_wrapper = entity_metadata_wrapper('node', $parent_node);
+
+            $sec_id = "";
+            // try to read ca_sec_id field
+            if (isset($parent_wrapper->field_ca_sec_id)) {
+                $field_sec_id = $parent_wrapper->field_ca_sec_id->value();
+                if (!empty($field_sec_id)) {
+                    $sec_id = $field_sec_id;
+                }
+            }
+            
+            $ignore["parent"] = $sec_id;
+            similarity_search_sec_store_ignore($ignore);     
+        } break;
+        
+        // we should ignore item from SEC Store API for our user in storycope
+        case 'ignore_user': {
+            $ignore["user"] = $user->name;
+            similarity_search_sec_store_ignore($ignore);           
+        } break;   
+    
+        // we should ignore item from SEC Store API for our user group in storycope
+        case 'ignore_group': {
+            $ignore["group"] = $user->roles;
+            similarity_search_sec_store_ignore($ignore);           
+        } break;
+    
+        case 'remove': {
+            $remove = Array(
+                "remove" => $externalID,
+                "parent" => $parent,
+                "remove_from_system" => similarity_search_item_is_last_in_storyscope($externalID[0]),
+                "hard" => "0"
+            );
+            similarity_search_sec_store_remove($remove);
+        } break;
+	}
+    
+    // no AJAX processing and redirect destination
+    if (isset($_GET["destination"]) && !empty($_GET["destination"])) {
+        drupal_goto($_GET["destination"]);
+    }
+    
+    // AJAX processing
+    else {
+//        $commands = Array();
+//        return array(
+//            '#type' => 'ajax',
+//            '#commands' => $commands,
+//        );
+    }
+}
+
+function similarity_search_export_data_button($form, $form_state) {
+    return similarity_search_export_data();
+}
+
+/**
+ * SEC Store API at start need all data which are stored in StoryScope.
+ * So when we officialy start using StoryScope and SEC Store API. This function
+ * must be used to synchronize data between StoryScope and SEC Store API.
+ *
+ * Node types which are exported need value called sec_id which have stored
+ * SEC Store API identificator.
+ * 
+ * @param type $types node types which should be exorted (sent to SEC Store API)
+ */
+function similarity_search_export_data($types = NULL) {
+	$succ = 0;
+	$errID = Array();
+	$output = "";
+    
+	// convert types variable to array
+	if (!is_array($types)) {
+		$types = (array)$types;
+	}
+
+	// load default types array
+	if (empty($types)) {
+		$types = Array('object', 'reference', 'event', 'object_story', 'dossier');
+	}
+    
+    foreach ($types AS $type) {
+        // find all nodes with certain types, which should be sent to SEC Store API
+        $result = db_select('node', 'n')
+            ->fields('n')
+            ->condition('type', $type)
+            ->execute();
+
+        // load all nodes and check if they have filled sec_id
+        while(($obj = $result->fetchObject()) != NULL) {
+            $node = node_load($obj->nid);
+            $node_wrapper = entity_metadata_wrapper('node', $node);
+
+            $sec_id = "";
+            // try to read ca_sec_id field
+            if (isset($node_wrapper->field_ca_sec_id)) {
+                $field_sec_id = $node_wrapper->field_ca_sec_id->value();
+                if (!empty($field_sec_id)) {
+                    $sec_id = $field_sec_id;
+                }
+            }
+
+            // object is not saved in SEC Store API (sec_id is not set)
+            // send object to SEC Store API and save id from SEC Store API
+            if (empty($sec_id)) {
+                if (($message = similarity_search_sec_store_process($node)) === false) {
+                    $errID[] = $node->nid;
+                    break;
+                }
+            }
+
+            $field = field_get_items('node', $node, 'field_media');
+            $image_path = "";
+            // image path for SEC Store API
+            if ($field) {
+                $file = file_load($field[0]['fid']);
+                $filepath = file_create_url($file->uri);
+                if (!empty($filepath)) {
+                    $image_path = $filepath;
+                }
+            }
+        }
+    }
+    
+	drupal_set_message(t("Export is done. !succ nodes was successfuly exported.", Array("!succ" => $succ)));
+
+	if (!empty($errID)) {
+		drupal_set_message(t("Due to error, these nodes wasn't send:").implode(", ", $errID), "error");
+	}
+
+	return $output;
+}
+
+function similarity_search_cron_queue_info() {
+	$queues['export-all'] = array (
+		'worker callback' => 'similarity_search_export_all_data_item',
+		'time' => 21600 // 6 hours
+	);
+	
+	return $queues;
+}
+
+function similarity_search_export_all_data_item($message) {
+	$settings = array(
+		'headers' => array("Content-Type" => "application/json;charset=\"utf-8\"", "Client" => "SimilarityRecommenderUI"), 
+		'method' => "POST", 
+		'data' => $message,
+		'postpone' => TRUE,
+		'callback' => 'similarity_search_export_all_data_check'
+	);
+
+
+	$requests[] = background_process_http_request(variable_get("sec_store_api"), $settings);
+
+	$options = array(
+		'timeout' => variable_get("sec_store_api_timeout", 10) * 2,
+		'interval' => 2,
+		'limit' => 1,
+	);
+
+	background_process_http_request_process($requests, $options);
+}
+
+
+function similarity_search_export_all_data_button($form, $form_state) {
+    return similarity_search_export_all_data();
+}
+
+function similarity_search_export_all_data($types = NULL) {
+    $succ = 0;
+    $output = "";
+    
+	// convert types variable to array
+	if (!is_array($types) && !empty($types)) {
+		$types = (array)$types;
+	}
+
+	// load default types array
+	if (empty($types)) {
+		$types = Array('object', 'reference', 'event', 'object_story', 'dossier');
+	}
+	
+	// find all nodes with certain types, which should be sent to SEC Store API
+	$result = db_select('node', 'n')
+		->fields('n')
+		->condition('type', $types, "IN")
+		->execute();
+
+	$queue = DrupalQueue::get("export-all");
+    
+	// load all nodes and check if they have filled sec_id
+	while(($obj = $result->fetchObject()) != NULL) {
+		$node = node_load($obj->nid);
+		
+		// prepare message for SEC Store API
+		$message = similarity_search_prepare_request($node, "process");
+		// convert PHP array to JSON array
+		$message = json_encode($message);
+		
+		$queue->createItem($message);
+        $succ++;
+	}
+
+	drupal_set_message(t("!succ nodes was successfuly prepared for cron export.", Array("!succ" => $succ)));
+
+	return $output;
+}
+
+function similarity_search_export_all_data_check($data) {
+	if ($data->code != 200) {
+		$settings = array(
+			'headers' => array("Content-Type" => "application/json;charset=\"utf-8\"", "Client" => "SimilarityRecommenderUI"), 
+			'method' => "POST", 
+			'data' => $data->options["data"],
+			'postpone' => TRUE
+		);
+
+		$request = Array();
+		$request[] = background_process_http_request(variable_get("sec_store_api"), $settings);
+		
+		$options = array(
+			'timeout' => variable_get("sec_store_api_timeout", 10) * 4,
+			'interval' => 120,
+			'limit' => 1,
+		);
+
+		background_process_http_request_process($request, $options);
+	}
+}
+
+/**
+ * Function to compare external source extension.
+ * Maybe some function to get mime type from external file would be better.
+ *
+ * @param string $ext extension
+ * @return int 0 - is not image extension, 1 - is image extension
+ */
+function similarity_search_is_image($ext) {
+	switch (strtolower($ext)) {
+		case "jpg":
+		case "jpeg":
+		case "png":
+		case "gif": {
+			return 1;
+		}
+
+		default: return 0;
+	};
+}
+
+
+/**
+ * Prepare request for SEC Store API.
+ * 
+ * @param array|\stdClass $data array with data or node 
+ * @param string $type type of request
+ * @return array PHP array with data
+ */
+function similarity_search_prepare_request($data, $type) {
+    switch(strtolower($type)) {
+        case 'process': 
+           $message = similarity_search_prepare_process($data);
+        break;
+    
+        case 'query': 
+           $message = similarity_search_prepare_query($data);
+        break;
+    
+        case 'get': 
+           $message = similarity_search_prepare_get($data);
+        break;
+    
+        case 'form': 
+           $message = similarity_search_prepare_get_fields($data);
+        break;
+    
+        case 'autocomplete': 
+           $message = similarity_search_prepare_auto_complete($data);
+        break;
+    
+        case 'ignore':
+           $message = similarity_search_prepare_ignore($data);
+        break;      
+    
+        case 'remove':
+           $message = similarity_search_prepare_remove($data);
+        break;     
+    
+        default:
+            $message = Array();
+    }
+    
+    return $message;
+}
+
+/**
+ * User our submit function (for custom page redirect)
+ */
+function similarity_search_form_search_box_alter(&$form, &$form_state, $form_id) {
+    $form['#submit'][0] = 'similarity_search_search_box_sec_form_submit';
+}
+
+function similarity_search_search_box_sec_form_submit($form, &$form_state) {
+/**
+ * Process a block search form submission.
+ */
+  // The search form relies on control of the redirect destination for its
+  // functionality, so we override any static destination set in the request,
+  // for example by drupal_access_denied() or drupal_not_found()
+  // (see http://drupal.org/node/292565).
+  if (isset($_GET['destination'])) {
+    unset($_GET['destination']);
+  }
+
+  $form_id = $form['form_id']['#value'];
+  $info = search_get_default_module_info();
+  if ($info) {
+    $form_state['redirect'] = similarity_create_search_url();
+    /// @todo find better solution to get text from this form to another form
+    // we can use string in address, but when we will change text in similarity form, the address will not be changed
+    if (isset($form_state['values'][$form_id]) && !empty($form_state['values'][$form_id])) {
+      $_SESSION['similarity_search_text'] = trim($form_state['values'][$form_id]);
+    }
+    //$form_state['redirect'] = 'search/' . $info['path'] . '/' . trim($form_state['values'][$form_id]);
+  }
+  else {
+    form_set_error(NULL, t('Search is currently disabled.'), 'error');
+  }
+}
+
+/**
+ * Select which node types should not be sent to SEC Store API.
+ * 
+ * @param \stdClass $node loaded node
+ * @return boolean true if this node type should not by sent
+ */
+function similarity_search_sec_store_data_exclude($node) {
+    // Disable process request
+    // useful on drupal rebuild function for test users which dont use
+    // similarity search
+    /// @todo: delete when testing of Storyscope is done
+    if (DISABLE_PROCESS) return true;
+    
+    switch($node->type) {
+        case "dossier":
+        case "object_story":
+        case "object":
+        case "reference":
+        case "event":
+            return false;
+            
+        // don't send other types to SEC Store API
+        default: return true;
+    }
+}
+
+/**
+ * Process protocol for SEC Store API
+ * On node update we sent information about node to SEC Store API
+ * @param type $node
+ */
+function similarity_search_node_update($node) {
+    similarity_search_node_insert($node);
+}
+
+/**
+ * Process protocol for SEC Store API
+ * On node update or we sent information about node to SEC Store API
+ * 
+ * @param \stdClass $node loaded node object
+ * @return type
+ */
+function similarity_search_node_insert($node) {
+    // check if this node type should not be sent to SEC Store API.
+    if (similarity_search_sec_store_data_exclude($node)) {
+        return;
+    }
+    
+    // SPARQL module has error. There is not included this file.
+    // It is failing on hooks node_insert and node_update.
+    // This function must be called before sparql_endpoint_node_insert
+    // and sparql_endpoint_node_update functions!
+    // When the error will be fixed, this line can be deleted.
+    include_once(drupal_get_path("module", "rdfx").'/vendor/arc/ARC2.php');
+    
+    $message = similarity_search_sec_store_process($node);
+}
+
+function similarity_search_background_processing($message) {
+	// nothing to process
+	if (!isset($message->data)) {
+		return;
+	}
+	
+    $message = $message->data;
+    
+    // fix for unicode chars from europeana
+    $message = str_replace("\\\\u", "\\u", $message);
+    
+    // fix for end of line
+    $message = str_replace("\\\\n", "\\n", $message);
+    
+    // convert JSON array to PHP array
+    $message = json_decode($message, true);
+    
+    // no response from SEC Store API
+    if (!isset($message["data"]) || empty($message["data"])) {
+//        drupal_set_message(t('No response from SEC Store API. CA/SEC ID can\'t be saved.'), 'error');
+        return;
+    }
+    
+    $data_array = $message["data"];
+    foreach ($data_array AS $data) {
+        if (isset($data["eid"]) && !empty($data["eid"])) {
+            $node = entity_load('node', array($data["eid"]));
+            
+            // if we cant't load this node then we will continue
+            if (!$node) {
+                continue;
+            }
+            
+            // if the CA/SEC ID is empty or didn't match we should update it
+            if (!isset($node->field_ca_sec_id[$node->language][0]['value'])
+                || (isset($node->field_ca_sec_id[$node->language][0]['value'])
+                    && ($node->field_ca_sec_id[$node->language][0]['value'] != $data["sid"]))) {
+                $node->field_ca_sec_id[$node->language][0]['value'] = $data["sid"];
+                field_attach_presave('node', $node);
+                field_attach_update('node', $node);
+            }
+
+            // save SEC Store API identificator to child items
+            if (isset($data["refers_to"]) && !empty($data["refers_to"])) {
+                foreach($data["refers_to"] AS $child) {
+                    // load childNode for node type value (used in db_update())
+                    $childNode = entity_load('node', array($child["eid"]));
+                    
+                    // if we cant't load this node then we will continue
+                    if (!$childNode) {
+                        continue;
+                    }
+                    
+                    // if the CA/SEC ID is empty or didn't match we should update it
+                    if (!isset($childNode->field_ca_sec_id[$childNode->language][0]['value'])
+                        || (isset($childNode->field_ca_sec_id[$childNode->language][0]['value'])
+                            && ($childNode->field_ca_sec_id[$childNode->language][0]['value'] != $child["sid"]))) {
+                        $childNode->field_ca_sec_id[$childNode->language][0]['value'] = $child["sid"];
+                        field_attach_presave('node', $childNode);
+                        field_attach_update('node', $childNode);
+                    }
+                }
+            }
+        }
+    }
+}
+
+/**
+ * Function returns an array of possible options for search_type selectlist with respect to given context_type.
+ */
+function similarity_search_form_get_search_type_list($context_type)
+{
+  if (!empty($context_type)) {
+    if($context_type == 'dossier')
+      return array('object_story' => t('Object story'), 'event' => t('Event'), 'reference' => t('Reference'));
+    elseif($context_type == 'object_story')
+      return array('object' => t('Object'), 'event' => t('Event'), 'reference' => t('Reference'));
+    else
+      return array('object' => t('Object'), 'object_story' => t('Object story'), 'event' => t('Event'), 'reference' => t('Reference'));
+  }
+  
+  // we don't have parent - no context  
+  else {
+      return array('object' => t('Object'), 'event' => t('Event'), 'reference' => t('Reference'));
+  }
+}
+
+/**
+ * AJAX callback for updating search_type selectlist when an option is selected in context selectlist.
+ */
+function similarity_search_form_context_change($form, &$form_state)
+{
+  $form['submit']['#hidden'] = false;
+  //$form_state['rebuild'] = false;
+  $context_nid = $form_state['input']['context'];
+  $context_type = $form['context_list']['#value'][$context_nid]['type'];
+  
+  $form_state['values']['context'] = $context_nid;
+  $form_state['values']['search_type'] = $context_type;
+  
+  $form_state['storage']['values']['context'] = $context_nid;
+  $form_state['storage']['values']['search_type'] = $context_type;
+  
+  ///update options
+  $form['search_type']['#options'] = similarity_search_form_get_search_type_list($context_type);
+  ///set selected option to the first option
+  $form['search_type']['#value'] = key($form['search_type']['#options']);
+  ///need to save the form into cache, otherwise drupal may warn about illegal option being selected
+  form_set_cache($form['#build_id'], $form, $form_state);
+  
+  //$_SESSION["sec_form_redirect_values"] = $form_state['values'];
+  
+  return $form;
+}
+
+/**
+ * Creates a structured array from a query text. The function is inverse to similarity_search_form_query_build().
+ */
+function similarity_search_form_query_parse($query)
+{
+  $statements = explode(';', $query);
+  $parsed_query = array();
+  $parsed_query['terms'] = Array();
+  foreach($statements as $st)
+  {
+    $keyword_terms = explode(':', $st);
+    $trimmed_keyword = trim($keyword_terms[0]);
+    if(isset($keyword_terms[1]))
+    {
+      $term_array = explode(' AND ', $keyword_terms[1]);
+      if(isset($term_array[1]))//operator is AND
+      {
+        $parsed_query['attributes'][$trimmed_keyword]['operator'] = 'AND';
+        foreach($term_array as $term)
+          $parsed_query['attributes'][$trimmed_keyword]['terms'][] = trim($term);
+      }
+      else //operator is OR
+      {
+        $term_array = explode(' OR ', $keyword_terms[1]);
+        $parsed_query['attributes'][$trimmed_keyword]['operator'] = 'OR';
+        foreach($term_array as $term)
+          $parsed_query['attributes'][$trimmed_keyword]['terms'][] = trim($term);
+      }
+    }
+    else
+      $parsed_query['terms'][] = $trimmed_keyword;
+  }
+  return $parsed_query;
+}
+
+/**
+ * Creates a query text from a structured array. The function is inverse to similarity_search_form_query_parse().
+ */
+function similarity_search_form_query_build($parsed_query)
+{
+  $query = implode('; ', $parsed_query['terms']);
+  foreach($parsed_query['attributes'] as $keyword => $operator_terms)
+  {
+    if(count($operator_terms['terms']) > 0)
+    {
+      $query .= (empty($query) ? '' : '; ') . "$keyword: ";
+      $query .= implode(' '.$operator_terms['operator'].' ', $operator_terms['terms']);
+    }
+  }
+  return $query;
+}
+
+/**
+ * Implements AJAX callback for modifying query input when 'Add to query' filter button is clicked.
+ */
+function similarity_search_form_query_text_append($form, &$form_state)
+{
+  $form['submit']['#hidden'] = false;
+  //$form_state['rebuild'] = false;
+  $keyword_index = $form['field_select']['#value'];
+  $keyword = $form['field_select']['#options_keyword'][$keyword_index];
+  $storyscope_type = $form['fields'][$keyword]['#storyscope_type'];
+  $operator = $form['fields'][$keyword]['#operator'];
+  
+  ///make term value depending on its type
+  switch($storyscope_type)
+  {
+    case 'input':
+    case 'autocomplete':
+      $term = $form_state['input'][$keyword.'-field'];
+      //unset the input value so the user does not have to do it manually
+      unset($form['fields'][$keyword]['field']['#value']);
+      break;
+      
+    case 'combo':
+      $term_index = $form_state['input'][$keyword.'-selectlist'];
+      $term = $form['fields'][$keyword]['selectlist']['#options'][$term_index];
+      break;
+      
+    case 'checkbox':
+      $term_index = $form_state['input'][$keyword.'-checkbox'];
+      if(empty($term_index))
+        $term_index = 0;
+      
+      if($form['fields'][$keyword]['checkbox']['#actual'] == $form['fields'][$keyword]['checkbox']['#values'][0])
+        $term = $form['fields'][$keyword]['checkbox']['#values'][$term_index];
+      else
+        $term = $form['fields'][$keyword]['checkbox']['#values'][1-$term_index];
+      break;
+      
+    case 'century_range':
+      $field_low = $form_state['input'][$keyword.'-field-low'];
+      $field_high = $form_state['input'][$keyword.'-field-high'];
+      $term = $field_low.' - '.$field_high;
+      //unset some input values so the user does not have to do it manually
+      unset($form['fields'][$keyword]['field-low']['#value']);
+      unset($form['fields'][$keyword]['field-high']['#value']);
+      break;
+      
+    case 'monetary_range':
+      $field_low = $form_state['input'][$keyword.'-field-low'];
+      $field_high = $form_state['input'][$keyword.'-field-high'];
+      $selectlist_currency_index = $form_state['input'][$keyword.'-selectlist-currency'];
+      $selectlist_currency = $form['fields'][$keyword]['selectlist-currency']['#options'][$selectlist_currency_index];
+      $term = $selectlist_currency.$field_low.' - '.$field_high;
+      //unset some input values so the user does not have to do it manually
+      unset($form['fields'][$keyword]['field-low']['#value']);
+      unset($form['fields'][$keyword]['field-high']['#value']);
+      break;
+      
+    case 'dimension_range':
+      $selectlist_unit_index = $form_state['input'][$keyword.'-selectlist-unit'];
+      $selectlist_unit = $form['fields'][$keyword]['selectlist-unit']['#options'][$selectlist_unit_index];
+      
+      foreach($form['fields'][$keyword]['#dimensions'] as $dim_keyword => $dim)
+      {
+        $field_low = $form_state['input'][$keyword.'-field-'.$dim_keyword.'-low'];
+        $field_high = $form_state['input'][$keyword.'-field-'.$dim_keyword.'-high'];
+        $term[$dim] = $field_low.' - '.$field_high.' '.$selectlist_unit;
+        unset($form['fields'][$keyword]['field-'.$dim_keyword.'-low']['#value']);
+        unset($form['fields'][$keyword]['field-'.$dim_keyword.'-high']['#value']);
+      }
+      break;
+      
+    default:
+      $term = trim($term);
+  }
+  
+  //If user input (term) is not empty then add it into query
+  if(!empty($term) && $term != "---")
+  {
+    $parsed_query = similarity_search_form_query_parse($form['query_text']['#value']);
+    //If operator is applicable then add the term into an array whose items will be concatenated later using operator
+    if($operator != 'NA')
+    {
+      if(is_array($term))
+      {
+        foreach($term as $KEYWORD => $TERM)
+        {
+          if(!in_array($TERM, $parsed_query['attributes'][$KEYWORD]['terms'])) {
+              if ($storyscope_type == "combo")  {
+                  $parsed_query['attributes'][$KEYWORD]['terms'][] = strtr($TERM, ' ', '_');
+              }
+              else {
+                  $parsed_query['attributes'][$KEYWORD]['terms'][] = $TERM;
+              }
+          }
+          $parsed_query['attributes'][$KEYWORD]['operator'] = $operator;
+        }
+      }
+      else
+      {
+        if(!in_array($term, $parsed_query['attributes'][$keyword]['terms'])) {
+            if ($storyscope_type == "combo") {
+                $parsed_query['attributes'][$keyword]['terms'][] = strtr($term, ' ', '_');
+            }
+            else {
+                $parsed_query['attributes'][$keyword]['terms'][] = $term;
+            }
+        }
+        $parsed_query['attributes'][$keyword]['operator'] = $operator;
+      }
+    }
+    else //If operator is not applicable then replace the only item in this array (operator will be never used)
+    {
+      if(is_array($term))
+      {
+        foreach($term as $KEYWORD => $TERM) {
+            if ($storyscope_type == "combo") {
+                $parsed_query['attributes'][$keyword]['terms'][] = strtr($TERM, ' ', '_');
+            }
+            else {
+                $parsed_query['attributes'][$keyword]['terms'][] = $TERM;
+            }
+        }
+      }
+      else {
+        if ($storyscope_type == "combo") {
+            $parsed_query['attributes'][$keyword]['terms'][] = strtr($term, ' ', '_');
+        }
+        else {
+            $parsed_query['attributes'][$keyword]['terms'][] = $term;
+        }
+      }
+    }
+    $form['query_text']['#value'] = similarity_search_form_query_build($parsed_query);
+  }
+
+  return $form;
+}
+
+/**
+ * Facets form callback (AJAX). This function makes synchronization of query input and facets form when facets form is somehow changed.
+ */
+function similarity_search_form_facets_callback($form, &$form_state)
+{
+  $form['submit']['#hidden'] = false;
+  return $form;
+}
+
+/**
+ * Implements hook_theme().
+ */
+function similarity_search_theme()
+{
+  return array(
+    'similarity_search_form' => array(
+      'render element' => 'form',
+      'template' => 'similarity_search_form',
+    ),
+    'similarity_search_item_detail' => array(
+      'template' => 'similarity_search_item_detail',
+      'variables' => array('object' => NULL, 'parent' => NULL),
+    ),
+  );
+}
+
+/**
+ * Implements template_preprocess_<form_id>()
+ */
+function template_preprocess_similarity_search_form(&$variables)
+{
+  ///provide node to the template
+  $node = node_load($variables['form']['node']['#value']);
+  $search_method = $variables['form']['search_method']['#value'];
+  if($search_method == 'by_example')
+  {
+    $node_view = node_view($node, 'teaser');
+    $variables['similarity_search_form']['node'] = drupal_render($node_view);
+  }
+  
+  $variables['similarity_search_form']['drupal_messages'] = theme('status_messages');
+  
+  ///Provides all hidden fields to the template
+  $hidden = "";
+  foreach (element_children($variables['form']) as $key)
+  {
+    $type = isset($variables['form'][$key]['#type']) ? $variables['form'][$key]['#type'] : '';
+    if ($type == 'hidden' || $type == 'token')
+      $hidden .= drupal_render($variables['form'][$key]);
+  }
+  $variables['similarity_search_form']['hidden'] = $hidden;
+
+  ///Provides useful variables to the template
+  foreach(array('query_text', 'facet_text', 'fake_submit', 'submit', 'field_add2query', 'search_type', 'context', 'field_select', 'drop_example', 'use_text_similarity') as $element_name)
+  {
+    $element_content = drupal_render($variables['form'][$element_name]);
+    $element_content = preg_replace("(<(/?)div([^>]*)>)", "<\\1span\\2>", $element_content);
+    $variables['similarity_search_form'][$element_name] = $element_content;
+  }
+
+  $variables['similarity_search_form']['drupal_pager'] = $variables['form']['drupal_pager']['#value'];
+  $variables['similarity_search_form']['build_query_fieldset'] = drupal_render($variables['form']['build_query_fieldset']);
+  
+  ///provide facets to the template
+  $variables['similarity_search_form']['facets'] = drupal_render($variables['form']['facets']);
+
+  if (isset($variables['form']['form_results'])) {
+      $variables['similarity_search_form']['results'] = $variables['form']['form_results']['#value'];
+  }
+  else {
+      $variables['similarity_search_form']['results'] = Array();
+  }
+  
+  $variables['similarity_search_form']['only_with_images'] = drupal_render($variables['form']['only_with_images']);
+  $variables['similarity_search_form']['in_storyscope'] = drupal_render($variables['form']['in_storyscope']);
+  $variables['similarity_search_form']['total_estimate'] = $variables['form']['total_estimate']['#value'];
+  
+  if (isset($variables['form']['context']['#value']) && !empty($variables['form']['context']['#value'])) {
+      $variables['similarity_search_form']['add_all_button'] = drupal_render($variables['form']['add_all_button']);
+  }
+  $variables['similarity_search_form']['ignore_all_button'] = drupal_render($variables['form']['ignore_all_button']);
+}
+/**
+ * Preprocessing of informations about objects, events and references. These information
+ * are used in template where are displayed.
+ * (-- If you want to change order of information in template, you have to change order of saving
+ * information into final array $variables["object"]["info"]. --)
+ * Now it is processed by foreach, you can't change the order of information.
+ * 
+ * @param array $variables template variables
+ */
+function template_preprocess_similarity_search_item_detail(&$variables) {
+/*  
+ * Templates for this processing  
+    // preprocess XXX field data from SEC Store API
+    if (isset($variables["object"]["type_specific_content"]["XXX"]) && !empty($variables["object"]["type_specific_content"]["XXX"])) {
+        $variables["object"]["info"]["XXX"]["title"] = t("YYY");
+        $variables["object"]["info"]["XXX"]["items"] = Array();
+
+        foreach ($variables["object"]["type_specific_content"]["XXX"] AS $XXX) {
+            $variables["object"]["info"]["XXX"]["items"][] = $XXX;
+        }
+    }
+
+    // preprocess XXX field data from SEC Store API
+    if (isset($variables["object"]["type_specific_content"]["XXX"]) && !empty($variables["object"]["type_specific_content"]["XXX"])) {
+        $variables["object"]["info"]["XXX"]["title"] = t("YYY");
+        $variables["object"]["info"]["XXX"]["items"] = Array($variables["object"]["type_specific_content"]["XXX"]);
+    }
+*/
+    
+    $variables["object"]["info"] = Array();
+    
+    if (isset($variables["object"]["collection"])) {
+        $variables["object"]["info"]["collection"]["title"] = t("Data source");
+        $variables["object"]["info"]["collection"]["items"] = Array($variables["object"]["collection"]);
+    }
+    
+    if (isset($variables["object"]["uri"]) && !empty($variables["object"]["uri"])) {
+        $variables["object"]["info"]["uri"]["title"] = t("Link to source");
+        $variables["object"]["info"]["uri"]["items"] = Array(l($variables["object"]["uri"], $variables["object"]["uri"]));
+    }
+    
+    foreach ($variables["object"]["type_specific_content"] AS $ckey => $content) {
+        // ignore empty content
+        if (empty($content)) {
+            continue;
+        }
+        
+        switch ($ckey) {
+
+            // item doesn't have title, set title to "Untitled"
+            case "title": {
+                if (empty($variables["object"]["type_specific_content"]["title"])) {
+                    $variables["object"]["type_specific_content"]["title"] = "Untitled";
+                }
+            } break;
+
+            // preprocess visual_representation field data from SEC Store API
+            case "visual_representation": {
+                $image = $variables["object"]["type_specific_content"]["visual_representation"];
+                if (strpos($image, "://") === false) {
+                    $image = "http://".$image;
+                }
+                $variables["object"]["type_specific_content"]["visual_representation"] = $image;
+                if (isset($variables["object"]["type_specific_content"]["title"])) {
+                    $alt = $variables["object"]["type_specific_content"]["title"];
+                }
+                else {
+                    $alt = "image";
+                }
+                $variables["object"]["image"] = '<img src="'.$image.'" alt="'.$alt.'" />';
+            } break;
+
+            // preprocess videos field data from SEC Store API
+            case "videos": {
+                $variables["object"]["info"]["videos"]["title"] = t("Videos");
+                $variables["object"]["info"]["videos"]["items"] = Array();
+
+                foreach ($variables["object"]["type_specific_content"]["videos"] AS $videos) {
+                    if (!empty($videos)) {
+                        // add http at start of the URL if there is no protocol type found
+                        if (strpos($videos, "://") === false) {
+                            $videos = "http://".$videos;
+                        }
+                        $variables["object"]["info"]["videos"]["items"][] = l($videos, $videos);
+                    }
+                }
+            } break;
+
+            // preprocess creator field data from SEC Store API
+            case "creator": {
+                $variables["object"]["info"]["creator"]["title"] = t("Creators");
+                $variables["object"]["info"]["creator"]["items"] = Array();
+
+                foreach ($variables["object"]["type_specific_content"]["creator"] AS $creator) {
+                    $dates = "";
+                    $author = "";
+                    // add birth date
+                    if (isset($creator["birth"]) && !empty($creator["birth"])) {
+                        $date = similarity_search_convert_date($creator["birth"], variable_get('sec_store_detail_date_format', 'd.m.Y'));
+                        if (!empty($date)) {
+                            $dates .= $date;
+                        }
+                    }
+
+                    // add death date
+                    if (isset($creator["death"]) && !empty($creator["death"])) {                
+                        $date = similarity_search_convert_date($creator["death"], variable_get('sec_store_detail_date_format', 'd.m.Y'));
+                        if (!empty($date)) {
+                            if (!empty($dates)) {
+                                $dates .= " - ";
+                            }
+                            $dates .= $date;
+                        }
+                    }
+
+                    // add name
+                    if (isset($creator["name"]) && !empty($creator["name"])) {
+                        $author .= $creator["name"];
+                    }
+
+                    // add dates after the name
+                    if (!empty($dates)) {
+                        $author .= " (".$dates.")";
+                    }
+
+                    // if we have name or dates or something to print, then it print
+                    if (!empty($author)) {
+                        $variables["object"]["info"]["creator"]["items"][] = $author;
+                    }
+                }
+            } break;
+
+            // preprocess creation_timestamp field data from SEC Store API
+            case "creation_timestamp": {
+                $date = similarity_search_convert_date($variables["object"]["type_specific_content"]["creation_timestamp"], variable_get('sec_store_detail_date_format', 'd.m.Y'));
+                if (!empty($date)) {
+                    $variables["object"]["info"]["creation"]["title"] = t("Date of creation");
+                    $variables["object"]["info"]["creation"]["items"] = Array($date);
+                }
+            } break;
+
+            // preprocess classification field data from SEC Store API
+            case "classification": {
+                $variables["object"]["info"]["classification"]["title"] = t("Classification");
+                $variables["object"]["info"]["classification"]["items"] = Array($variables["object"]["type_specific_content"]["classification"]);
+            } break;
+
+            // preprocess materials field data from SEC Store API
+            case "materials": {
+                $variables["object"]["info"]["materials"]["title"] = t("Materials");
+                $variables["object"]["info"]["materials"]["items"] = Array();
+
+                foreach ($variables["object"]["type_specific_content"]["materials"] AS $materials) {
+                    $variables["object"]["info"]["materials"]["items"][] = $materials;
+                }
+            } break;
+
+            // preprocess dimensions field data from SEC Store API
+            case "dimensions": {
+                $variables["object"]["info"]["dimensions"]["title"] = t("Dimensions");
+                $variables["object"]["info"]["dimensions"]["items"] = Array();
+
+                foreach ($variables["object"]["type_specific_content"]["dimensions"] AS $dimensions) {
+                    // check if dimension has any value
+                    if (isset($dimensions["value"]) && !empty($dimensions["value"])) {
+                        $text = "";
+                        // check if dimension has any label
+                        if (isset($dimensions["label"])) {
+                            $text .= $dimensions["label"].": ";
+                        }
+                        // add dimension value
+                        $text .= $dimensions["value"];
+
+                        // check if dimension has any unit
+                        if (isset($dimensions["unit"])) {
+                            $text .= " ".$dimensions["unit"];
+                        }
+
+                        $variables["object"]["info"]["dimensions"]["items"][] = $text;
+                    }
+                }
+            } break;
+
+            // preprocess collection field data from SEC Store API
+            case "collection": {
+                $variables["object"]["info"]["collection"]["title"] = t("Data source");
+                $variables["object"]["info"]["collection"]["items"] = Array($variables["object"]["type_specific_content"]["collection"]);
+            } break;
+
+            // preprocess credit_line field data from SEC Store API
+            case "credit_line": {
+                $variables["object"]["info"]["credit_line"]["title"] = t("Credit line");
+                $variables["object"]["info"]["credit_line"]["items"] = Array($variables["object"]["type_specific_content"]["credit_line"]);
+            } break;
+
+            // preprocess identifier field data from SEC Store API
+            case "identifier": {
+                $variables["object"]["info"]["identifier"]["title"] = t("Identifier");
+                $variables["object"]["info"]["identifier"]["items"] = Array($variables["object"]["type_specific_content"]["identifier"]);
+            } break;
+
+            // preprocess activity field data from SEC Store API
+            case "activity": {
+                $variables["object"]["info"]["activity"]["title"] = t("Activities");
+                $variables["object"]["info"]["activity"]["items"] = Array();
+
+                foreach ($variables["object"]["type_specific_content"]["activity"] AS $activity) {
+                    $variables["object"]["info"]["activity"]["items"][] = $activity;
+                }
+            } break;
+
+            // preprocess start_timestamp field data from SEC Store API
+            case "start_timestamp": {
+                $date = similarity_search_convert_date($variables["object"]["type_specific_content"]["start_timestamp"], variable_get('sec_store_detail_date_format', 'd.m.Y'));
+                if (!empty($date)) {
+                    $variables["object"]["info"]["start_time"]["title"] = t("Start time");
+                    $variables["object"]["info"]["start_time"]["items"] = Array($date);
+                }
+            } break;
+
+            // preprocess end_timestamp field data from SEC Store API
+            case "end_timestamp": {
+                $date = similarity_search_convert_date($variables["object"]["type_specific_content"]["end_timestamp"], variable_get('sec_store_detail_date_format', 'd.m.Y'));
+                if (!empty($date)) {
+                    $variables["object"]["info"]["end_time"]["title"] = t("End time");
+                    $variables["object"]["info"]["end_time"]["items"] = Array($date);
+                }
+            } break;
+
+            // preprocess location field data from SEC Store API
+            case "location": {
+                $variables["object"]["info"]["location"]["title"] = t("Locations");
+                $variables["object"]["info"]["location"]["items"] = Array();
+
+                if (!is_array($variables["object"]["type_specific_content"]["location"])) {
+                    $variables["object"]["type_specific_content"]["location"] = Array($variables["object"]["type_specific_content"]["location"]);
+                }
+                foreach ($variables["object"]["type_specific_content"]["location"] AS $location) {
+                    $variables["object"]["info"]["location"]["items"][] = $location;
+                }
+            } break;
+
+            // preprocess agent field data from SEC Store API
+            case "agent": {
+                $variables["object"]["info"]["agent"]["title"] = t("Agents");
+                $variables["object"]["info"]["agent"]["items"] = Array();
+
+                foreach ($variables["object"]["type_specific_content"]["agent"] AS $agent) {
+                    $variables["object"]["info"]["agent"]["items"][] = $agent;
+                }
+            } break;
+
+            // preprocess genre field data from SEC Store API
+            case "genre": {
+                $variables["object"]["info"]["genre"]["title"] = t("Genres");
+                $variables["object"]["info"]["genre"]["items"] = Array();
+
+                foreach ($variables["object"]["type_specific_content"]["genre"] AS $genre) {
+                    $variables["object"]["info"]["genre"]["items"][] = $genre;
+                }
+            } break;
+
+            // preprocess style_movement field data from SEC Store API
+            case "style_movement": {
+                $variables["object"]["info"]["style_movement"]["title"] = t("Style & movements");
+                $variables["object"]["info"]["style_movement"]["items"] = Array();
+
+                foreach ($variables["object"]["type_specific_content"]["style_movement"] AS $style_movement) {
+                    $variables["object"]["info"]["style_movement"]["items"][] = $style_movement;
+                }
+            } break;
+
+            // preprocess object field data from SEC Store API
+            case "object": {
+                $variables["object"]["info"]["object"]["title"] = t("Objects");
+                $variables["object"]["info"]["object"]["items"] = Array();
+
+                foreach ($variables["object"]["type_specific_content"]["object"] AS $object) {
+                    $variables["object"]["info"]["object"]["items"][] = $object;
+                }
+            } break;
+
+            // preprocess label field data from SEC Store API
+            case "label": {
+                $variables["object"]["info"]["label"]["title"] = t("Label");
+                $variables["object"]["info"]["label"]["items"] = Array($variables["object"]["type_specific_content"]["label"]);
+            } break;
+
+            // preprocess value field data from SEC Store API
+            case "value": {
+                if (isset($variables["object"]["type_specific_content"]["value"]["value"])
+                    && !empty($variables["object"]["type_specific_content"]["value"]["value"])) {
+                    $variables["object"]["info"]["value"]["title"] = t("Value");
+                    $value = $variables["object"]["type_specific_content"]["value"]["value"];
+                    if (isset($variables["object"]["type_specific_content"]["value"]["currency"])) {
+                        $value .= $variables["object"]["type_specific_content"]["value"]["currency"];
+                    }
+                    $variables["object"]["info"]["value"]["items"] = Array($value);
+                }
+            } break;
+
+            // preprocess src field data from SEC Store API
+            case "src": {
+                $variables["object"]["info"]["src"]["title"] = t("Source");
+                $src = $variables["object"]["type_specific_content"]["src"];
+
+                // add http at start of the URL if there is no protocol type found
+                if (strpos($src, "://") === false) {
+                    $src = "http://".$src;
+                }
+
+                $variables["object"]["info"]["src"]["items"] = Array(l($src, $src));
+            } break;
+
+            // preprocess images field data from SEC Store API
+            case "images": {
+                $variables["object"]["info"]["images"]["title"] = t("Images");
+                $variables["object"]["info"]["images"]["items"] = Array();
+
+                foreach ($variables["object"]["type_specific_content"]["images"] AS $images) {
+                    if (!empty($images)) {
+                        // add http at start of the URL if there is no protocol type found
+                        if (strpos($images, "://") === false) {
+                            $images = "http://".$images;
+                        }
+                        $variables["object"]["info"]["images"]["items"][] = l($images, $images);
+                    }
+                }
+            } break;
+
+            // preprocess files field data from SEC Store API
+            case "files": {
+                $variables["object"]["info"]["files"]["title"] = t("Files");
+                $variables["object"]["info"]["files"]["items"] = Array();
+
+                foreach ($variables["object"]["type_specific_content"]["files"] AS $files) {
+                    if (!empty($files)) {
+                        // add http at start of the URL if there is no protocol type found
+                        if (strpos($files, "://") === false) {
+                            $files = "http://".$files;
+                        }
+                        $variables["object"]["info"]["files"]["items"][] = l($files, $files);
+                    }
+                }
+            } break;
+            
+            // preprocess uri field data from SEC Store API
+            case "uri": {
+                $variables["object"]["info"]["uri"]["title"] = t("URI");
+                $variables["object"]["info"]["uri"]["items"] = Array($variables["object"]["type_specific_content"]["uri"]);
+                
+            }
+
+            // preprocess other unknown custom values
+            default: {
+                // replace this characters with spaces
+                $replace = Array("_", "-");
+                $title = str_replace($replace, " ", strtolower($ckey));
+                
+                // make first letter uppercase
+                $title = ucfirst($title);
+                
+                // save title and create array for values
+                $variables["object"]["info"][$ckey]["title"] = $title;
+                $variables["object"]["info"][$ckey]["items"] = Array();
+                
+                // value is array type
+                if (is_array($content)) {
+                    $variables["object"]["info"][$ckey]["items"] = $content;
+                }
+                
+                // value is not array (string, int, etc.)
+                else {
+                    $variables["object"]["info"][$ckey]["items"][] = $content;
+                }
+            }
+        }
+    }
+
+    if (isset($variables["object"]["refers_to"]) && !empty($variables["object"]["refers_to"])) {
+        foreach($variables["object"]["refers_to"] AS $key => $child) {
+            if (isset($child["type_specific_content"]["visual_representation"]) && !empty($child["type_specific_content"]["visual_representation"])) {
+                $image = $child["type_specific_content"]["visual_representation"];
+                if (strpos($image, "://") === false) {
+                    $image = "http://".$image;
+                }
+                $variables["object"]["refers_to"][$key]["type_specific_content"]["visual_representation"] = $image;
+                $variables["object"]["refers_to"][$key]["image"] = '<img src="'.$image.'" alt="'.$child["type_specific_content"]["title"].'" />';
+            }     
+
+            $variables["object"]["refers_to"][$key]["css_type"] = similarity_search_convert_type_to_css_style($child["type"]);
+            $variables["object"]["refers_to"][$key]["type_title"] = similarity_search_convert_type_to_human_type($child["type"]);
+        }
+    }
+            
+    $variables["object"]["has_info"] = !empty($variables["object"]["info"]);
+    
+    if (similarity_search_item_is_already_in_context($variables["object"]["sid"], $variables["parent"])) {
+        $variables["button"] = l(t("Remove from the context"), "similarity/action/remove/".$variables["parent"]."/no-example/".$variables["object"]["type"]."/".$variables["object"]["sid"],  array('attributes' => array('class' => 'use-ajax')));
+        $variables["object"]["already_in_context"] = true;
+    }
+    else {
+        $variables["button"] = l(t("Add to the context"), "similarity/action/add/".$variables["parent"]."/no-example/".$variables["object"]["type"]."/".$variables["object"]["sid"],  array('attributes' => array('class' => 'use-ajax')));
+        $variables["object"]["already_in_context"] = false;
+    }
+}
+
+/**
+ * Autocomplete function for Recommener UI and for Event form.
+ * 
+ * @param string $input input name
+ * @param string $string search string
+ */
+function similarity_search_autocomplete($input, $string = '', $pos = 0) {
+    // default values
+    $search_prefix = "";
+    $search_suffix = "";
+
+    $input_typenames = similarity_search_autocomplete_convert_input_name($input);
+    
+    // define searched delimeters for each input type
+    if ($input_typenames[0] != "query") {
+        $delimeters = Array(",");
+    }
+    else {
+        $delimeters = Array(":", ";", " OR", " AND", " or", " and");
+    }
+
+    
+    // we have some position filled, parse the string in input
+    // we want to get prefix and suffix because SEC Store API returns only autocomplete strings
+    // not the whole string from input
+    if ($pos) {
+        // if we add space at end of the query string the JS sent us exact caret location
+        // but because we trim the text before we sent it to SEC Store API it may happend
+        // that caret position is bigger that trimmed text length, so we correct it here
+        if ($pos > strlen(trim($string))) {
+            $pos = strlen(trim($string));
+        }
+        
+        $delimeter_pos = 0;
+        $delimeter = "";
+        
+        // go through all delimeters
+        foreach ($delimeters AS $d) {
+            // find previous delimeter position
+            $del_pos = strrpos($string, $d, ($pos - strlen($string) - strlen($d)));
+            
+            // lookup for delimeter which is closest to the caret location (before caret)
+            if ($del_pos && $delimeter_pos < $del_pos) {
+                $delimeter_pos = $del_pos;
+                $delimeter = $d;
+            }
+        }
+        
+        // save delimeter length we don't have to call strlen() repeatedly
+        $delimeter_len = strlen($delimeter);
+
+        // previous delimeter was found
+        if ($delimeter_pos) {
+            // parse only search text in this example: "Lond"
+            //          caret position v
+            //           +-----------------------------+                        
+            //           | Oxford, Lond| , Paris       |
+            //           +-----------------------------+
+            // search string start ^  ^ search string end
+            $search_text_len = strlen(ltrim(substr($string, ($delimeter_pos + $delimeter_len), ($pos - ($delimeter_pos + $delimeter_len)))));
+            $search_prefix = substr($string, 0, ($pos - $search_text_len));
+            $search_suffix = substr($string, $pos);
+            
+            if ($search_prefix == false) {
+                $search_prefix = "";
+            }
+            
+            // if you write "AND" without space at end, SEC will suggest you something and you choose
+            // "birthDate" but if you select it it will create ANDbirthDate, so we trim prefix at right
+            // (so if there was space, we remove it) and after that we add space, so there will be
+            // always one space after prefix
+            // maybe we can add in future checking if prefix is ending with one of $delimeters
+            $search_prefix = rtrim($search_prefix);
+            $search_prefix .= " ";
+            
+            if ($search_suffix == false) {
+                $search_suffix = "";
+            }
+        }
+    }
+    
+    // for single field autocomplete SEC Store API doesn't have to parse text
+    // so set position to zero and send only searched text at the cursor
+    if ($input_typenames[0] != "query") {
+        $string = trim(substr($string, ($delimeter_pos + $delimeter_len), ($pos - ($delimeter_pos + $delimeter_len))));
+        $pos = 0;
+    }
+    
+    $array = Array(
+        "input_names" => $input_typenames,
+        "input_text" => $string,
+        "input_position" => $pos,
+        "input_type" => "object"
+    );
+    
+    $response = similarity_search_sec_store_auto_complete($array);
+    $list = Array();
+    // return for JS
+    if (isset($response["data"])) {
+        foreach($response["data"] AS $data) {
+            // create whole strings (insert found strings into whole input string
+            // from "London" create in this example string "Oxford, London , Paris"
+            $whole_text = $search_prefix . $data["label"] . $search_suffix;
+            
+            // edit showed text to user
+            switch($input_typenames[0]) {
+                case "location": {
+                    $text = '<div class="similarity-search-autocomplete-row">';
+                    if (isset($data["field_specific_content"]["population"])) {
+                        $text .= '<div class="similarity-search-autocomplete-right">('.t("Population:")." ".$data["field_specific_content"]["population"].')</div>';
+                    }
+                    $text .= '<div class="similarity-search-autocomplete-left">'.$data["label"].'</div>';
+                    $text .= '<div class="clear"></div></div>';
+                } break;
+                
+                case "person": {
+                    $text = '<div class="similarity-search-autocomplete-row">';
+                    if (isset($data["field_specific_content"]["image"])) {
+                        $text .= '<div class="similarity-search-autocomplete-right"><img src="'.$data["field_specific_content"]["image"].'" alt="'.$data["label"].' image" /></div>';
+                    }
+                    $text .= '<div class="similarity-search-autocomplete-left">'.$data["label"].'</div>';
+                    $text .= '<div class="clear"></div></div>';
+                } break;
+                
+                default:
+                    $text = $data["label"];
+            }
+            
+            $list[$whole_text] = $text;
+        }
+        
+        drupal_json_output($list);
+    }
+    else {
+        drupal_json_output(Array());
+    }
+}
+
+/**
+ * Function to convert drupal form input names into SEC Store API input types
+ * for autocomplete protocol.
+ * 
+ * @param string $input input name
+ * @return string converted input type name
+ */
+function similarity_search_autocomplete_convert_input_name($input) {
+    switch($input) {
+        // agent - person
+        case "field_event_agent": return Array("person");
+            
+        // location
+        case "field_event_location": return Array("location");
+        
+        // object
+        case "field_event_object": return Array("object");
+            
+        // material
+        case "field_event_materials": return Array("material");
+            
+        //genre
+        case "field_event_genre": return Array("genre");
+            
+        // activity
+        case "field_event_activity": return Array("activity");
+            
+        // style movemement
+        case "field_event_style_movement": return Array("style_movement");
+            
+        // similarity query
+        case "query_text": return Array("query");
+            
+        // default: return original string
+        default: return Array($input);
+    }
+}
+
+/**
+ * This function is here to fix other autocomplete fields on page.
+ * When we include similarity_search_autocomplete.js file, it change the autocomplete JS
+ * to sent 3 parameters. But default taxonomy_autocomplete() function is expecting
+ * only 2 parameters. So we discard the third parameter and call taxonomy_autocomplete
+ * function.
+ *  
+ * @param string $input field input name
+ * @param string $string string in input
+ * @param int $pos position of caret in input
+ * @return array found taxonomy terms
+ */
+function similarity_search_taxonomy_autocomplete($input, $string = '', $pos = 0) {
+    require_once drupal_get_path('module', 'taxonomy').'/taxonomy.pages.inc';
+    return taxonomy_autocomplete($input, $string);
+}
+
+function similarity_item_detail($sec_id, $parent = NULL) {
+//    $query_pos = strpos($sec_id, "?");
+//    if ($query_pos !== false) {
+//        $sec_id = substr($sec_id, 0, $query_pos);
+//    }
+
+    // create request to SEC Store API
+    $array = Array(
+        "search_type" => "",
+        "objects" => Array($sec_id)
+    );   
+    
+    $object = Array();
+    
+    // read response from SEC Store API
+    $message = similarity_search_sec_store_get($array);
+    
+    // we are expecting one item
+    if (isset($message["data"]["resources"][0])) {
+        $object = $message["data"]["resources"][0];
+    }
+    else {
+        drupal_set_message(t('SEC Store API didn\'t found this object'), 'error');
+    }
+    
+    // return HTML
+    return theme("similarity_search_item_detail", Array("object" => $object, "parent" => $parent));
+}
+
+
+/**
+ * Create search URL. Used mainly for search box in upper right corner.
+ * We taky current URL address and create redirect link for searching with
+ * similarity search.
+ * 
+ * @param string $type search type (example or query)
+ * @return string url address
+ */
+function similarity_create_search_url($type = "query") {
+    $path_array = arg(NULL, request_path());
+    
+    // wrong URL for search
+//    if (!isset($path_array[0]) || $path_array[0] != "dossiers") {
+//        drupal_set_message(t("You can search only from dossier or object story context"), 'warning');
+//        return current_path();
+//    }
+    
+    if (isset($path_array[0]) && $path_array[0] == "dossiers") {
+        // search for objectstory
+        if (isset($path_array[2]) && $path_array[2] != "objectstories") {
+            $path = implode("/", array_slice($path_array, 0, 2));
+            
+            return $path.'/objectstories/search/external-sec';
+        }
+
+        // search by example
+        if ($type == "example") {
+            // search object or event or ...
+            if (isset($path_array[5]) && is_int((int)$path_array[5])) {
+                $path = implode("/", array_slice($path_array, 0, 6));
+                return $path.'/similar';
+            }
+
+            // search object story
+            else {
+                $path = implode("/", array_slice($path_array, 0, 4));
+                return $path.'/similar';
+            }
+        }
+
+        // search by query
+        else {
+            // search object
+            if (isset($path_array[3]) && isset($path_array[3]) && $path_array[3] != "search") {
+                $path = implode("/", array_slice($path_array, 0, 4));
+                return $path.'/object/search/external-sec';
+            }
+
+            // search object story
+            else {
+                // if you search from search box from dossier you want to search objectstories
+                if (count($path_array) < 3) {
+                    $path_array[] = "objectstories";
+                }
+                $path = implode("/", array_slice($path_array, 0, 3));
+                return $path.'/search/external-sec';
+            }
+        }
+    }
+    
+    // url doesn't have context (doesnt start with dossier)
+    else {
+        drupal_set_message(t("You can add items to Storyscope only from object story or dossier context."), 'warning');
+        $path = "similarity/query";
+        return $path;
+    }
+}
+
+function similarity_search_redirect_to_internal_search() {
+    $path_array = arg(NULL, request_path());
+   
+    if (isset($path_array[0]) && $path_array[0] == "dossiers") {
+        drupal_set_message(t('SEC Store API is not responding. You were redirected to internal search.'), 'warning');
+
+        // search for dossier object
+        if (isset($path_array[2]) && $path_array[2] == "objects") {
+            $path = implode("/", array_slice($path_array, 0, 2));
+            drupal_goto($path.'/objects/search/internal');
+        }
+        
+        // search for objectstory
+        if (isset($path_array[2]) && $path_array[2] != "objectstories") {
+            $path = implode("/", array_slice($path_array, 0, 2));
+            drupal_goto($path.'/objectstories/search/internal');
+        }
+
+        // search by example
+        if ((isset($path_array[4]) && $path_array[4] == "similar") || (isset($path_array[6]) && $path_array[6] == "similar")) {
+            // search object or event or ...
+            if (isset($path_array[5]) && is_int((int)$path_array[5])) {
+                $path = implode("/", array_slice($path_array, 0, 5));
+                drupal_goto($path.'/search/internal');
+            }
+
+            // search object story
+            else {
+                $path = implode("/", array_slice($path_array, 0, 3));
+                drupal_goto($path.'/search/internal');
+            }
+        }
+
+        // search by query
+        else {
+            // search object
+            if (isset($path_array[3]) && is_int((int)$path_array[3])) {
+                $path = implode("/", array_slice($path_array, 0, 4));
+                drupal_goto($path.'/object/search/internal');
+            }
+
+            // search object story
+            else {
+                // if you search from search box from dossier you want to search objectstories
+                if (count($path_array) < 3) {
+                    $path_array[] = "objectstories";
+                }
+                $path = implode("/", array_slice($path_array, 0, 3));
+                drupal_goto($path.'/search/internal');
+            }
+        }
+    }
+    
+    // url doesn't have context (doesnt start with dossier)
+    else {
+        drupal_set_message(t("SEC Store API is not responding. You haven't selected any context, we can't you redirect to internal search. Try search from dossier or object story."), 'warning');
+        $path = "similarity/query";
+        drupal_goto($path);
+    }
+}
+
+/**
+ * Convert node type name to CSS tape name (convert object_story to object-story).
+ * 
+ * @param string $type node type name
+ * @return string css type name
+ */
+function similarity_search_convert_type_to_css_style($type) {
+    $ret = "";
+    
+    switch ($type) {
+        case "object_story": $ret = "object-story"; break;
+        default: $ret = $type;
+    }
+    
+    return $ret;
+}
+
+/**
+ * Convert node type name to prettier human readable name. (object_story to Object story).
+ * 
+ * @param string $type node type name
+ * @return string human readable type name
+ */
+function similarity_search_convert_type_to_human_type($type) {
+    $ret = "";
+    
+    switch ($type) {
+        case "dossier": $ret = "Dossier"; break;
+        case "object_story": $ret = "Object story"; break;
+        case "object": $ret = "Object"; break;
+        case "reference": $ret = "Reference"; break;
+        case "event": $ret = "Event"; break;
+        default: $ret = $type;
+    }
+    
+    return $ret;
+}
+
+function similarity_search_overlay_paths() {
+  $paths = array(
+    'dossiers/*/objectstories/*/*/search/external-sec/*' => TRUE,
+    'dossiers/*/objectstories/search/external-sec/*' => TRUE,
+    'dossiers/*/objectstories/*/similar/*' => TRUE,
+    'dossiers/*/objectstories/*/*/*/similar/*' => TRUE,
+    'dossiers/*/*/search/external-sec/*' => TRUE,
+    'similarity/query/*' => TRUE,
+  );
+  return $paths;
+}
+
+function similarity_search_views_pre_execute(&$view) {
+    if ($view->name == 'similarity_dossier_events') {
+        $path = arg();
+        $nid = $path[(count($path) - 1)];
+        $node_sec_id = "";
+        $from = 0;
+        $size = 20;
+
+        // read items per page variable from view pager
+        if (isset($view->query->pager->options["items_per_page"])) {
+            $size = $view->query->pager->options["items_per_page"];
+        }
+
+        // read actual page number from view pager
+        if (isset($view->query->pager->current_page)) {
+            $from = $view->query->pager->current_page * $size;
+        }
+        
+        $node = node_load($nid);
+        
+        if ($node) {
+            $node_wrapper = entity_metadata_wrapper('node', $node);
+
+            // try to read ca_sec_id field
+            $node_sec_id = $node_wrapper->field_ca_sec_id->value();
+        }
+        
+        if (empty($node_sec_id)) {
+            return;
+        }
+        
+        // create request to SEC Store API
+        $array = Array(
+            "search_type" => "",
+            "objects" => Array($node_sec_id)
+        );   
+
+        // read response from SEC Store API
+        $message = similarity_search_sec_store_get($array);
+        
+        if (isset($message["data"]["resources"][0]["events"])) {
+            // in dossier we want to show only dossier events
+            if ($node->type == "dossier") {
+                $events = Array("events" => $message["data"]["resources"][0]["events"]);
+            }
+            // in object story we want to show events from object story and objects in object story
+            else if ($node->type == "object_story") {
+                $events = Array("events" => $message["data"]["resources"][0]["events"]);
+                if (isset($message["data"]["resources"][0]["refers_to"]) && !empty($message["data"]["resources"][0]["refers_to"])) {
+                    // go through each object and collect events
+                    foreach ($message["data"]["resources"][0]["refers_to"] AS $child) {
+                        if (isset($child["events"]) && !empty($child["events"])) {
+                            $events["events"] = array_merge($events["events"], $child["events"]);
+                        }
+                    }
+                }
+            }
+            
+            $results_count = 0;
+            if (isset($message["data"]["result_count"])) {
+                $results_count = $message["data"]["result_count"];
+            }
+            
+            $_SESSION["similarity_search_sec_response"] = similarity_search_edit_data_for_pager($events, $from, $size, $results_count);
+        }
+    }
+}
+
+
+function similarity_search_edit_data_for_pager($data, $start, $length, $count) {
+//    $prepend = Array();
+//    $postpend = Array();
+    
+    for($i = 0; $i < $start; $i++) {
+        //$prepend[] = $i;
+        array_unshift($data["events"], Array());
+    }
+    
+    for ($i = ($start + $length); $i < $count; $i++) {
+        //$postpend[] = $i;
+        array_push($data["events"], Array());
+    }
+    
+    //$data["resources"] = array_merge($prepend, $data["resources"], $postpend);
+    return $data;
+}
+
+function similarity_search_views_xml_backend_data_alter(&$data, $view_name) {
+    if ($view_name == 'similarity_dossier_events') {
+        $data->contents = "<?xml version='1.0' encoding='utf-8'?><data><events></events></data>";
+
+        //$data->contents = "";
+        if (isset($_SESSION["similarity_search_sec_response"])) {
+            $data->contents = similarity_search_create_xml(Array("data" => $_SESSION["similarity_search_sec_response"]));
+            unset($_SESSION["similarity_search_sec_response"]);
+        }
+    }
+}
+
+function similarity_search_create_xml($array) {
+    return similarity_search_array_to_xml($array);
+}
+
+function similarity_search_array_to_xml($array, $xml = false){
+    if($xml === false) {
+        $xml = new SimpleXMLElement('<?xml version="1.0" encoding="utf-8"?><'.key($array).'/>');
+        $array = $array[key($array)];
+    }
+    
+    foreach($array as $key => $value){
+        if(is_array($value)) {
+            if (is_int($key)) {
+                $key = "item";
+            }
+            
+            similarity_search_array_to_xml($value, $xml->addChild($key));
+        }
+        
+        else {
+            // add http:// prefix for links that starts only with www
+            // drupal_http_request doesn't work without schema
+            if (is_int($key)) {
+                $key = "item";
+            }
+            
+            if (!empty($key) && ($key == "visual_representation") && (strpos($value, "://") === false)) {
+                    $value = "http://".$value;
+            }
+            
+            $xml->addChild($key, check_plain($value));
+        }
+    }
+    
+    return $xml->asXML();
+}
+
+function similarity_dossier_add_event($parentNID, $num_order) {
+    $parent = node_load($parentNID);
+    
+    if ($parent) {
+        $parent_wrapper = entity_metadata_wrapper('node', $parent);
+
+        // try to read ca_sec_id field
+        $parent_sec_id = $parent_wrapper->field_ca_sec_id->value();
+    }
+
+    // create request to SEC Store API
+    $array = Array(
+        "search_type" => "",
+        "objects" => Array($parent_sec_id)
+    );   
+
+    // read response from SEC Store API
+    $message = similarity_search_sec_store_get($array);
+
+    if (isset($message["data"]["resources"][0]["events"][($num_order - 1)])) {
+        $event = $message["data"]["resources"][0]["events"][($num_order - 1)];
+
+        $node = entity_create('node', array('type' => "event"));
+        node_object_prepare($node); 
+        
+        // add the parent nid
+        if(!empty($parent)) {
+            if ($parent->type == "dossier") {
+                $node->dossier = $parent->nid;
+            }
+            else if ($parent->type == "object_story") {
+                $node->object_story = $parent->nid;
+            }
+            else if ($parent->type == "story") {
+                $node->story = $parent->nid; 
+            }
+        }    
+
+        $node_wrapper = entity_metadata_wrapper('node', $node);
+
+        if (isset($event["title"])) {
+            $node_wrapper->title = truncate_utf8($event['title'], 250, 1);
+        }
+
+        if (isset($event["description"])) {
+            $node_wrapper->body->value->set($event["description"]);
+        }
+
+        // read activity parameter from parsed SEC Store API message
+        if(isset($event["activity"]) && !empty($event["activity"])) {
+            foreach ($event["activity"] AS $key => $activity) {
+                $term = similarity_search_get_term($activity, "field_event_activity");
+                if ($term) {
+                    $node->field_event_activity[$node->language][$key] = (Array)$term;
+                }
+            }
+        }
+
+        // read start_timestamp parameter from parsed SEC Store API message
+        if(isset($event["start_timestamp"]) && !empty($event["start_timestamp"])) {
+            $date = similarity_search_convert_to_partial_date($event["start_timestamp"]);
+
+            $node->field_event_start_time[$node->language][] = Array("from" => $date);
+        }
+
+        // read end_timestamp parameter from parsed SEC Store API message
+        if(isset($event["end_timestamp"]) && !empty($event["end_timestamp"])) {
+            $date = similarity_search_convert_to_partial_date($event["end_timestamp"]);
+
+            $node->field_event_end_time[$node->language][] = Array("from" => $date);
+        }
+
+        // read location parameter from parsed SEC Store API message
+        if(isset($event["location"]) && !empty($event["location"])) {
+            foreach ($event["location"] AS $location) {
+                $values = Array(
+                    "field_fb_location_topic" => $location,
+//                    "field_fb_location_mid" => $attribute["entityUri"],
+                );
+                similarity_search_add_field_collection($node, "node", "field_fb_location", $values);
+            }
+        }
+
+        // read agent parameter from parsed SEC Store API message
+        if(isset($event["agent"]) && !empty($event["agent"])) {
+            foreach ($event["agent"] AS $agent) {
+                $values = Array(
+                    "field_fb_agent_topic" => $agent,
+//                    "field_fb_agent_mid" => $attribute["entityUri"],
+                );
+                // read birth date
+//                    if (isset($attribute["value"][3]))
+//                    {
+//                        $values["field_fb_agent_birth_date"] = $attribute["value"][3];
+//                    }
+
+                // read death date
+//                    if (isset($attribute["value"][4]))
+//                    {
+//                        $values["field_fb_agent_death_date"] = $attribute["value"][4];
+//                    }
+                similarity_search_add_field_collection($node, "node", "field_fb_agent", $values);
+            }
+        }
+
+        // read genre parameter from parsed SEC Store API message
+        if(isset($event["genre"]) && !empty($event["genre"])) {
+            foreach ($event["genre"] AS $genre) {
+                $values = Array(
+                    "field_fb_genre_topic" => $genre,
+//                    "field_fb_genre_mid" => $attribute["entityUri"],
+                );
+                similarity_search_add_field_collection($node, "node", "field_fb_genre", $values);
+            }
+        }
+              
+        // read style_movement parameter from parsed SEC Store API message
+        if(isset($event["style_movement"]) && !empty($event["style_movement"])) {
+            foreach ($event["style_movement"] AS $style) {
+                $values = Array(
+                    "field_fb_style_movement_topic" => $style,
+//                    "field_fb_style_movement_mid" => $attribute["entityUri"],
+                );
+                similarity_search_add_field_collection($node, "node", "field_fb_style_movement", $values);
+            }
+        }
+           
+        // read materials parameter from parsed SEC Store API message
+        if(isset($event["materials"]) && !empty($event["materials"])) {
+            foreach ($event["materials"] AS $material) {
+                $values = Array(
+                    "field_fb_materials_topic" => $material,
+//                    "field_fb_materials_mid" => $attribute["entityUri"],
+                );
+                similarity_search_add_field_collection($node, "node", "field_fb_materials", $values);
+            }
+        }
+                      
+        // read value value parameter from parsed SEC Store API message
+        if(isset($event["value"]["value"]) && !empty($event["value"]["value"])) {
+            $values = Array(
+                "field_fb_value_topic" => $event["value"]["value"],
+//                "field_fb_value_mid" => $attribute["entityUri"],
+            );
+            similarity_search_add_field_collection($node, "node", "field_fb_value", $values);
+        }
+
+        $node_wrapper->save();
+
+        if (isset($node->nid) && !empty($node->nid)) {
+            watchdog("similarity_search", "Event %title has been saved", Array("%title" => truncate_utf8($event['title'], 250, 1)));
+        }
+        else {
+            watchdog("similarity_search", "Error occurred during saving event %title", Array("%title" => truncate_utf8($event['title'], 250, 1)));
+        }
+        
+        // create path alias for created event
+        storyscope_content_create_path_aliases($node, $parent);
+    }
+    
+    unset($_GET['destination']);
+    $address = arg();
+    $new_address = Array();
+    
+    // parse original url path (add everything to "similarity_add_event" string
+    foreach($address AS $addr) {
+        if ($addr == "similarity_add_event") {
+            break;
+        }
+        
+        $new_address[] = $addr;
+    }
+    
+    // redirect to new url (without add event action)
+    if (!empty($new_address)) {
+        drupal_goto(implode("/", $new_address));
+    }
+}
+
+function similarity_search_views_post_execute(&$view) {
+    if ($view->name == "similarity_dossier_events") {
+        $nid = $view->args[0];
+        $node = node_load($nid);
+
+        // load node wrapper
+        $node_wrapper = entity_metadata_wrapper('node', $node);
+        
+        switch($node->type) {
+            case "dossier":
+                $events_field = "field_dossier_events";
+            break;
+        
+            case "object_story":
+                $events_field = "field_object_story_events";
+            break;
+        
+            default:
+                return;
+        }
+        
+        // go through all received (similarity) events for this dossier
+        foreach ($view->result AS $key => $result) {
+            // go through all events for specific dossier
+            foreach ($node_wrapper->$events_field->value() as $event) {
+                $event_wrapper = entity_metadata_wrapper('node', $event);
+                $event_text = "";
+                try {
+                    if (isset($event_wrapper->body)) {
+                        $value = $event_wrapper->body->value();
+                        if (isset($value) && !empty($value)) {
+                            $event_text = trim($event_wrapper->body->value->raw());
+                        }
+                        else {
+                            continue;
+                        }
+                    }
+                    else {
+                        continue;
+                    }
+                }
+                catch (EntityMetadataWrapperException $e) {
+                    continue;
+                }
+                
+                // this event is already saved in dossier, remove it from list
+                if ($event_text == trim($result->title)) {
+                    unset($view->result[$key]);
+                    break;
+                }
+            }
+        }
+    }
+}
+
+/**
+ * Implements StoryScope search form
+ */
+function similarity_search_form($form, &$form_state, $example = NULL, $parentNID = NULL) {
+    // load js with override functions to get autocomplete caret position
+    drupal_add_js(drupal_get_path('module', 'similarity_search').'/similarity_search_autocomplete.js', array('group' => JS_THEME, 'weight' => -50));
+    $size = variable_get('sec_store_api_results_count', 20); 
+    
+    // load values from SESSION, storage, etc...
+    
+    if (isset($_SESSION["sec_form_redirect_values"])) {
+        $form_state['values'] = $_SESSION["sec_form_redirect_values"];
+        unset($_SESSION["sec_form_redirect_values"]);
+    }
+    
+    // get actual page number
+    $page = (isset($_GET["page"])) ? $_GET["page"] : 0;
+    $from = $page * $size;
+    
+	if (isset($_SESSION["sec_form_form"])) {
+		if ((!isset($form_state["values"]) || empty($form_state["values"])) && $_SESSION["sec_form_form"]["similarity_pager"]["#value"] != $page) {
+			$form = $_SESSION["sec_form_form"];
+			$form_state = $_SESSION["sec_form_form_state"];
+		}
+	}
+	
+    // determine which form we want to show
+    // we have an example
+    if (!empty($example) && isset($example->nid)) {
+        $search_method = "by_example";
+    }
+    else {
+        $search_method = "by_query";
+    }
+    
+    // get parent node
+    if (empty($form_state["values"]) && empty($form_state["input"])) {
+        $parent = node_load($parentNID);
+    }
+    else if(isset($form_state["input"]["context"])) {
+        $parentNID = (int)$form_state["input"]["context"];
+        $parent = node_load($parentNID);
+    }
+    else if(isset($form_state["values"]["context"])) {
+        $parentNID = (int)$form_state["values"]["context"];
+        $parent = node_load($parentNID);
+    }
+    else if (!empty($parentNID)) {
+        $parent = node_load($parentNID);
+    }
+    else {
+        $parent = "";
+        $parentNID = "";
+    }
+    
+    $parent_sec_id = "";
+    if (isset($parent) && !empty($parent)) {
+        $parent_wrapper = entity_metadata_wrapper('node', $parent);
+
+        // try to read parent ca_sec_id field
+        if (isset($parent_wrapper->field_ca_sec_id)) {
+            $field_sec_id = $parent_wrapper->field_ca_sec_id->value();
+            if (!empty($field_sec_id)) {
+                $parent_sec_id = $field_sec_id;
+            }
+        }
+    }
+    
+    $example_sec_id = "";
+    if (isset($example) && !empty($example)) {
+        $example_wrapper = entity_metadata_wrapper('node', $example);
+
+        // try to read example ca_sec_id field
+        if (isset($example_wrapper->field_ca_sec_id)) {
+            $field_sec_id = $example_wrapper->field_ca_sec_id->value();
+            if (!empty($field_sec_id)) {
+                $example_sec_id = $field_sec_id;
+            }
+        }
+    }
+    
+    // get search type (object, object story, events,...) from form or get default one
+    if (isset($form_state["values"]["search_type"]) && !empty($form_state["values"]["search_type"])) {
+        // user cannot select type anymore (so this code is rewritten)
+        //$search_type = $form_state["values"]["search_type"];
+        $search_type = similarity_search_get_default_search_type($parentNID);
+    }
+    else {
+        $search_type = similarity_search_get_default_search_type($parentNID);
+    }
+    
+  ///AJAX marker
+  $form['#prefix'] = '<div id="query-form">';
+  $form['#suffix'] = '</div>';
+  
+  $form['node'] = array
+  (
+    '#type' => 'value',
+    '#value' => (isset($example->nid)) ? $example->nid : ""
+  );
+  
+  $form['node_ca_sec_id'] = array
+  (
+    '#type' => 'value',
+    '#value' => $example_sec_id
+  );
+  
+  $form['search_method'] = array
+  (
+    '#type' => 'value',
+    '#value' => $search_method
+  );
+  
+  $form['use_without'] = array
+  (
+    '#type' => 'value',
+    '#value' => ($search_method == "by_example")
+  );
+
+  // get drupal form path
+  // no system/ajax calling
+  if (arg(0) != "system") {
+      $form_drupal_path = current_path();
+  }
+  else if(isset($form_state["values"]["form_drupal_path"])) {
+      $form_drupal_path = $form_state["values"]["form_drupal_path"];
+  }
+  
+  $form['form_drupal_path'] = array
+  (
+    '#type' => 'value',
+    '#value' => $form_drupal_path
+  );
+  
+  $form['use_text_similarity'] = array
+  (
+    '#type' => 'checkbox',
+    '#default_value' => (isset($form_state['values']['use_text_similarity'])) ? $form_state['values']['use_text_similarity'] : 1
+  );
+  
+  $form['context_ca_sec_id'] = array
+  (
+    '#type' => 'value',
+    '#value' => $parent_sec_id
+  );
+  
+  $form['similarity_pager'] = array
+  (
+    '#type' => 'value',
+    '#value' => $page
+  );
+  
+  $context_list = similarity_search_get_select_list();
+  $context_items = array();
+  foreach($context_list as $nid => $context)
+  {
+    $type = isset($context['type'] ) ? ' (' . $context['type'] . ')' : '';
+    $context_items[$nid] = $context['title'] . $type;
+  }
+  
+  $form['context_list'] = array
+  (
+    '#type' => 'value',
+    '#value' => $context_list
+  );
+  
+  $form['context'] = array
+  (
+    '#id' => 'edit-context',
+    '#type' => 'select',
+    '#options' => $context_items,
+    '#default_value' => $parentNID,
+    '#ajax' => array
+    (
+      'callback' => 'similarity_search_form_context_change',
+      'wrapper' => 'query-form',
+      'method' => 'replace',
+      'event' => 'change',
+      'progress' => array('type' => 'none'),
+    ),
+    '#attributes' => array('onchange' => 'document.getElementById("submit").hidden=true'),
+  );
+  
+  $form['add_all_button'] = array
+  (
+    '#type' => 'submit',
+    '#value' => t('Add all selected to the context'),
+    '#name' => 'add_all'
+  );
+  
+  $field_ignore = Array();
+  
+    if (isset($form_state['values']['search_method']) && $form_state['values']['search_method'] == 'by_example') {
+        $field_ignore['ignore_object'] = array(
+            '#type' => 'submit',
+            '#name' => 'ignore_object',
+            '#value' => t('Do not show for the example'),
+            '#prefix' => '<li>',
+            '#suffix' => '</li>'
+        );
+    }
+
+    if((isset($form_state['values']['context']) && !empty($form_state['values']['context'])
+        || (isset($form['context']['#default_value']) && !empty($form['context']['#default_value'])))) {
+        $field_ignore['ignore_parent'] = array(
+            '#type' => 'submit',
+            '#name' => 'ignore_parent',
+            '#value' => t('Do not show for the context'),
+            '#prefix' => '<li>',
+            '#suffix' => '</li>'
+        );
+    }
+
+    $field_ignore['ignore_user'] = array(
+        '#type' => 'submit',
+        '#name' => 'ignore_user',
+        '#value' => t('Do not show for me'),
+        '#prefix' => '<li>',
+        '#suffix' => '</li>'
+    );
+        
+//    $field_ignore['ignore_group'] = array(
+//        '#type' => 'submit',
+//        '#name' => 'ignore_group',
+//        '#value' => t('Do not show for user groups'),
+//        '#prefix' => '<li>',
+//        '#suffix' => '</li>'
+//    );
+//
+//    $field_ignore['ignore_storyscope'] = array(
+//        '#type' => 'submit',
+//        '#name' => 'ignore_storyscope',
+//        '#value' => t('Do not show for StoryScope'),
+//        '#prefix' => '<li>',
+//        '#suffix' => '</li>'
+//    );
+
+    $form["ignore_all_button"] = $field_ignore;
+    
+  $search_context_type = NULL;
+  
+  if (!empty($parent)) {
+    $search_context_type = $parent->type;         
+  }
+  
+  $form['search_type'] = array
+  (
+    '#type' => 'select',
+    '#options' => similarity_search_form_get_search_type_list($search_context_type),
+  );
+  
+  $form['search_type_value'] = array(
+    '#type' => 'value',
+    '#value' => $search_type
+  );
+  
+  if ($search_method == "by_query") {
+    $default_text = "";
+  }
+  else if ($search_method == "by_example") {
+    $default_text = "";
+  }
+  else {
+    $default_text = "";
+  }
+  
+  $form['query_text'] = array
+  (
+    '#id' => 'edit-query-text',
+    '#type' => 'textfield',
+    '#name' => 'query_text',
+    '#default_value' => (isset($form_state['values']['query_text'])) ? $form_state['values']['query_text'] : $default_text,
+    '#prefix' => '<div id="query-text">',
+    '#suffix' => '</div>',
+    '#autocomplete_path' => 'similarity/autocomplete/query_text'
+  );
+  
+  $form['facet_text'] = array
+  (
+    '#type' => 'value',
+    '#value' => (isset($form_state['values']['facet_text'])) ? $form_state['values']['facet_text'] : "",
+  );
+  
+  $form['last_facet'] = array
+  (
+    '#type' => 'value',
+    '#value' => (isset($form_state['values']['last_facet'])) ? $form_state['values']['last_facet'] : "",
+  );
+  
+  $form['submit'] = array
+  (
+    '#type' => 'submit',
+    '#value' => t('Search'),
+    '#name' => 'submit',
+    '#id' => 'submit'
+  );
+  
+  $form['fake_submit'] = array
+  (
+    '#type' => 'submit',
+    '#name' => 'submit',
+    '#value' => t('')
+  );
+  
+  $form['drop_example'] = array
+  (
+    '#type' => 'submit',
+    '#name' => 'drop_example',
+    '#value' => t('Drop example')
+  );
+  
+  $form['field_add2query'] = array
+  (
+    '#type' => 'button',
+    '#value' => t('Add to query and search'),
+    '#ajax' => array
+    (
+      'callback' => 'similarity_search_form_query_text_append',
+      'wrapper' => 'query-form',
+      'progress' => array('type' => 'none'),
+      'event' => 'click',
+    ),
+    '#attributes' => array('onclick' => 'document.getElementById("submit").hidden=true;'),
+  );
+  
+        
+  $form['from'] = array
+  (
+    '#type' => 'value',
+    '#value' => $from,
+  );
+  
+  /// @todo can user select count of items on page variables['similarity_search_form']['results']?
+  $form['size'] = array
+  (
+    '#type' => 'value',
+    '#value' => $size,
+  );
+  
+  // auto submit when we come to this page and there is some default query string
+  if (!empty($default_text)) {
+    $form_state["values"]["query_text"] = $default_text;
+  }
+
+  // initialize first search for facets and results
+  // example query is send when form is shown and there is not set form_state value
+    if (!isset($form_state["values"]) || (isset($form_state["values"]) && empty($form_state["values"]))) {
+        $form_state["values"]["node"] = (isset($example->nid)) ? $example->nid : "";
+        $form_state["values"]["node_ca_sec_id"] = $example_sec_id;
+        $form_state["values"]["context_ca_sec_id"] = $parent_sec_id;
+        $form_state["values"]["context"] = $parentNID;
+    }
+    
+    $form_state["values"]["form_drupal_path"] = $form_drupal_path;
+    $form_state["values"]["search_type"] = $search_type;
+    $form_state["values"]["from"] = $from;
+    $form_state["values"]["size"] = $size;
+    $form_state["values"]["use_without"] = ($search_method == "by_example");
+    
+    if (isset($form_state["input"]["query_text"])) {
+        $form_state["values"]["query_text"] = $form_state["input"]["query_text"];
+    }
+    
+    if (!isset($form_state['values']['query_text'])) {
+        $form_state['values']['query_text'] = "";
+    }
+
+    $form_state['values']['query_text'] = trim($form_state['values']['query_text']);
+
+    // send query without checkbox facets to get whole facets list
+    $query_data = similarity_search_sec_store_query($form_state);
+    if (isset($query_data["data"]["facets"])) {
+        $facets_query = $query_data["data"]["facets"];
+    }
+    else {
+        $facets_query = Array();
+    }
+    
+    $form['query_facet_list'] = array
+    (
+      '#type' => 'value',
+      '#value' => $facets_query,
+    );
+  
+    
+    if (isset($form_state['triggering_element']['#name']) && !empty($form_state['triggering_element']['#name'])) {
+        $query = $form_state['values']['facet_text'];
+        $parsed_query = similarity_search_form_query_parse($query);
+        $trigger = $form_state['triggering_element']['#name'];
+
+        $trig = preg_split ("/[\[\]]/", $trigger);
+        if (count($trig) > 1) {
+            $facet = $trig[0];
+            $term = $trig[1];
+            $form['last_facet']['#value'] = $facet;
+
+            if(empty($form_state['input'][$facet][$term]))
+            {
+              $index = array_search($term, $parsed_query['attributes'][$facet]['terms']);
+              unset($parsed_query['attributes'][$facet]['terms'][$index]);
+              if (empty($parsed_query['attributes'][$facet]['terms'])) {
+                  unset($parsed_query['attributes'][$facet]);
+				  unset($form_state["storage"]["checkedFacet"][$facet]);
+			  }
+			}
+            else
+            {
+            //       $value = $form['facets'][$facet]['#options'][$term];
+              $value = $term;
+              // add only unique facets ("Baroque OR Baroque" is not wanted)
+              if (!in_array($value, $parsed_query['attributes'][$facet]['terms'])) {
+                  $parsed_query['attributes'][$facet]['terms'][] = $value;
+				  $form_state["storage"]["checkedFacet"][$facet] = true;
+              }
+            }
+
+            $form['facet_text']['#value'] = similarity_search_form_query_build($parsed_query);
+            if (!isset($form['facet_text']['#value'])) {
+                $form['facet_text']['#value'] = "";
+            }
+            $form_state['values']['facet_text'] = $form['facet_text']['#value'];
+        }
+    }
+    
+    // if facet value is filled, we need another QUERY call to get specific results for checked facets
+    if (isset($form_state['values']['query_text']) && isset($form['facet_text']['#value']) && !empty($form['facet_text']['#value'])) {
+        // save query text from field in form (we will be adding facets to this text for QUERY protocol)
+        $backup = $form_state['values']['query_text'];
+        $form_state['values']['query_text'] .= '; '.$form['facet_text']['#value'];
+
+        if (isset($form_state['values']['query_text'])) {
+            $form_state['values']['query_text'] = trim($form_state['values']['query_text']);
+        }
+
+        // sebd query with facets to get results for checked facets
+        $query_data = similarity_search_sec_store_query($form_state);
+        
+        // last selected facet should have visible all options so user can choose another
+        // so we need to replace facet options from query with facet text with options with only query text search
+        if (isset($form['last_facet']['#value']) && !empty($form['last_facet']['#value'])) {
+            foreach ($query_data["data"]["facets"] AS $key => $facet) {
+                if (isset($facet[$form['last_facet']['#value']])) {
+                    foreach ($facets_query AS $key2 => $facet2) {
+                        if (isset($facet2[$form['last_facet']['#value']])) {
+//                            $query_data["data"]["facets"][$key][$form['last_facet']['#value']] = $facets_query[$key2][$form['last_facet']['#value']];
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+        
+        $form_state['values']['query_text'] = $backup;
+    }
+    
+    // result count
+    if (isset($query_data["data"]["result_count"])) {
+        $result_count = $query_data["data"]["result_count"];
+        $form_state["values"]["result_count"] = $result_count;
+    }
+    else {
+        $result_count = 0;
+    }
+    
+    $form['result_count'] = array
+    (
+      '#type' => 'value',
+      '#value' => $result_count,
+    );
+    
+    
+    similarity_search_form_update($form, $form_state, $query_data);
+    
+	$_SESSION["sec_form_form"] = $form;
+	$_SESSION["sec_form_form_state"] = $form_state;
+    return $form;
+}
+
+function similarity_search_form_update(&$form, &$form_state, $query_data) {
+    $size = variable_get('sec_store_api_results_count', 20); 
+
+
+    // get actual page number
+    $page = (isset($form_state["values"]["similarity_pager"])) ? $form_state["values"]["similarity_pager"] : 0;
+    $from = $page * $size;
+    $results = Array();
+    
+    // change results dynamically
+    if (isset($query_data["data"]["resources"])) {
+
+		$i = 0;
+		if (isset($form["context"]["#value"]) && !empty($form["context"]["#value"])) {
+			$parent_url = $form["context"]["#value"];
+		}
+		else if (isset($form["context"]["#default_value"]) && !empty($form["context"]["#default_value"])) {
+			$parent_url = $form["context"]["#default_value"];
+		}
+		else {
+			$parent_url = "no-parent";
+		}
+
+		if (isset($form["node"]["#value"]) && !empty($form["node"]["#value"])) {
+			$example_url = $form["node"]["#value"];
+		}
+		else if (isset($form["node"]["#default_value"]) && !empty($form["node"]["#default_value"])) {
+			$example_url = $form["node"]["#default_value"];
+		}
+		else {
+			$example_url = "no-example";
+		}
+
+		if (isset($form["search_type_value"]["#value"]) && !empty($form["search_type_value"]["#value"])) {
+			$type_url = $form["search_type_value"]["#value"];
+		}
+		else if (isset($form["search_type_value"]["#default_value"]) && !empty($form["search_type_value"]["#default_value"])) {
+			$type_url = $form["search_type_value"]["#default_value"];
+		}
+		else {
+			$type_url = "no-type";
+		}      
+
+		foreach($query_data["data"]["resources"] AS $key => $object) {
+			$result = Array();
+			$field_check = Array();
+			$field_id = Array();
+			$field_add = Array();
+			$field_ignore = Array();
+
+			$field_check = Array(
+				'#type' => 'checkbox',
+				'#name' => 'rec_check_'.$i
+			);
+			$result["checkbox"] = drupal_render($field_check);
+
+			$field_id = Array(
+				'#type' => 'hidden',
+				'#name' => 'rec_check_id_'.$i,
+				'#value' => $object["sid"]
+			);
+			$result["checkbox_id"] = drupal_render($field_id);
+
+			// we can only add new items if we have selected some context
+			if ((isset($form["context"]["#value"]) && !empty($form["context"]["#value"])) || (isset($form["context"]["#default_value"]) && !empty($form["context"]["#default_value"]))) {
+				// same item as our example - user can't remove it (or add it)
+				if (isset($form["node_ca_sec_id"]["#value"]) && $object["sid"] == $form["node_ca_sec_id"]["#value"]) {
+				  $form["add_object_".$object["sid"]] = Array(
+					'#markup' => t('Your selected example'),
+				  );
+				  $result["add"] = drupal_render($form["add_object_".$object["sid"]]);
+				}
+				else if (similarity_search_item_is_already_in_context($object["sid"], $parent_url)) {
+					//$result["add"] = l("Remove from the context", 'similarity/action/remove/'.$parent_url.'/'.$example_url.'/'.$type_url.'/'.$object["sid"], array('attributes' => array('class' => 'use-ajax')));
+
+					$form["remove_object_".$object["sid"]] = Array(
+					  '#type' => 'submit',
+					  '#name' => 'remove_object_'.$object["sid"],
+					  '#value' => t('Remove'),
+				  );
+				  $result["add"] = drupal_render($form["remove_object_".$object["sid"]]);
+				}
+				else {
+				  //$result["add"] = l("Add to the context", 'similarity/action/add/'.$parent_url.'/'.$example_url.'/'.$type_url.'/'.$object["sid"], array('query' => array('destination' => $form_state["values"]["form_drupal_path"])));
+
+				  $form["add_object_".$object["sid"]] = Array(
+					  '#type' => 'submit',
+					  '#name' => 'add_object_'.$object["sid"],
+					  '#value' => t('add +'),
+				  );
+				  $result["add"] = drupal_render($form["add_object_".$object["sid"]]);
+				}
+			}
+
+			$result["ignore"] = "";
+
+			if ($form['search_method']['#value'] == 'by_example') {
+				$result["ignore"] .= '<li>'.l("Do not show for the example", 'similarity/action/ignore_object/'.$parent_url.'/'.$example_url.'/'.$type_url.'/'.$object["sid"], array('attributes' => array('class' => 'use-ajax'))).'</li>';
+			}
+
+			if ((isset($form["context"]["#value"]) && !empty($form["context"]["#value"]))
+			  || (isset($form['context']['#default_value']) && !empty($form['context']['#default_value']))) {
+				$result["ignore"] .= '<li>'.l("Do not show for the context", 'similarity/action/ignore_parent/'.$parent_url.'/'.$example_url.'/'.$type_url.'/'.$object["sid"], array('attributes' => array('class' => 'use-ajax'))).'</li>';
+			}
+
+			$result["ignore"] .= '<li>'.l("Do not show for me", 'similarity/action/ignore_user/'.$parent_url.'/'.$example_url.'/'.$type_url.'/'.$object["sid"], array('attributes' => array('class' => 'use-ajax'))).'</li>';
+			//$result["ignore"] .= '<li>'.l("Do not show for user groups", 'similarity/action/ignore_group/'.$parent_url.'/'.$example_url.'/'.$type_url.'/'.$object["sid"], array('attributes' => array('class' => 'use-ajax'))).'</li>';
+			//$result["ignore"] .= '<li>'.l("Do not show for StoryScope", 'similarity/action/ignore_storyscope/'.$parent_url.'/'.$example_url.'/'.$type_url.'/'.$object["sid"], array('attributes' => array('class' => 'use-ajax'))).'</li>';
+
+			//$result["ignore"] = drupal_render($field_ignore); 
+			$result["link"] = l($object["uri"], $object["uri"]);
+			$result["object"] = $object;
+
+			if (isset($form_state["values"]["form_drupal_path"]) && !empty($form_state["values"]["form_drupal_path"])) {
+			  $path_array = arg(NULL, $form_state["values"]["form_drupal_path"]);
+			}
+			else {
+			  $path_array = arg(NULL, request_path());
+			}
+
+			// create URL for example item detail (or only search detail - similarity/query)
+			if (isset($path_array[4]) && $path_array[4] == "similar"
+				|| isset($path_array[6]) && $path_array[6] == "similar"
+				|| isset($path_array[1]) && $path_array[1] == "query") {
+				$dialog_path = $form_state["values"]["form_drupal_path"].'/'.$object["sid"];
+			}
+
+			// create URL for query item detail
+			else {
+				$dialog_path = $form_state["values"]["form_drupal_path"].'/'.$object["sid"];
+			}
+
+			// if object doesn't have title set default title
+			if (!isset($object["type_specific_content"]["title"]) || empty($object["type_specific_content"]["title"])) {
+				$object["type_specific_content"]["title"] = t("No title");
+				$result["object"]["type_specific_content"]["title"] = t("No title");
+			}
+
+			$result["object"]["title_link"] = l($object["type_specific_content"]["title"], $dialog_path);
+			if (isset($object['collection'])) {
+				// if this item has collection Storyscope internal, we will change the title to link to item in storyscope
+				if (stripos($object['collection'], "internal") !== false) {
+					// try to get NID from SEC
+					$nid = similarity_search_get_nid_from_sec($object["sid"]);
+					
+					// if we have NID
+					if ($nid) {
+						// load specific node with NID
+						$node = node_load($nid);
+						// if it is object story type
+						if ($node->type == "object_story") {
+							// we have dossier, create path with dossier
+							if (isset($node->dossiers[0]) && !empty($node->dossiers[0])) {
+								$link = "dossiers/".$node->dossiers[0]."/objectstories/".$node->nid;
+								$result["object"]["dataset_link"] = l($object['collection'], $link);
+							}
+							// this object story has not any dossiers, create node path
+							else {
+								$link = "node/".$node->nid;
+								$result["object"]["dataset_link"] = l($object['collection'], $link);
+							}
+						}
+						
+						// node is object, event, etc.
+						else {
+							// if object has any object story, then go trough them and try to complete adress with dossier
+							if (isset($node->object_stories) && !empty($node->object_stories)) {
+								// if we won't find any dossier for object story, we will have to use this node path link
+								$link = "node/".$node->nid;
+								$result["object"]["dataset_link"] = l($object['collection'], $link);
+								
+								// try to find better link with object stories and dossier
+								foreach ($node->object_stories AS $object_story) {
+									$nodeOS = node_load($object_story);
+									// we found dossier, now we have complete path for this item and we can stop searching for parents
+									if (isset($nodeOS->dossiers[0]) && !empty($nodeOS->dossiers[0])) {
+										$link = "dossiers/".$nodeOS->dossiers[0]."/objectstories/".$nodeOS->nid."/".similarity_search_convert_node_type_to_uri_type($node->type)."/".$node->nid;
+										$result["object"]["dataset_link"] = l($object['collection'], $link);
+										break;
+									}
+								}
+							}
+							// item hasn't aby object story, we create node path
+							else {
+								$link = "node/".$node->nid;
+								$result["object"]["dataset_link"] = l($object['collection'], $link);
+							}
+						}
+					}
+				}
+				// collection isn't storyscope internal, but we have uri, so we will create URL
+				else if (isset($object["uri"]) && !empty($object["uri"])) {
+					$result["object"]["dataset_link"] = l($object['collection'], $object["uri"]);
+				}
+                // collection isn't storyscope internal so just copy the collection text
+				else {
+                    
+					$result["object"]["dataset_link"] = $object['collection'];
+				}
+			}
+
+			// object story doesn't have image, try to find image in its childs
+			if (!isset($result["object"]["type_specific_content"]["visual_representation"]) || empty($result["object"]["type_specific_content"]["visual_representation"])) {
+				if (isset($result["object"]["refers_to"]) && !empty($result["object"]["refers_to"])) {
+					foreach ($result["object"]["refers_to"] AS $key => $child) {
+						if (isset($child["type_specific_content"]["visual_representation"])
+							&& !empty($child["type_specific_content"]["visual_representation"])) {
+							$result["object"]["type_specific_content"]["visual_representation"] = $child["type_specific_content"]["visual_representation"];
+							break;
+						}
+					}
+				}
+			}
+
+			// add http:// prefix for links that starts only with www
+			// drupal l() function creates from links which starts with www local links
+			if (isset($result["object"]["type_specific_content"]["visual_representation"]) && !empty($result["object"]["type_specific_content"]["visual_representation"])) {
+				if (strpos($result["object"]["type_specific_content"]["visual_representation"], "://") === false) {
+					$result["object"]["type_specific_content"]["visual_representation"] = "http://".$result["object"]["type_specific_content"]["visual_representation"];
+				}
+			}
+
+			if (isset($result["object"]["type_specific_content"]["visual_representation"]) && !empty($result["object"]["type_specific_content"]["visual_representation"])) {
+			  $result["object"]["type_specific_content"]["image_link"] = 
+				l('<img class="similarity-image" src="'.$result["object"]["type_specific_content"]["visual_representation"].'" alt="'.$object["type_specific_content"]["title"].' image" />', $dialog_path, array('html' => true));
+			}
+
+			$results[] = $result;
+			$i++;
+		}
+	}
+
+    $example_sec_id = "";
+    if (isset($form["node"]["#value"]) && !empty($form["node"]["#value"])) {
+        $example = node_load($form["node"]["#value"]);
+        if ($example) {
+            $example_wrapper = entity_metadata_wrapper('node', $example);
+
+            // try to read example ca_sec_id field
+            if (isset($example_wrapper->field_ca_sec_id)) {
+                $field_sec_id = $example_wrapper->field_ca_sec_id->value();
+                if (!empty($field_sec_id)) {
+                    $example_sec_id = $field_sec_id;
+                }
+            }
+        }
+    }
+
+    // get search type (object, object story, events,...) from form or get default one
+    if (isset($form_state["values"]["search_type"]) && !empty($form_state["values"]["search_type"])) {
+        // user cannot select type anymore (so this code is rewritten)
+        //$search_type = $form_state["values"]["search_type"];
+        $search_type = similarity_search_get_default_search_type($form["context"]["#default_value"]);
+    }
+    else {
+        $search_type = similarity_search_get_default_search_type($form["context"]["#default_value"]);
+    }
+    
+    $form['form_results'] = array
+    (
+      '#type' => 'value',
+      '#value' => $results
+    );  
+        
+    if (isset($form_state['values']['facet_text'])) {
+		$query = "";
+		if (isset($form_state['values']['query_text'])) {
+		  $query .= $form_state['values']['query_text']."; ";
+		}
+
+		if (isset($form_state['values']['facet_text'])) {
+		  $query .= $form_state['values']['facet_text'];
+		}
+        $parsed_query = similarity_search_form_query_parse($query);
+    }
+    else {
+        $parsed_query = Array();
+    }
+	
+	if (!isset($form['facets'])) {
+		$form['facets'] = array
+		(
+		  '#type' => 'fieldset',
+		  '#title' => t('Facets'),
+		  '#collapsible' => true,
+		  '#collapsed' => false,
+		);
+
+		$form['facets']['facet_add2query'] = array
+		(
+		  '#type' => 'submit',
+		  '#name' => 'facet_add2query',
+		  '#value' => t('Add to query and search'),
+		  '#weight' => 10,
+		  '#attributes' => array('onclick' => 'document.getElementById("submit").hidden=true;'),
+		);
+	}
+	
+	// find out which facets have something checked
+	$facetIsChecked = Array();
+	if (isset($form_state["storage"]["checkedFacet"])) {
+		$facetIsChecked = $form_state["storage"]["checkedFacet"];
+	}
+
+	$allFacetsArr = Array();
+	if (isset($form['query_facet_list']['#value']) && !empty($form['query_facet_list']['#value'])) {
+		$allFacetsArr = $form['query_facet_list']['#value'];
+	}
+	
+	$actualFacetsArr = Array();
+	if (isset($query_data["data"]["facets"]) && !empty($query_data["data"]["facets"])) {
+		$actualFacetsArr = $query_data["data"]["facets"];
+	}
+	// no facets (and results) returned, we show to user previous facets (so he can uncheck some of them to get results again)
+	// only when is any facet checked (so this shouldn't happend if user change the query, then the facetr are reseted
+	else if (!empty($facetIsChecked)) {
+		$actualFacetsArr = $form_state['storage']['facets'];
+	}
+	
+	if ((!isset($query_data["data"]["facets"]) || empty($query_data["data"]["facets"])) && isset($form_state['storage']['facets'])) {
+		$query_data["data"]["facets"] = $form_state['storage']['facets'];
+	}
+
+
+	$allFacets = Array();
+	foreach ($allFacetsArr AS $facetArr) {
+		foreach ($facetArr AS $key => $facet) {
+			$allFacets[$key] = $facet;
+		}
+	}
+
+	$actualFacets = Array();
+	foreach ($actualFacetsArr AS $facetArr) {
+		foreach ($facetArr AS $key => $facet) {
+			$actualFacets[$key] = $facet;
+		}
+	}
+
+	$lastFacet = Array();
+	if (isset($form['last_facet']['#value'])) {
+		$lastFacet = $form['last_facet']['#value'];
+	}
+	
+	// if query text from previous search and actual search are different, then we reset the facets
+	if (isset($form_state['storage']['query_text']) && isset($form_state['values']['query_text']) && !empty($form_state['storage']['query_text'])
+		&& ($form_state['values']['query_text'] != $form_state['storage']['query_text'])
+	) {
+		$previousFacets = $allFacets;
+	}
+	else if (isset($form_state['storage']['query_data_facets'])) {
+		$previousFacets = $form_state['storage']['query_data_facets'];
+	}
+	else {
+		$previousFacets = $allFacets;
+	}
+
+	$printedFacets = Array();
+
+	// read incoming facets (add new one / no removing of selected facets)
+	foreach($query_data["data"]["facets"] as $f) {
+		$keys = array_keys($f);
+		$keyword = $keys[0];
+		$f = $f[$keyword];
+
+		$options = array();
+		$values = Array();
+
+		// we are processing facet which was last activated (clicked)
+		if (!empty($lastFacet) && $lastFacet == $keyword) {
+			// facet has some checked value
+			if (isset($facetIsChecked[$keyword]) && isset($previousFacets[$keyword])) {
+				if (isset($previousFacets[$keyword]["values"])) {
+					$values = $previousFacets[$keyword]["values"];
+					$printedFacets[$keyword] = $previousFacets[$keyword];
+				}
+			}
+
+			// facet is not checked, so we will actualize him
+			else if (isset($actualFacets[$keyword])) {
+				$values = $actualFacets[$keyword]["values"];
+				$printedFacets[$keyword] = $actualFacets[$keyword];
+			}
+		}
+		// we are processing facet which is not last activated (clicked)
+		else {
+			// facet has some checked value
+			if (isset($facetIsChecked[$keyword]) && isset($previousFacets[$keyword])) {
+				// read previous facet with old numbers
+				foreach ($previousFacets[$keyword]["values"] AS $key => $value) {
+					$find = strtolower(str_replace(" ", "_", $value["value"]));
+					if(isset($parsed_query["attributes"][$keyword]["terms"]) && in_array($find, $parsed_query["attributes"][$keyword]["terms"])) {
+						$values[$key] = $previousFacets[$keyword]["values"][$key];
+					}
+				}
+				$printedFacets[$keyword]["values"] = $values;
+				$printedFacets[$keyword]["heading"] = $previousFacets[$keyword]["heading"];
+				
+				// if actual facet is returned we will actualize facet number
+				foreach ($actualFacets[$keyword]["values"] AS $key => $value) {
+					$find = strtolower(str_replace(" ", "_", $value["value"]));
+					if(isset($parsed_query["attributes"][$keyword]["terms"]) && in_array($find, $parsed_query["attributes"][$keyword]["terms"])) {
+						$values[$key] = $actualFacets[$keyword]["values"][$key];
+					}
+				}
+				$printedFacets[$keyword]["values"] = $values;
+				$printedFacets[$keyword]["heading"] = $previousFacets[$keyword]["heading"];
+			}
+
+			// facet is not checked, so we will actualize him
+			else if (isset($actualFacets[$keyword])) {
+				$values = $actualFacets[$keyword]["values"];
+				$printedFacets[$keyword] = $actualFacets[$keyword];
+			}
+		}
+
+		foreach ($values AS $value) {
+			$key = preg_replace("|\s*(\([0-9]+\))|", "", strtolower($value["value"]));
+			$key = strtr(trim($key), ' ', '_');
+
+			// if facet have bigger number than results count, then fix (trim) this value
+			if (!isset($query_data["data"]["result_count"])) {
+				$value["count"] = 0;
+			}
+			else if ($value["count"] > $query_data["data"]["result_count"]) {
+                /// @todo: should we limit the results??
+				//$value["count"] = (int)$query_data["data"]["result_count"];
+			}
+			$options[$key] = t($value["value"])." (".$value["count"].")";
+		}
+
+		$form_item = Array();
+
+		if (!empty($options)) {
+			$form_item = array
+			(
+			  '#title' => t($f['heading']),
+			  '#type' => 'checkboxes',
+			  '#name' => 'facet-'.$keyword,
+			  //'#description' => $f['tooltip'],
+			  '#options' => $options,
+			  '#ajax' => array
+			  (
+				'callback' => 'similarity_search_form_facets_callback',
+				'wrapper' => 'query-form',
+				'progress' => array('type' => 'throbber', 'message' => ''),
+				'event' => 'change',
+			  ),
+			);
+		}
+
+		$form['facets'][$keyword] = $form_item;
+	}
+
+    if (isset($query_data["data"]["result_count"])) {
+        if ($query_data["data"]["result_count"] == 1) {
+            $result_text = t('result');
+        }
+        else {
+            $result_text = t('results');
+        }
+        
+        $total_estimate_text = $query_data["data"]["result_count"].' '.$result_text;
+    }
+    else {
+        $total_estimate_text = "";
+    }
+
+    $form['total_estimate'] = array
+    (
+        '#type' => 'value',
+        '#value' => $total_estimate_text,
+    );
+    
+	pager_default_initialize($query_data["data"]["result_count"], $size);
+
+	$tmp = $_GET['q'];
+	$_GET['q'] = $form_state["values"]["form_drupal_path"];
+	$form['drupal_pager'] = array
+    (
+        '#type' => 'value',
+        '#value' => theme('pager'),
+    );
+    
+	$_GET['q'] = $tmp;
+	
+  // check facet selection
+  ///clears all checkboxes
+  if (isset($form['facets'])) {
+      foreach($form['facets'] as $facet_key => $facet)
+        if(is_array($facet) && isset($facet['#options']))
+          foreach(array_keys($facet['#options']) as $term) {
+            $form['facets'][$facet_key][$term]['#checked'] = false;
+            $form['facets'][$facet_key][$term]['#value'] = false;
+          }
+  }
+  
+  if (isset($form_state['values']['query_text'])) {
+    $query = $form_state['values']['query_text']." ";
+  }
+  
+  if (isset($form_state['values']['facet_text'])) {
+    $query .= $form_state['values']['facet_text'];
+  }
+
+    ///for every facet value mentioned in query set the corresponding checkbox as checked
+    if (isset($parsed_query['attributes'])) {
+        foreach($parsed_query['attributes'] as $facet_key => $facet) {
+          foreach($facet['terms'] as $term) {
+            $form['facets'][$facet_key][$term]['#checked'] = true;
+            $form['facets'][$facet_key][$term]['#value'] = true;
+          }
+        }
+    }
+
+  $form_state['storage']['values'] = $form_state['values'];
+  $form_state['storage']['results'] = $results;
+  
+  if (isset($form_state['values']['query_text'])) {
+      $form_state['storage']['query_text'] = $form_state['values']['query_text'];
+  }
+
+  $form_state['storage']['facets'] = $query_data["data"]["facets"];
+  $form_state['storage']['query_data_facets'] = $printedFacets;
+}
+
+/**
+ * Implementation of hook_submit().
+ * 
+ */
+function similarity_search_form_submit(&$form, &$form_state) {
+    global $user;
+    $size = variable_get('sec_store_api_results_count', 20); 
+    $from = 0;
+    
+    // Trigger multistep.
+    $form_state['rebuild'] = TRUE;
+    
+    // Store values that will be available when we return to the definition.
+    $form_state['storage']['values'] = $form_state['values'];
+
+    $results = Array();
+
+    // get selected objects
+    $objectID = Array();
+
+    // variables for building ajax links (add and ignore object)
+    // these values will be inserted in address, so we need some default values which are parent, example and type
+    // if we have selected some example then example ca/sec id will be inserted into address insted of "example" string
+    $parent = "parent";
+    $example = "example";
+    $type = "type";
+    $parentSECid = "";
+    
+    if (isset($form_state['values']['context']) && !empty($form_state['values']['context'])) {
+        $parent = $form_state['values']['context'];
+        $parentNode = node_load($form_state['values']['context']);
+        
+        if ($parentNode) {
+            // load node wrapper
+            $node_wrapper = entity_metadata_wrapper('node', $parentNode);
+
+            // read CA/SEC ID from field (default is empty "")
+            
+
+            if (isset($node_wrapper->field_ca_sec_id)) {
+                $field_sec_id = $node_wrapper->field_ca_sec_id->value();
+                if (!empty($field_sec_id)) {
+                    $parentSECid = (string)$field_sec_id;
+                }
+            }
+        }
+    }
+
+    if (isset($form_state['values']['node_ca_sec_id']) && !empty($form_state['values']['node_ca_sec_id'])) {
+        $example = $form_state['values']['node_ca_sec_id'];
+    }
+    
+    if (isset($form_state['values']['search_type']) && !empty($form_state['values']['search_type'])) {
+        $type = $form_state['values']['search_type'];
+    }
+    
+    // get all objects from form (objects name are called rec_check_0, rec_check_1, ...)
+    // this is for ignore protocol
+    for($i = 0; isset($form_state['input']['rec_check_id_'.$i]); $i++) {
+        if (isset($form_state['input']['rec_check_'.$i]) && !empty($form_state['input']['rec_check_'.$i])) {
+            $objectID[] = $form_state['input']['rec_check_id_'.$i];
+        }
+    }
+    
+    // ======================================
+    //          PROCESS BUTTON CALL
+    // ======================================
+    
+    // prepare ignore array, this is not used when we saving new nodes
+    $ignore = Array(
+        "ignore" => $objectID,
+        "object" => "",
+        "parent" => "",
+        "user" => "",
+        "type" => $form_state['values']['search_type']
+    );
+    
+    // prepare add array, this is not used when we ignoring objects
+    $add = Array(
+        "search_type" => $form_state["values"]["search_type"],
+        "objects" => $objectID
+    );
+    
+    // prepare remove array
+    $remove = Array(
+        "remove" => $objectID,
+        "parent" => $parentSECid,
+        "remove_from_system" => 0
+    );
+    
+    // get actual page number
+    $page = (isset($form_state["values"]["similarity_pager"])) ? $form_state["values"]["similarity_pager"] : 0;
+    
+    // separate button name and CA/SEC ID from button name
+    if (substr($form_state['clicked_button']['#name'], 0, strlen("add_object")) == "add_object") {
+        $object_sec_id = substr($form_state['clicked_button']['#name'], strlen("add_object") + 1); 
+        $form_state['clicked_button']['#name'] = "add_object";
+        $add["objects"] = Array($object_sec_id);
+    }
+    
+    // separate button name and CA/SEC ID from button name
+    if (substr($form_state['clicked_button']['#name'], 0, strlen("remove_object")) == "remove_object") {
+        $object_sec_id = substr($form_state['clicked_button']['#name'], strlen("remove_object") + 1); 
+        $form_state['clicked_button']['#name'] = "remove_object";
+        $remove["remove"] = Array($object_sec_id);
+        $remove["remove_from_system"] = similarity_search_item_is_last_in_storyscope($object_sec_id);
+    }
+    
+    // buttons of form
+    if (isset($form_state['clicked_button']['#name']) && !empty($form_state['clicked_button']['#name'])) {
+        switch($form_state['clicked_button']['#name']) {
+            // when we press search we want to show first items (page 0)
+            case 'submit': {
+                $page = 0;
+                // on submit restart facet query
+                $form_state['values']['facet_text'] = "";
+                $form_state['storage']['values']['facet_text'] = "";
+				$form_state['values']['last_facet'] = "";
+				$form_state["storage"]["checkedFacet"] = Array();
+                
+                // on query change, clear facet values
+                unset($_SESSION["sec_form_redirect_facet_text"]);
+				unset($_SESSION["sec_form_form"]);
+				unset($_SESSION["sec_form_form_state"]);
+
+                $form_state['values']['facet_text'] = "";
+                $form['facet_text']['#value'] = "";
+
+                if (isset($form_state['storage']['values']['facet_text'])) {
+                  $form_state['storage']['values']['facet_text'] = "";
+                }
+				
+                // this must be set to false to redirect the form (drupal check this value)
+                $form_state['rebuild'] = false;
+                
+                // drop example must redirect to another address and we lost data
+                // if there exists some other way how to not loss data from storage on redirect, you can change it
+                if (isset($form_state['storage']['values'])) {
+                    $_SESSION["sec_form_redirect_values"] = $form_state['storage']['values'];
+                }
+				
+				if ($form['search_method']['#value'] == "by_example") {
+					$search_type = "example";
+				}
+				else {
+					$search_type = "query";
+				}
+                $form_state["redirect"] = similarity_create_search_url($search_type);
+                drupal_redirect_form($form_state);
+            } break;
+        
+            // addding facet select to query field
+            case 'facet_add2query': {
+                if (isset($form_state['values']['facet_text']) && !empty($form_state['values']['facet_text'])) {
+                    // add separator if query text is not empty
+                    if (isset($form_state['values']['query_text']) && !empty($form_state['values']['query_text'])) {
+                        $form_state['values']['query_text'] .= '; ';
+                    }
+                    
+                    $form_state['values']['query_text'] .= $form_state['values']['facet_text'];
+                    $form_state['values']['query_text'] = trim($form_state['values']['query_text']);
+                    $form_state['input']['query_text'] = $form_state['values']['query_text'];
+                    $form_state['values']['facet_text'] = '';
+                    $form_state['storage']['values']['query_text'] = $form_state['values']['query_text'];
+                    $form_state['storage']['values']['facet_text'] = $form_state['values']['facet_text'];
+                    $form['query_text']['#value'] = $form_state['values']['query_text'];
+                    $form['facet_text']['#value'] = $form_state['values']['facet_text'];
+                }           
+            } break;
+
+            // we should add item(s) from SEC Store API to our storyscope
+            case 'add_all': {
+                similarity_search_save_items($add, $parent);
+            } break;
+        
+            // add one item to storyscope
+            case 'add_object': {
+                similarity_search_save_items($add, $parent);
+            } break;
+            
+            // add one item to storyscope
+            case 'remove_object': {
+                similarity_search_remove_items($remove, $parent);
+            } break;
+
+            // we should ignore item from SEC Store API for our object
+            case 'ignore_object': {
+                $ignore["object"] = $form_state['values']['example'];
+                similarity_search_sec_store_ignore($ignore);    
+            } break;
+
+            // we should ignore item from SEC Store API for our storycope
+            case 'ignore_storyscope': {
+                similarity_search_sec_store_ignore($ignore);    
+            } break;
+
+            // we should ignore item from SEC Store API for our parent object
+            case 'ignore_parent': {
+                $ignore["parent"] = $form_state['values']['context'];
+                similarity_search_sec_store_ignore($ignore);     
+            } break;
+        
+            // we should ignore item from SEC Store API for our user in storycope
+            case 'ignore_user': {
+                $ignore["user"] = $user->name;
+                similarity_search_sec_store_ignore($ignore);           
+            } break;
+        
+            // we should ignore item from SEC Store API for our user group in storycope
+            case 'ignore_group': {
+                $ignore["group"] = $user->roles;
+                similarity_search_sec_store_ignore($ignore);           
+            } break;
+
+            case 'drop_example': {
+                // this must be set to false to redirect the form (drupal check this value)
+                $form_state['rebuild'] = false;
+                
+                // drop example must redirect to another address and we lost data
+                // if there exists some other way how to not loss data from storage on redirect, you can change it
+                if (isset($form_state['storage']['values'])) {
+                    $_SESSION["sec_form_redirect_values"] = $form_state['storage']['values'];
+                }
+
+                $form_state["redirect"] = similarity_create_search_url();
+                drupal_redirect_form($form_state);
+            } break;
+        }
+    }
+
+    // ======================================
+    //        GET NEW ITEMS IN FORM
+    // ======================================
+    //similarity_search_actualize_search_type($form, $form_state);
+    // get response
+    
+    $from = $page * $size;
+    $form_state["values"]["from"] = $from;
+    $form_state["values"]["size"] = $size;
+    $form_state["values"]["similarity_pager"] = $page;
+    
+    $form_state['storage']['values']['from'] = $from;
+    $form_state['storage']['values']['size'] = $size;
+    $form_state['storage']['values']['similarity_pager'] = $page;
+    
+    //$_SESSION["sec_form_redirect_values"] = $form_state["values"];
+
+    if (isset($form["form_results"])) {
+        //$_SESSION["sec_form_redirect_results"] = $form["form_results"];
+    }
+    
+    if (isset($form['facets'])) {
+        //$_SESSION["sec_form_redirect_facets"] = $form['facets'];
+    }
+    
+    // on form submit we erase saved values (facets should be unchecked)
+    // tried to use $form variable without SESSION, not working
+    //$form["storage_values"]["#value"] = $form_state['values'];
+    
+    ///clears all checkboxes
+    if (isset($form['facets'])) {
+        foreach($form['facets'] as $facet_key => $facet)
+          if(is_array($facet) && isset($facet['#options']))
+            foreach(array_keys($facet['#options']) as $term) {
+              $form['facets'][$facet_key][$term]['#checked'] = false;
+              $form['facets'][$facet_key][$term]['#value'] = false;
+            }
+    }
+
+    if (isset($form_state['values']['query_text'])) {
+      $query = $form_state['values']['query_text'];
+
+      $parsed_query = similarity_search_form_query_parse($query);
+
+      ///for every facet value mentioned in query set the corresponding checkbox as checked
+      if (isset($parsed_query['attributes'])) {
+          foreach($parsed_query['attributes'] as $facet_key => $facet) {
+            foreach($facet['terms'] as $term) {
+              $form['facets'][$facet_key][$term]['#checked'] = true;
+              $form['facets'][$facet_key][$term]['#value'] = true;
+            }
+          }
+      }  
+    }
+
+    if (isset($_SESSION["sec_form_redirect_values"])) {
+        unset($_SESSION["sec_form_redirect_values"]);
+    }
+}

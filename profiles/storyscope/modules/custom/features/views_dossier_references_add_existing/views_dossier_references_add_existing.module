@@ -1,0 +1,7 @@
+<?php
+/**
+ * @file
+ * Code for the views dossier references add existing feature.
+ */
+
+include_once 'views_dossier_references_add_existing.features.inc';

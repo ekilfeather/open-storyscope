@@ -1,0 +1,26 @@
+diff --git entity/views/handlers/entity_views_handler_field_entity.inc entity/views/handlers/entity_views_handler_field_entity.inc
+index f76fb17..f331718 100644
+--- entity/views/handlers/entity_views_handler_field_entity.inc
++++ entity/views/handlers/entity_views_handler_field_entity.inc
+@@ -180,6 +180,7 @@ class entity_views_handler_field_entity extends views_handler_field {
+     }
+ 
+     if ($this->options['display'] === 'view') {
++      $entity->view = $this->view;
+       $entity_view = entity_view($type, array($entity), $this->options['view_mode']);
+       return render($entity_view);
+     }
+diff --git entity/views/plugins/entity_views_plugin_row_entity_view.inc entity/views/plugins/entity_views_plugin_row_entity_view.inc
+index db72b5f..f5ca7d5 100644
+--- entity/views/plugins/entity_views_plugin_row_entity_view.inc
++++ entity/views/plugins/entity_views_plugin_row_entity_view.inc
+@@ -73,6 +73,9 @@ class entity_views_plugin_row_entity_view extends views_plugin_row {
+     }
+     // Render the entities.
+     if ($this->entities) {
++      foreach ($this->entities as $i => $entity) {
++        $entity->view = $this->view;
++      }
+       $render = entity_view($this->entity_type, $this->entities, $this->options['view_mode']);
+       // Remove the first level of the render array.
+       $this->rendered_content = reset($render);

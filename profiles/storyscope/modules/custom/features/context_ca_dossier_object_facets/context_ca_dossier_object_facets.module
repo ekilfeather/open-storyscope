@@ -1,0 +1,7 @@
+<?php
+/**
+ * @file
+ * Code for the Context ca dossier object facets feature.
+ */
+
+include_once 'context_ca_dossier_object_facets.features.inc';

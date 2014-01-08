@@ -1,0 +1,11 @@
+name = Context ca dossier object facets
+description = Places facets and filter for dossier objects coming from the CA at dossiers/*/objects/search/external
+core = 7.x
+package = Features
+dependencies[] = context
+dependencies[] = ctools
+dependencies[] = facetapi
+dependencies[] = views
+features[context][] = search_dossier_add_ca_objects
+features[ctools][] = context:context:3
+features[features_api][] = api:1

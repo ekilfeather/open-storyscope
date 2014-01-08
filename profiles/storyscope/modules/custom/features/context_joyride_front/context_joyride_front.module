@@ -1,0 +1,7 @@
+<?php
+/**
+ * @file
+ * Code for the Context Joyride -  Front feature.
+ */
+
+include_once 'context_joyride_front.features.inc';

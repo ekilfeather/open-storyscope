@@ -1,0 +1,12 @@
+name = Context Joyride - Mahon dossier
+core = 7.x
+package = Context
+php = 5.2.4
+dependencies[] = content_type_dossier
+dependencies[] = context
+dependencies[] = ctools
+dependencies[] = joyride
+features[context][] = joyride_mahon_dossier
+features[context][] = joyride_start_mahon_dossier
+features[ctools][] = context:context:3
+features[features_api][] = api:1

@@ -1,0 +1,7 @@
+<?php
+/**
+ * @file
+ * Code for the Context Story Output feature.
+ */
+
+include_once 'context_story_output.features.inc';

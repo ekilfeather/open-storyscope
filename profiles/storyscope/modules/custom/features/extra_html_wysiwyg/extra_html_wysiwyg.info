@@ -1,0 +1,13 @@
+name = Extra HTML wysiwyg
+description = Extra HTML wysiwyg profile
+core = 7.x
+package = Features
+php = 5.2.4
+version = master-dev
+project = annerprofile
+dependencies[] = extra_html
+dependencies[] = features
+dependencies[] = wysiwyg
+datestamp = 1354881032
+features[features_api][] = api:1
+features[wysiwyg][] = extra_html

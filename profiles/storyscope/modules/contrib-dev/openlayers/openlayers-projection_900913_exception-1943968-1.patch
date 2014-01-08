@@ -1,0 +1,13 @@
+diff --git a/openlayers.module b/openlayers.module
+index e204305..cc29d31 100644
+--- a/openlayers.module
++++ b/openlayers.module
+@@ -960,6 +960,9 @@ function openlayers_get_projection($authority, $code) {
+  */
+ function openlayers_get_projection_by_identifier($identifier) {
+   ctools_include('export');
++
++  //Some modules such as geofield only specify the projection number - Default authority to EPSG: if unspecified.
++  if (is_numeric($identifier)) { $identifier = "EPSG:".$identifier; }
+   
+   $records = ctools_export_load_object('openlayers_projections', 'names', array($identifier));

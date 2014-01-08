@@ -1,0 +1,7 @@
+<?php
+/**
+ * @file
+ * Code for the Context Joyride - Add Event feature.
+ */
+
+include_once 'context_joyride_add_event.features.inc';

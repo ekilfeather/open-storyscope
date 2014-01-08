@@ -1,0 +1,7 @@
+<?php
+/**
+ * @file
+ * Code for the views dossier references feature.
+ */
+
+include_once 'views_dossier_references.features.inc';

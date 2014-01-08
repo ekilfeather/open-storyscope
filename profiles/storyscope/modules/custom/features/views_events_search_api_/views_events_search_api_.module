@@ -1,0 +1,7 @@
+<?php
+/**
+ * @file
+ * Code for the Views events (search api) feature.
+ */
+
+include_once 'views_events_search_api_.features.inc';

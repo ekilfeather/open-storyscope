@@ -1,0 +1,1245 @@
+<?php
+
+/**
+ * @file
+ * Ensure the vast combinations of public and private content, viewers and
+ * editors over a dossier, a dossier's children and grandchildren work as
+ * expected.
+ */
+
+class StoryscopeControlDossierAccessTestCase extends DrupalWebTestCase {
+
+  protected $profile = 'storyscope';
+  protected $timeLimit = 180;
+
+  // Users
+  // ------
+  protected $author1; // Owns dossier 1
+  protected $author2; // Owns dossier 2
+  protected $author3; // Author of child nodes within a dossier, but author not in dossier
+  protected $viewer1; // Viewer on dossier 1
+  protected $viewer2; // Viewer on dossier 2
+  protected $editor1; // Editor on dossier 1
+  protected $editor2; // Editor on dossier 2
+
+  // Nodes
+  // ------
+  // Dossiers
+  protected $private_dossier1;
+  protected $private_dossier2;
+  protected $public_dossier1;
+  protected $public_dossier2;
+  // Object stories
+  protected $private_object_story1_private_dossier;
+  protected $private_object_story1_public_dossier;
+  protected $private_object_story1_no_dossier;
+  protected $public_object_story1_private_dossier;
+  protected $public_object_story1_public_dossier;
+  protected $public_object_story1_no_dossier;
+  protected $private_object_story2_private_dossier;
+  protected $private_object_story2_public_dossier;
+  protected $private_object_story2_no_dossier;
+  protected $public_object_story2_private_dossier;
+  protected $public_object_story2_public_dossier;
+  protected $public_object_story2_no_dossier;
+  protected $private_object_story3_private_dossier;
+  protected $private_object_story3_public_dossier;
+  protected $private_object_story3_no_dossier;
+  protected $public_object_story3_private_dossier;
+  protected $public_object_story3_public_dossier;
+  protected $public_object_story3_no_dossier;
+  // References
+  protected $reference1_private;
+  protected $reference1_public;
+  protected $reference1_none;
+  protected $reference2_private;
+  protected $reference2_public;
+  protected $reference2_none;
+  protected $reference3_private;
+  protected $reference3_public;
+  protected $reference3_none;
+  protected $reference1_editor_private;
+  protected $reference1_editor_public;
+  // Objects
+  protected $object1_private;
+  protected $object1_public;
+  protected $object1_none;
+  protected $object2_private;
+  protected $object2_public;
+  protected $object2_none;
+  protected $object3_private;
+  protected $object3_public;
+  protected $object3_none;
+  protected $object1_editor_private;
+  protected $object1_editor_public;
+  // Plots
+  protected $plot1_private;
+  protected $plot1_public;
+  protected $plot1_none;
+  protected $plot2_private;
+  protected $plot2_public;
+  protected $plot2_none;
+  protected $plot3_private;
+  protected $plot3_public;
+  protected $plot3_none;
+  protected $plot1_editor_private;
+  protected $plot1_editor_public;
+  // Plot elements
+  protected $plot_element1_private;
+  protected $plot_element1_public;
+  protected $plot_element1_none;
+  protected $plot_element2_private;
+  protected $plot_element2_public;
+  protected $plot_element2_none;
+  protected $plot_element3_private;
+  protected $plot_element3_public;
+  protected $plot_element3_none;
+  protected $plot_element1_editor_private;
+  protected $plot_element1_editor_public;
+  // Events
+  protected $event1_private;
+  protected $event1_public;
+  protected $event1_none;
+  protected $event2_private;
+  protected $event2_public;
+  protected $event2_none;
+  protected $event3_private;
+  protected $event3_public;
+  protected $event3_none;
+  protected $event1_editor_private;
+  protected $event1_editor_public;
+
+  // TODO: probably remove 'none' elements for plots, plot elements and events
+  // as they can't exist outside of a dossier or object story context.
+  // TODO: children within an object story and children within an object story
+  // within a dossier.
+
+
+  public static function getInfo() {
+    return array(
+      'name' => 'Storyscope Control - Dossier Access',
+      'description' => 'Test that access to a dossier and its contents work as expected.',
+      'group' => 'Storyscope',
+    );
+  }
+
+  function setUp() {
+    set_time_limit(180);
+    $langcode = LANGUAGE_NONE;
+
+    // Enable required modules.
+    parent::setUp(array('storyscope_control', 'storyscope_content', 'nodeaccess_userreference', 'entity', 'content_type_dossier', 'content_type_event', 'content_type_object', 'content_type_object_story', 'content_type_plot', 'content_type_plot_element', 'content_type_reference'));
+    // Disable 'views' module to remove extra debug messages, or at least some of them.
+    module_disable(array('views'));
+    // Set theme to 'bartik' so we're dealing with a standard theme and user
+    // login tests don't fail because the logout link has a different link text.
+    $this->setTheme('bartik');
+
+    // Note: adding 'create dossier content', etc doesn't work here as they are
+    // 'new' permissions, go figure.
+    $permissions = array(
+      'access content',
+      'create dossier content',
+    );
+
+    // Create required users.
+    $this->author1 = $this->drupalCreateUser($permissions);
+    $this->author2 = $this->drupalCreateUser($permissions);
+    $this->author3 = $this->drupalCreateUser($permissions);
+    $this->viewer1 = $this->drupalCreateUser($permissions);
+    $this->viewer2 = $this->drupalCreateUser($permissions);
+    $this->editor1 = $this->drupalCreateUser($permissions);
+    $this->editor2 = $this->drupalCreateUser($permissions);
+
+
+    // Create nodes.
+    // ==============
+    // Set up some useful variables.
+    // -----------------------------
+    $public[$langcode][0]['value'] = 0;
+    $private[$langcode][0]['value'] = 1;
+    $viewer1[$langcode][0]['target_id'] = $this->viewer1->uid;
+    $viewer2[$langcode][0]['target_id'] = $this->viewer2->uid;
+    $editor1[$langcode][0]['target_id'] = $this->editor1->uid;
+    $editor2[$langcode][0]['target_id'] = $this->editor2->uid;
+
+
+    // References
+    // -----------
+    // Author 1
+    $settings = array(
+      'type' => 'reference',
+      'title' => 'Reference 1 - in private dossier',
+      'uid' => $this->author1->uid,
+    );
+    $this->reference1_private = $this->drupalCreateNode($settings);
+    $settings['title'] = 'Reference 1 - in public dossier';
+    $this->reference1_public = $this->drupalCreateNode($settings);
+    $settings['title'] = 'Reference 1 - in no dossier';
+    $this->reference1_none = $this->drupalCreateNode($settings);
+
+    // Author 2
+    $settings['uid'] = $this->author2->uid;
+    $settings['title'] = 'Reference 2 - in private dossier';
+    $this->reference2_private = $this->drupalCreateNode($settings);
+    $settings['title'] = 'Reference 2 - in public dossier';
+    $this->reference2_public = $this->drupalCreateNode($settings);
+    $settings['title'] = 'Reference 2 - in no dossier';
+    $this->reference2_none = $this->drupalCreateNode($settings);
+
+    // Author 3
+    $settings['uid'] = $this->author3->uid;
+    $settings['title'] = 'Reference 3 - in private dossier1';
+    $this->reference3_private = $this->drupalCreateNode($settings);
+    $settings['title'] = 'Reference 3 - in public dossier1';
+    $this->reference3_public = $this->drupalCreateNode($settings);
+    $settings['title'] = 'Reference 3 - in no dossier';
+    $this->reference3_none = $this->drupalCreateNode($settings);
+
+    // Author : Editor 1
+    $settings['uid'] = $this->editor1->uid;
+    $settings['title'] = 'Reference 1 editor - in private dossier1';
+    $this->reference1_editor_private = $this->drupalCreateNode($settings);
+    $settings['title'] = 'Reference 1 editor - in public dossier1';
+    $this->reference1_editor_public = $this->drupalCreateNode($settings);
+
+    // Set up variables.
+    $reference1_private[$langcode][0]['target_id'] = $this->reference1_private->nid;
+    $reference1_private[$langcode][1]['target_id'] = $this->reference3_private->nid;
+    $reference1_private[$langcode][2]['target_id'] = $this->reference1_editor_private->nid;
+    $reference1_public[$langcode][0]['target_id'] = $this->reference1_public->nid;
+    $reference1_public[$langcode][1]['target_id'] = $this->reference3_public->nid;
+    $reference1_public[$langcode][2]['target_id'] = $this->reference1_editor_public->nid;
+
+    $reference2_private[$langcode][0]['target_id'] = $this->reference2_private->nid;
+    $reference2_public[$langcode][0]['target_id'] = $this->reference2_public->nid;
+
+
+    // Objects
+    // --------
+    // Author 1
+    $settings = array(
+      'type' => 'object',
+      'title' => 'Object 1 - in private dossier',
+      'uid' => $this->author1->uid,
+    );
+    $this->object1_private = $this->drupalCreateNode($settings);
+    $settings['title'] = 'Object 1 - in public dossier';
+    $this->object1_public = $this->drupalCreateNode($settings);
+    $settings['title'] = 'Object 1 - in no dossier';
+    $this->object1_none = $this->drupalCreateNode($settings);
+
+    // Author 2
+    $settings['uid'] = $this->author2->uid;
+    $settings['title'] = 'Object 2 - in private dossier';
+    $this->object2_private = $this->drupalCreateNode($settings);
+    $settings['title'] = 'Object 2 - in public dossier';
+    $this->object2_public = $this->drupalCreateNode($settings);
+    $settings['title'] = 'Object 2 - in no dossier';
+    $this->object2_none = $this->drupalCreateNode($settings);
+
+    // Author 3
+    $settings['uid'] = $this->author3->uid;
+    $settings['title'] = 'Object 3 - in private dossier1';
+    $this->object3_private = $this->drupalCreateNode($settings);
+    $settings['title'] = 'Object 3 - in public dossier1';
+    $this->object3_public = $this->drupalCreateNode($settings);
+    $settings['title'] = 'Object 3 - in no dossier';
+    $this->object3_none = $this->drupalCreateNode($settings);
+
+    // Author : Editor 1
+    $settings['uid'] = $this->editor1->uid;
+    $settings['title'] = 'Object 1 editor - in private dossier1';
+    $this->object1_editor_private = $this->drupalCreateNode($settings);
+    $settings['title'] = 'Object 1 editor - in public dossier1';
+    $this->object1_editor_public = $this->drupalCreateNode($settings);
+
+    // Set up variables.
+    $object1_private[$langcode][0]['target_id'] = $this->object1_private->nid;
+    $object1_private[$langcode][1]['target_id'] = $this->object3_private->nid;
+    $object1_private[$langcode][2]['target_id'] = $this->object1_editor_private->nid;
+    $object1_public[$langcode][0]['target_id'] = $this->object1_public->nid;
+    $object1_public[$langcode][1]['target_id'] = $this->object3_public->nid;
+    $object1_public[$langcode][2]['target_id'] = $this->object1_editor_public->nid;
+
+    $object2_private[$langcode][0]['target_id'] = $this->object2_private->nid;
+    $object2_public[$langcode][0]['target_id'] = $this->object2_public->nid;
+
+
+    // Events
+    // -------
+    // Author 1
+    $settings = array(
+      'type' => 'event',
+      'title' => 'Event 1 - in private dossier',
+      'uid' => $this->author1->uid,
+    );
+    $this->event1_private = $this->drupalCreateNode($settings);
+    $settings['title'] = 'Event 1 - in public dossier';
+    $this->event1_public = $this->drupalCreateNode($settings);
+    $settings['title'] = 'Event 1 - in no dossier';
+    $this->event1_none = $this->drupalCreateNode($settings);
+
+    // Author 2
+    $settings['uid'] = $this->author2->uid;
+    $settings['title'] = 'Event 2 - in private dossier';
+    $this->event2_private = $this->drupalCreateNode($settings);
+    $settings['title'] = 'Event 2 - in public dossier';
+    $this->event2_public = $this->drupalCreateNode($settings);
+    $settings['title'] = 'Event 2 - in no dossier';
+    $this->event2_none = $this->drupalCreateNode($settings);
+
+    // Author 3
+    $settings['uid'] = $this->author3->uid;
+    $settings['title'] = 'Event 3 - in private dossier1';
+    $this->event3_private = $this->drupalCreateNode($settings);
+    $settings['title'] = 'Event 3 - in public dossier1';
+    $this->event3_public = $this->drupalCreateNode($settings);
+    $settings['title'] = 'Event 3 - in no dossier';
+    $this->event3_none = $this->drupalCreateNode($settings);
+
+    // Author : Editor 1
+    $settings['uid'] = $this->editor1->uid;
+    $settings['title'] = 'Event 1 editor - in private dossier1';
+    $this->event1_editor_private = $this->drupalCreateNode($settings);
+    $settings['title'] = 'Event 1 editor - in public dossier1';
+    $this->event1_editor_public = $this->drupalCreateNode($settings);
+
+    // Set up variables.
+    $event1_private[$langcode][0]['target_id'] = $this->event1_private->nid;
+    $event1_private[$langcode][1]['target_id'] = $this->event3_private->nid;
+    $event1_private[$langcode][2]['target_id'] = $this->event1_editor_private->nid;
+    $event1_public[$langcode][0]['target_id'] = $this->event1_public->nid;
+    $event1_public[$langcode][1]['target_id'] = $this->event3_public->nid;
+    $event1_public[$langcode][2]['target_id'] = $this->event1_editor_public->nid;
+
+    $event2_private[$langcode][0]['target_id'] = $this->event2_private->nid;
+    $event2_public[$langcode][0]['target_id'] = $this->event2_public->nid;
+
+
+    // Plot elements
+    // --------------
+    // Author 1
+    $settings = array(
+      'type' => 'plot_element',
+      'title' => 'Plot element 1 - in private dossier',
+      'uid' => $this->author1->uid,
+    );
+    $this->plot_element1_private = $this->drupalCreateNode($settings);
+    $settings['title'] = 'Plot element 1 - in public dossier';
+    $this->plot_element1_public = $this->drupalCreateNode($settings);
+    $settings['title'] = 'Plot element 1 - in no dossier';
+    $this->plot_element1_none = $this->drupalCreateNode($settings);
+
+    // Author 2
+    $settings['uid'] = $this->author2->uid;
+    $settings['title'] = 'Plot element 2 - in private dossier';
+    $this->plot_element2_private = $this->drupalCreateNode($settings);
+    $settings['title'] = 'Plot element 2 - in public dossier';
+    $this->plot_element2_public = $this->drupalCreateNode($settings);
+    $settings['title'] = 'Plot element 2 - in no dossier';
+    $this->plot_element2_none = $this->drupalCreateNode($settings);
+
+    // Author 3
+    $settings['uid'] = $this->author3->uid;
+    $settings['title'] = 'Plot element 3 - in private dossier1';
+    $this->plot_element3_private = $this->drupalCreateNode($settings);
+    $settings['title'] = 'Plot element 3 - in public dossier1';
+    $this->plot_element3_public = $this->drupalCreateNode($settings);
+    $settings['title'] = 'Plot element 3 - in no dossier';
+    $this->plot_element3_none = $this->drupalCreateNode($settings);
+
+    // Author : Editor 1
+    $settings['uid'] = $this->editor1->uid;
+    $settings['title'] = 'Plot element 1 editor - in private dossier1';
+    $this->plot_element1_editor_private = $this->drupalCreateNode($settings);
+    $settings['title'] = 'Plot element 1 editor - in public dossier1';
+    $this->plot_element1_editor_public = $this->drupalCreateNode($settings);
+
+    // Set up variables.
+    $plot_element1_private[$langcode][0]['target_id'] = $this->plot_element1_private->nid;
+    $plot_element1_public[$langcode][0]['target_id'] = $this->plot_element1_public->nid;
+    $plot_element1_none[$langcode][0]['target_id'] = $this->plot_element1_none->nid;
+    $plot_element2_private[$langcode][0]['target_id'] = $this->plot_element2_private->nid;
+    $plot_element2_public[$langcode][0]['target_id'] = $this->plot_element2_public->nid;
+    $plot_element2_none[$langcode][0]['target_id'] = $this->plot_element2_none->nid;
+    $plot_element3_private[$langcode][0]['target_id'] = $this->plot_element3_private->nid;
+    $plot_element3_public[$langcode][0]['target_id'] = $this->plot_element3_public->nid;
+    $plot_element3_none[$langcode][0]['target_id'] = $this->plot_element3_none->nid;
+    $plot_element1_editor_private[$langcode][0]['target_id'] = $this->plot_element1_editor_private->nid;
+    $plot_element1_editor_public[$langcode][0]['target_id'] = $this->plot_element1_editor_public->nid;
+
+
+    // Plots
+    // ------
+    // Author 1
+    $settings = array(
+      'type' => 'plot',
+      'title' => 'Plot 1 - in private dossier',
+      'uid' => $this->author1->uid,
+      'field_plot_plot_elements' => $plot_element1_private,
+    );
+    $this->plot1_private = $this->drupalCreateNode($settings);
+    $settings['title'] = 'Plot 1 - in public dossier';
+    $settings['field_plot_plot_elements'] = $plot_element1_public;
+    $this->plot1_public = $this->drupalCreateNode($settings);
+    $settings['title'] = 'Plot 1 - in no dossier';
+    $settings['field_plot_plot_elements'] = $plot_element1_none;
+    $this->plot1_none = $this->drupalCreateNode($settings);
+
+    // Author 2
+    $settings['uid'] = $this->author2->uid;
+    $settings['title'] = 'Plot 2 - in private dossier';
+    $settings['field_plot_plot_elements'] = $plot_element2_private;
+    $this->plot2_private = $this->drupalCreateNode($settings);
+    $settings['title'] = 'Plot 2 - in public dossier';
+    $settings['field_plot_plot_elements'] = $plot_element2_public;
+    $this->plot2_public = $this->drupalCreateNode($settings);
+    $settings['title'] = 'Plot 2 - in no dossier';
+    $settings['field_plot_plot_elements'] = $plot_element2_none;
+    $this->plot2_none = $this->drupalCreateNode($settings);
+
+    // Author 3
+    $settings['uid'] = $this->author3->uid;
+    $settings['title'] = 'Plot 3 - in private dossier1';
+    $settings['field_plot_plot_elements'] = $plot_element3_private;
+    $this->plot3_private = $this->drupalCreateNode($settings);
+    $settings['title'] = 'Plot 3 - in public dossier1';
+    $settings['field_plot_plot_elements'] = $plot_element3_public;
+    $this->plot3_public = $this->drupalCreateNode($settings);
+    $settings['title'] = 'Plot 3 - in no dossier';
+    $settings['field_plot_plot_elements'] = $plot_element3_none;
+    $this->plot3_none = $this->drupalCreateNode($settings);
+
+    // Author : Editor 1
+    $settings['uid'] = $this->editor1->uid;
+    $settings['title'] = 'Plot 1 editor - in private dossier1';
+    $this->plot1_editor_private = $this->drupalCreateNode($settings);
+    $settings['title'] = 'Plot 1 editor - in public dossier1';
+    $this->plot1_editor_public = $this->drupalCreateNode($settings);
+
+    // Set up variables.
+    $plot1_private[$langcode][0]['target_id'] = $this->plot1_private->nid;
+    $plot1_private[$langcode][1]['target_id'] = $this->plot3_private->nid;
+    $plot1_private[$langcode][2]['target_id'] = $this->plot1_editor_private->nid;
+    $plot1_public[$langcode][0]['target_id'] = $this->plot1_public->nid;
+    $plot1_public[$langcode][1]['target_id'] = $this->plot3_public->nid;
+    $plot1_public[$langcode][2]['target_id'] = $this->plot1_editor_public->nid;
+
+    $plot2_private[$langcode][0]['target_id'] = $this->plot2_private->nid;
+    $plot2_public[$langcode][0]['target_id'] = $this->plot2_public->nid;
+
+
+    // Object stories
+    // ---------------
+    // Author 1
+    $settings = array(
+      'type' => 'object_story',
+      'title' => 'Private object story 1 - in private dossier',
+      'uid' => $this->author1->uid,
+      'field_object_story_private' => $private,
+      'field_object_story_references' => array(),
+      'field_object_story_objects' => array(),
+      'field_object_story_events' => array(),
+    );
+    $this->private_object_story1_private_dossier = $this->drupalCreateNode($settings);
+    $settings['title'] = 'Private object story 1 - in public dossier';
+    $this->private_object_story1_public_dossier = $this->drupalCreateNode($settings);
+    $settings['title'] = 'Private object story 1 - in no dossier';
+    $this->private_object_story1_no_dossier = $this->drupalCreateNode($settings);
+
+    $settings['field_object_story_private'] = $public;
+    $settings['title'] = 'Public object story 1 - in private dossier';
+    $this->public_object_story1_private_dossier = $this->drupalCreateNode($settings);
+    $settings['title'] = 'Public object story 1 - in public dossier';
+    $this->public_object_story1_public_dossier = $this->drupalCreateNode($settings);
+    $settings['title'] = 'Public object story 1 - in no dossier';
+    $this->public_object_story1_no_dossier = $this->drupalCreateNode($settings);
+
+    // Author 2
+    $settings['uid'] = $this->author2->uid;
+    $settings['field_object_story_private'] = $private;
+    $settings['title'] = 'Private object story 2 - in private dossier';
+    $this->private_object_story2_private_dossier = $this->drupalCreateNode($settings);
+    $settings['title'] = 'Private object story 2 - in public dossier';
+    $this->private_object_story2_public_dossier = $this->drupalCreateNode($settings);
+    $settings['title'] = 'Private object story 2 - in no dossier';
+    $this->private_object_story2_no_dossier = $this->drupalCreateNode($settings);
+
+    $settings['field_object_story_private'] = $public;
+    $settings['title'] = 'Public object story 2 - in private dossier';
+    $this->public_object_story2_private_dossier = $this->drupalCreateNode($settings);
+    $settings['title'] = 'Public object story 2 - in public dossier';
+    $this->public_object_story2_public_dossier = $this->drupalCreateNode($settings);
+    $settings['title'] = 'Public object story 2 - in no dossier';
+    $this->public_object_story2_no_dossier = $this->drupalCreateNode($settings);
+
+    // Author 3
+    $settings['uid'] = $this->author3->uid;
+    $settings['field_object_story_private'] = $private;
+    $settings['title'] = 'Private object story 3 - in private dossier1';
+    $this->private_object_story3_private_dossier = $this->drupalCreateNode($settings);
+    $settings['title'] = 'Private object story 3 - in public dossier1';
+    $this->private_object_story3_public_dossier = $this->drupalCreateNode($settings);
+    $settings['title'] = 'Private object story 3 - in no dossier';
+    $this->private_object_story3_no_dossier = $this->drupalCreateNode($settings);
+
+    $settings['field_object_story_private'] = $public;
+    $settings['title'] = 'Public object story 3 - in private dossier1';
+    $this->public_object_story3_private_dossier = $this->drupalCreateNode($settings);
+    $settings['title'] = 'Public object story 3 - in public dossier1';
+    $this->public_object_story3_public_dossier = $this->drupalCreateNode($settings);
+    $settings['title'] = 'Public object story 3 - in no dossier';
+    $this->public_object_story3_no_dossier = $this->drupalCreateNode($settings);
+
+
+    // Set up variables.
+    $object_story_private_dossier1[$langcode][0]['target_id'] = $this->private_object_story1_private_dossier->nid;
+    $object_story_private_dossier1[$langcode][1]['target_id'] = $this->public_object_story1_private_dossier->nid;
+    $object_story_private_dossier1[$langcode][2]['target_id'] = $this->private_object_story3_private_dossier->nid;
+    $object_story_private_dossier1[$langcode][3]['target_id'] = $this->public_object_story3_private_dossier->nid;
+
+    $object_story_public_dossier1[$langcode][0]['target_id'] = $this->private_object_story1_public_dossier->nid;
+    $object_story_public_dossier1[$langcode][1]['target_id'] = $this->public_object_story1_public_dossier->nid;
+    $object_story_public_dossier1[$langcode][2]['target_id'] = $this->private_object_story3_public_dossier->nid;
+    $object_story_public_dossier1[$langcode][3]['target_id'] = $this->public_object_story3_public_dossier->nid;
+
+    $object_story_private_dossier2[$langcode][0]['target_id'] = $this->private_object_story2_private_dossier->nid;
+    $object_story_private_dossier2[$langcode][1]['target_id'] = $this->public_object_story2_private_dossier->nid;
+    $object_story_public_dossier2[$langcode][0]['target_id'] = $this->private_object_story2_public_dossier->nid;
+    $object_story_public_dossier2[$langcode][1]['target_id'] = $this->public_object_story2_public_dossier->nid;
+
+
+    // Dossiers
+    // ---------
+    // Author 1 - private dossier
+    $settings = array(
+      'type' => 'dossier',
+      'title' => 'Private dossier 1',
+      'uid' => $this->author1->uid,
+      'field_dossier_viewers' => $viewer1,
+      'field_dossier_editors' => $editor1,
+      'field_dossier_private' => $private,
+      'field_dossier_references' => $reference1_private,
+      'field_dossier_plots' => $plot1_private,
+      'field_dossier_events' => $event1_private,
+      'field_dossier_object_stories' => $object_story_private_dossier1,
+    );
+    $this->private_dossier1 = $this->drupalCreateNode($settings);
+
+    // Author 1 - public dossier
+    $settings['title'] = 'Public dossier 1';
+    $settings['field_dossier_private'] = $public;
+    $settings['field_dossier_references'] = $reference1_public;
+    $settings['field_dossier_plots'] = $plot1_public;
+    $settings['field_dossier_events'] = $event1_public;
+    $settings['field_dossier_object_stories'] = $object_story_public_dossier1;
+    $this->public_dossier1 = $this->drupalCreateNode($settings);
+
+    // Author 2 - private dossier
+    $settings['uid'] = $this->author2->uid;
+    $settings['field_dossier_viewers'] = $viewer2;
+    $settings['field_dossier_editors'] = $editor2;
+    $settings['title'] = 'Private dossier 2';
+    $settings['field_dossier_private'] = $private;
+    $settings['field_dossier_references'] = $reference2_private;
+    $settings['field_dossier_plots'] = $plot2_private;
+    $settings['field_dossier_events'] = $event2_private;
+    $settings['field_dossier_object_stories'] = $object_story_private_dossier2;
+    $this->private_dossier2 = $this->drupalCreateNode($settings);
+
+    // Author 2 - public  dossier
+    $settings['title'] = 'Public dossier 2';
+    $settings['field_dossier_private'] = $public;
+    $settings['field_dossier_references'] = $reference2_public;
+    $settings['field_dossier_plots'] = $plot2_public;
+    $settings['field_dossier_events'] = $event2_public;
+    $settings['field_dossier_object_stories'] = $object_story_public_dossier2;
+    $this->public_dossier2 = $this->drupalCreateNode($settings);
+  }
+
+   protected function setTheme($new_theme) {
+    $result = db_update('system')
+              ->fields(array('status' => 1))
+              ->condition('type', 'theme')
+              ->condition('name', $new_theme)
+              ->execute();
+    variable_set('theme_default', $new_theme);
+    unset($GLOBALS['theme']);
+    drupal_theme_initialize();
+  }
+
+  /**
+   * Tests that a dossier author has access to the dossier and child content.
+   */
+  function testDossierAuthorAccess() {
+    $this->drupalLogin($this->author1);
+
+    // Dossier nodes.
+    // --------------
+    // Ensure the dossier author is able to access and edit their public and
+    // private dossier nodes.
+    $this->drupalGet("node/{$this->public_dossier1->nid}");
+    $this->assertResponse(200, 'Author is allowed to access their public dossier.');
+    $this->drupalGet("node/{$this->public_dossier1->nid}/edit");
+    $this->assertResponse(200, 'Author is allowed to edit their public dossier.');
+    $this->drupalGet("node/{$this->private_dossier1->nid}");
+    $this->assertResponse(200, 'Author is allowed to access their private dossier.');
+    $this->drupalGet("node/{$this->private_dossier1->nid}/edit");
+    $this->assertResponse(200, 'Author is allowed to edit their private dossier.');
+
+    // Ensure a dossier author is able to access other people's public dossier
+    // nodes, but is unable to edit it, or access or edit other people's private
+    // dossier nodes.
+    $this->drupalGet("node/{$this->public_dossier2->nid}");
+    $this->assertResponse(200, 'Author is allowed to access others public dossier.');
+    $this->drupalGet("node/{$this->public_dossier2->nid}/edit");
+    $this->assertResponse(403, 'Author is not allowed to edit others public dossier.');
+    $this->drupalGet("node/{$this->private_dossier2->nid}");
+    $this->assertResponse(403, 'Author is not allowed to access others private dossier.');
+    $this->drupalGet("node/{$this->private_dossier2->nid}/edit");
+    $this->assertResponse(403, 'Author is not allowed to edit others private dossier.');
+
+
+    // Reference nodes.
+    // ----------------
+    // Ensure the dossier author is able to access and edit their public and
+    // private reference nodes.
+    $this->drupalGet("node/{$this->reference1_public->nid}");
+    $this->assertResponse(200, 'Author is allowed to access their public dossier references.');
+    $this->drupalGet("node/{$this->reference1_public->nid}/edit");
+    $this->assertResponse(200, 'Author is allowed to edit their public dossier references.');
+    $this->drupalGet("node/{$this->reference1_private->nid}");
+    $this->assertResponse(200, 'Author is allowed to access their private dossier references.');
+    $this->drupalGet("node/{$this->reference1_private->nid}/edit");
+    $this->assertResponse(200, 'Author is allowed to edit their private dossier references.');
+    $this->drupalGet("node/{$this->reference1_none->nid}");
+    $this->assertResponse(200, 'Author is allowed to access their parentless references.');
+    $this->drupalGet("node/{$this->reference1_none->nid}/edit");
+    $this->assertResponse(200, 'Author is allowed to edit their parentless references.');
+    $this->drupalGet("node/{$this->reference1_editor_public->nid}/edit");
+    $this->assertResponse(403, 'Author is not allowed to edit their public dossier references that another user created.');
+    $this->drupalGet("node/{$this->reference1_editor_private->nid}/edit");
+    $this->assertResponse(403, 'Author is not allowed to edit their private dossier references that another user created.');
+
+    // Ensure a dossier author is able to access other people's public dossier reference
+    // nodes, but is unable to edit it, or access or edit other people's private
+    // dossier reference nodes.
+    $this->drupalGet("node/{$this->reference2_public->nid}");
+    $this->assertResponse(200, 'Author is allowed to access others public dossier references.');
+    $this->drupalGet("node/{$this->reference2_public->nid}/edit");
+    $this->assertResponse(403, 'Author is not allowed to edit others public dossier references.');
+    $this->drupalGet("node/{$this->reference2_private->nid}");
+    $this->assertResponse(200, 'Author is allowed to access others private dossier references.');
+    $this->drupalGet("node/{$this->reference2_private->nid}/edit");
+    $this->assertResponse(403, 'Author is not allowed to edit others private dossier references.');
+    $this->drupalGet("node/{$this->reference2_none->nid}");
+    $this->assertResponse(200, 'Author is allowed to access others parentless references.');
+    $this->drupalGet("node/{$this->reference2_none->nid}/edit");
+    $this->assertResponse(403, 'Author is not allowed to edit others parentless references.');
+
+
+    // Event nodes.
+    // -------------
+    // Ensure the dossier author is able to access and edit their public and
+    // private event nodes.
+    $this->drupalGet("node/{$this->event1_public->nid}");
+    $this->assertResponse(200, 'Author is allowed to access their public dossier events.');
+    $this->drupalGet("node/{$this->event1_public->nid}/edit");
+    $this->assertResponse(200, 'Author is allowed to edit their public dossier events.');
+    $this->drupalGet("node/{$this->event1_private->nid}");
+    $this->assertResponse(200, 'Author is allowed to access their private dossier events.');
+    $this->drupalGet("node/{$this->event1_private->nid}/edit");
+    $this->assertResponse(200, 'Author is allowed to edit their private dossier events.');
+    $this->drupalGet("node/{$this->event1_none->nid}");
+    $this->assertResponse(200, 'Author is allowed to access their parentless events.');
+    $this->drupalGet("node/{$this->event1_none->nid}/edit");
+    $this->assertResponse(200, 'Author is allowed to edit their parentless events.');
+    $this->drupalGet("node/{$this->event1_editor_public->nid}/edit");
+    $this->assertResponse(200, 'Author is allowed to edit their public dossier events that another user created.');
+    $this->drupalGet("node/{$this->event1_editor_private->nid}/edit");
+    $this->assertResponse(200, 'Author is allowed to edit their private dossier events that another user created.');
+
+    // Ensure a dossier author is able to access other people's public dossier event
+    // nodes, but is unable to edit it, or access or edit other people's private
+    // dossier event nodes.
+    $this->drupalGet("node/{$this->event2_public->nid}");
+    $this->assertResponse(200, 'Author is allowed to access others public dossier events.');
+    $this->drupalGet("node/{$this->event2_public->nid}/edit");
+    $this->assertResponse(403, 'Author is not allowed to edit others public dossier events.');
+    $this->drupalGet("node/{$this->event2_private->nid}");
+    $this->assertResponse(403, 'Author is not allowed to access others private dossier events.');
+    $this->drupalGet("node/{$this->event2_private->nid}/edit");
+    $this->assertResponse(403, 'Author is not allowed to edit others private dossier events.');
+    $this->drupalGet("node/{$this->event2_none->nid}");
+    $this->assertResponse(200, 'Author is allowed to access others parentless events.');
+    $this->drupalGet("node/{$this->event2_none->nid}/edit");
+    $this->assertResponse(403, 'Author is not allowed to edit others parentless events.');
+
+
+    // Plot nodes.
+    // -----------
+    // Ensure the dossier author is able to access and edit their public and
+    // private plot nodes.
+    $this->drupalGet("node/{$this->plot1_public->nid}");
+    $this->assertResponse(200, 'Author is allowed to access their public dossier plots.');
+    $this->drupalGet("node/{$this->plot1_public->nid}/edit");
+    $this->assertResponse(200, 'Author is allowed to edit their public dossier plots.');
+    $this->drupalGet("node/{$this->plot1_private->nid}");
+    $this->assertResponse(200, 'Author is allowed to access their private dossier plots.');
+    $this->drupalGet("node/{$this->plot1_private->nid}/edit");
+    $this->assertResponse(200, 'Author is allowed to edit their private dossier plots.');
+    $this->drupalGet("node/{$this->plot1_none->nid}");
+    $this->assertResponse(200, 'Author is allowed to access their parentless plots.');
+    $this->drupalGet("node/{$this->plot1_none->nid}/edit");
+    $this->assertResponse(200, 'Author is allowed to edit their parentless plots.');
+    $this->drupalGet("node/{$this->plot1_editor_public->nid}/edit");
+    $this->assertResponse(200, 'Author is allowed to edit their public dossier plots that another user created.');
+    $this->drupalGet("node/{$this->plot1_editor_private->nid}/edit");
+    $this->assertResponse(200, 'Author is allowed to edit their private dossier plots that another user created.');
+
+    // Ensure a dossier author is able to access other people's public dossier plot
+    // nodes, but is unable to edit it, or access or edit other people's private
+    // dossier plot nodes.
+    $this->drupalGet("node/{$this->plot2_public->nid}");
+    $this->assertResponse(200, 'Author is allowed to access others public dossier plots.');
+    $this->drupalGet("node/{$this->plot2_public->nid}/edit");
+    $this->assertResponse(403, 'Author is not allowed to edit others public dossier plots.');
+    $this->drupalGet("node/{$this->plot2_private->nid}");
+    $this->assertResponse(403, 'Author is not allowed to access others private dossier plots.');
+    $this->drupalGet("node/{$this->plot2_private->nid}/edit");
+    $this->assertResponse(403, 'Author is not allowed to edit others private dossier plots.');
+    $this->drupalGet("node/{$this->plot2_none->nid}");
+    $this->assertResponse(200, 'Author is allowed to access others parentless plots.');
+    $this->drupalGet("node/{$this->plot2_none->nid}/edit");
+    $this->assertResponse(403, 'Author is not allowed to edit others parentless plots.');
+
+
+    // Object story nodes.
+    // -------------------
+    // Ensure the dossier author is able to access and edit their public and
+    // private object story nodes.
+    // Private dossier.
+    $this->drupalGet("node/{$this->public_object_story1_private_dossier->nid}");
+    $this->assertResponse(200, 'Author is allowed to access their public object stories in a private dossier.');
+    $this->drupalGet("node/{$this->public_object_story1_private_dossier->nid}/edit");
+    $this->assertResponse(200, 'Author is allowed to edit their public object stories in a private dossier.');
+    $this->drupalGet("node/{$this->private_object_story1_private_dossier->nid}");
+    $this->assertResponse(200, 'Author is allowed to access their private object stories in a private dossier.');
+    $this->drupalGet("node/{$this->private_object_story1_private_dossier->nid}/edit");
+    $this->assertResponse(200, 'Author is allowed to edit their private object stories in a private dossier.');
+    $this->drupalGet("node/{$this->public_object_story3_private_dossier->nid}/edit");
+    $this->assertResponse(200, 'Author is allowed to edit their public object stories in a private dossier that another user created.');
+    $this->drupalGet("node/{$this->public_object_story3_private_dossier->nid}/edit");
+    $this->assertResponse(200, 'Author is allowed to edit their private object stories in a private dossier that another user created.');
+    // Public dossier.
+    $this->drupalGet("node/{$this->public_object_story1_public_dossier->nid}");
+    $this->assertResponse(200, 'Author is allowed to access their public object stories in a public dossier.');
+    $this->drupalGet("node/{$this->public_object_story1_public_dossier->nid}/edit");
+    $this->assertResponse(200, 'Author is allowed to edit their public object stories in a public dossier.');
+    $this->drupalGet("node/{$this->private_object_story1_public_dossier->nid}");
+    $this->assertResponse(200, 'Author is allowed to access their private object stories in a public dossier.');
+    $this->drupalGet("node/{$this->private_object_story1_public_dossier->nid}/edit");
+    $this->assertResponse(200, 'Author is allowed to edit their private object stories in a public dossier.');
+    $this->drupalGet("node/{$this->public_object_story3_public_dossier->nid}/edit");
+    $this->assertResponse(200, 'Author is allowed to edit their public object stories in a public dossier that another user created.');
+    $this->drupalGet("node/{$this->public_object_story3_public_dossier->nid}/edit");
+    $this->assertResponse(200, 'Author is allowed to edit their private object stories in a public dossier that another user created.');
+    // No dossier.
+    $this->drupalGet("node/{$this->private_object_story1_no_dossier->nid}");
+    $this->assertResponse(200, 'Author is allowed to access their parentless private object stories.');
+    $this->drupalGet("node/{$this->private_object_story1_no_dossier->nid}/edit");
+    $this->assertResponse(200, 'Author is allowed to edit their parentless private object stories.');
+    $this->drupalGet("node/{$this->public_object_story1_no_dossier->nid}");
+    $this->assertResponse(200, 'Author is allowed to access their parentless public object stories.');
+    $this->drupalGet("node/{$this->public_object_story1_no_dossier->nid}/edit");
+    $this->assertResponse(200, 'Author is allowed to edit their parentless public object stories.');
+
+    // Ensure a dossier author is able to access other people's public object
+    // story nodes, but is unable to edit it, or access or edit other people's
+    // private object story nodes (unless within a public dossier).
+    // Private dossier.
+    $this->drupalGet("node/{$this->public_object_story2_private_dossier->nid}");
+    $this->assertResponse(200, 'Author is allowed to access others public object stories in a private dossier.');
+    $this->drupalGet("node/{$this->public_object_story2_private_dossier->nid}/edit");
+    $this->assertResponse(403, 'Author is not allowed to edit others public object stories in a private dossier.');
+    $this->drupalGet("node/{$this->private_object_story2_private_dossier->nid}");
+    $this->assertResponse(403, 'Author is not allowed to access others private object stories in a private dossier.');
+    $this->drupalGet("node/{$this->private_object_story2_private_dossier->nid}/edit");
+    $this->assertResponse(403, 'Author is not allowed to edit others private object stories in a private dossier.');
+    // Public dossier.
+    $this->drupalGet("node/{$this->public_object_story2_public_dossier->nid}");
+    $this->assertResponse(200, 'Author is allowed to access others public object stories in a public dossier.');
+    $this->drupalGet("node/{$this->public_object_story2_public_dossier->nid}/edit");
+    $this->assertResponse(403, 'Author is not allowed to edit others public object stories in a public dossier.');
+    $this->drupalGet("node/{$this->private_object_story2_public_dossier->nid}");
+    $this->assertResponse(200, 'Author is allowed to access others private object stories in a public dossier.');
+    $this->drupalGet("node/{$this->private_object_story2_public_dossier->nid}/edit");
+    $this->assertResponse(403, 'Author is not allowed to edit others private object stories in a public dossier.');
+    // No dossier.
+    $this->drupalGet("node/{$this->public_object_story2_no_dossier->nid}");
+    $this->assertResponse(200, 'Author is allowed to access others parentless public object stories.');
+    $this->drupalGet("node/{$this->public_object_story2_no_dossier->nid}/edit");
+    $this->assertResponse(403, 'Author is not allowed to edit others parentless public object stories.');
+    $this->drupalGet("node/{$this->private_object_story2_no_dossier->nid}");
+    $this->assertResponse(403, 'Author is not allowed to access others parentless private object stories.');
+    $this->drupalGet("node/{$this->private_object_story2_no_dossier->nid}/edit");
+    $this->assertResponse(403, 'Author is not allowed to edit others parentless private object stories.');
+
+    $this->drupalLogout();
+
+
+    // Author of content inside other people's dossiers.
+    // --------------------------------------------------
+    // Author 3 - owns content inside private dossiers they're not a member of,
+    // but should still be able to access and edit it.
+    $this->drupalLogin($this->author3);
+
+    $this->drupalGet("node/{$this->reference3_public->nid}");
+    $this->assertResponse(200, 'Author is allowed to access their references within others public dossiers.');
+    $this->drupalGet("node/{$this->reference3_public->nid}/edit");
+    $this->assertResponse(200, 'Author is allowed to edit their references within others public dossiers.');
+    $this->drupalGet("node/{$this->reference3_private->nid}");
+    $this->assertResponse(200, 'Author is allowed to access their references within others private dossiers.');
+    $this->drupalGet("node/{$this->reference3_private->nid}/edit");
+    $this->assertResponse(200, 'Author is allowed to edit their references within others private dossiers.');
+    $this->drupalGet("node/{$this->reference3_none->nid}");
+    $this->assertResponse(200, 'Author is allowed to access their parentless references.');
+    $this->drupalGet("node/{$this->reference3_none->nid}/edit");
+    $this->assertResponse(200, 'Author is allowed to edit their parentless references.');
+
+    $this->drupalGet("node/{$this->object3_public->nid}");
+    $this->assertResponse(200, 'Author is allowed to access their objects within others public dossiers.');
+    $this->drupalGet("node/{$this->object3_public->nid}/edit");
+    $this->assertResponse(200, 'Author is allowed to edit their objects within others public dossiers.');
+    $this->drupalGet("node/{$this->object3_private->nid}");
+    $this->assertResponse(200, 'Author is allowed to access their objects within others private dossiers.');
+    $this->drupalGet("node/{$this->object3_private->nid}/edit");
+    $this->assertResponse(200, 'Author is allowed to edit their objects within others private dossiers.');
+    $this->drupalGet("node/{$this->object3_none->nid}");
+    $this->assertResponse(200, 'Author is allowed to access their parentless objects.');
+    $this->drupalGet("node/{$this->object3_none->nid}/edit");
+    $this->assertResponse(200, 'Author is allowed to edit their parentless objects.');
+
+    $this->drupalGet("node/{$this->event3_public->nid}");
+    $this->assertResponse(200, 'Author is allowed to access their events within others public dossiers.');
+    $this->drupalGet("node/{$this->event3_public->nid}/edit");
+    $this->assertResponse(200, 'Author is allowed to edit their events within others public dossiers.');
+    $this->drupalGet("node/{$this->event3_private->nid}");
+    $this->assertResponse(200, 'Author is allowed to access their events within others private dossiers.');
+    $this->drupalGet("node/{$this->event3_private->nid}/edit");
+    $this->assertResponse(200, 'Author is allowed to edit their events within others private dossiers.');
+    $this->drupalGet("node/{$this->event3_none->nid}");
+    $this->assertResponse(200, 'Author is allowed to access their parentless events.');
+    $this->drupalGet("node/{$this->event3_none->nid}/edit");
+    $this->assertResponse(200, 'Author is allowed to edit their parentless events.');
+
+    $this->drupalGet("node/{$this->plot3_public->nid}");
+    $this->assertResponse(200, 'Author is allowed to access their plots within others public dossiers.');
+    $this->drupalGet("node/{$this->plot3_public->nid}/edit");
+    $this->assertResponse(200, 'Author is allowed to edit their plots within others public dossiers.');
+    $this->drupalGet("node/{$this->plot3_private->nid}");
+    $this->assertResponse(200, 'Author is allowed to access their plots within others private dossiers.');
+    $this->drupalGet("node/{$this->plot3_private->nid}/edit");
+    $this->assertResponse(200, 'Author is allowed to edit their plots within others private dossiers.');
+    $this->drupalGet("node/{$this->plot3_none->nid}");
+    $this->assertResponse(200, 'Author is allowed to access their parentless plots.');
+    $this->drupalGet("node/{$this->plot3_none->nid}/edit");
+    $this->assertResponse(200, 'Author is allowed to edit their parentless plots.');
+
+    $this->drupalGet("node/{$this->public_object_story3_public_dossier->nid}");
+    $this->assertResponse(200, 'Author is allowed to access their public object stories within others public dossiers.');
+    $this->drupalGet("node/{$this->public_object_story3_public_dossier->nid}/edit");
+    $this->assertResponse(200, 'Author is allowed to edit their public object stories within others public dossiers.');
+    $this->drupalGet("node/{$this->public_object_story3_private_dossier->nid}");
+    $this->assertResponse(200, 'Author is allowed to access their public object stories within others private dossiers.');
+    $this->drupalGet("node/{$this->public_object_story3_private_dossier->nid}/edit");
+    $this->assertResponse(200, 'Author is allowed to edit their public object stories within others private dossiers.');
+    $this->drupalGet("node/{$this->private_object_story3_public_dossier->nid}");
+    $this->assertResponse(200, 'Author is allowed to access their private object stories within others public dossiers.');
+    $this->drupalGet("node/{$this->private_object_story3_public_dossier->nid}/edit");
+    $this->assertResponse(200, 'Author is allowed to edit their private object stories within others public dossiers.');
+    $this->drupalGet("node/{$this->private_object_story3_private_dossier->nid}");
+    $this->assertResponse(200, 'Author is allowed to access their private object stories within others private dossiers.');
+    $this->drupalGet("node/{$this->private_object_story3_private_dossier->nid}/edit");
+    $this->assertResponse(200, 'Author is allowed to edit their private object stories within others private dossiers.');
+    $this->drupalGet("node/{$this->public_object_story3_no_dossier->nid}");
+    $this->assertResponse(200, 'Author is allowed to access their parentless public object stories.');
+    $this->drupalGet("node/{$this->public_object_story3_no_dossier->nid}/edit");
+    $this->assertResponse(200, 'Author is allowed to edit their parentless public object stories.');
+    $this->drupalGet("node/{$this->private_object_story3_no_dossier->nid}");
+    $this->assertResponse(200, 'Author is allowed to access their parentless private object stories.');
+    $this->drupalGet("node/{$this->private_object_story3_no_dossier->nid}/edit");
+    $this->assertResponse(200, 'Author is allowed to edit their parentless private object stories.');
+
+
+
+
+    $this->drupalLogout();
+  }
+
+  /**
+   * Tests that a dossier referenced viewer has view access to the dossier and child content.
+   */
+  function testDossierViewerAccess() {
+    $this->drupalLogin($this->viewer1);
+
+    // Dossier nodes.
+    // --------------
+    // Ensure the dossier referenced viewer is able to access, but not edit, their public and
+    // private dossier nodes.
+    $this->drupalGet("node/{$this->public_dossier1->nid}");
+    $this->assertResponse(200, 'Viewer is allowed to access their public dossier.');
+    $this->drupalGet("node/{$this->public_dossier1->nid}/edit");
+    $this->assertResponse(403, 'Viewer is not allowed to edit their public dossier.');
+    $this->drupalGet("node/{$this->private_dossier1->nid}");
+    $this->assertResponse(200, 'Viewer is allowed to access their private dossier.');
+    $this->drupalGet("node/{$this->private_dossier1->nid}/edit");
+    $this->assertResponse(403, 'Viewer is not allowed to edit their private dossier.');
+
+    // Ensure a dossier viewer is able to access other people's public dossier
+    // nodes, but is unable to edit it, or access or edit other people's private
+    // dossier nodes.
+    $this->drupalGet("node/{$this->public_dossier2->nid}");
+    $this->assertResponse(200, 'Viewer is allowed to access others public dossier.');
+    $this->drupalGet("node/{$this->public_dossier2->nid}/edit");
+    $this->assertResponse(403, 'Viewer is not allowed to edit others public dossier.');
+    $this->drupalGet("node/{$this->private_dossier2->nid}");
+    $this->assertResponse(403, 'Viewer is not allowed to access others private dossier.');
+    $this->drupalGet("node/{$this->private_dossier2->nid}/edit");
+    $this->assertResponse(403, 'Viewer is not allowed to edit others private dossier.');
+
+
+    // Reference nodes.
+    // ----------------
+    // Ensure a dossier viewer is able to access their public and
+    // private dossier's reference nodes.
+    $this->drupalGet("node/{$this->reference1_public->nid}");
+    $this->assertResponse(200, 'Viewer is allowed to access their public dossier references.');
+    $this->drupalGet("node/{$this->reference1_public->nid}/edit");
+    $this->assertResponse(403, 'Viewer is not allowed to edit their public dossier references.');
+    $this->drupalGet("node/{$this->reference1_private->nid}");
+    $this->assertResponse(200, 'Viewer is allowed to access their private dossier references.');
+    $this->drupalGet("node/{$this->reference1_private->nid}/edit");
+    $this->assertResponse(403, 'Viewer is not allowed to edit their private dossier references.');
+
+    // Ensure a dossier viewer is able to access other people's public dossier reference
+    // nodes, but is unable to edit it, or access or edit other people's private
+    // dossier reference nodes.
+    $this->drupalGet("node/{$this->reference2_public->nid}");
+    $this->assertResponse(200, 'Viewer is allowed to access others public dossier references.');
+    $this->drupalGet("node/{$this->reference2_public->nid}/edit");
+    $this->assertResponse(403, 'Viewer is not allowed to edit others public dossier references.');
+    $this->drupalGet("node/{$this->reference2_private->nid}");
+    $this->assertResponse(200, 'Viewer is allowed to access others private dossier references.');
+    $this->drupalGet("node/{$this->reference2_private->nid}/edit");
+    $this->assertResponse(403, 'Viewer is not allowed to edit others private dossier references.');
+
+
+    // Event nodes.
+    // ------------
+    // Ensure a dossier viewer is able to access their public and
+    // private dossier's event nodes.
+    $this->drupalGet("node/{$this->event1_public->nid}");
+    $this->assertResponse(200, 'Viewer is allowed to access their public dossier events.');
+    $this->drupalGet("node/{$this->event1_public->nid}/edit");
+    $this->assertResponse(403, 'Viewer is not allowed to edit their public dossier events.');
+    $this->drupalGet("node/{$this->event1_private->nid}");
+    $this->assertResponse(200, 'Viewer is allowed to access their private dossier events.');
+    $this->drupalGet("node/{$this->event1_private->nid}/edit");
+    $this->assertResponse(403, 'Viewer is not allowed to edit their private dossier events.');
+
+    // Ensure a dossier viewer is able to access other people's public dossier event
+    // nodes, but is unable to edit it, or access or edit other people's private
+    // dossier event nodes.
+    $this->drupalGet("node/{$this->event2_public->nid}");
+    $this->assertResponse(200, 'Viewer is allowed to access others public dossier events.');
+    $this->drupalGet("node/{$this->event2_public->nid}/edit");
+    $this->assertResponse(403, 'Viewer is not allowed to edit others public dossier events.');
+    $this->drupalGet("node/{$this->event2_private->nid}");
+    $this->assertResponse(403, 'Viewer is not allowed to access others private dossier events.');
+    $this->drupalGet("node/{$this->event2_private->nid}/edit");
+    $this->assertResponse(403, 'Viewer is not allowed to edit others private dossier events.');
+
+
+    // Plot nodes.
+    // -----------
+    // Ensure a dossier viewer is able to access their public and
+    // private dossier's plot nodes.
+    $this->drupalGet("node/{$this->plot1_public->nid}");
+    $this->assertResponse(200, 'Viewer is allowed to access their public dossier plots.');
+    $this->drupalGet("node/{$this->plot1_public->nid}/edit");
+    $this->assertResponse(403, 'Viewer is not allowed to edit their public dossier plots.');
+    $this->drupalGet("node/{$this->plot1_private->nid}");
+    $this->assertResponse(200, 'Viewer is allowed to access their private dossier plots.');
+    $this->drupalGet("node/{$this->plot1_private->nid}/edit");
+    $this->assertResponse(403, 'Viewer is not allowed to edit their private dossier plots.');
+
+    // Ensure a dossier viewer is able to access other people's public dossier plot
+    // nodes, but is unable to edit it, or access or edit other people's private
+    // dossier plot nodes.
+    $this->drupalGet("node/{$this->plot2_public->nid}");
+    $this->assertResponse(200, 'Viewer is allowed to access others public dossier plots.');
+    $this->drupalGet("node/{$this->plot2_public->nid}/edit");
+    $this->assertResponse(403, 'Viewer is not allowed to edit others public dossier plots.');
+    $this->drupalGet("node/{$this->plot2_private->nid}");
+    $this->assertResponse(403, 'Viewer is not allowed to access others private dossier plots.');
+    $this->drupalGet("node/{$this->plot2_private->nid}/edit");
+    $this->assertResponse(403, 'Viewer is not allowed to edit others private dossier plots.');
+
+
+    // Object story nodes.
+    // -------------------
+    // Ensure the dossier author is able to access and edit their public and
+    // private object story nodes.
+    // Private dossier.
+    $this->drupalGet("node/{$this->public_object_story1_private_dossier->nid}");
+    $this->assertResponse(200, 'Viewer is allowed to access their public object stories in a private dossier.');
+    $this->drupalGet("node/{$this->public_object_story1_private_dossier->nid}/edit");
+    $this->assertResponse(403, 'Viewer is not allowed to edit their public object stories in a private dossier.');
+    $this->drupalGet("node/{$this->private_object_story1_private_dossier->nid}");
+    $this->assertResponse(200, 'Viewer is allowed to access their private object stories in a private dossier.');
+    $this->drupalGet("node/{$this->private_object_story1_private_dossier->nid}/edit");
+    $this->assertResponse(403, 'Viewer is not allowed to edit their private object stories in a private dossier.');
+    // Public dossier.
+    $this->drupalGet("node/{$this->public_object_story1_public_dossier->nid}");
+    $this->assertResponse(200, 'Viewer is allowed to access their public object stories in a public dossier.');
+    $this->drupalGet("node/{$this->public_object_story1_public_dossier->nid}/edit");
+    $this->assertResponse(403, 'Viewer is not allowed to edit their public object stories in a public dossier.');
+    $this->drupalGet("node/{$this->private_object_story1_public_dossier->nid}");
+    $this->assertResponse(200, 'Viewer is allowed to access their private object stories in a public dossier.');
+    $this->drupalGet("node/{$this->private_object_story1_public_dossier->nid}/edit");
+    $this->assertResponse(403, 'Viewer is not allowed to edit their private object stories in a public dossier.');
+
+    // Ensure a dossier author is able to access other people's public object
+    // story nodes, but is unable to edit it, or access or edit other people's
+    // private object story nodes (unless within a public dossier).
+    // Private dossier.
+    $this->drupalGet("node/{$this->public_object_story2_private_dossier->nid}");
+    $this->assertResponse(200, 'Viewer is allowed to access others public object stories in a private dossier.');
+    $this->drupalGet("node/{$this->public_object_story2_private_dossier->nid}/edit");
+    $this->assertResponse(403, 'Viewer is not allowed to edit others public object stories in a private dossier.');
+    $this->drupalGet("node/{$this->private_object_story2_private_dossier->nid}");
+    $this->assertResponse(403, 'Viewer is not allowed to access others private object stories in a private dossier.');
+    $this->drupalGet("node/{$this->private_object_story2_private_dossier->nid}/edit");
+    $this->assertResponse(403, 'Viewer is not allowed to edit others private object stories in a private dossier.');
+    // Public dossier.
+    $this->drupalGet("node/{$this->public_object_story2_public_dossier->nid}");
+    $this->assertResponse(200, 'Viewer is allowed to access others public object stories in a public dossier.');
+    $this->drupalGet("node/{$this->public_object_story2_public_dossier->nid}/edit");
+    $this->assertResponse(403, 'Viewer is not allowed to edit others public object stories in a public dossier.');
+    $this->drupalGet("node/{$this->private_object_story2_public_dossier->nid}");
+    $this->assertResponse(200, 'Viewer is allowed to access others private object stories in a public dossier.');
+    $this->drupalGet("node/{$this->private_object_story2_public_dossier->nid}/edit");
+    $this->assertResponse(403, 'Viewer is not allowed to edit others private object stories in a public dossier.');
+    // No dossier.
+    $this->drupalGet("node/{$this->public_object_story2_no_dossier->nid}");
+    $this->assertResponse(200, 'Viewer is allowed to access others parentless public object stories.');
+    $this->drupalGet("node/{$this->public_object_story2_no_dossier->nid}/edit");
+    $this->assertResponse(403, 'Viewer is not allowed to edit others parentless public object stories.');
+    $this->drupalGet("node/{$this->private_object_story2_no_dossier->nid}");
+    $this->assertResponse(403, 'Viewer is not allowed to access others parentless private object stories.');
+    $this->drupalGet("node/{$this->private_object_story2_no_dossier->nid}/edit");
+    $this->assertResponse(403, 'Viewer is not allowed to edit others parentless private object stories.');
+
+
+    $this->drupalLogout();
+  }
+
+
+  /**
+   * Tests that a dossier referenced editor has edit access to the dossier and child content.
+   */
+  function testDossierEditorAccess() {
+    $this->drupalLogin($this->editor1);
+
+    // Dossier nodes.
+    // --------------
+    // Ensure the dossier referenced editor is able to access and edit their public and
+    // private dossier nodes.
+    $this->drupalGet("node/{$this->public_dossier1->nid}");
+    $this->assertResponse(200, 'Editor is allowed to access their public dossier.');
+    $this->drupalGet("node/{$this->public_dossier1->nid}/edit");
+    $this->assertResponse(200, 'Editor is allowed to edit their public dossier.');
+    $this->drupalGet("node/{$this->private_dossier1->nid}");
+    $this->assertResponse(200, 'Editor is allowed to access their private dossier.');
+    $this->drupalGet("node/{$this->private_dossier1->nid}/edit");
+    $this->assertResponse(200, 'Editor is allowed to edit their private dossier.');
+
+    // Ensure a dossier editor is able to access other people's public dossier
+    // nodes, but is unable to edit it, or access or edit other people's private
+    // dossier nodes.
+    $this->drupalGet("node/{$this->public_dossier2->nid}");
+    $this->assertResponse(200, 'Editor is allowed to access others public dossier.');
+    $this->drupalGet("node/{$this->public_dossier2->nid}/edit");
+    $this->assertResponse(403, 'Editor is not allowed to edit others public dossier.');
+    $this->drupalGet("node/{$this->private_dossier2->nid}");
+    $this->assertResponse(403, 'Editor is not allowed to access others private dossier.');
+    $this->drupalGet("node/{$this->private_dossier2->nid}/edit");
+    $this->assertResponse(403, 'Editor is not allowed to edit others private dossier.');
+
+
+    // Reference nodes.
+    // ----------------
+    // Ensure a dossier editor is able to access and edit their public and
+    // private dossier's reference nodes.
+    $this->drupalGet("node/{$this->reference1_public->nid}");
+    $this->assertResponse(200, 'Editor is allowed to access their public dossier references that another user created.');
+    $this->drupalGet("node/{$this->reference1_public->nid}/edit");
+    $this->assertResponse(403, 'Editor is not allowed to edit their public dossier references that another user created.');
+    $this->drupalGet("node/{$this->reference1_private->nid}");
+    $this->assertResponse(200, 'Editor is allowed to access their private dossier references that another user created.');
+    $this->drupalGet("node/{$this->reference1_private->nid}/edit");
+    $this->assertResponse(403, 'Editor is not allowed to edit their private dossier references that another user created.');
+    $this->drupalGet("node/{$this->reference1_editor_private->nid}");
+    $this->assertResponse(200, 'Editor is allowed to access their public dossier references that they created.');
+    $this->drupalGet("node/{$this->reference1_editor_public->nid}/edit");
+    $this->assertResponse(200, 'Editor is allowed to edit their public dossier references that they created.');
+    $this->drupalGet("node/{$this->reference1_editor_private->nid}");
+    $this->assertResponse(200, 'Editor is allowed to access their private dossier references that they created.');
+    $this->drupalGet("node/{$this->reference1_editor_private->nid}/edit");
+    $this->assertResponse(200, 'Editor is allowed to edit their private dossier references that they created.');
+
+    // Ensure a dossier viewer is able to access other people's public dossier reference
+    // nodes, but is unable to edit it, or access or edit other people's private
+    // dossier reference nodes.
+    $this->drupalGet("node/{$this->reference2_public->nid}");
+    $this->assertResponse(200, 'Editor is allowed to access others public dossier references.');
+    $this->drupalGet("node/{$this->reference2_public->nid}/edit");
+    $this->assertResponse(403, 'Editor is not allowed to edit others public dossier references.');
+    $this->drupalGet("node/{$this->reference2_private->nid}");
+    $this->assertResponse(200, 'Editor is allowed to access others private dossier references.');
+    $this->drupalGet("node/{$this->reference2_private->nid}/edit");
+    $this->assertResponse(403, 'Editor is not allowed to edit others private dossier references.');
+
+
+    // Event nodes.
+    // ------------
+    // Ensure a dossier editor is able to access and edit their public and
+    // private dossier's event nodes.
+    $this->drupalGet("node/{$this->event1_public->nid}");
+    $this->assertResponse(200, 'Editor is allowed to access their public dossier events that another user created.');
+    $this->drupalGet("node/{$this->event1_public->nid}/edit");
+    $this->assertResponse(200, 'Editor is allowed to edit their public dossier events that another user created.');
+    $this->drupalGet("node/{$this->event1_private->nid}");
+    $this->assertResponse(200, 'Editor is allowed to access their private dossier events that another user created.');
+    $this->drupalGet("node/{$this->event1_private->nid}/edit");
+    $this->assertResponse(200, 'Editor is allowed to edit their private dossier events that another user created.');
+    $this->drupalGet("node/{$this->event1_editor_private->nid}");
+    $this->assertResponse(200, 'Editor is allowed to access their public dossier events that they created.');
+    $this->drupalGet("node/{$this->event1_editor_public->nid}/edit");
+    $this->assertResponse(200, 'Editor is allowed to edit their public dossier events that they created.');
+    $this->drupalGet("node/{$this->event1_editor_private->nid}");
+    $this->assertResponse(200, 'Editor is allowed to access their private dossier events that they created.');
+    $this->drupalGet("node/{$this->event1_editor_private->nid}/edit");
+    $this->assertResponse(200, 'Editor is allowed to edit their private dossier events that they created.');
+
+    // Ensure a dossier viewer is able to access other people's public dossier event
+    // nodes, but is unable to edit it, or access or edit other people's private
+    // dossier event nodes.
+    $this->drupalGet("node/{$this->event2_public->nid}");
+    $this->assertResponse(200, 'Editor is allowed to access others public dossier events.');
+    $this->drupalGet("node/{$this->event2_public->nid}/edit");
+    $this->assertResponse(403, 'Editor is not allowed to edit others public dossier events.');
+    $this->drupalGet("node/{$this->event2_private->nid}");
+    $this->assertResponse(403, 'Editor is not allowed to access others private dossier events.');
+    $this->drupalGet("node/{$this->event2_private->nid}/edit");
+    $this->assertResponse(403, 'Editor is not allowed to edit others private dossier events.');
+
+
+    // Plot nodes.
+    // -----------
+    // Ensure a dossier editor is able to access and edit their public and
+    // private dossier's plot nodes.
+    $this->drupalGet("node/{$this->plot1_public->nid}");
+    $this->assertResponse(200, 'Editor is allowed to access their public dossier plots that another user created.');
+    $this->drupalGet("node/{$this->plot1_public->nid}/edit");
+    $this->assertResponse(200, 'Editor is allowed to edit their public dossier plots that another user created.');
+    $this->drupalGet("node/{$this->plot1_private->nid}");
+    $this->assertResponse(200, 'Editor is allowed to access their private dossier plots that another user created.');
+    $this->drupalGet("node/{$this->plot1_private->nid}/edit");
+    $this->assertResponse(200, 'Editor is allowed to edit their private dossier plots that another user created.');
+    $this->drupalGet("node/{$this->plot1_editor_private->nid}");
+    $this->assertResponse(200, 'Editor is allowed to access their public dossier plots that they created.');
+    $this->drupalGet("node/{$this->plot1_editor_public->nid}/edit");
+    $this->assertResponse(200, 'Editor is allowed to edit their public dossier plots that they created.');
+    $this->drupalGet("node/{$this->plot1_editor_private->nid}");
+    $this->assertResponse(200, 'Editor is allowed to access their private dossier plots that they created.');
+    $this->drupalGet("node/{$this->plot1_editor_private->nid}/edit");
+    $this->assertResponse(200, 'Editor is allowed to edit their private dossier plots that they created.');
+
+    // Ensure a dossier viewer is able to access other people's public dossier plot
+    // nodes, but is unable to edit it, or access or edit other people's private
+    // dossier plot nodes.
+    $this->drupalGet("node/{$this->plot2_public->nid}");
+    $this->assertResponse(200, 'Editor is allowed to access others public dossier plots.');
+    $this->drupalGet("node/{$this->plot2_public->nid}/edit");
+    $this->assertResponse(403, 'Editor is not allowed to edit others public dossier plots.');
+    $this->drupalGet("node/{$this->plot2_private->nid}");
+    $this->assertResponse(403, 'Editor is not allowed to access others private dossier plots.');
+    $this->drupalGet("node/{$this->plot2_private->nid}/edit");
+    $this->assertResponse(403, 'Editor is not allowed to edit others private dossier plots.');
+
+
+    // Object story nodes.
+    // -------------------
+    // Ensure the dossier author is able to access and edit their public and
+    // private object story nodes.
+    // Private dossier.
+    $this->drupalGet("node/{$this->public_object_story1_private_dossier->nid}");
+    $this->assertResponse(200, 'Editor is allowed to access their public object stories in a private dossier.');
+    $this->drupalGet("node/{$this->public_object_story1_private_dossier->nid}/edit");
+    $this->assertResponse(200, 'Editor is allowed to edit their public object stories in a private dossier.');
+    $this->drupalGet("node/{$this->private_object_story1_private_dossier->nid}");
+    $this->assertResponse(200, 'Editor is allowed to access their private object stories in a private dossier.');
+    $this->drupalGet("node/{$this->private_object_story1_private_dossier->nid}/edit");
+    $this->assertResponse(200, 'Editor is allowed to edit their private object stories in a private dossier.');
+    // Public dossier.
+    $this->drupalGet("node/{$this->public_object_story1_public_dossier->nid}");
+    $this->assertResponse(200, 'Editor is allowed to access their public object stories in a public dossier.');
+    $this->drupalGet("node/{$this->public_object_story1_public_dossier->nid}/edit");
+    $this->assertResponse(200, 'Editor is allowed to edit their public object stories in a public dossier.');
+    $this->drupalGet("node/{$this->private_object_story1_public_dossier->nid}");
+    $this->assertResponse(200, 'Editor is allowed to access their private object stories in a public dossier.');
+    $this->drupalGet("node/{$this->private_object_story1_public_dossier->nid}/edit");
+    $this->assertResponse(200, 'Editor is allowed to edit their private object stories in a public dossier.');
+
+    // Ensure a dossier author is able to access other people's public object
+    // story nodes, but is unable to edit it, or access or edit other people's
+    // private object story nodes (unless within a public dossier).
+    // Private dossier.
+    $this->drupalGet("node/{$this->public_object_story2_private_dossier->nid}");
+    $this->assertResponse(200, 'Editor is allowed to access others public object stories in a private dossier.');
+    $this->drupalGet("node/{$this->public_object_story2_private_dossier->nid}/edit");
+    $this->assertResponse(403, 'Editor is not allowed to edit others public object stories in a private dossier.');
+    $this->drupalGet("node/{$this->private_object_story2_private_dossier->nid}");
+    $this->assertResponse(403, 'Editor is not allowed to access others private object stories in a private dossier.');
+    $this->drupalGet("node/{$this->private_object_story2_private_dossier->nid}/edit");
+    $this->assertResponse(403, 'Editor is not allowed to edit others private object stories in a private dossier.');
+    // Public dossier.
+    $this->drupalGet("node/{$this->public_object_story2_public_dossier->nid}");
+    $this->assertResponse(200, 'Editor is allowed to access others public object stories in a public dossier.');
+    $this->drupalGet("node/{$this->public_object_story2_public_dossier->nid}/edit");
+    $this->assertResponse(403, 'Editor is not allowed to edit others public object stories in a public dossier.');
+    $this->drupalGet("node/{$this->private_object_story2_public_dossier->nid}");
+    $this->assertResponse(200, 'Editor is allowed to access others private object stories in a public dossier.');
+    $this->drupalGet("node/{$this->private_object_story2_public_dossier->nid}/edit");
+    $this->assertResponse(403, 'Editor is not allowed to edit others private object stories in a public dossier.');
+    // No dossier.
+    $this->drupalGet("node/{$this->public_object_story2_no_dossier->nid}");
+    $this->assertResponse(200, 'Editor is allowed to access others parentless public object stories.');
+    $this->drupalGet("node/{$this->public_object_story2_no_dossier->nid}/edit");
+    $this->assertResponse(403, 'Editor is not allowed to edit others parentless public object stories.');
+    $this->drupalGet("node/{$this->private_object_story2_no_dossier->nid}");
+    $this->assertResponse(403, 'Editor is not allowed to access others parentless private object stories.');
+    $this->drupalGet("node/{$this->private_object_story2_no_dossier->nid}/edit");
+    $this->assertResponse(403, 'Editor is not allowed to edit others parentless private object stories.');
+
+
+
+    $this->drupalLogout();
+  }
+
+
+}
+

@@ -1,0 +1,15 @@
+; $Id$
+name = Zurb Joyride Context
+description = Provides integration with <a href="http://www.zurb.com/playground/jquery-joyride-feature-tour-plugin">Zurb Joyride</a> jQuery plugin for creating site tours of html elements.
+package = Context
+core = 7.x
+dependencies[] = context
+dependencies[] = context_ui
+dependencies[] = libraries (>=7.x-2.0)
+
+; Information added by drupal.org packaging script on 2013-01-16
+version = "7.x-1.0-alpha2"
+core = "7.x"
+project = "joyride"
+datestamp = "1358335920"
+

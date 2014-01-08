@@ -1,0 +1,7 @@
+<?php
+/**
+ * @file
+ * Code for the Views Dossier Stories feature.
+ */
+
+include_once 'views_dossier_stories.features.inc';

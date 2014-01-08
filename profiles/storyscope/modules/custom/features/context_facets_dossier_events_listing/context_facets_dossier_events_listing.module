@@ -1,0 +1,7 @@
+<?php
+/**
+ * @file
+ * Code for the Context Facets - Dossier Events Listing feature.
+ */
+
+include_once 'context_facets_dossier_events_listing.features.inc';

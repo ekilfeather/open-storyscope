@@ -1,0 +1,7 @@
+<?php
+/**
+ * @file
+ * Code for the Panels Field Collection edit form narrative set feature.
+ */
+
+include_once 'panels_field_collection_edit_form_narrative_set.features.inc';

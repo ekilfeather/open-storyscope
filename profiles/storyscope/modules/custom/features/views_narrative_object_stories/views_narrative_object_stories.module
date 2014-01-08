@@ -1,0 +1,7 @@
+<?php
+/**
+ * @file
+ * Code for the Views narrative object stories feature.
+ */
+
+include_once 'views_narrative_object_stories.features.inc';

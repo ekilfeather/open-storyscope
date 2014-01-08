@@ -1,0 +1,7 @@
+<?php
+/**
+ * @file
+ * Code for the Context Facets - add existing objects to Dossier feature.
+ */
+
+include_once 'context_facets_dossier_add_objects.features.inc';

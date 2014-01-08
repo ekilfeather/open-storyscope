@@ -1,0 +1,11 @@
+name = Context Joyride - Add Event
+core = 7.x
+package = Context
+php = 5.2.4
+dependencies[] = context
+dependencies[] = ctools
+dependencies[] = joyride
+features[context][] = joyride_add_event
+features[context][] = joyride_start_add_event
+features[ctools][] = context:context:3
+features[features_api][] = api:1

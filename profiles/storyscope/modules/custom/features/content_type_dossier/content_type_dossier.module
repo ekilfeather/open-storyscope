@@ -1,0 +1,7 @@
+<?php
+/**
+ * @file
+ * Code for the Content Type Dossier feature.
+ */
+
+include_once 'content_type_dossier.features.inc';

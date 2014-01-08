@@ -1,0 +1,1302 @@
+<?php
+
+/* dec_rdf.install
+ *
+ * Sets up database structures and some miscellaneous variables.
+ *
+* This install file creates database structures for managing RDFa.
+*
+* These were the key columns that were recorded in the D6
+* version of the database, so we begin by restoring that...
+*
+* dec_rdf_property_mapping
+*
+*    nid                int(10)     **wont port
+*    vid                int(10)     **wont port
+*    description        text
+*    node_type          mediumtext  ** becomes a varchar so we can use it as a key
+*    field              text        ** becomes a varchar so we can use it as a key
+*    field_value_pairs  text        ** becomes a varchar so we can use it as a key
+*    object             text
+*    property           text
+*    object_type        text
+*    lookupcode         text
+*
+* The only place where the legacy code where the
+* dec_rdf_property_mapping table is used is in dec_story
+* module, specifically in the dec_triple_transaction and
+* dec_triple_transaction2 functions (presumably only the
+* latter is current).
+*
+* The idea in that function is that each of the records in
+* the dec_rdf_property_mapping points to an actual node.
+* But to me this seems a bit overkill.
+*
+* Note: the file also defines sets several variables, with the following defaults:
+*
+*   dec_triple_store      http://decipher.open.ac.uk/openrdf-sesame
+*   dec_triple_repo       Decipher
+*   dec_triples_base_url  $base_url
+*   dec_recommender_on    0
+*   dec_rdf_debug         0
+*   dec_recommender_base  http://decipher.open.ac.uk/SemRecommender/
+*
+*/
+
+// Creating an ancillary table to hold RDF associations in the format described above.
+// Stuff will be inserted into this table as we go.
+
+function dec_rdf_schema() {
+  $schema = array();
+
+  $schema['dec_rdf_property_mapping'] = array(
+      'description' => 'Table mapping nodes, fields, and field values to rdf objects and properties.',
+
+      'fields' => array(
+          'title' => array(
+                               'description' => 'A short name for this RDF annotation.',
+                               'type' => 'text',
+                                 ),
+          'description' => array(
+                               'description' => 'The purpose of this RDF annotation.',
+                               'type' => 'text',
+                                 ),
+          'node_type' => array(
+                               'description' => 'The type of the node that is being marked up (primary key)',
+                               'type' => 'varchar',
+                               'length' => '192',
+
+                               ),
+          'field' => array(
+                               'description' => 'The field that is being marked up (primary key)',
+                               'type' => 'varchar',
+                               'length' => '192',
+                               ),
+          'field_value' => array(
+                               'description' => 'The specific value of the field that will trigger this markup rule.',
+                               'type' => 'varchar',
+                               'length' => '192',
+                               ),
+          'object' => array(
+                               'description' => 'Element of the Decipher ontology that is being pointed to.',
+                               'type' => 'text',
+                               ),
+          'property' => array(
+                               'description' => 'RDF property that describes the nature of this relationship.',
+                               'type' => 'text',
+                               ),
+          'object_type' => array(
+                                 'description' => 'RDF type of the object.',
+                                 'type' => 'text',
+                               ),
+          'lookupcode' => array(
+                                 'description' => 'Gives instructions on how to read the value',
+                                 'type' => 'text',
+                               ),
+          'fc_fields' => array(
+                                 'description' => 'For linked field collections, the field to look at.',
+                                 'type' => 'text',
+                               ),
+                        ),
+      'primary key' => array('node_type', 'field', 'field_value')
+  );
+
+  return $schema;
+}
+
+function dec_rdf_install() {
+  global $base_url;
+
+  variable_set('dec_triple_store', 'http://decipher.open.ac.uk/openrdf-sesame');
+  variable_set('dec_triple_repo', 'Decipher');
+  variable_set('dec_triples_base_url', trim(url("<front>", Array("absolute" => TRUE)),"/"));
+  variable_set('dec_recommender_on', '0');
+  variable_set('dec_rdf_debug', '0');
+  variable_set('dec_recommender_base', 'http://decipher.open.ac.uk/SemRecommender');
+
+  $rdfinfo =  array(
+                               // DOSSIER TYPE, TITLE AND DESCRIPTION
+                               array('title'           => "Dossier",
+                                     'description'     => "The node is of type dossier",
+                                     'node_type'       => "dossier",
+                                     'field'           => "",
+                                     'field_value'     => "",
+                                     'object'          => "http://decipher.open.ac.uk/curate/ontology/Dossier",
+                                     'property'        => "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+                                     'object_type'     => "uri",
+                                     'lookupcode'      => "",
+                                     'fc_fields'       => "",
+                                     ),
+
+                               array('title'           => "Dossier title",
+                                     'description'     => "Title field of a Dossier",
+                                     'node_type'       => "dossier",
+                                     'field'           => "title",
+                                     'field_value'     => "",
+                                     'object'          => "",
+                                     'property'        => "http://purl.org/dc/elements/1.1/title",
+                                     'object_type'     => "literal",
+                                     'lookupcode'      => "",
+                                     'fc_fields'       => "",
+                                     ),
+
+                               array('title'           => "Dossier description",
+                                     'description'     => "Description (body) field of a dossier",
+                                     'node_type'       => "dossier",
+                                     'field'           => "body",
+                                     'field_value'     => "",
+                                     'object'          => "",
+                                     'property'        => "http://purl.org/dc/elements/1.1/description",
+                                     'object_type'     => "literal",
+                                     'lookupcode'      => "value",
+                                     'fc_fields'       => "",
+                                     ),
+
+                               // RELATIONSHIP BETWEEN THE DOSSIER, SOURCE EVENT AND EVENT
+
+                               array('title'           => "Dossier events",
+                                     'description'     => "Events field of a dossier",
+                                     'node_type'       => "dossier",
+                                     'field'           => "field_dossier_events",
+                                     'field_value'     => "",
+                                     'object'          => "",
+                                     'property'        => "",
+                                     'object_type'     => "",
+                                     'lookupcode'      => "custom",
+                                     'fc_fields'       => "",
+                                     ),
+
+                               // DOSSIER HAVING OBJECT STORIES
+
+                               array('title'           => "Dossier object stories",
+                                     'description'     => "Object stories of a dossier",
+                                     'node_type'       => "dossier",
+                                     'field'           => "field_dossier_object_stories",
+                                     'field_value'     => "",
+                                     'object'          => "",
+                                     'property'        => "",
+                                     'object_type'     => "",
+                                     'lookupcode'      => "custom",
+                                     'fc_fields'       => "",
+                                     ),
+
+                               // DOSSIER HAVING REFERENCES
+
+                               array('title'           => "Dossier references",
+                                     'description'     => "References of a dossier",
+                                     'node_type'       => "dossier",
+                                     'field'           => "field_dossier_references",
+                                     'field_value'     => "",
+                                     'object'          => "",
+                                     'property'        => "",
+                                     'object_type'     => "",
+                                     'lookupcode'      => "custom",
+                                     'fc_fields'       => "",
+                                     ),
+
+                               // DOSSIER HAVING PLOTS
+
+                               array('title'           => "Dossier plots",
+                                     'description'     => "Plots of a dossier",
+                                     'node_type'       => "dossier",
+                                     'field'           => "field_dossier_plots",
+                                     'field_value'     => "",
+                                     'object'          => "",
+                                     'property'        => "",
+                                     'object_type'     => "",
+                                     'lookupcode'      => "custom",
+                                     'fc_fields'       => "",
+                                     ),
+
+                                // DOSSIER HAVING STORY
+
+                               array('title'           => "Dossier having story",
+                                     'description'     => "Story of a dossier",
+                                     'node_type'       => "dossier",
+                                     'field'           => "field_dossier_stories",
+                                     'field_value'     => "",
+                                     'object'          => "",
+                                     'property'        => "",
+                                     'object_type'     => "",
+                                     'lookupcode'      => "custom",
+                                     'fc_fields'       => "",
+                                     ),
+
+                               // OBJECT TYPE, TITLE, AND DESCRIPTION
+
+                               array('title'           => "Object",
+                                     'description'     => "The node is of type object",
+                                     'node_type'       => "object",
+                                     'field'           => "",
+                                     'field_value'     => "",
+                                     'object'          => "http://decipher.open.ac.uk/curate/ontology/Object",
+                                     'property'        => "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+                                     'object_type'     => "uri",
+                                     'lookupcode'      => "",
+                                     'fc_fields'       => "",
+                                     ),
+
+                               array('title'           => "Object title",
+                                     'description'     => "Title field of an object",
+                                     'node_type'       => "object",
+                                     'field'           => "title",
+                                     'field_value'     => "",
+                                     'object'          => "",
+                                     'property'        => "http://purl.org/dc/elements/1.1/title",
+                                     'object_type'     => "literal",
+                                     'lookupcode'      => "",
+                                     'fc_fields'       => "",
+                                     ),
+
+                               array('title'           => "Object description",
+                                     'description'     => "Description (body) field of an object",
+                                     'node_type'       => "object",
+                                     'field'           => "body",
+                                     'field_value'     => "",
+                                     'object'          => "",
+                                     'property'        => "http://purl.org/dc/elements/1.1/description",
+                                     'object_type'     => "literal",
+								     'lookupcode'      => "value",
+                                     'fc_fields'       => "",
+                                     ),
+
+                               // OBJECT CREATION TIMESTAMP
+
+                               array('title'           => "Object creation timestamp",
+                                     'description'     => "Time of creation of an object",
+                                     'node_type'       => "object",
+                                     'field'           => "field_object_creation_timestamp",
+                                     'field_value'     => "",
+                                     'object'          => "",
+                                     'property'        => "http://decipher.open.ac.uk/curate/ontology/hasCreationDate",
+                                     'object_type'     => "literal datatype=\"xsd:dateTime\"",
+                                     'lookupcode'      => "value",
+                                     'fc_fields'       => "",
+                                     ),
+
+                               // NEW FREEBASE or FREEBASE-RELATED FIELDS FOR OBJECTS:
+                               // AGENT, CLASSIFICATION, COUNTRY, LOCATION, MATERIALS,
+                               // OBJECT IDENTIFIER, and TAGS.
+
+                               // jac - Aug 22, 2013.  It looks like
+                               // we need a bunch of additional fields
+                               // that explain how to read the fields
+                               // from field collections, not just
+                               // from nodes!
+                               
+                               // Note that the order of items listed in fc_fields matters.
+                               // The "main" item comes first, followed by properties
+                               // that will be attached to it.
+
+                               array('title'           => "Object agent",
+                                     'description'     => "Agent field of an object",
+                                     'node_type'       => "object",
+                                     'field'           => "field_fb_agent",
+                                     'field_value'     => "",
+                                     'object'          => "",
+                                     'property'        => "",
+                                     'object_type'     => "",
+                                     'lookupcode'      => "fcis",
+                                     'fc_fields'       => "field_fb_agent_mid,field_fb_agent_topic,field_fb_agent_death_date,field_fb_agent_birth_date",
+                                     ),
+
+                               array('title'           => "Object classification",
+                                     'description'     => "Classification field of an object",
+                                     'node_type'       => "object",
+                                     'field'           => "field_fb_classification",
+                                     'field_value'     => "",
+                                     'object'          => "",
+                                     'property'        => "",
+                                     'object_type'     => "uri",
+                                     'lookupcode'      => "fcis",
+                                     'fc_fields'       => "field_fb_classification_mid,field_fb_classification_topic",
+                                     ),
+
+                               array('title'           => "Object country",
+                                     'description'     => "Country field of an object",
+                                     'node_type'       => "object",
+                                     'field'           => "field_fb_country",
+                                     'field_value'     => "",
+                                     'object'          => "",
+                                     'property'        => "",
+                                     'object_type'     => "uri",
+                                     'lookupcode'      => "fcis",
+                                     'fc_fields'       => "field_fb_location_mid,field_fb_location_topic,field_fb_geolocation",
+                                     ),
+
+                               array('title'           => "Object location",
+                                     'description'     => "Location field of an object",
+                                     'node_type'       => "object",
+                                     'field'           => "field_fb_location",
+                                     'field_value'     => "",
+                                     'object'          => "",
+                                     'property'        => "",
+                                     'object_type'     => "uri",
+                                     'lookupcode'      => "fcis",
+                                     'fc_fields'       => "field_fb_location_mid,field_fb_location_topic,field_fb_geolocation",
+                                     ),
+
+                               array('title'           => "Object country",
+                                     'description'     => "Country field of an object",
+                                     'node_type'       => "object",
+                                     'field'           => "field_fb_country",
+                                     'field_value'     => "",
+                                     'object'          => "",
+                                     'property'        => "",
+                                     'object_type'     => "uri",
+                                     'lookupcode'      => "fcis",
+                                     'fc_fields'       => "field_fb_country_mid,field_fb_country_topic",
+                                     ),
+
+                               array('title'           => "Object materials",
+                                     'description'     => "Materials field of an object",
+                                     'node_type'       => "object",
+                                     'field'           => "field_fb_materials",
+                                     'field_value'     => "",
+                                     'object'          => "",
+                                     'property'        => "",
+                                     'object_type'     => "uri",
+                                     'lookupcode'      => "fcis",
+                                     'fc_fields'       => "field_fb_materials_mid,field_fb_materials_topic",
+                                     ),
+
+                               array('title'           => "Object object identifier",
+                                     'description'     => "Object Identifier field of an object",
+                                     'node_type'       => "object",
+                                     'field'           => "field_fb_object_identifier",
+                                     'field_value'     => "",
+                                     'object'          => "",
+                                     'property'        => "",
+                                     'object_type'     => "uri",
+                                     'lookupcode'      => "fcis",
+                                     'fc_fields'       => "field_fb_object_identifier_mid,field_fb_object_identifier_topic",
+                                     ),
+
+                               array('title'           => "Object tags",
+                                     'description'     => "Tags field of an object",
+                                     'node_type'       => "object",
+                                     'field'           => "field_fb_tags",
+                                     'field_value'     => "",
+                                     'object'          => "",
+                                     'property'        => "",
+                                     'object_type'     => "uri",
+                                     'lookupcode'      => "fcis",
+                                     'fc_fields'       => "field_fb_tags_mid,field_fb_tags_topic",
+                                     ),
+
+                               // EVENT TYPE, TITLE AND DESCRIPTION
+
+                               array('title'           => "Event",
+                                     'description'     => "The node is of type event",
+                                     'node_type'       => "event",
+                                     'field'           => "",
+                                     'field_value'     => "",
+                                     'object'          => "http://decipher.open.ac.uk/curate/ontology/Event",
+                                     'property'        => "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+                                     'object_type'     => "uri",
+                                     'lookupcode'      => "",
+                                     'fc_fields'       => "",
+                                     ),
+
+                               array('title'           => "Event title",
+                                     'description'     => "Title field of an event",
+                                     'node_type'       => "event",
+                                     'field'           => "title",
+                                     'field_value'     => "",
+                                     'object'          => "",
+                                     'property'        => "http://purl.org/dc/elements/1.1/title",
+                                     'object_type'     => "literal",
+                                     'lookupcode'      => "",
+                                     'fc_fields'       => "",
+                                     ),
+
+                               array('title'           => "Event description",
+                                     'description'     => "Description (body) field of an event",
+                                     'node_type'       => "event",
+                                     'field'           => "body",
+                                     'field_value'     => "",
+                                     'object'          => "",
+                                     'property'        => "http://purl.org/dc/elements/1.1/description",
+                                     'object_type'     => "literal",
+                                     'lookupcode'      => "value",
+                                     'fc_fields'       => "",
+                                     ),
+
+                               // NEW FREEBASE or FREEBASE-RELATED FIELDS FOR EVENTS:
+                               // AGENT, CLASSIFICATION, COUNTRY, LOCATION, MATERIALS,
+                               // OBJECT IDENTIFIER, and TAGS.
+
+                               array('title'           => "Event agent",
+                                     'description'     => "Agent field of an object",
+                                     'node_type'       => "event",
+                                     'field'           => "field_fb_agent",
+                                     'field_value'     => "",
+                                     'object'          => "",
+                                     'property'        => "",
+                                     'object_type'     => "",
+                                     'lookupcode'      => "fcis",
+                                     'fc_fields'       => "field_fb_agent_mid,field_fb_agent_topic,field_fb_agent_birth_date,field_fb_agent_death_date",
+                                     ),
+
+                               array('title'           => "Event genre",
+                                     'description'     => "Genre field of an object",
+                                     'node_type'       => "event",
+                                     'field'           => "field_fb_genre",
+                                     'field_value'     => "",
+                                     'object'          => "",
+                                     'property'        => "",
+                                     'object_type'     => "uri",
+                                     'lookupcode'      => "fcis",
+                                     'fc_fields'       => "field_fb_genre_mid,field_fb_genre_topic",
+                                     ),
+
+
+                               array('title'           => "Event location",
+                                     'description'     => "Location field of an object",
+                                     'node_type'       => "event",
+                                     'field'           => "field_fb_location",
+                                     'field_value'     => "",
+                                     'object'          => "",
+                                     'property'        => "",
+                                     'object_type'     => "uri",
+                                     'lookupcode'      => "fcis",
+                                     'fc_fields'       => "field_fb_location_mid,field_fb_location_topic,field_fb_geolocation",
+                                     ),
+
+                               array('title'           => "Event style movement",
+                                     'description'     => "Style Movement field of an event",
+                                     'node_type'       => "event",
+                                     'field'           => "field_fb_style_movement",
+                                     'field_value'     => "",
+                                     'object'          => "",
+                                     'property'        => "",
+                                     'object_type'     => "uri",
+                                     'lookupcode'      => "fcis",
+                                     'fc_fields'       => "field_fb_style_movement_mid,field_fb_style_movement_topic",
+                                     ),
+
+                               array('title'           => "Event tags",
+                                     'description'     => "Tags field of an object",
+                                     'node_type'       => "event",
+                                     'field'           => "field_fb_tags",
+                                     'field_value'     => "",
+                                     'object'          => "",
+                                     'property'        => "",
+                                     'object_type'     => "uri",
+                                     'lookupcode'      => "fcis",
+                                     'fc_fields'       => "field_fb_tags_mid,field_fb_tags_topic",
+                                     ),
+
+                               array('title'           => "Event value",
+                                     'description'     => "Value field of an object",
+                                     'node_type'       => "event",
+                                     'field'           => "field_fb_value",
+                                     'field_value'     => "",
+                                     'object'          => "",
+                                     'property'        => "",
+                                     'object_type'     => "uri",
+                                     'lookupcode'      => "fcis",
+                                     'fc_fields'       => "field_fb_currency_mid,field_data_field_fb_value,field_fb_value_currency_topic",
+                                     ),
+
+                               // EVENT PROPERTIES
+                               // EVENT-OBJECT - AN OBJECT ASSOCIATED WITH AN EVENT
+
+                               array('title'           => "Event object",
+                                     'description'     => "Object field of an event",
+                                     'node_type'       => "event",
+                                     'field'           => "field_event_object",
+                                     'field_value'     => "",
+                                     'object'          => "",
+                                     'property'        => "http://decipher.open.ac.uk/curate/ontology/hasObject",
+                                     'object_type'     => "literal",
+                                     'lookupcode'      => "tid",
+                                     'fc_fields'       => "",
+                                     ),
+
+                               // EVENT PROPERTIES
+                               // EVENT-OBJECT - AN OBJECT ASSOCIATED WITH AN EVENT
+
+                               array('title'           => "Event activity",
+                                     'description'     => "Activity field of an event",
+                                     'node_type'       => "event",
+                                     'field'           => "field_event_activity",
+                                     'field_value'     => "",
+                                     'object'          => "",
+                                     'property'        => "http://decipher.open.ac.uk/curate/ontology/hasActivity",
+                                     'object_type'     => "literal",
+                                     'lookupcode'      => "tid",
+                                     'fc_fields'       => "",
+                                     ),
+
+                               // EVENT TIMESTAMPS
+                               // - these could be stored with some other better XML datatype
+                               array('title'           => "Event Start Time",
+                                     'description'     => "Start time field of an event",
+                                     'node_type'       => "event",
+                                     'field'           => "field_event_start_timestamp",
+                                     'field_value'     => "",
+                                     'object'          => "",
+                                     'property'        => "http://decipher.open.ac.uk/curate/ontology/hasStartTime",
+                                     'object_type'     => "literal datatype=\"xsd:dateTime\"",
+                                     'lookupcode'      => "value",
+                                     'fc_fields'       => "",
+                                     ),
+
+                               array('title'           => "Event end time",
+                                     'description'     => "End time field of an event",
+                                     'node_type'       => "event",
+                                     'field'           => "field_event_end_timestamp",
+                                     'field_value'     => "",
+                                     'object'          => "",
+                                     'property'        => "http://decipher.open.ac.uk/curate/ontology/hasEndTime",
+                                     'object_type'     => "literal datatype=\"xsd:dateTime\"",
+                                     'lookupcode'      => "value",
+                                     'fc_fields'       => "",
+                                     ),
+
+                               // SOURCE EVENT TYPE, TITLE AND DESCRIPTION
+
+                               // jac - do we eventually have to
+                               // choose between part 1 and part 2, or
+                               // will we use both?
+
+                               array('title'           => "Source Event (part 1)",
+                                     'description'     => "The node is of type source_event",
+                                     'node_type'       => "source_event",
+                                     'field'           => "",
+                                     'field_value'     => "",
+                                     'object'          => "http://www.cidoc-crm.org/rdfs/cidoc_crm_v5.0.2_english_label.rdfs#E5.Event",
+                                     'property'        => "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+                                     'object_type'     => "uri",
+                                     'lookupcode'      => "",
+                                     'fc_fields'       => "",
+                                     ),
+
+                               array('title'           => "Source Event title",
+                                     'description'     => "Title field of a source event",
+                                     'node_type'       => "source_event",
+                                     'field'           => "title",
+                                     'field_value'     => "",
+                                     'object'          => "",
+                                     'property'        => "http://purl.org/dc/elements/1.1/title",
+                                     'object_type'     => "literal",
+                                     'lookupcode'      => "",
+                                     'fc_fields'       => "",
+                                     ),
+
+                               array('title'           => "Source Event description",
+                                     'description'     => "Body (description) field of a source event",
+                                     'node_type'       => "source_event",
+                                     'field'           => "body",
+                                     'field_value'     => "",
+                                     'object'          => "",
+                                     'property'        => "http://purl.org/dc/elements/1.1/description",
+                                     'object_type'     => "literal",
+								     'lookupcode'      => "value",
+                                     'fc_fields'       => "",
+                                     ),
+
+
+                               // PLOT TYPE, TITLE AND DESCRIPTION
+                               // jac Oct 10 2013 plot and plot element have gone...
+
+                               array('title'           => "Plot",
+                                     'description'     => "The node is of type plot",
+                                     'node_type'       => "plot",
+                                     'field'           => "",
+                                     'field_value'     => "",
+                                     'object'          => "http://decipher.open.ac.uk/curate/ontology/StoryOutline",
+                                     'property'        => "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+                                     'object_type'     => "uri",
+                                     'lookupcode'      => "",
+                                     'fc_fields'       => "",
+                                     ),
+
+                               array('title'           => "Plot title",
+                                     'description'     => "Title field of the plot",
+                                     'node_type'       => "plot",
+                                     'field'           => "title",
+                                     'field_value'     => "",
+                                     'object'          => "",
+                                     'property'        => "http://purl.org/dc/elements/1.1/title",
+                                     'object_type'     => "literal",
+                                     'lookupcode'      => "",
+                                     'fc_fields'       => "",
+                                     ),
+
+                               array('title'           => "Plot description",
+                                     'description'     => "Body (description) field of a plot",
+                                     'node_type'       => "plot",
+                                     'field'           => "body",
+                                     'field_value'     => "",
+                                     'object'          => "",
+                                     'property'        => "http://purl.org/dc/elements/1.1/description",
+                                     'object_type'     => "literal",
+								     'lookupcode'      => "value",
+                                     'fc_fields'       => "",
+                                     ),
+
+                               // PLOT ELEMENTS OF A PLOT
+
+                               array('title'           => "Plot elements",
+                                     'description'     => "Plot elements of a plot",
+                                     'node_type'       => "plot",
+                                     'field'           => "field_plot_plot_elements",
+                                     'field_value'     => "",
+                                     'object'          => "",
+                                     'property'        => "",
+                                     'object_type'     => "",
+                                     'lookupcode'      => "custom",
+                                     'fc_fields'       => "",
+                                     ),
+
+                               // PLOT ELEMENT TITLE AND DESCRIPTION
+
+                               array('title'           => "Plot element title",
+                                     'description'     => "Title field of the plot element",
+                                     'node_type'       => "plot_element",
+                                     'field'           => "title",
+                                     'field_value'     => "",
+                                     'object'          => "",
+                                     'property'        => "http://purl.org/dc/elements/1.1/title",
+                                     'object_type'     => "literal",
+                                     'lookupcode'      => "",
+                                     'fc_fields'       => "",
+                                     ),
+
+                               array('title'           => "Plot element description",
+                                     'description'     => "Body (description) field of a plot element",
+                                     'node_type'       => "plot_element",
+                                     'field'           => "body",
+                                     'field_value'     => "",
+                                     'object'          => "",
+                                     'property'        => "http://purl.org/dc/elements/1.1/description",
+                                     'object_type'     => "literal",
+								     'lookupcode'      => "value",
+                                     'fc_fields'       => "",
+                                     ),
+
+                               // PLOT ELEMENT TYPE
+                               //depends on a field of the node
+
+                               array('title'           => "Plot element relationship type",
+                                     'description'     => "The plot element type based on relationship",
+                                     'node_type'       => "plot_element",
+                                     'field'           => "field_plot_element_relationship",
+                                     'field_value'     => "",
+                                     'object'          => "",
+                                     'property'        => "",
+                                     'object_type'     => "",
+                                     'lookupcode'      => "custom",
+                                     'fc_fields'       => "",
+                                     ),
+
+
+                               // PLOT ELEMENT AND ITS EVENTS
+
+                               array('title'           => "Plot element events 1",
+                                     'description'     => "Events of a plot element 1",
+                                     'node_type'       => "plot_element",
+                                     'field'           => "field_plot_element_plot_set_1",
+                                     'field_value'     => "",
+                                     'object'          => "",
+                                     'property'        => "",
+                                     'object_type'     => "",
+                                     'lookupcode'      => "custom",
+                                     'fc_fields'       => "",
+                                     ),
+                                     
+                               array('title'           => "Plot element events 2",
+                                     'description'     => "Events of a plot element 2",
+                                     'node_type'       => "plot_element",
+                                     'field'           => "field_plot_element_plot_set_2",
+                                     'field_value'     => "",
+                                     'object'          => "",
+                                     'property'        => "",
+                                     'object_type'     => "",
+                                     'lookupcode'      => "custom",
+                                     'fc_fields'       => "",
+                                     ),
+                                     
+                               // OBJECT STORY TYPE, TITLE AND DESCRIPTION
+
+                               array('title'           => "Object Story",
+                                     'description'     => "The node is of type 'object_story'",
+                                     'node_type'       => "object_story",
+                                     'field'           => "",
+                                     'field_value'     => "",
+                                     'object'          => "http://decipher.open.ac.uk/curate/ontology/ObjectStory",
+                                     'property'        => "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+                                     'object_type'     => "uri",
+                                     'lookupcode'      => "",
+                                     'fc_fields'       => "",
+                                     ),
+
+                               array('title'           => "Object Story title",
+                                     'description'     => "Title field of the Object Story",
+                                     'node_type'       => "object_story",
+                                     'field'           => "title",
+                                     'field_value'     => "",
+                                     'object'          => "",
+                                     'property'        => "http://purl.org/dc/elements/1.1/title",
+                                     'object_type'     => "literal",
+                                     'lookupcode'      => "",
+                                     'fc_fields'       => "",
+                                     ),
+
+                               array('title'           => "Object Story description",
+                                     'description'     => "Body (description) field of the Object Story",
+                                     'node_type'       => "object_story",
+                                     'field'           => "body",
+                                     'field_value'     => "",
+                                     'object'          => "",
+                                     'property'        => "http://purl.org/dc/elements/1.1/description",
+                                     'object_type'     => "literal",
+								     'lookupcode'      => "value",
+                                     'fc_fields'       => "",
+                                     ),
+
+
+                               // RELATIONSHIP BETWEEN OBJECT STORY, EVENTS AND SOURCE EVENTS
+                               array('title'           => "Object story events",
+                                     'description'     => "Events of an object story",
+                                     'node_type'       => "object_story",
+                                     'field'           => "field_object_story_events",
+                                     'field_value'     => "",
+                                     'object'          => "",
+                                     'property'        => "",
+                                     'object_type'     => "",
+                                     'lookupcode'      => "custom",
+                                     'fc_fields'       => "",
+                                     ),
+
+                               // OBJECT STORY HAVING OBJECTS
+
+                               array('title'           => "Object story objects",
+                                     'description'     => "Objects of an object story",
+                                     'node_type'       => "object_story",
+                                     'field'           => "field_object_story_objects",
+                                     'field_value'     => "",
+                                     'object'          => "",
+                                     'property'        => "",
+                                     'object_type'     => "",
+                                     'lookupcode'      => "custom",
+                                     'fc_fields'       => "",
+                                     ),
+
+                               // OBJECT STORY HAVING REFERENCES
+
+                               array('title'           => "Object story references",
+                                     'description'     => "References of an object story",
+                                     'node_type'       => "object_story",
+                                     'field'           => "field_object_story_references",
+                                     'field_value'     => "",
+                                     'object'          => "",
+                                     'property'        => "",
+                                     'object_type'     => "",
+                                     'lookupcode'      => "custom",
+                                     'fc_fields'       => "",
+                                     ),
+
+                               // REFERENCE TYPE, TITLE AND DESCRIPTION
+
+                               array('title'           => "Reference",
+                                     'description'     => "The node is of type 'reference'",
+                                     'node_type'       => "reference",
+                                     'field'           => "",
+                                     'field_value'     => "",
+                                     'object'          => "http://decipher.open.ac.uk/curate/ontology/Reference",
+                                     'property'        => "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+                                     'object_type'     => "uri",
+                                     'lookupcode'      => "",
+                                     'fc_fields'       => "",
+                                     ),
+
+                               array('title'           => "Reference title",
+                                     'description'     => "Title field of the Reference",
+                                     'node_type'       => "reference",
+                                     'field'           => "title",
+                                     'field_value'     => "",
+                                     'object'          => "",
+                                     'property'        => "http://purl.org/dc/elements/1.1/title",
+                                     'object_type'     => "literal",
+                                     'lookupcode'      => "",
+                                     'fc_fields'       => "",
+                                     ),
+
+                               array('title'           => "Reference description",
+                                     'description'     => "Body (description) field of the Reference",
+                                     'node_type'       => "reference",
+                                     'field'           => "body",
+                                     'field_value'     => "",
+                                     'object'          => "",
+                                     'property'        => "http://purl.org/dc/elements/1.1/description",
+                                     'object_type'     => "literal",
+								     'lookupcode'      => "value",
+                                     'fc_fields'       => "",
+                                     ),
+                                     
+                               // REFERENCE SOURCE URL
+
+                               array('title'           => "Reference source URL",
+                                     'description'     => "Source URL of a reference",
+                                     'node_type'       => "reference",
+                                     'field'           => "field_reference_source",
+                                     'field_value'     => "",
+                                     'object'          => "",
+                                     'property'        => "http://www.w3.org/2000/01/rdf-schema#seeAlso",
+                                     'object_type'     => "uri",
+                                     'lookupcode'      => "url",
+                                     'fc_fields'       => "",
+                                     ),
+                                     
+                               //STORY SECTION HAVING OBJECT STORIES, EVENTS, OS POSITION AND TITLE/DESC
+                               array('title'           => "Section type",
+                                     'description'     => "The node is of type StorySection",
+                                     'node_type'       => "section",
+                                     'field'           => "",
+                                     'field_value'     => "",
+                                     'object'          => "http://decipher.open.ac.uk/curate/ontology/StorySection",
+                                     'property'        => "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+                                     'object_type'     => "uri",
+                                     'lookupcode'      => "",
+                                     'fc_fields'       => "",
+                                     ),
+
+                               array('title'           => "Section title",
+                                     'description'     => "Title field of the section",
+                                     'node_type'       => "section",
+                                     'field'           => "title",
+                                     'field_value'     => "",
+                                     'object'          => "",
+                                     'property'        => "http://purl.org/dc/elements/1.1/title",
+                                     'object_type'     => "literal",
+                                     'lookupcode'      => "",
+                                     'fc_fields'       => "",
+                                     ),
+
+                               array('title'           => "Section description",
+                                     'description'     => "Body (description) field of a section",
+                                     'node_type'       => "section",
+                                     'field'           => "body",
+                                     'field_value'     => "",
+                                     'object'          => "",
+                                     'property'        => "http://purl.org/dc/elements/1.1/description",
+                                     'object_type'     => "literal",
+                                     'lookupcode'      => "value",
+                                     'fc_fields'       => "",
+                                     ),                            
+
+                               array('title'           => "Story section events",
+                                     'description'     => "Events of a story section",
+                                     'node_type'       => "section",
+                                     'field'           => "field_story_events",
+                                     'field_value'     => "",
+                                     'object'          => "",
+                                     'property'        => "",
+                                     'object_type'     => "",
+                                     'lookupcode'      => "custom",
+                                     'fc_fields'       => "",
+                                     ),
+
+                               array('title'           => "Story section object stories",
+                                     'description'     => "Object stories of a story section",
+                                     'node_type'       => "section",
+                                     'field'           => "field_story_set",
+                                     'field_value'     => "",
+                                     'object'          => "",
+                                     'property'        => "",
+                                     'object_type'     => "",
+                                     'lookupcode'      => "custom",
+                                     'fc_fields'       => "",
+                                     ),
+                                                                          
+                               //STORY HAVING TITLE, DESCRIPTION, SECTIONS (IN STORYLINES)
+                               array('title'           => "Story type",
+                                     'description'     => "The node is of type Story",
+                                     'node_type'       => "story",
+                                     'field'           => "",
+                                     'field_value'     => "",
+                                     'object'          => "http://decipher.open.ac.uk/curate/ontology/Story",
+                                     'property'        => "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+                                     'object_type'     => "uri",
+                                     'lookupcode'      => "",
+                                     'fc_fields'       => "",
+                                     ),
+
+                               array('title'           => "Story title",
+                                     'description'     => "Title field of the story",
+                                     'node_type'       => "story",
+                                     'field'           => "title",
+                                     'field_value'     => "",
+                                     'object'          => "",
+                                     'property'        => "http://purl.org/dc/elements/1.1/title",
+                                     'object_type'     => "literal",
+                                     'lookupcode'      => "",
+                                     'fc_fields'       => "",
+                                     ),
+
+                               array('title'           => "Story description",
+                                     'description'     => "Body (description) field of a story",
+                                     'node_type'       => "story",
+                                     'field'           => "body",
+                                     'field_value'     => "",
+                                     'object'          => "",
+                                     'property'        => "http://purl.org/dc/elements/1.1/description",
+                                     'object_type'     => "literal",
+                                     'lookupcode'      => "value",
+                                     'fc_fields'       => "",
+                                     ),
+                                                                   
+                               array('title'           => "Story having object stories",
+                                     'description'     => "Object stories of a story",
+                                     'node_type'       => "story",
+                                     'field'           => "field_story_sections",
+                                     'field_value'     => "",
+                                     'object'          => "",
+                                     'property'        => "",
+                                     'object_type'     => "",
+                                     'lookupcode'      => "custom",
+                                     'fc_fields'       => "",
+                                     ),
+
+                               // FREEBASEIZED FIELDS COMING FROM FIELD COLLECTIONS
+                               //
+                               // These include: 
+                               // field_fb_agent_topic
+                               // field_fb_agent_mid
+                               // field_fb_agent_birth_date
+                               // field_fb_agent_death_date
+                               // ...
+
+                               // http://decipher.open.ac.uk/curate/ontology/hasAgentName
+                               array('title'           => "Field Collection Agent Topic",
+                                     'description'     => "Agent topic as a string",
+                                     'node_type'       => "",
+                                     'field'           => "field_fb_agent_topic",
+                                     'field_value'     => "",
+                                     'object'          => "",
+                                     'property'        => "http://www.w3.org/2000/01/rdf-schema#label",
+                                     'object_type'     => "literal",
+                                     'lookupcode'      => "value",
+                                     'fc_fields'       => "",
+                                     ),
+
+                               array('title'           => "Field Collection Agent MID",
+                                     'description'     => "Agent as a Freebase URI",
+                                     'node_type'       => "",
+                                     'field'           => "field_fb_agent_mid",
+                                     'field_value'     => "",
+                                     'object'          => "",
+                                     'property'        => "http://decipher.open.ac.uk/curate/ontology/hasAgent",
+                                     'object_type'     => "uri",
+                                     'lookupcode'      => "value",
+                                     'fc_fields'       => "",
+                                     ),
+
+                               // http://decipher.open.ac.uk/curate/ontology/hasAgentBirthDate
+                               array('title'           => "Field Collection Agent Birth Date",
+                                     'description'     => "Agent Birth Date",
+                                     'node_type'       => "",
+                                     'field'           => "field_fb_agent_birth_date",
+                                     'field_value'     => "",
+                                     'object'          => "",
+                                     'property'        => "http://rdf.freebase.com/ns/people.person.date_of_birth",
+                                     'object_type'     => "literal datatype=\"xsd:dateTime\"",
+                                     'lookupcode'      => "value",
+                                     'fc_fields'       => "",
+                                     ),
+
+                               // http://decipher.open.ac.uk/curate/ontology/hasAgentDeathDate
+                               array('title'           => "Field Collection Agent Death Date",
+                                     'description'     => "Agent Death Date",
+                                     'node_type'       => "",
+                                     'field'           => "field_fb_agent_death_date",
+                                     'field_value'     => "",
+                                     'object'          => "",
+                                     'property'        => "http://rdf.freebase.com/ns/people.deceased_person.date_of_death",
+                                     'object_type'     => "literal datatype=\"xsd:dateTime\"",
+                                     'lookupcode'      => "value",
+                                     'fc_fields'       => "",
+                                     ),
+
+                               // http://decipher.open.ac.uk/curate/ontology/hasLocationName
+                               array('title'           => "Field Collection Location Topic",
+                                     'description'     => "Location topic as a string",
+                                     'node_type'       => "",
+                                     'field'           => "field_fb_location_topic",
+                                     'field_value'     => "",
+                                     'object'          => "",
+                                     'property'        => "http://www.w3.org/2000/01/rdf-schema#label",
+                                     'object_type'     => "literal",
+                                     'lookupcode'      => "value",
+                                     'fc_fields'       => "",
+                                     ),
+
+                               array('title'           => "Field Collection Location MID",
+                                     'description'     => "Location as a Freebase URI",
+                                     'node_type'       => "",
+                                     'field'           => "field_fb_location_mid",
+                                     'field_value'     => "",
+                                     'object'          => "",
+                                     'property'        => "http://decipher.open.ac.uk/curate/ontology/hasLocation",
+                                     'object_type'     => "uri",
+                                     'lookupcode'      => "value",
+                                     'fc_fields'       => "",
+                                     ),
+
+                               // http://decipher.open.ac.uk/curate/ontology/hasGeolocation
+                               array('title'           => "Field Collection Geolocation",
+                                     'description'     => "Geolocation as a Freebase URI",
+                                     'node_type'       => "",
+                                     'field'           => "field_fb_geolocation",
+                                     'field_value'     => "",
+                                     'object'          => "",
+                                     'property'        => "http://rdf.freebase.com/ns/location.geocode",
+                                     'object_type'     => "literal",
+                                     'lookupcode'      => "geom",
+                                     'fc_fields'       => "",
+                                     ),
+
+                               array('title'           => "Field Collection Country Topic",
+                                     'description'     => "Country topic as a string",
+                                     'node_type'       => "",
+                                     'field'           => "field_fb_country_topic",
+                                     'field_value'     => "",
+                                     'object'          => "",
+                                     'property'        => "http://www.w3.org/2000/01/rdf-schema#label",
+                                     'object_type'     => "literal",
+                                     'lookupcode'      => "value",
+                                     'fc_fields'       => "",
+                                     ),
+
+                               array('title'           => "Field Collection Country MID",
+                                     'description'     => "Country as a Freebase URI",
+                                     'node_type'       => "",
+                                     'field'           => "field_fb_country_mid",
+                                     'field_value'     => "",
+                                     'object'          => "",
+                                     'property'        => "http://decipher.open.ac.uk/curate/ontology/hasCountryOfOrigin",
+                                     'object_type'     => "uri",
+                                     'lookupcode'      => "value",
+                                     'fc_fields'       => "",
+                                     ),
+
+                               // http://decipher.open.ac.uk/curate/ontology/hasGenreName
+                               array('title'           => "Field Collection Genre Topic",
+                                     'description'     => "Genre topic as a string",
+                                     'node_type'       => "",
+                                     'field'           => "field_fb_genre_topic",
+                                     'field_value'     => "",
+                                     'object'          => "",
+                                     'property'        => "http://www.w3.org/2000/01/rdf-schema#label",
+                                     'object_type'     => "literal",
+                                     'lookupcode'      => "value",
+                                     'fc_fields'       => "",
+                                     ),
+
+                               array('title'           => "Field Collection Genre MID",
+                                     'description'     => "Genre as a Freebase URI",
+                                     'node_type'       => "",
+                                     'field'           => "field_fb_genre_mid",
+                                     'field_value'     => "",
+                                     'object'          => "",
+                                     'property'        => "http://decipher.open.ac.uk/curate/ontology/hasGenre",
+                                     'object_type'     => "uri",
+                                     'lookupcode'      => "value",
+                                     'fc_fields'       => "",
+                                     ),
+
+                               // http://decipher.open.ac.uk/curate/ontology/hasClassificationName
+                               array('title'           => "Field Collection Classification Topic",
+                                     'description'     => "Classification topic as a string",
+                                     'node_type'       => "",
+                                     'field'           => "field_fb_classification_topic",
+                                     'field_value'     => "",
+                                     'object'          => "",
+                                     'property'        => "http://www.w3.org/2000/01/rdf-schema#label",
+                                     'object_type'     => "literal",
+                                     'lookupcode'      => "value",
+                                     'fc_fields'       => "",
+                                     ),
+
+                               array('title'           => "Field Collection Classification MID",
+                                     'description'     => "Classification as a Freebase URI",
+                                     'node_type'       => "",
+                                     'field'           => "field_fb_classification_mid",
+                                     'field_value'     => "",
+                                     'object'          => "",
+                                     'property'        => "http://decipher.open.ac.uk/curate/ontology/hasClassification",
+                                     'object_type'     => "uri",
+                                     'lookupcode'      => "value",
+                                     'fc_fields'       => "",
+                                     ),
+
+                               // http://decipher.open.ac.uk/curate/ontology/hasStyleMovementName
+                               array('title'           => "Field Collection Style Movement Topic",
+                                     'description'     => "Style_Movement topic as a string",
+                                     'node_type'       => "",
+                                     'field'           => "field_fb_style_movement_topic",
+                                     'field_value'     => "",
+                                     'object'          => "",
+                                     'property'        => "http://www.w3.org/2000/01/rdf-schema#label",
+                                     'object_type'     => "literal",
+                                     'lookupcode'      => "value",
+                                     'fc_fields'       => "",
+                                     ),
+
+                               array('title'           => "Field Collection Style_Movement MID",
+                                     'description'     => "Style_Movement as a Freebase URI",
+                                     'node_type'       => "",
+                                     'field'           => "field_fb_style_movement_mid",
+                                     'field_value'     => "",
+                                     'object'          => "",
+                                     'property'        => "http://decipher.open.ac.uk/curate/ontology/hasStyleMovement",
+                                     'object_type'     => "uri",
+                                     'lookupcode'      => "value",
+                                     'fc_fields'       => "",
+                                     ),
+
+                               array('title'           => "Field Collection Materials Topic",
+                                     'description'     => "Materials topic as a string",
+                                     'node_type'       => "",
+                                     'field'           => "field_fb_materials_topic",
+                                     'field_value'     => "",
+                                     'object'          => "",
+                                     'property'        => "http://decipher.open.ac.uk/curate/ontology/hasMaterialsName",
+                                     'object_type'     => "literal",
+                                     'lookupcode'      => "value",
+                                     'fc_fields'       => "",
+                                     ),
+
+                               array('title'           => "Field Collection Materials MID",
+                                     'description'     => "Materials as a Freebase URI",
+                                     'node_type'       => "",
+                                     'field'           => "field_fb_materials_mid",
+                                     'field_value'     => "",
+                                     'object'          => "",
+                                     'property'        => "http://decipher.open.ac.uk/curate/ontology/hasMaterials",
+                                     'object_type'     => "uri",
+                                     'lookupcode'      => "value",
+                                     'fc_fields'       => "",
+                                     ),
+
+                               // Is this the right way to handle Value?
+
+                               // http://decipher.open.ac.uk/curate/ontology/hasValueAmount
+                               array('title'           => "Field Collection Value",
+                                     'description'     => "Value (numeric quantity) as a string",
+                                     'node_type'       => "",
+                                     'field'           => "field_fb_value",
+                                     'field_value'     => "",
+                                     'object'          => "",
+                                     'property'        => "http://www.cidoc-crm.org/rdfs/cidoc_crm_v5.0.2_english_label.rdfs#P90F.has_value",
+                                     'object_type'     => "literal",
+                                     'lookupcode'      => "value",
+                                     'fc_fields'       => "",
+                                     ),
+
+                               // http://decipher.open.ac.uk/curate/ontology/hasValueCurrencyName
+                               array('title'           => "Field Collection Currency Topic",
+                                     'description'     => "Currency topic as a string",
+                                     'node_type'       => "",
+                                     'field'           => "field_fb_currency_topic",
+                                     'field_value'     => "",
+                                     'object'          => "",
+                                     'property'        => "http://www.w3.org/2000/01/rdf-schema#label",
+                                     'object_type'     => "literal",
+                                     'lookupcode'      => "value",
+                                     'fc_fields'       => "",
+                                     ),
+
+                               // http://decipher.open.ac.uk/curate/ontology/hasValueCurrency
+                               array('title'           => "Field Collection Currency MID",
+                                     'description'     => "Currency as a Freebase URI",
+                                     'node_type'       => "",
+                                     'field'           => "field_fb_currency_mid",
+                                     'field_value'     => "",
+                                     'object'          => "",
+                                     'property'        => "http://www.cidoc-crm.org/rdfs/cidoc_crm_v5.0.2_english_label.rdfs#P91F.has_unit",
+                                     'object_type'     => "uri",
+                                     'lookupcode'      => "value",
+                                     'fc_fields'       => "",
+                                     ),
+
+                               // http://decipher.open.ac.uk/curate/ontology/hasTagsName
+                               array('title'           => "Field Collection Tags Topic",
+                                     'description'     => "Tags topic as a string",
+                                     'node_type'       => "",
+                                     'field'           => "field_fb_tags_topic",
+                                     'field_value'     => "",
+                                     'object'          => "",
+                                     'property'        => "http://www.w3.org/2000/01/rdf-schema#label",
+                                     'object_type'     => "literal",
+                                     'lookupcode'      => "value",
+                                     'fc_fields'       => "",
+                                     ),
+
+                               // http://decipher.open.ac.uk/curate/ontology/hasTags
+                               array('title'           => "Field Collection Tags MID",
+                                     'description'     => "Tags as a Freebase URI",
+                                     'node_type'       => "",
+                                     'field'           => "field_fb_tags_mid",
+                                     'field_value'     => "",
+                                     'object'          => "",
+                                     'property'        => "http://www.w3.org/2000/01/rdf-schema#seeAlso",
+                                     'object_type'     => "uri",
+                                     'lookupcode'      => "value",
+                                     'fc_fields'       => "",
+                                     ),
+
+                               // http://decipher.open.ac.uk/curate/ontology/hasObjectIdentifierName
+                               array('title'           => "Field Collection Object Identifier Topic",
+                                     'description'     => "Object Identifier topic as a string",
+                                     'node_type'       => "",
+                                     'field'           => "field_fb_object_identifier_topic",
+                                     'field_value'     => "",
+                                     'object'          => "",
+                                     'property'        => "http://www.w3.org/2000/01/rdf-schema#label",
+                                     'object_type'     => "literal",
+                                     'lookupcode'      => "value",
+                                     'fc_fields'       => "",
+                                     ),
+
+                               // http://decipher.open.ac.uk/curate/ontology/hasObjectIdentifier
+                               array('title'           => "Field Collection Object Identifier MID",
+                                     'description'     => "Object Identifier as a Freebase URI",
+                                     'node_type'       => "",
+                                     'field'           => "field_fb_object_identifier_mid",
+                                     'field_value'     => "",
+                                     'object'          => "",
+                                     'property'        => "http://www.w3.org/2002/07/owl#sameAs",
+                                     'object_type'     => "uri",
+                                     'lookupcode'      => "value",
+                                     'fc_fields'       => "",
+                                     ),
+                                     
+                               );
+
+  foreach ($rdfinfo as $info) {
+    db_merge('dec_rdf_property_mapping')
+      ->key(array('node_type'=>$info['node_type'],
+                  'field'=>$info['field'],
+                  'field_value' => $info['field_value']))
+      ->fields(array('title'=> $info['title'],
+                     'description'=> $info['description'],
+                     'object' => $info['object'],
+                     'property' => $info['property'],
+                     'object_type' => $info['object_type'],
+                     'lookupcode' => $info['lookupcode'],
+                     'fc_fields' => $info['fc_fields'],
+                     ))
+      ->execute();
+  }
+}
+
+function dec_rdf_uninstall() {
+  db_query('DROP TABLE {dec_rdf_property_mapping}');
+  variable_del('dec_triple_store');
+  variable_del('dec_triple_repo');
+  variable_del('dec_triples_base_url');
+}

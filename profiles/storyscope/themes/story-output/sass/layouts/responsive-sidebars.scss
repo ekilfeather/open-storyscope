@@ -1,0 +1,470 @@
+/**
+ * @file
+ * Positioning for responsive layout .
+ *
+ * Define CSS classes to create a table-free, 3-column, 2-column, or single
+ * column layout depending on whether blocks are enabled in the left or right
+ * columns.
+ *
+ * This layout uses the Zen Grids plugin for Compass: http://zengrids.com
+ */
+
+@import "base";
+@import "compass/typography/lists/bullets";
+
+
+// We are going to create a 980px wide, 5 column grid with 20px gutters between
+// columns (applied as 10px of left/right padding on each column).
+$zen-column-count:  4;
+$zen-gutter-width:  20px;
+
+
+// IE6-7 don't support box-sizing: border-box. We can fix this in 1 of 3 ways:
+// - Drop support for IE 6/7. :-) In the _base.scss, set $legacy-support-for-ie6
+//   and $legacy-support-for-ie7 to false.
+// - (Preferred) Install the box-sizing polyfill and set the variable below to
+//   the absolute path URL to the boxsizing.htc file.
+//   @see https://github.com/Schepp/box-sizing-polyfill
+// - Use the same CSS unit for grid width and gutter width (use px for both or
+//   use % for both, etc.) and set the box-sizing variable to content-box.
+//   $zen-box-sizing: content-box;
+
+
+// You can generate more efficient CSS if you manually apply the
+// zen-grid-item-base mixin to all grid items from within a single ruleset.
+$zen-auto-include-item-base: false;
+// $zen-auto-include-flow-item-base: false;
+
+
+/*
+ * Center the page.
+ */
+
+#page,
+.region-bottom {
+  /* For screen sizes larger than 1200px, prevent excessively long lines of text
+     by setting a max-width. */
+  margin-left: auto;
+  margin-right: auto;
+  max-width: 1200px;
+}
+
+/*
+ * Apply the shared properties of grid items in a single, efficient ruleset.
+ */
+// See the note about $zen-auto-include-item-base above.
+
+#header,
+#content,
+.region-sidebar-first,
+.region-sidebar-second,
+#footer {
+  @include zen-grid-item-base();
+}
+
+/*
+ * Containers for grid items and flow items.
+ */
+
+#header,
+#main,
+#footer {
+  @include zen-grid-container();
+}
+
+.view-footer,
+.view-header {
+  @include clearfix();
+}
+
+/*
+ * Navigation bar
+ */
+
+@media all and (max-width: 480px) {
+  li.article figure,
+  article.node-teaser .field-name-field-image,
+  article.build-mode-teaser figure {
+    width: 25%;
+  }
+}
+
+/* Pseudo resources should be in a UL  with class .resources */
+ul.resources {
+  @include no-bullets();
+  padding: 0;
+  margin: 0
+}
+
+@media all and (min-width: 480px) and (max-width: 759px) {
+  /*
+   * Use 2 grid columns for medium screens.
+   */
+  $zen-column-count: 4;
+  .resource-container {
+    @include zen-nested-container(); // Since we're making every block in this region be a grid item.
+    &.narrow-items article,
+    &.narrow-items li.article {
+      @include zen-grid-item-base();
+        &:nth-child(2n+1) { /* Span 1 column, starting in the 1st column from left. */
+          @include zen-grid-item(2, 1);
+          @include zen-clear();
+        }
+        &:nth-child(2n) { /* Span 1 column, starting in the 1st column from left. */
+          @include zen-grid-item(2, 3);
+        }
+    }
+  }
+  
+}
+
+@media all and (min-width: 760px) {
+  /*
+   * Use 4 grid columns for larger screens.
+   */
+  #page,
+    .region-bottom {
+      /* For screen sizes larger than 1200px, prevent excessively long lines of text
+         by setting a max-width. */
+      margin-left: auto;
+      margin-right: auto;
+      max-width: 960px;
+      padding-bottom: 10%;
+    }
+  $zen-column-count: 4;
+  div#page-leader{
+    margin: 1em 0;
+    padding-top: 3em;
+    position: relative;
+  }
+  #logout {
+    position: absolute;
+    right: 1em;
+    top: 0;
+  }
+  #header {
+    padding-top: 4em;
+    @include zen-clear();
+    @include zen-grid-item(1, 4);
+    @include zen-grid-item-base();
+  }
+  #navigation {
+    @include zen-grid-item(3, 1);
+    @include zen-grid-item-base();
+    #main-menu {
+      @include padding-leader(1);
+      padding-top: 25px;
+    }
+    ul.links {
+      margin: 0;
+    }
+  }
+  div.tabs {
+   @include zen-nested-container(); // Since we're making every block in this region be a grid item.
+   position: relative;
+   //margin-top: 10px;
+   @include clearfix;
+    $zen-column-count: 16;
+    h1.title {
+      //@include zen-grid-item(10, 1);
+      @include zen-grid-item-base();
+    }
+    ul.tabs {
+      position: absolute;
+      bottom: 0;
+      right: 0;
+    }
+  }
+
+  // Show sidebar second on the right
+  body.sidebar-second {
+    $zen-column-count: 4;
+    #content{
+      @include zen-grid-item(3, 1);
+    }
+    .region-sidebar-second {
+      @include zen-grid-item(1, 4);
+        .item-list{
+          ul{
+            li{
+              list-style: none;
+            }
+          }
+          
+        }
+    }
+  }
+
+  $zen-column-count: 4;
+  .resource-container {
+      @include zen-nested-container(); // Since we're making every block in this region be a grid item.
+      &.container-full.narrow-items article,
+      &.container-full.narrow-items li.article {
+        h2 {
+          font-size: 1em;
+        }
+      @include zen-grid-item-base();
+        &:nth-child(4n+1) { /* Span 1 column, starting in the 1st column from left. */
+          @include zen-grid-item(1, 1);
+          @include zen-clear();
+          padding-left: 0;
+        }
+        &:nth-child(4n+2) {
+          @include zen-grid-item(1, 2);
+        }
+        &:nth-child(4n+3) {
+          @include zen-grid-item(1, 3);
+        }
+        &:nth-child(4n) {
+          @include zen-grid-item(1, 4);
+          padding-right: 0;
+        }
+        &.highlight-image{
+          padding: 0;
+        }
+      }
+      &.container-full.wide-items article,
+      &.container-full.wide-items li.article {
+        @include zen-grid-item-base();
+        &:nth-child(2n+1) { /* Span 2 column, starting in the 1st column from left. */
+          @include zen-grid-item(2, 1);
+          @include zen-clear();
+          padding-left: 0;
+        }
+        &:nth-child(2n) {
+          @include zen-grid-item(2, 3);
+          padding-right: 0;
+        }
+        &:nth-child(-n+2) {
+        }
+      }
+    /* Nested items */
+    .container-inner{
+        @include zen-grid-item-base();
+        @include zen-nested-container();
+        &:nth-child(2n+1) { /* Span 2 column, starting in the 1st column from left. */
+          @include zen-grid-item(2, 1);
+          @include zen-clear();
+          padding-left: 0;
+        }
+        &:nth-child(2n) {
+          @include zen-grid-item(2, 3);
+          padding-right: 0;
+        }
+      .narrow-items article,
+      .narrow-items li.article {
+        $zen-column-count: 2;
+        @include zen-grid-item-base();
+          &:nth-child(2n+1) { /* Span 1 column, starting in the 1st column from left. */
+            @include zen-grid-item(1, 1);
+            @include zen-clear();
+            padding-left: 0;
+          }
+          &:nth-child(2n+2) {
+            @include zen-grid-item(1, 2);
+            padding-right: 0;
+          }
+          &.highlight-image{
+            padding: 0;
+          }
+      }
+    }
+  }
+  .facet-management {
+    @include clearfix();
+    table {
+    border-collapse: separate;
+    border-spacing: 0 1em;
+      &:nth-child(2n+1) { /* Span 1 column, starting in the 1st column from left. */
+        @include zen-grid-item(1, 1);
+        @include zen-clear();
+        padding-right: 1em;
+      }
+      &:nth-child(2n+2) {
+        @include zen-grid-item(1, 2);
+      }
+      td {
+        padding: 0.5em;
+      }
+    }
+  }
+  // Plot pages
+  .plot-container {
+    position: relative;
+    $zen-column-count: 2;
+    div.exhibit-viewPanel {
+      @include zen-grid-item-base();
+      @include zen-grid-item(1, 1);
+      @include zen-clear();
+      padding-left: 0;
+      ol.exhibit-tileView-body {
+        @include clearfix();
+        li {
+          &:nth-child(2n+1) { /* Span 1 column, starting in the 1st column from left. */
+            @include zen-grid-item(1, 1);
+            @include zen-clear();
+            padding-right: 1em;
+          }
+          &:nth-child(2n+2) {
+            @include zen-grid-item(1, 2);
+          }
+        }
+      }
+    }
+    div.events {
+      &:nth-child(2n+1) { /* Span 1 column, starting in the 1st column from left. */
+        @include zen-grid-item(1, 1);
+        @include zen-clear();
+        padding-right: 1em;
+      }
+      &:nth-child(2n+2) {
+        @include zen-grid-item(1, 2);
+      }
+    }
+    div.elements-container {
+      @include zen-grid-item-base();
+      @include zen-grid-item(1, 2);
+      position: absolute;
+      top: 550px;
+    }
+  }
+}
+
+/*
+ * Comment title field
+ */
+
+@media all and (max-width: 650px) {
+  .comment-form #edit-subject {
+    width: 95%;
+  }
+}
+
+/**
+ * Media Element
+ */
+li.article,
+article.node-teaser_suggested,
+article.node-teaser {
+  .field-name-field-image,
+  figure {
+    float: left;
+    margin-right: 10px;
+  }
+  .content {
+    @include clearfix;
+  }
+}
+article.highlight-image {
+  .article-inner{
+    position: relative;
+  }
+  figure{
+    text-align: center;
+  }
+  .content{
+    position: absolute;
+    bottom: 0;
+    background-color: rgba(0,0,0,0.75);
+    padding: 0.5em;
+    color: #fff;
+    & a {
+      color: inherit;
+    }
+    }
+}
+// Hide and display overlay for non-touch
+.no-touch .highlight-image{
+  .content{
+    width: 100%;
+    margin: 0;
+    padding: 0;
+    p, h2 {
+      padding: 0.25em 0.5em;
+    }
+    opacity: 0;
+    @include transition-property(opacity);
+    @include transition-duration(0.5s);
+    @include transition-timing-function(ease-in);
+    }
+  &:hover .content{
+    opacity:1;
+  }
+}
+article.node-type-dec-object {
+  .media-container {
+    figure {
+      float: left;
+      margin-right: 10px;
+    }
+   .meta-content {
+     @include clearfix;
+     margin-top: 10em;
+   }
+  }
+}
+.view-workspace article {
+  float: left;
+}
+li.article {
+  figure {
+    width: 25%;
+  }
+  h2 {
+    margin-top: 0;
+  }
+  p {
+    margin-bottom: 0.5em;
+    span.label {
+      font-weight: bold;
+    }
+  }
+}
+/*
+// Layout of Story section
+.node-type-section,
+.page-dossiers-stories-sections {
+  $zen-column-count: 4;
+  .pane-objects-pane-object-details {
+    @include zen-grid-item-base();
+    @include zen-grid-item(2, 1);
+  }
+  .pane-views-object-object-stories-section-object-object-stories-pane {
+    @include zen-grid-item-base();
+    @include zen-grid-item(2, 3);
+   }
+  .pane-dossier-events-search-api-dossier-events-pane {
+    @include zen-grid-item-base();
+    @include zen-clear();
+    @include zen-grid-item(3, 1);
+  }
+  .pane-facetapi {
+    @include zen-grid-item-base();
+    @include zen-clear(right);
+    @include zen-grid-item(1, 1, right);
+  }
+  // Write Page
+  .middle-wrapper{
+    $zen-column-count: 12;
+    .pane-section-events-panel-pane-section-events {
+      @include zen-grid-item-base();
+      @include zen-grid-item(5, 1);
+    }
+    .pane-form {
+      @include zen-grid-item-base();
+      @include zen-grid-item(7, 6);
+    }
+  }
+  .form-field-name-field-story-set {
+    @include zen-nested-container(); // Since we're making every block in this region be a grid item.
+    .field-name-field-story-set-object {
+      @include zen-grid-item-base();
+      @include zen-grid-item(2, 1);
+    }
+    .field-name-field-story-set-snapshot-os{
+      @include zen-grid-item-base();
+      @include zen-grid-item(10, 3);
+    }
+  }
+}
+*/

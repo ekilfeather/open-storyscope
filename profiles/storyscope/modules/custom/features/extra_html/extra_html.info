@@ -1,0 +1,14 @@
+name = Extra HTML
+description = Editor Filter Format  and wysiwyg Profile
+core = 7.x
+package = Features
+php = 5.2.4
+version = master-dev
+project = annerprofile
+dependencies[] = entity
+dependencies[] = features
+dependencies[] = media
+dependencies[] = wysiwyg
+datestamp = 1354881032
+features[features_api][] = api:1
+features[filter][] = extra_html

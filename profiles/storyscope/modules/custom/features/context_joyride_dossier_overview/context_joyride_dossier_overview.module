@@ -1,0 +1,7 @@
+<?php
+/**
+ * @file
+ * Code for the Context Joyride - Dossier Overview feature.
+ */
+
+include_once 'context_joyride_dossier_overview.features.inc';

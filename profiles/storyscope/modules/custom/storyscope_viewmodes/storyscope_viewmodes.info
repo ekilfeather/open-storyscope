@@ -1,0 +1,4 @@
+core = "7.x"
+description = "View mode definitions for content types."
+name = "Storyscope Viewmodes"
+package = Storyscope

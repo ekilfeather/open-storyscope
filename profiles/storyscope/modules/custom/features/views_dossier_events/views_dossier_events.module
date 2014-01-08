@@ -1,0 +1,7 @@
+<?php
+/**
+ * @file
+ * Code for the Views dossier events feature.
+ */
+
+include_once 'views_dossier_events.features.inc';

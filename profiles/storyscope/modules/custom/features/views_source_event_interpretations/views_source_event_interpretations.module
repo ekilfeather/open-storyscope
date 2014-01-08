@@ -1,0 +1,7 @@
+<?php
+/**
+ * @file
+ * Code for the Views source event interpretations feature.
+ */
+
+include_once 'views_source_event_interpretations.features.inc';

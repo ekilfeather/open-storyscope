@@ -1,0 +1,7 @@
+<?php
+/**
+ * @file
+ * Code for the Search - object story add ca objects feature.
+ */
+
+include_once 'search_object_story_add_ca_objects.features.inc';

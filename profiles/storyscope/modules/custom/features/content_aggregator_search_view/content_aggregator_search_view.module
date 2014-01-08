@@ -1,0 +1,7 @@
+<?php
+/**
+ * @file
+ * Code for the Content Aggregator Search View feature.
+ */
+
+include_once 'content_aggregator_search_view.features.inc';
